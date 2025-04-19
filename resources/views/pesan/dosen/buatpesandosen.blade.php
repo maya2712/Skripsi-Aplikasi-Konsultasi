@@ -1,334 +1,523 @@
-
 @extends('layouts.app')
 
 @section('title', 'Buat Pesan Dosen')
 @push('styles')
     <style>
-        .gradient-text {
-            background: linear-gradient(to right, #059669, #2563eb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        :root {
+            --bs-primary: #1a73e8;
+            --bs-danger: #FF5252;
+            --bs-success: #27AE60;
         }
-        .btn-gradient {
-            background: linear-gradient(to right, #4ade80, #3b82f6);
+        
+        body {
+            background-color: #F5F7FA;
+            font-size: 13px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding-top: 20px; 
+            padding-bottom: 20px; 
+        }
+        
+        .tab-penerima {
+            border-radius: 5px;
+            padding: 8px 15px;
+            background: transparent;
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .tab-penerima.active {
+            background: linear-gradient(to right, #9fa4a9, #838f87);
+            color: white;
             border: none;
-            color: white;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative; 
-            z-index: 1; 
-            cursor: pointer; 
         }
-        .btn-gradient a {
-            color: white;
-            text-decoration: none;
+        
+        .form-header {
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #dee2e6;
         }
+        
+        .btn-gradient {
+            background: linear-gradient(to right, #004AAD, #5DE0E6);
+            color: white;
+            border: none;
+        }
+        
         .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to right, #1558b7, #1558b7);
+            color: white;
         }
-        .select2-container {
-            width: 100% !important;
+        
+        .btn-kembali {
+            background: linear-gradient(to right, #004AAD, #5DE0E6);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            width: fit-content;
         }
-        .batch-selection {
-            border: 1px solid #ced4da;
-            border-radius: 0.375rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        
+        .btn-kembali:hover {
+            background: linear-gradient(to right, #1558b7, #1558b7);
+            color: white;
         }
-        .batch-selection h5 {
-            margin-bottom: 1rem;
-            color: #495057;
+        
+        .form-label {
+            font-weight: 500;
         }
-        .recipients-preview {
-            margin-top: 1rem;
-            padding: 0.5rem;
-            background-color: #f8f9fa;
-            border-radius: 0.375rem;
-            max-height: 150px;
+        
+        .required-field:after {
+            content: "*";
+            color: red;
+        }
+        
+        #daftarAngkatan, #daftarMahasiswa {
+            display: none;
+            margin-top: 15px;
+            position: relative;
+        }
+        
+        .dropdown-priority {
+            max-height: 200px;
             overflow-y: auto;
         }
-        .select2-container--default .select2-selection--multiple {
-            border-color: #ced4da !important;
+        
+        .penerima-tag {
+            display: inline-block;
+            background-color: #e9f2ff;
+            border: 1px solid #c2dcff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .penerima-tag .close {
+            margin-left: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .penerima-tag .close:hover {
+            opacity: 1;
+        }
+        
+        #selectedPenerima {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            min-height: 50px;
+            background-color: #f8f9fa;
+        }
+        
+        .checkbox-angkatan {
+            margin-bottom: 5px;
+        }
+        
+        .checkbox-angkatan .form-check-input:checked {
+            background-color: #1a73e8;
+            border-color: #1a73e8;
+        }
+
+        #hasilPencarianMahasiswa {
+            display: none;
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: white;
+            cursor: pointer;
+        }
+
+        .custom-select::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .font-size-10 {
+            font-size: 10px !important;
         }
     </style>
-    @endpush
+@endpush
 
-    
-    @section('content')
-    <!-- Main Content -->
-    <div class="container mt-5">
-        <h1 class="mb-2 gradient-text fw-bold">Buat Pesan Baru</h1>
-        <hr>
-        <button class="btn btn-gradient mb-4 mt-2">
-            <a href="/dashboardpesan" class="d-flex align-items-center">
-                <i class="fas fa-arrow-left me-2"></i> Kembali
-            </a>
-        </button>
-
-        <form id="messageForm">
-            <div class="mb-3">
-                <label for="subject" class="form-label fw-bold">Subjek<span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="subject" placeholder="Isi subjek" required>
+@section('content')
+<div class="main-content">
+    <div class="container">
+        <h4 class="form-header">Buat Pesan Baru</h4>
+        
+        <a href="{{ route('back') }}" class="btn-kembali">
+            <i class="fas fa-arrow-left me-2"></i> Kembali
+        </a>
+        
+        <form id="formPesan">
+            <div class="mb-4">
+                <label for="subjek" class="form-label required-field fs-6">Subjek</label>
+                <div class="custom-select">
+                    <select class="form-select text-muted small" id="subjek" required>
+                        <option value="" disabled selected>Masukkan subjek</option>
+                        <option value="Bimbingan KRS">Bimbingan KRS</option>
+                        <option value="Bimbingan KP">Bimbingan KP</option>
+                        <option value="Bimbingan Skripsi">Bimbingan Skripsi</option>
+                        <option value="Bimbingan MBKM">Bimbingan MBKM</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
             </div>
-
-            <!-- Bagian Pemilihan Penerima -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Pilih Penerima<span class="text-danger">*</span></label>
-                
-                <!-- Tab untuk memilih mode pengiriman -->
-                <ul class="nav nav-tabs mb-3" id="recipientTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="individual-tab" data-bs-toggle="tab" data-bs-target="#individual" type="button" role="tab">Mahasiswa Individual</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="batch-tab" data-bs-toggle="tab" data-bs-target="#batch" type="button" role="tab">Berdasarkan Angkatan</button>
-                    </li>
-                </ul>
-
-                <!-- Konten Tab -->
-                <div class="tab-content" id="recipientTabsContent">
-                    <!-- Tab Mahasiswa Individual -->
-                    <div class="tab-pane fade show active" id="individual" role="tabpanel">
-                        <select class="form-control" id="individualStudents" multiple="multiple">
-                            <!-- Options akan diisi melalui JavaScript -->
-                        </select>
+            
+            <div class="mb-4">
+                <label class="form-label required-field fs-6">Penerima</label>
+                <div class="d-flex gap-3">
+                    <div class="tab-penerima active" id="tabIndividual" onclick="switchTab('individual')">
+                        Mahasiswa Individual
                     </div>
-
-                    <!-- Tab Berdasarkan Angkatan -->
-                    <div class="tab-pane fade" id="batch" role="tabpanel">
-                        <div class="batch-selection">
-                            <h5 class="mb-3">Pilih Angkatan:</h5>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input batch-checkbox" type="checkbox" value="2021" id="batch2021">
-                                        <label class="form-check-label" for="batch2021">
-                                            Angkatan 2021
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input batch-checkbox" type="checkbox" value="2022" id="batch2022">
-                                        <label class="form-check-label" for="batch2022">
-                                            Angkatan 2022
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input batch-checkbox" type="checkbox" value="2023" id="batch2023">
-                                        <label class="form-check-label" for="batch2023">
-                                            Angkatan 2023
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input batch-checkbox" type="checkbox" value="2024" id="batch2024">
-                                        <label class="form-check-label" for="batch2024">
-                                            Angkatan 2024
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="tab-penerima" id="tabAngkatan" onclick="switchTab('angkatan')">
+                        Berdasarkan Angkatan
+                    </div>
+                </div>
+                
+                <!-- Form Mahasiswa Individual -->
+                <div id="daftarMahasiswa" class="mt-3">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="searchMahasiswa" placeholder="Cari mahasiswa..." oninput="searchMahasiswa(this.value)">
+                        <button class="btn btn-outline-secondary" type="button" id="buttonSearchMahasiswa">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="list-group" id="hasilPencarianMahasiswa">
+                        <!-- Hasil pencarian akan ditampilkan di sini -->
+                    </div>
+                </div>
+                
+                <!-- Form Angkatan -->
+                <div id="daftarAngkatan" class="mt-3">
+                    <div class="mb-3">
+                        <div class="form-check checkbox-angkatan">
+                            <input class="form-check-input" type="checkbox" id="angkatanAll" onclick="pilihSemuaAngkatan()">
+                            <label class="form-check-label" for="angkatanAll">
+                                <strong>Semua Angkatan</strong>
+                            </label>
                         </div>
-                        <div class="recipients-preview" id="batchPreview">
-                            <p class="text-muted mb-0">Mahasiswa yang dipilih akan muncul di sini...</p>
+                        <hr>
+                        <div class="form-check checkbox-angkatan">
+                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2019" onclick="updateAngkatanSelection('2019', 'Angkatan 2019')">
+                            <label class="form-check-label" for="angkatan2019">
+                                Angkatan 2019
+                            </label>
+                        </div>
+                        <div class="form-check checkbox-angkatan">
+                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2020" onclick="updateAngkatanSelection('2020', 'Angkatan 2020')">
+                            <label class="form-check-label" for="angkatan2020">
+                                Angkatan 2020
+                            </label>
+                        </div>
+                        <div class="form-check checkbox-angkatan">
+                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2021" onclick="updateAngkatanSelection('2021', 'Angkatan 2021')">
+                            <label class="form-check-label" for="angkatan2021">
+                                Angkatan 2021
+                            </label>
+                        </div>
+                        <div class="form-check checkbox-angkatan">
+                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2022" onclick="updateAngkatanSelection('2022', 'Angkatan 2022')">
+                            <label class="form-check-label" for="angkatan2022">
+                                Angkatan 2022
+                            </label>
+                        </div>
+                        <div class="form-check checkbox-angkatan">
+                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2023" onclick="updateAngkatanSelection('2023', 'Angkatan 2023')">
+                            <label class="form-check-label" for="angkatan2023">
+                                Angkatan 2023
+                            </label>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Tampilkan penerima yang sudah dipilih -->
+                <div id="selectedPenerima" class="mt-3">
+                    <!-- Penerima yang dipilih akan ditampilkan di sini -->
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="priority" class="form-label fw-bold">Prioritas<span class="text-danger">*</span></label>
-                <select class="form-select" id="priority" required>
-                    <option value="" selected disabled>Pilih Prioritas</option>
-                    <option value="high">Mendesak</option>
-                    <option value="medium">Umum</option>
-                </select>
+            
+            <div class="mb-4">
+                <label for="prioritas" class="form-label required-field fs-6">Prioritas</label>
+                <div class="custom-select">
+                    <select class="form-select text-muted small" id="prioritas" required>
+                        <option value="" disabled selected>Masukkan prioritas</option>
+                        <option value="Penting">Penting</option>
+                        <option value="Umum">Umum</option>
+                    </select>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="attachment" class="form-label fw-bold">Lampiran (Opsional)</label>
-                <input type="text" class="form-control" id="attachment" placeholder="Isi lampiran berupa link Google Drive">
+            
+            <div class="mb-4">
+                <label for="lampiran" class="form-label fs-6">Lampiran (Link Google Drive)</label>
+                <input type="url" class="form-control" id="lampiran" placeholder="Masukkan link Google Drive">
             </div>
-
-            <div class="mb-3">
-                <label for="message" class="form-label fw-bold">Pesan<span class="text-danger">*</span></label>
-                <textarea class="form-control" id="message" rows="5" placeholder="Isi pesan" required></textarea>
+            
+            <div class="mb-4">
+                <label for="pesanText" class="form-label required-field fs-6">Pesan</label>
+                <textarea class="form-control" id="pesanText" rows="8" placeholder="Tulis pesan Anda di sini..." required></textarea>
             </div>
-
-            <div class="text-end">
-                <button type="submit" class="btn btn-gradient">Kirim</button>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-gradient px-4 py-2">
+                    Kirim
+                </button>
             </div>
         </form>
     </div>
-    @endsection
+</div>
+@endsection
 
+@push('scripts')
+<script>
+    // Menyimpan daftar penerima
+    let daftarPenerima = {};
 
-   <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    @push('scripts') 
-    <script>
-        $(document).ready(function() {
-            // Data mahasiswa (contoh)
-            const studentsData = {
-                '2021': [
-                    { id: '1', name: ' Syahirah Tri Meilina - 2021', nim: ' 2107110255' },
-                    { id: '2', name: 'Cut Muthia Ramadhani  - 2021', nim: '2107110257' },
-                    { id: '3', name: 'Syazliana Nuro - 2021', nim: '2107110256' },
-                    { id: '4', name: 'Desi Maya Sari - 2021', nim: '2107110665' },
-                    { id: '5', name: 'Tri Murniati - 2021', nim: '2107112735' },
-                    { id: '6', name: 'Sherly Ratna Musva - 2021', nim: '2107110670' }
-                ],
-                '2022': [
-                    { id: '7', name: 'Reza Ramadhani Putra - 2022', nim: '2207111389' },
-                    { id: '8', name: 'Edi Putra Yuni - 2022', nim: '2207111395' },
-                    { id: '9', name: 'Fatimah Azzahra - 2022', nim: '2207125072' },
-                    { id: '10', name: 'Dinda Wulandari  - 2022', nim: ' 2207125080' }
-                ],
-                '2023': [
-                    { id: '11', name: 'Indah Permata - 2023', nim: '23000111' },
-                    { id: '12', name: 'Joko Widodo - 2023', nim: '23000112' },
-                    { id: '13', name: 'Kartika Sari - 2023', nim: '23000113' },
-                    { id: '14', name: 'Reza Puta - 2023', nim: '23000114' }
-                ],
-                '2024': [
-                    { id: '15', name: 'Maya Angelina - 2024', nim: '24000111' },
-                    { id: '16', name: 'Naufal Ahmad - 2024', nim: '24000112' },
-                    { id: '17', name: 'Olivia Putri - 2024', nim: '24000113' },
-                    { id: '18', name: 'Pandu Wijaya - 2024', nim: '24000114' }
-                ]
-            };
+    // Data mahasiswa untuk simulasi pencarian
+    const dataMahasiswa = [
+        {id: 'M001', nama: 'Desi Maya Sari', nim: '2055301140'},
+        {id: 'M002', nama: 'Ahmad Fauzi', nim: '2055301141'},
+        {id: 'M003', nama: 'Rina Wijaya', nim: '2055301142'},
+        {id: 'M004', nama: 'Budi Santoso', nim: '2055301143'},
+        {id: 'M005', nama: 'Putri Amelia', nim: '2055301144'},
+        {id: 'M006', nama: 'Sarah Annisa', nim: '2055301145'},
+        {id: 'M007', nama: 'Muhammad Rizki', nim: '2055301146'},
+        {id: 'M008', nama: 'Indah Permata', nim: '2055301147'},
+        {id: 'M009', nama: 'Farhan Malik', nim: '2055301148'},
+        {id: 'M010', nama: 'Nova Diana', nim: '2055301149'}
+    ];
 
-            // Inisialisasi Select2 untuk pemilihan mahasiswa individual
-            $('#individualStudents').select2({
-                placeholder: 'Ketik nama atau NIM mahasiswa',
-                allowClear: true,
-                data: Object.values(studentsData).flat().map(student => ({
-                    id: student.id,
-                    text: `${student.name} (${student.nim})`
-                })),
-                matcher: function(params, data) {
-                    // Jika tidak ada pencarian, tampilkan semua opsi
-                    if ($.trim(params.term) === '') {
-                        return data;
-                    }
+    // Fungsi untuk beralih antar tab
+    function switchTab(tabType) {
+        // Reset tampilan tab
+        document.getElementById('tabIndividual').classList.remove('active');
+        document.getElementById('tabAngkatan').classList.remove('active');
+        document.getElementById('daftarMahasiswa').style.display = 'none';
+        document.getElementById('daftarAngkatan').style.display = 'none';
+        
+        // Hapus semua penerima yang sudah dipilih sebelumnya
+        daftarPenerima = {};
+        renderPenerima();
+        
+        // Reset checkbox angkatan
+        if (tabType === 'individual') {
+            document.getElementById('tabIndividual').classList.add('active');
+            document.getElementById('daftarMahasiswa').style.display = 'block';
+            // Reset input pencarian
+            document.getElementById('searchMahasiswa').value = '';
+        } else if (tabType === 'angkatan') {
+            document.getElementById('tabAngkatan').classList.add('active');
+            document.getElementById('daftarAngkatan').style.display = 'block';
+            // Reset semua checkbox angkatan
+            document.getElementById('angkatanAll').checked = false;
+            document.querySelectorAll('.angkatan-checkbox').forEach(cb => cb.checked = false);
+        }
+    }
 
-                    // Jika ada pencarian, lakukan pencocokan
-                    if (typeof data.text === 'undefined') {
-                        return null;
-                    }
-
-                    // Ubah ke lowercase untuk pencarian yang tidak case sensitive
-                    const searchTerm = params.term.toLowerCase();
-                    const text = data.text.toLowerCase();
-
-                    // Cek apakah teks mengandung kata pencarian
-                    if (text.indexOf(searchTerm) > -1) {
-                        return data;
-                    }
-
-                    return null;
-                }
-            });
-
-            // Fungsi untuk memperbarui preview mahasiswa berdasarkan angkatan
-            function updateBatchPreview() {
-                const selectedBatches = [];
-                $('.batch-checkbox:checked').each(function() {
-                    selectedBatches.push($(this).val());
-                });
-
-                const previewElement = $('#batchPreview');
-                if (selectedBatches.length === 0) {
-                    previewElement.html('<p class="text-muted mb-0">Mahasiswa yang dipilih akan muncul di sini...</p>');
-                    return;
-                }
-
-                let previewHtml = '<div class="selected-students">';
-                let totalStudents = 0;
-
-                selectedBatches.forEach(batch => {
-                    const students = studentsData[batch];
-                    totalStudents += students.length;
-                    previewHtml += `<h6 class="mt-2">Angkatan ${batch}:</h6><ul class="list-unstyled ms-3">`;
-                    students.forEach(student => {
-                        previewHtml += `<li>${student.name} (${student.nim})</li>`;
-                    });
-                    previewHtml += '</ul>';
-                });
-
-                previewHtml += `<p class="mt-3 fw-bold">Total: ${totalStudents} mahasiswa</p></div>`;
-                previewElement.html(previewHtml);
-            }
-
-            // Event listener untuk checkbox angkatan
-            $('.batch-checkbox').change(function() {
-                updateBatchPreview();
-            });
-
-            // Event listener untuk pengiriman form
-            $('#messageForm').submit(function(e) {
-                e.preventDefault();
-
-                // Mengumpulkan data penerima
-                let recipients = [];
-                const activeTab = $('#recipientTabs .nav-link.active').attr('id');
-
-                if (activeTab === 'individual-tab') {
-                    recipients = $('#individualStudents').select2('data').map(item => ({
-                        id: item.id,
-                        name: item.text
-                    }));
-                } else {
-                    $('.batch-checkbox:checked').each(function() {
-                        const batch = $(this).val();
-                        recipients = recipients.concat(studentsData[batch]);
-                    });
-                }
-
-                // Validasi penerima
-                if (recipients.length === 0) {
-                    alert('Silakan pilih minimal satu penerima pesan');
-                    return;
-                }
-
-                // Mengumpulkan data form
-                const formData = {
-                    subject: $('#subject').val(),
-                    recipients: recipients,
-                    priority: $('#priority').val(),
-                    attachment: $('#attachment').val(),
-                    message: $('#message').val()
-                };
-
-                // Log data form (untuk keperluan development)
-                console.log('Form Data:', formData);
-
-                // Di sini Anda bisa menambahkan kode untuk mengirim data ke server
-                alert('Pesan berhasil dikirim ke ' + recipients.length + ' mahasiswa');
-                
-                // Reset form
-                this.reset();
-                $('#individualStudents').val(null).trigger('change');
-                $('.batch-checkbox').prop('checked', false);
-                updateBatchPreview();
-            });
-
-            // Mengatur warna teks untuk select priority
-            const prioritySelect = document.getElementById('priority');
-            prioritySelect.addEventListener('change', function() {
-                this.style.color = this.value === "" ? "#6c757d" : "black";
-            });
-
-            // Mengatur warna awal
-            if (prioritySelect.value === "") {
-                prioritySelect.style.color = "#6c757d";
+    // Fungsi untuk memilih semua angkatan
+    function pilihSemuaAngkatan() {
+        const isChecked = document.getElementById('angkatanAll').checked;
+        const angkatanCheckboxes = document.querySelectorAll('.angkatan-checkbox');
+        
+        angkatanCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+            
+            if (isChecked) {
+                const id = checkbox.id.replace('angkatan', '');
+                const nama = checkbox.nextElementSibling.textContent.trim();
+                updateAngkatanSelection(id, nama);
+            } else {
+                const id = checkbox.id.replace('angkatan', '');
+                hapusPenerima('A' + id);
             }
         });
-    </script>
-    @endpush
+    }
+
+    // Fungsi untuk memperbarui pilihan angkatan
+    function updateAngkatanSelection(angkatanId, angkatanNama) {
+        const checkbox = document.getElementById('angkatan' + angkatanId);
+        
+        if (checkbox.checked) {
+            tambahPenerima('A' + angkatanId, angkatanNama, 'angkatan');
+        } else {
+            hapusPenerima('A' + angkatanId);
+            document.getElementById('angkatanAll').checked = false;
+        }
+    }
+
+    // Fungsi untuk menambah penerima
+    function tambahPenerima(id, nama, tipe = 'mahasiswa') {
+        if (!daftarPenerima[id]) {
+            daftarPenerima[id] = {id, nama, tipe};
+            renderPenerima();
+        }
+    }
+
+    // Fungsi untuk menghapus penerima
+    function hapusPenerima(id) {
+        if (daftarPenerima[id]) {
+            delete daftarPenerima[id];
+            renderPenerima();
+            
+            if (id.startsWith('A')) {
+                const angkatanId = id.substring(1);
+                document.getElementById('angkatan' + angkatanId).checked = false;
+            }
+        }
+    }
+
+    // Fungsi untuk merender daftar penerima
+    function renderPenerima() {
+        const container = document.getElementById('selectedPenerima');
+        container.innerHTML = '';
+        
+        if (Object.keys(daftarPenerima).length === 0) {
+            container.innerHTML = '<p class="text-muted mb-0">Belum ada penerima yang dipilih</p>';
+            return;
+        }
+        
+        for (const id in daftarPenerima) {
+            const penerima = daftarPenerima[id];
+            const tag = document.createElement('div');
+            tag.className = 'penerima-tag';
+            tag.innerHTML = `${penerima.nama} <span class="close" onclick="hapusPenerima('${id}')">&times;</span>`;
+            container.appendChild(tag);
+        }
+    }
+
+    // Fungsi untuk pencarian mahasiswa
+    function searchMahasiswa(keyword) {
+        const hasilPencarianContainer = document.getElementById('hasilPencarianMahasiswa');
+        
+        if (keyword.length < 1) {
+            hasilPencarianContainer.style.display = 'none';
+            return;
+        }
+
+        keyword = keyword.toLowerCase();
+        const hasilPencarian = dataMahasiswa.filter(mhs => {
+            return mhs.nama.toLowerCase().includes(keyword) || 
+                mhs.nim.includes(keyword);
+        });
+        
+        hasilPencarianContainer.style.display = 'block';
+        hasilPencarianContainer.innerHTML = '';
+        
+        if (hasilPencarian.length === 0) {
+            hasilPencarianContainer.innerHTML = '<div class="list-group-item">Tidak ada hasil</div>';
+        } else {
+            hasilPencarian.forEach(mhs => {
+                const item = document.createElement('a');
+                item.href = '#';
+                item.className = 'list-group-item list-group-item-action';
+                item.textContent = `${mhs.nama} - ${mhs.nim}`;
+                item.onclick = function(e) {
+                    e.preventDefault();
+                    tambahPenerima(mhs.id, mhs.nama);
+                    document.getElementById('searchMahasiswa').value = '';
+                    hasilPencarianContainer.style.display = 'none';
+                };
+                hasilPencarianContainer.appendChild(item);
+            });
+        }
+    }
+
+    // Event listener untuk tombol search
+    document.getElementById('buttonSearchMahasiswa').addEventListener('click', function() {
+        const keyword = document.getElementById('searchMahasiswa').value;
+        if (keyword) {
+            searchMahasiswa(keyword);
+        }
+    });
+
+    // Event listener untuk form submission
+    document.getElementById('formPesan').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (Object.keys(daftarPenerima).length === 0) {
+            alert('Pilih minimal satu penerima');
+            return false;
+        }
+        
+        // Tampilkan data untuk demo
+        console.log('Data pesan:', {
+            subjek: document.getElementById('subjek').value,
+            penerima: Object.values(daftarPenerima),
+            prioritas: document.getElementById('prioritas').value,
+            lampiran: document.getElementById('lampiran').value,
+            pesan: document.getElementById('pesanText').value
+        });
+        
+        alert('Pesan berhasil dikirim!');
+        
+        // Reset form
+        this.reset();
+        daftarPenerima = {};
+        renderPenerima();
+        document.querySelectorAll('.angkatan-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('angkatanAll').checked = false;
+        document.getElementById('hasilPencarianMahasiswa').style.display = 'none';
+    });
+
+    // Close hasil pencarian when clicking outside
+    document.addEventListener('click', function(e) {
+        const searchContainer = document.getElementById('daftarMahasiswa');
+        const hasilPencarian = document.getElementById('hasilPencarianMahasiswa');
+        
+        if (!searchContainer.contains(e.target)) {
+            hasilPencarian.style.display = 'none';
+        }
+    });
+
+    // Inisialisasi tampilan
+    document.addEventListener('DOMContentLoaded', function() {
+        switchTab('individual');
+        renderPenerima();
+    });
+</script>
+@endpush

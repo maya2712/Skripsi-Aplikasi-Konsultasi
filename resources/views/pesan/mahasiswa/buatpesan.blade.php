@@ -56,7 +56,7 @@
         <h1 class="mb-2 gradient-text fw-bold">Buat Pesan Baru</h1>
         <hr></hr>
         <button class="btn btn-gradient mb-4 mt-2 d-flex align-items-center justify-content-center">
-            <a href="/dashboardpesan">
+            <a href="{{ App\Helpers\RouteHelper::getPreviousUrl() }}" class="btn-kembali">
                 <i class="fas fa-arrow-left me-2"></i> Kembali
             </a>
         </button>

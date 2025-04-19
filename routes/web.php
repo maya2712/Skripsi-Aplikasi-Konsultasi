@@ -14,54 +14,96 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
-// Route untuk pesanan
-Route::get('/dashboardpesanmahasiswa', function () {
-    return view('pesan.mahasiswa.dashboardpesanmahasiswa');
+// Route dashboard yang memerlukan autentikasi dan mencegah kembali setelah logout
+Route::middleware(['auth:mahasiswa,dosen', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
+    Route::get('/dashboardpesanmahasiswa', function () {
+        return view('pesan.mahasiswa.dashboardpesanmahasiswa');
+    })->name('mahasiswa.dashboard.pesan');
+
+    Route::get('/buatpesan', function () {
+        return view('pesan.mahasiswa.buatpesan');
+    });
+
+    Route::get('/isipesan', function () {
+        return view('pesan.mahasiswa.isipesan');
+    });
+
+    Route::get('/dashboardpesan', function () {
+        return view('pesan.dashboardpesan');
+    });
+
+    Route::get('/dashboardpesandosen', function () {
+        return view('pesan.dosen.dashboardpesandosen');
+    });
+
+    Route::get('/buatpesandosen', function () {
+        return view('pesan.dosen.buatpesandosen');
+    });
+
+    Route::get('/buatgrupbaru', function () {
+        return view('pesan.dosen.buatgrupbaru');
+    });
+
+    Route::get('/isipesandosen', function () {
+        return view('pesan.dosen.isipesandosen');
+    });
+    
+    // Route back
+   // Route back
+Route::get('/back', function () {
+    $routeStack = session()->get('routeStack', []);
+    
+    // Debug: Lihat isi stack
+    // dd($routeStack);
+    
+    if (count($routeStack) >= 2) {
+        // Hapus URL terakhir (URL saat ini) dari stack
+        array_pop($routeStack);
+        
+        // Ambil URL untuk redirect (URL sebelumnya)
+        $previousUrl = end($routeStack);
+        
+        // Hapus URL saat ini dari stack (koreksi)
+        session()->put('routeStack', $routeStack);
+        
+        // Pastikan URL valid
+        if (!empty($previousUrl)) {
+            return redirect($previousUrl);
+        }
+    }
+    
+    // Fallback jika tidak ada history
+    if (auth()->guard('dosen')->check()) {
+        return redirect('/dashboardpesandosen');
+    } else {
+        return redirect('/dashboardpesanmahasiswa');
+    }
+})->name('back');
+
 });
 
-Route::get('/buatpesan', function () {
-    return view('pesan.mahasiswa.buatpesan');
-});
-
-Route::get('/isipesan', function () {
-    return view('pesan.mahasiswa.isipesan');
-});
-
-Route::get('/dashboardpesan', function () {
-    return view('pesan.dashboardpesan');
-});
-
-Route::get('/dashboardpesandosen', function () {
-    return view('pesan.dosen.dashboardpesandosen');
-});
-
-Route::get('/buatpesandosen', function () {
-    return view('pesan.dosen.buatpesandosen');
-});
-
-Route::get('/isipesandosen', function () {
-    return view('pesan.dosen.isipesandosen');
-});
-
-Route::get('/profilmahasiswa', function(){
+// Route lainnya
+Route::get('/profilmahasiswa', function () {
     return view('bimbingan.mahasiswa.profilmahasiswa');
-  });
+});
 
-  Route::get('/gantipassword', function(){
+Route::get('/gantipassword', function () {
     return view('bimbingan.mahasiswa.gantipassword');
-  });
+});
 
-Route::get('/contohdashboard', function(){
+Route::get('/contohdashboard', function () {
     return view('pesan.contohdashboard');
 });
 
-Route::get('/datausulanbimbingan', function(){
+Route::get('/datausulanbimbingan', function () {
     return view('bimbingan.admin.datausulanbimbingan');
 });
 
 // Route untuk mahasiswa
 Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () {
-    Route::get('/riwayatmahasiswa', function(){ return view('bimbingan.riwayatmahasiswa'); });
+    Route::get('/riwayatmahasiswa', function () {
+        return view('bimbingan.riwayatmahasiswa');
+    });
 
     Route::controller(MahasiswaController::class)->group(function () {
         Route::get('/usulanbimbingan', 'index')->name('mahasiswa.usulanbimbingan');
@@ -80,22 +122,39 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
         Route::get('/check', 'checkAvailability')->name('pilihjadwal.check');
         Route::post('/create-event/{usulanId}', 'createGoogleCalendarEvent')->name('pilihjadwal.create-event');
     });
-    
+
     Route::controller(GoogleCalendarController::class)->prefix('mahasiswa')->group(function () {
-        Route::get('/google/connect','connect')->name('mahasiswa.google.connect');
-        Route::get('/google/callback','callback')->name('mahasiswa.google.callback');
+        Route::get('/google/connect', 'connect')->name('mahasiswa.google.connect');
+        Route::get('/google/callback', 'callback')->name('mahasiswa.google.callback');
     });
 });
 
 // Route untuk dosen
 Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
-    // Route view biasa
-    Route::get('/persetujuan', function() { return view('bimbingan.dosen.persetujuan'); })->name('dosen.persetujuan');
-    Route::get('/riwayatdosen', function(){ return view('bimbingan.riwayatdosen'); });
-    Route::get('/terimausulanbimbingan', function(){ return view('bimbingan.dosen.terimausulanbimbingan'); });
-    Route::get('/editusulan', function(){ return view('bimbingan.dosen.editusulan'); });
+    Route::get('/persetujuan', function () {
+        return view('bimbingan.dosen.persetujuan');
+    });
 
-    // Jadwal routes
+    Route::get('/riwayatdosen', function () {
+        return view('bimbingan.riwayatdosen');
+    });
+
+    Route::get('/riwayatpesandosen', function () {
+        return view('pesan.dosen.riwayatpesandosen');
+    });
+
+    Route::get('/faqdosen', function () {
+        return view('pesan.dosen.faq_dosen');
+    });
+
+    Route::get('/terimausulanbimbingan', function () {
+        return view('bimbingan.dosen.terimausulanbimbingan');
+    });
+
+    Route::get('/editusulan', function () {
+        return view('bimbingan.dosen.editusulan');
+    });
+
     Route::controller(MasukkanJadwalController::class)->prefix('masukkanjadwal')->group(function () {
         Route::get('/', 'index')->name('dosen.jadwal.index');
         Route::post('/store', 'store')->name('dosen.jadwal.store');

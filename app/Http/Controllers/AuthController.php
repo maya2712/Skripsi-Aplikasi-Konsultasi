@@ -33,7 +33,7 @@ class AuthController extends Controller
             Auth::guard('mahasiswa')->login($mahasiswa);
             session(['role' => 'mahasiswa']);
             Log::info('Login berhasil untuk mahasiswa: ' . $mahasiswa->nim);
-            return redirect('/usulanbimbingan');
+            return redirect('/dashboardpesanmahasiswa');
         }
 
         // Cek dosen
@@ -42,7 +42,7 @@ class AuthController extends Controller
             Auth::guard('dosen')->login($dosen);
             session(['role' => 'dosen']);
             Log::info('Login berhasil untuk dosen: ' . $dosen->nip);
-            return redirect('/persetujuan');
+            return redirect('/dashboardpesandosen');
         }
 
         // Jika login gagal
@@ -55,13 +55,22 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request)
-    {
-        if (Auth::guard('mahasiswa')->check()) {
-            Auth::guard('mahasiswa')->logout();
-        } else if (Auth::guard('dosen')->check()) {
-            Auth::guard('dosen')->logout();
-        }
-        
-        return redirect()->route('login');
+{
+    if (Auth::guard('mahasiswa')->check()) {
+        Auth::guard('mahasiswa')->logout();
+    } else if (Auth::guard('dosen')->check()) {
+        Auth::guard('dosen')->logout();
     }
+    
+    // Invalidate session
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    
+    // Redirect dengan header khusus untuk mencegah caching
+    return redirect()->route('login')
+        ->with('success', 'Anda telah berhasil keluar dari sistem.')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+}
 }

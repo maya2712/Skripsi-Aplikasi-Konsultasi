@@ -16,7 +16,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #00923F 0%, #006428 100%);
+            background: linear-gradient(135deg, #0a3b5c 0%, #4b9ed0 100%);
             overflow-x: hidden;
         }
 
@@ -43,7 +43,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%2300923F' fill-opacity='0.05' d='M0,96L48,122.7C96,149,192,203,288,208C384,213,480,171,576,138.7C672,107,768,85,864,96C960,107,1056,149,1152,154.7C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") no-repeat top;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%230a3b5c' fill-opacity='0.05' d='M0,96L48,122.7C96,149,192,203,288,208C384,213,480,171,576,138.7C672,107,768,85,864,96C960,107,1056,149,1152,154.7C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") no-repeat top;
             background-size: cover;
             z-index: 0;
         }
@@ -79,20 +79,19 @@
             transform: translateX(-50%);
             width: 50%;
             height: 3px;
-            background: linear-gradient(90deg, transparent, #00923F, transparent);
+            background: linear-gradient(90deg, transparent, #0a3b5c, transparent);
         }
 
         .form-floating > .form-control {
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             transition: all 0.3s ease;
+            background-image: none !important; /* Menghilangkan ikon validasi bawaan Bootstrap */
         }
 
+        /* Menyembunyikan semua ikon bawaan browser pada input */
         .form-floating input::-ms-reveal,
-        .form-floating input::-ms-clear {
-            display: none;
-        }
-
+        .form-floating input::-ms-clear,
         .form-floating input::-webkit-contacts-auto-fill-button,
         .form-floating input::-webkit-credentials-auto-fill-button {
             visibility: hidden;
@@ -102,9 +101,63 @@
             width: 0;
             margin: 0;
         }
+        
+        /* Mematikan styling validasi bawaan Bootstrap */
+        .form-control.is-valid,
+        .was-validated .form-control:valid,
+        .form-control.is-invalid,
+        .was-validated .form-control:invalid {
+            background-image: none !important;
+            border-color: #e0e0e0 !important;
+            padding-right: calc(1.5em + 0.75rem) !important;
+        }
+        
+        /* Kustom styling untuk tombol toggle password */
+        .password-toggle-btn {
+            background: none !important;
+            border: none !important;
+            position: absolute !important;
+            right: 10px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            color: #6c757d !important;
+            cursor: pointer !important;
+            z-index: 5 !important;
+            width: 36px !important;
+            height: 36px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        /* Focus state untuk input */
+        .form-control:focus {
+            border-color: #0a3b5c !important;
+            box-shadow: 0 0 0 0.25rem rgba(10, 59, 92, 0.15) !important;
+        }
+        
+        /* Styling untuk feedback validasi */
+        .custom-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+        
+        .custom-invalid-feedback {
+            color: #dc3545;
+        }
+        
+        .custom-valid-feedback {
+            color: #0a3b5c;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
 
         .btn-success {
-            background: linear-gradient(135deg, #00923F 0%, #007F36 100%);
+            background: linear-gradient(135deg, #0a3b5c 0%, #3c8dbc 100%);
             border: none;
             border-radius: 12px;
             padding: 0.8rem;
@@ -115,7 +168,7 @@
 
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 146, 63, 0.2);
+            box-shadow: 0 8px 16px rgba(10, 59, 92, 0.2);
         }
 
         .alert {
@@ -130,16 +183,16 @@
         }
 
         .alert-success {
-            border-left: 4px solid #00923F;
+            border-left: 4px solid #0a3b5c;
         }
 
         .developer-link {
-            color: #00923F;
+            color: #0a3b5c;
             transition: all 0.3s ease;
         }
 
         .developer-link:hover {
-            color: #007F36;
+            color: #3c8dbc;
             text-decoration: none !important;
         }
 
@@ -157,7 +210,7 @@
             top: 0;
             left: 0;
             z-index: -1;
-            background: linear-gradient(135deg, #00923F 0%, #006428 100%);
+            background: linear-gradient(135deg, #0a3b5c 0%, #3c8dbc 100%);
         }
 
         .animated-bg::after {
@@ -192,13 +245,13 @@
                                     <div id="carouselExampleControls" class="carousel slide h-100" data-bs-ride="carousel">
                                         <div class="carousel-inner h-100">
                                             <div class="carousel-item active h-100">
-                                                <img src="{{ asset('images/1.png') }}" class="d-block w-100 h-100" alt="Slide 1" style="object-fit: contain;">
+                                                <img src="{{ asset('images/bg1.jpg') }}" class="d-block w-100 h-100" alt="Slide 1" style="object-fit: contain;">
                                             </div>
                                             <div class="carousel-item h-100">
-                                                <img src="{{ asset('images/2.png') }}" class="d-block w-100 h-100" alt="Slide 2" style="object-fit: contain;">
+                                                <img src="{{ asset('images/bg2.jpg') }}" class="d-block w-100 h-100" alt="Slide 2" style="object-fit: contain;">
                                             </div>
                                             <div class="carousel-item h-100">
-                                                <img src="{{ asset('images/3.png') }}" class="d-block w-100 h-100" alt="Slide 3" style="object-fit: contain;">
+                                                <img src="{{ asset('images/bg3.jpg') }}" class="d-block w-100 h-100" alt="Slide 3" style="object-fit: contain;">
                                             </div>
                                         </div>
                                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
@@ -217,8 +270,8 @@
                                 <div class="form-section">
                                     <div class="logo-section text-center">
                                         <img src="{{ asset('images/logounri.png') }}" alt="logo_unri" width="80" height="80" class="img-fluid mb-3">
-                                        <h4 class="fw-bold mb-0">Sistem Informasi</h4>
-                                        <p class="mb-0">Teknik Elektro & Informatika</p>
+                                        <h4 class="fw-bold mb-0">Sistem Elektronik</h4>
+                                        <p class="mb-0">Program Studi Teknik Infomatika</p>
                                     </div>
 
                                     @if ($errors->any())
@@ -235,30 +288,41 @@
 
                                     <form class="needs-validation" action="/login" method="POST" novalidate>
                                         @csrf
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control @error('username') is-invalid @enderror" name="username" id="username" placeholder="NIP/NIM" value="{{ old('username') }}" required autocomplete="username" autofocus>
+                                        <div class="form-floating mb-3 input-with-icon">
+                                            <input type="text" 
+                                                class="form-control" 
+                                                name="username" 
+                                                id="username" 
+                                                placeholder="NIP/NIM" 
+                                                value="{{ old('username') }}" 
+                                                required 
+                                                autocomplete="username" 
+                                                autofocus>
                                             <label for="username">NIP/NIM <span class="text-danger">*</span></label>
                                             @error('username')
-                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="custom-feedback custom-invalid-feedback d-block">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                                </div>
                                             @enderror
                                         </div>
 
-                                        <div class="form-floating mb-4 position-relative">
+                                        <div class="form-floating mb-4 input-with-icon">
                                             <input type="password" 
-                                                class="form-control @error('password') is-invalid @enderror" 
+                                                class="form-control" 
                                                 name="password" 
                                                 id="password" 
                                                 placeholder="Password" 
                                                 required>
                                             <label for="password">Password <span class="text-danger">*</span></label>
                                             <button type="button" 
-                                                    class="password-toggle-btn" 
-                                                    id="togglePassword" 
-                                                    style="background: none; border: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #6c757d; cursor: pointer; z-index: 100;">
+                                                   class="password-toggle-btn" 
+                                                   id="togglePassword">
                                                 <i class="fas fa-eye-slash"></i>
                                             </button>
                                             @error('password')
-                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="custom-feedback custom-invalid-feedback d-block">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                                </div>
                                             @enderror
                                         </div>
 
@@ -276,10 +340,10 @@
                                         <div class="text-center pt-3 border-top">
                                             <small class="text-muted d-block mb-1">Dikembangkan oleh:</small>
                                             <a href="/developer" class="developer-link text-decoration-none fw-semibold">
-                                                DESI, MURNI, SYAHIRAH
+                                                DESI MAYA SARI
                                             </a>
                                             <div class="mt-2">
-                                                <small class="text-muted">2024 © SITEI JTE UNRI</small>
+                                                <small class="text-muted">2025 © SEPTI JTE UNRI</small>
                                             </div>
                                         </div>
                                     </form>
@@ -295,7 +359,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Password Toggle
+        // Password Toggle yang lebih baik
         document.getElementById("togglePassword").addEventListener("click", function(e) {
             e.preventDefault();
             const passwordInput = document.getElementById("password");
@@ -312,18 +376,40 @@
             }
         });
 
-        // Form Validation
+        // Form Validation kustom yang tidak menambahkan ikon validasi
         (function() {
             'use strict';
-            const forms = document.querySelectorAll('.needs-validation');
-            Array.from(forms).forEach(form => {
-                form.addEventListener('submit', event => {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
+            const form = document.querySelector('form.needs-validation');
+            const inputs = form.querySelectorAll('input');
+            
+            // Tambahkan event listener untuk validasi kustom
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+                
+                // Cek validitas setiap input
+                inputs.forEach(input => {
+                    if (!input.validity.valid) {
+                        isValid = false;
                     }
-                    form.classList.add('was-validated');
-                }, false);
+                });
+                
+                // Jika form tidak valid, hindari pengiriman
+                if (!isValid) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                // Hindari menambahkan class was-validated
+                // form.classList.add('was-validated');
+            });
+            
+            // Hapus visual feedback pada saat input
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Jangan tambahkan class apapun untuk validasi
+                    input.classList.remove('is-valid');
+                    input.classList.remove('is-invalid');
+                });
             });
         })();
 

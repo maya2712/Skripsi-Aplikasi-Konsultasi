@@ -1,347 +1,1059 @@
 @extends('layouts.app')
-
-@section('title', 'Isi Pesan Dosen')
-
+@section('title', 'Isi Pesan')
 @push('styles')
     <style>
-    .btn-gradient a {
-        color: white;
-        text-decoration: none;
-    }
-    .btn-gradient:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .btn-gradient:hover a{
-        color: black;
-    }
-    .main-content {
-        padding: 20px 0 0 0;
-    }
-    .btn-kembali {
-        background: linear-gradient(to right, #4ade80, #3b82f6);
-        color: white;
-        font-weight: bold;
-        border: none;
-        transition: all 0.3s ease;
-    }
-    .btn-kembali:hover {
-        background-color: #218838;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,.1);
-    }
-    .message-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,.1);
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-    .message-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0,0,0,.15);
-    }
-    .message-card.student {
-        border-left: 5px solid #28a745;
-    }
-    .message-card.teacher {
-        border-left: 5px solid #007bff;
-    }
-    .message-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    .message-header .name {
-        font-weight: bold;
-        font-size: 18px;
-    }
-    .message-header .name.student {
-        color: #28a745;
-    }
-    .message-header .name.teacher {
-        color: #007bff;
-    }
-    .message-body {
-        font-size: 16px;
-        color: #333;
-    }
-    .teacher-card {
-        background-color: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,.1);
-        padding: 20px;
-        margin-bottom: 20px;
-        position: sticky;
-        top: 90px;
-    }
-    .teacher-photo {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 15px;
-        border: 4px solid #28a745;
-    }
-    .teacher-info {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    .teacher-name {
-        font-weight: bold;
-        font-size: 20px;
-        margin-bottom: 5px;
-        color: #28a745;
-    }
-    .teacher-id {
-        color: #6c757d;
-        margin-bottom: 10px;
-        font-size: 16px;
-    }
-    .info-table {
-        width: 100%;
-        margin: 20px 0;
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .info-table th, .info-table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #dee2e6;
-    }
-    .info-table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        color: #495057;
-    }
-    .info-table tr:last-child td {
-        border-bottom: none;
-    }
-    .info-details {
-        text-align: center;
-        padding: 0 20px;
-    }
+        :root {
+            --primary-color: #0070dc;
+            --primary-gradient: linear-gradient(to right, #0056b3, #00a5e3);
+            --primary-hover: linear-gradient(to right, #004494, #0090d0);
+            --light-bg: #F5F7FA;
+            --success-color: #27AE60;
+            --danger-color: #FF5252;
+            --dark-text: #333333;
+            --light-text: #ffffff;
+            --gray-text: #6c757d;
+            --border-radius: 10px;
+            --shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Nunito', sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
 
-    .info-details p {
-        margin-bottom: 8px;  
-        font-size: 14px;     
-    }
-
-    .info-details i {
-        width: 20px;         
-        margin-right: 8px;   
-    }
-    .btn-action {
-        width: 100%;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        border-radius: 20px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,.1);
-    }
-    .chat-wrapper {
-        display: flex;
-        flex-direction: column;
-    }
-    .chat-container {
-        padding-right: 10px;
-        transition: all 0.3s ease;
-    }
-    .chat-container::-webkit-scrollbar {
-        width: 5px;
-    }
-    .chat-container::-webkit-scrollbar-thumb {
-        background-color: #007bff;
-        border-radius: 10px;
-    }
-    .reply-form {
-        margin-top: 20px;
-        background-color: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,.1);
-        transition: all 0.3s ease;
-    }
-    .reply-form h4 {
-        color: #007bff;
-        margin-bottom: 15px;
-    }
-    .form-control {
-        border-radius: 20px;
-        border: 1px solid #ced4da;
-        padding: 10px 15px;
-    }
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-   
-    
-    .btn-primary:hover {
-        background-color: #0056b3;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,.1);
-    }
-    .priority-badge {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-        margin-top: 5px;
-    }
-    .priority-high {
-        background-color: #dc3545;
-        color: white;
-    }
-    .priority-medium {
-        background-color: #ffc107;
-        color: black;
-    }
-    .priority-low {
-        background-color: #28a745;
-        color: white;
-    }
-    .btn-kirim {
-        background: linear-gradient(to right, #4ade80, #3b82f6);
-        color: white;
-        font-weight: bold;
-        border: none;
-        padding: 10px 25px;
-        border-radius: 20px;
-        transition: all 0.3s ease;
-    }
-    .btn-kirim:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,.1);
-        opacity: 0.9;
-    }
-</style>
+        .main-content {
+            flex: 1;
+            padding: 30px 0; 
+        }
+        
+        .custom-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Left Panel Styling */
+        .left-panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+            width: 100%;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .back-button {
+            background: var(--primary-gradient);
+            color: var(--light-text);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-bottom: 25px;
+            width: 100%;
+            font-size: 14px;
+        }
+        
+        .back-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 85, 179, 0.3);
+        }
+        
+        .back-button i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 5px;
+            position: relative;
+        }
+        
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #ffffff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            background-color: #f0f4f8;
+        }
+        
+        /* Indikator online dihilangkan sesuai permintaan */
+        
+        .info-title {
+            font-size: 18px;
+            color: var(--dark-text);
+            margin-bottom: 8px;
+            margin-top: 0;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            display: block;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eaedf1;
+            table-layout: auto;
+        }
+        
+        .info-table tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .info-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .info-table td {
+            padding: 14px 15px;
+            vertical-align: middle;
+            white-space: normal;
+            word-break: break-word;
+        }
+        
+        .info-table td:first-child {
+            width: 90px;
+            color: var(--gray-text);
+            background-color: #f0f4f8;
+            font-weight: 500;
+            border-bottom: 1px solid #eaedf1;
+        }
+        
+        .info-table td:last-child {
+            border-bottom: 1px solid #eaedf1;
+            padding-right: 20px;
+            word-break: normal;
+            white-space: normal;
+        }
+        
+        .info-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .badge-priority {
+            display: inline-block;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            background-color: var(--danger-color);
+            border-radius: 20px;
+        }
+        
+        /* Chat Container Styling */
+        .message-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 25px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            margin-bottom: 0;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-header h4 {
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+        
+        .message-header h4 .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        /* Menghilangkan tombol arsip */
+        .action-button[title="Arsipkan"] {
+            display: none;
+        }
+        
+        .action-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        /* Tombol Simpan bookmark */
+        .simpan-button {
+            display: none; /* Disembunyikan secara default */
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .simpan-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .simpan-button.show {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .simpan-button i {
+            margin-right: 5px;
+        }
+        
+        .chat-container {
+            background: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            padding: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #d1d5db transparent;
+            position: relative;
+        }
+        
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 20px;
+        }
+        
+        .chat-date-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .chat-date-divider:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background-color: #e9ecef;
+            z-index: 1;
+        }
+        
+        .chat-date-divider span {
+            background-color: white;
+            padding: 0 15px;
+            font-size: 12px;
+            color: #6c757d;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .chat-message {
+            margin-bottom: 25px;
+            position: relative;
+            max-width: 85%;
+            clear: both;
+        }
+        
+        .chat-message:last-child {
+            margin-bottom: 10px;
+        }
+        
+        /* Styling untuk checkbox bookmark - DIUBAH */
+        .bookmark-checkbox {
+            display: none; /* Hidden by default */
+            float: right;
+            margin-left: 10px;
+            margin-top: 3px;
+        }
+        
+        .bookmark-checkbox .form-check-input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            background-color: transparent;
+            border-radius: 3px;
+        }
+        
+        .bookmark-checkbox .form-check-input:checked {
+            background-color: #f8ac30;
+            border-color: #f8ac30;
+        }
+        
+        .sender-info {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sender-name {
+            font-weight: 600;
+            color: #f8ac30;
+            font-size: 14px;
+        }
+        
+        .message-bubble {
+            background-color: #585f67;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            width: fit-content;
+            max-width: 80%;
+        }
+        
+        .message-bubble .sender-name-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .message-bubble .sender-name {
+            color: #f8ac30;
+            font-weight: 500;
+        }
+        
+        .message-bubble p {
+            margin: 0 0 8px;
+            line-height: 1.5;
+        }
+        
+        .message-bubble p:last-of-type {
+            margin-bottom: 0;
+        }
+        
+        .message-time {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            text-align: right;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        /* Ikon bookmark untuk pesan yang sudah dibookmark */
+        .bookmark-icon {
+            margin-left: 10px;
+            color: #f8ac30;
+            display: none;
+        }
+        
+        .chat-message.bookmarked .bookmark-icon {
+            display: inline-block;
+        }
+        
+        /* Ikon batal bookmark untuk pesan yang sudah dibookmark */
+        .bookmark-cancel {
+            margin-left: 5px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            display: none;
+        }
+        
+        .bookmark-cancel:hover {
+            color: #FF5252;
+        }
+        
+        .chat-message.bookmarked .bookmark-cancel {
+            display: inline-block;
+        }
+        
+        .message-reply {
+            display: flex;
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+        
+        .message-reply .message-bubble {
+            background-color: var(--primary-color);
+            border-radius: var(--border-radius) 0 var(--border-radius) var(--border-radius);
+            margin-left: auto;
+        }
+        
+        .message-status {
+            position: absolute;
+            bottom: -18px;
+            right: 0;
+            color: #6c757d;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .message-status i {
+            color: #27AE60;
+            margin-left: 4px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 10px;
+            width: fit-content;
+            border-radius: 20px;
+            background-color: #f1f3f5;
+            margin-bottom: 20px;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: #adb5bd;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 1px;
+            animation: typing 1.5s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .message-input-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 18px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .input-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-action-button {
+            background: transparent;
+            border: none;
+            color: #6c757d;
+            font-size: 18px;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        /* Menghilangkan tombol emoji */
+        .input-action-button[title="Emoji"] {
+            display: none;
+        }
+        
+        .input-action-button:hover {
+            background-color: #f0f4f8;
+            color: var(--primary-color);
+        }
+        
+        .message-input {
+            flex-grow: 1;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 20px;
+            outline: none;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .message-input:focus {
+            border-color: #a3c7ff;
+            box-shadow: 0 0 0 3px rgba(0, 112, 220, 0.1);
+        }
+        
+        .send-button {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .send-button i {
+            margin-right: 8px;
+        }
+        
+        .send-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 85, 179, 0.2);
+        }
+        
+        /* Modal untuk pengaturan waktu sematkan */
+        .sematkan-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .sematkan-modal.show {
+            display: block;
+        }
+        
+        .sematkan-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            width: 350px;
+            max-width: 90%;
+            padding: 20px;
+        }
+        
+        .sematkan-modal-content h5 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .sematkan-modal-content p {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .sematkan-modal-content .form-check {
+            margin-bottom: 10px;
+        }
+        
+        .sematkan-modal-content .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .sematkan-modal-content .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .sematkan-modal-content .btn-secondary {
+            background-color: #f1f3f5;
+            color: #6c757d;
+            border: none;
+        }
+        
+        .sematkan-modal-content .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .chat-message {
+                max-width: 90%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .chat-message {
+                max-width: 100%;
+            }
+            
+            .main-content {
+                padding: 15px 0;
+            }
+            
+            .message-header {
+                padding: 15px 20px;
+            }
+            
+            .left-panel {
+                position: static;
+                margin-bottom: 20px;
+            }
+            
+            .profile-image {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
 @endpush
 
-    @section('content')
-    <div class="main-content">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h2 class="d-inline-block me-3 gradient-text">Isi Konsultasi</h2>
-                    <hr>
-                    <div class="mt-3">
-                        <a href="/dashboardpesan" class="btn btn-kembali"><i class="fas fa-arrow-left"></i> Kembali</a>
+@section('content')
+<div class="main-content">
+    <div class="custom-container">
+        <div class="row">
+            <div class="col-md-4 col-lg-3">
+                <!-- Panel Kiri -->
+                <div class="left-panel">
+                    <!-- Tombol Kembali -->
+                    <a href="{{ url('/dashboardpesandosen') }}" class="back-button">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </a>
+                    
+                    <!-- Bagian Profil -->
+                    <div class="profile-section">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profil Mahasiswa" class="profile-image">
+                        <!-- Indikator online dihilangkan -->
                     </div>
+                    
+                    <!-- Bagian Informasi Pesan -->
+                    <div class="info-title">Informasi Pesan</div>
+                    <table class="info-table">
+                        <tr>
+                            <td>Subjek</td>
+                            <td>Bimbingan KRS</td>
+                        </tr>
+                        <tr>
+                            <td>Pengirim</td>
+                            <td>Desi Maya Sari</td>
+                        </tr>
+                        <tr>
+                            <td>NIM</td>
+                            <td>2107110665</td>
+                        </tr>
+
+                        <tr>
+                            <td>Prioritas</td>
+                            <td><span class="badge-priority">Penting</span></td>
+                        </tr>
+
+                    </table>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="teacher-card">
-                        <img src="{{ asset('images/fotodesi.jpeg') }}" alt="Foto Dosen" class="teacher-photo mx-auto d-block">
-                        <div class="teacher-info">
-                            <h3 class="teacher-name">Desi Maya Sari</h3>
-                            <p class="student-id">2107110665</p>
-                            <div class="info-details">
-                                <p class="mb-1"><i class="fas fa-graduation-cap me-2"></i> Teknik Informatika</p>
-                                <p class="mb-1"><i class="fas fa-calendar-alt me-2"></i> Semester 5</p>    
-                            </div>
-                        </div>
-                        <table class="info-table">
-                            <tr>
-                                <th>Pengirim</th>
-                                <td>Desi Maya Sari</td>
-                            </tr>
-                            <tr>
-                                <th>NIM</th>
-                                <td>2107110665</td>
-                            </tr>
-                            <tr>
-                                <th>Subjek</th>
-                                <td>Bimbingan Skripsi</td>
-                            </tr>
-                            <tr>
-                                <th>Prioritas</th>
-                                <td><span class="priority-badge priority-high">Mendesak</span></td>
-                            </tr>
-                            <tr>
-                                <th>Dikirim</th>
-                                <td>15:30, 26 September 2024</td>
-                            </tr>
-                        </table>
+            
+            <div class="col-md-8 col-lg-9">
+                <!-- Bagian Header Pesan -->
+                <div class="message-header">
+                    <h4><span class="status-dot"></span> Desi Maya Sari - 2107110665</h4>
+                    <div class="action-buttons">
+                        <button class="action-button" title="Arsipkan">
+                            <i class="fas fa-archive"></i>
+                        </button>
+                        <button class="action-button" title="Bookmark" id="bookmarkButton">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                        <button class="simpan-button" id="simpanButton">
+                            <i class="fas fa-check"></i> Simpan
+                        </button>
+                        <button class="action-button" title="Opsi Lainnya">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
                     </div>
                 </div>
                 
-                <div class="col-md-8">
-                    <div class="chat-wrapper">
-                        <div class="chat-container">
-                            <div class="message-card student">
-                                <div class="message-header">
-                                    <span class="name student"><i class="fas fa-user-circle"></i> Desi Maya Sari</span>
-                                    <div>
-                                        <small class="text-muted"><i class="far fa-clock"></i> 15:30, 26 September 2024</small>
-                                    </div>
-                                </div>
-                                <div class="message-body">
-                                    <p>Assalamualaikum pak,</p>
-                                    <p>Selamat sore.</p>
-                                    <p>Saya Desi Maya Sari dari Prodi Teknik Informatika ingin melakukan bimbingan Skripsi. Karena itu, apakah pak ada di kampus?</p>
-                                    <p>Terima kasih, bu.</p>
-                                    <p>Wassalamualaikum.</p>
-                                </div>
-                                <div class="attachment">
-                                    <p><i class="fas fa-paperclip"></i> Lampiran:</p>
-                                    <a href="#" target="_blank"><i class="fas fa-file-pdf"></i> KHS_Desi_Maya_Sari.pdf</a>
+                <!-- Container Pesan -->
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-date-divider">
+                        <span>Sabtu, 20 Januari 2024</span>
+                    </div>
+                    
+                    <!-- Pesan Mahasiswa 1 -->
+                    <div class="chat-message" data-id="message-1">
+                        <div class="message-bubble">
+                            <div class="sender-name-container">
+                                <span class="sender-name">Desi Maya Sari</span>
+                                <div class="bookmark-checkbox">
+                                    <input class="form-check-input" type="checkbox" value="" id="bookmark1">
                                 </div>
                             </div>
-    
-                            <div class="message-card teacher">
-                                <div class="message-header">
-                                    <span class="name teacher"><i class="fas fa-user-tie"></i> Edi Susilo, Spd., M,Kom.,M.Eng</span>
-                                    <div>
-                                        <small class="text-muted"><i class="far fa-clock"></i> 16:45, 26 September 2024</small>
-                                    </div>
-                                </div>
-                                <div class="message-body">
-                                    <p>Waalaikumsalam</p>
-                                    <p>Terima kasih atas pesannya. Saya akan ada di kampus besok dari pukul 10.00 sampai 15.00. Silakan datang ke ruangan saya untuk bimbingan Skripsi.</p>
-                                </div>
+                            <p>Assalamuaikum pak</p>
+                            <p>izin bertanya, untuk bimbingan KRS dilakukan mulai kapan ya pak?</p>
+                            <div class="message-time">
+                                09:35
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
                             </div>
-                            <div class="message-card student">
-                                <div class="message-header">
-                                    <span class="name student"><i class="fas fa-user-circle"></i> Desi Maya Sari</span>
-                                    <div>
-                                        <small class="text-muted"><i class="far fa-clock"></i> 17:20, 26 September 2024</small>
-                                    </div>
-                                </div>
-                                <div class="message-body">
-                                    <p>Waalaikumsalam Bapak,</p>
-                                    <p>Terima kasih atas informasinya. Saya akan datang besok pukul 11.00 ke ruangan saya.</p>
-                                    <p>Wassalamualaikum.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="reply-form">
-                            <h4><i class="fas fa-reply"></i> Balas Pesan</h4>
-                            <form>
-                                <div class="mb-3">
-                                    <textarea class="form-control" rows="4" placeholder="Tulis pesan Anda di sini..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-kirim">
-                                    <i class="fas fa-paper-plane"></i> Kirim Pesan
-                                </button>
-                            </form>
                         </div>
                     </div>
+                    
+                    <!-- Balasan Dosen -->
+                    <div class="chat-message message-reply" data-id="message-2">
+                        <div class="message-bubble">
+                            <div class="bookmark-checkbox">
+                                <input class="form-check-input" type="checkbox" value="" id="bookmark2">
+                            </div>
+                            <p>Wa'alaikumsalam Warohmatulloh Wabarokatuh</p>
+                            <p>Bimbingan KRS dilakukan mulai tanggal 25-30 Januari 2025</p>
+                            <div class="message-time">
+                                09:30
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pesan Mahasiswa 2 -->
+                    <div class="chat-message" data-id="message-3">
+                        <div class="message-bubble">
+                            <div class="sender-name-container">
+                                <span class="sender-name">Desi Maya Sari</span>
+                                <div class="bookmark-checkbox">
+                                    <input class="form-check-input" type="checkbox" value="" id="bookmark3">
+                                </div>
+                            </div>
+                            <p>Baik pak</p>
+                            <p>Terimakasih Informasinya.</p>
+                            <div class="message-time">
+                                09:35
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Input Pesan -->
+                <div class="message-input-container">
+                    <div class="input-actions">
+                        <button class="input-action-button" title="Lampirkan File">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button class="input-action-button" title="Emoji">
+                            <i class="far fa-smile"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="message-input" placeholder="Tulis Pesan Anda disini..">
+                    <button class="send-button">
+                        <i class="fas fa-paper-plane"></i> Kirim
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    @endsection
+</div>
+
+<!-- Modal untuk pengaturan waktu sematkan -->
+<div class="sematkan-modal" id="sematkanModal">
+    <div class="sematkan-modal-content">
+        <h5>Pilih berapa lama Sematan Berlangsung</h5>
+        <p>Anda bisa melepas sematan kapan saja</p>
+        
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi24jam" value="24" checked>
+            <label class="form-check-label" for="durasi24jam">
+                24 Jam
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi7hari" value="168">
+            <label class="form-check-label" for="durasi7hari">
+                7 Hari
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi30hari" value="720">
+            <label class="form-check-label" for="durasi30hari">
+                30 Hari
+            </label>
+        </div>
+        
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary" id="batalSematkan">Batal</button>
+            <button type="button" class="btn btn-primary" id="simpanSematkan">Simpan</button>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elemen yang diperlukan
+        const bookmarkButton = document.querySelector('#bookmarkButton');
+        const simpanButton = document.querySelector('#simpanButton');
+        const bookmarkCheckboxes = document.querySelectorAll('.bookmark-checkbox');
+        const checkboxInputs = document.querySelectorAll('.bookmark-checkbox input');
+        const sematkanModal = document.querySelector('#sematkanModal');
+        const batalSematkanBtn = document.querySelector('#batalSematkan');
+        const simpanSematkanBtn = document.querySelector('#simpanSematkan');
+        
+        let isBookmarkMode = false;
+        
+        // Sembunyikan tombol simpan secara default
+        simpanButton.style.display = 'none';
+        
+        // Toggle mode bookmark
+        if (bookmarkButton) {
+            bookmarkButton.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                isBookmarkMode = !isBookmarkMode;
+                
+                if (isBookmarkMode) {
+                    // Aktifkan mode bookmark
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    showNotification('Pilih pesan untuk ditandai');
+                    
+                    // Tampilkan semua checkbox bookmark
+                    bookmarkCheckboxes.forEach(checkbox => {
+                        checkbox.style.display = 'block';
+                    });
+                } else {
+                    // Nonaktifkan mode bookmark
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    
+                    // Sembunyikan semua checkbox bookmark
+                    bookmarkCheckboxes.forEach(checkbox => {
+                        checkbox.style.display = 'none';
+                    });
+                    
+                    // Sembunyikan tombol simpan
+                    simpanButton.style.display = 'none';
+                }
+            });
+        }
+        
+        // Event untuk checkbox bookmark (untuk menampilkan tombol simpan)
+        checkboxInputs.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Cek apakah ada checkbox yang dicentang
+                const anyChecked = Array.from(checkboxInputs).some(input => input.checked);
+                
+                // Tampilkan atau sembunyikan tombol simpan berdasarkan status checkbox
+                if (anyChecked) {
+                    simpanButton.style.display = 'inline-flex';
+                } else {
+                    simpanButton.style.display = 'none';
+                }
+            });
+        });
+        
+        // Tombol simpan untuk menampilkan modal
+        if (simpanButton) {
+            simpanButton.addEventListener('click', function() {
+                // Tampilkan modal sematkan
+                sematkanModal.classList.add('show');
+                
+                // Nonaktifkan mode bookmark
+                isBookmarkMode = false;
+                const bookmarkIcon = bookmarkButton.querySelector('i');
+                bookmarkIcon.classList.remove('fas');
+                bookmarkIcon.classList.add('far');
+                
+                // Sembunyikan checkbox
+                bookmarkCheckboxes.forEach(checkbox => {
+                    checkbox.style.display = 'none';
+                });
+            });
+        }
+        
+        // Batal sematkan
+        if (batalSematkanBtn) {
+            batalSematkanBtn.addEventListener('click', function() {
+                // Hapus semua centang
+                checkboxInputs.forEach(checkbox => {
+                    checkbox.checked = false;
+                    const messageElem = checkbox.closest('.chat-message');
+                    messageElem.classList.remove('bookmarked');
+                });
+                
+                // Sembunyikan modal
+                sematkanModal.classList.remove('show');
+                
+                // Sembunyikan tombol simpan
+                simpanButton.style.display = 'none';
+            });
+        }
+        
+        // Simpan sematkan
+        if (simpanSematkanBtn) {
+            simpanSematkanBtn.addEventListener('click', function() {
+                // Simpan pesan yang dibookmark
+                const bookmarkedMessages = [];
+                checkboxInputs.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const messageElem = checkbox.closest('.chat-message');
+                        const messageId = messageElem.getAttribute('data-id');
+                        
+                        bookmarkedMessages.push(messageId);
+                        
+                        // Tandai pesan sebagai bookmarked untuk menampilkan ikon
+                        messageElem.classList.add('bookmarked');
+                    }
+                });
+                
+                // Dapatkan durasi yang dipilih
+                const durasiValue = document.querySelector('input[name="sematkanDurasi"]:checked').value;
+                
+                // Simpan ke "backend" (simulasi - untuk prototype)
+                console.log('Pesan yang disematkan:', bookmarkedMessages);
+                console.log('Durasi sematan:', durasiValue, 'jam');
+                
+                // Sembunyikan modal
+                sematkanModal.classList.remove('show');
+                
+                // Hapus centang pada checkbox
+                checkboxInputs.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Sembunyikan tombol simpan
+                simpanButton.style.display = 'none';
+                
+                showNotification('Pesan berhasil disematkan');
+            });
+        }
+        
+        // Membatalkan sematan pada pesan yang sudah dibookmark
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.bookmark-cancel')) {
+                const cancelBtn = e.target.closest('.bookmark-cancel');
+                const messageElem = cancelBtn.closest('.chat-message');
+                
+                // Hapus kelas bookmarked dari pesan
+                messageElem.classList.remove('bookmarked');
+                
+                // Simpan perubahan ke "backend" (simulasi)
+                const messageId = messageElem.getAttribute('data-id');
+                console.log('Pembatalan sematan pesan:', messageId);
+                
+                showNotification('Sematan berhasil dibatalkan');
+            }
+        });
+        
+        // Auto-scroll ke bawah chat container
+        const chatContainer = document.querySelector('#chatContainer');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show`;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '9999';
+            notification.style.borderRadius = '8px';
+            notification.style.boxShadow = '0 3px 10px rgba(0,0,0,0.1)';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Menangani pengiriman pesan saat menekan Enter di input
+        const messageInput = document.querySelector('.message-input');
+        const sendButton = document.querySelector('.send-button');
+        
+        if (messageInput && sendButton) {
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendButton.click();
+                }
+            });
+            
+            sendButton.addEventListener('click', function() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // Fungsi untuk mengirim pesan bisa ditambahkan di sini
+                    messageInput.value = '';
+                    // showNotification('Pesan berhasil dikirim');
+                }
+            });
+        }
+    });
+</script>
+@endpush

@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}"> 
     <title>SITEI - @yield('title', 'Sistem Informasi Teknik Informatika')</title>
+
+    <!-- Anti-back button -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,7 +28,6 @@
     <link rel="icon" href="{{ asset('images/logounri.png') }}" type="image/png">
 
     <!-- Page Specific Styles -->
-
     @stack('styles')
     <style>
         body {
@@ -87,7 +91,7 @@
         }
         
         .nav-link:hover, .nav-link.active {
-            color: #059669;
+            color: #1a73e8; /* Warna biru saat hover (diubah dari hijau menjadi biru) */
         }
         
         .nav-link::after {
@@ -97,19 +101,73 @@
             height: 2px;
             bottom: 0;
             left: 0;
-            background-color: #059669;
+            background-color: #1a73e8; /* Warna garis biru (diubah dari hijau menjadi biru) */
             transition: width 0.3s ease;
         }
         
         .nav-link:hover::after, .nav-link.active::after {
             width: 100%;
         }
+        
+        /* Tambahan style untuk navbar baru */
+        .main-content {
+            flex: 1;
+            padding-top: 20px; 
+            padding-bottom: 20px; 
+        }
+        
+        /* Style untuk footer baru */
+        .footer {
+            background-color: #343a40; 
+            color: #fff; 
+            padding: 12px 0; 
+            margin-top: auto; 
+            width: 100%;
+        }
+        
+        /* Custom style untuk dropdown */
+        .dropdown-menu {
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: none;
+            padding: 8px 0;
+        }
+        
+        .dropdown-item {
+            padding: 8px 24px;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f0f7ff;
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: #fff0f0;
+        }
+        
+        /* Style untuk tombol AKUN */
+        .btn-transparent {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            color: #4b5563;
+            font-weight: bold;
+        }
+        
+        .btn-transparent:hover, .btn-transparent:focus, .btn-transparent:active {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            color: #1a73e8 !important;
+        }
     </style>
     @stack('styles')
 </head>
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
     @include('components.blobbackground')
+    
     @include('components.navbar')
+    
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
@@ -123,28 +181,58 @@
     
     @include('components.footer')
     
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <!-- Sederhanakan script yang dimuat untuk menghindari konflik -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Script pencegahan navigasi balik setelah logout -->
+<script>
+    (function() {
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+        };
+    })();
+</script>
 
-     <!-- Bootstrap 5.3.3 JS CDN -->
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-     
-     
-     <!-- jQuery UI CDN -->
-     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<!-- Cek autentikasi pada halaman dashboard -->
+@if(Route::current() && (
+    str_contains(Route::current()->getName() ?? '', 'dashboard') || 
+    str_contains(Route::current()->uri ?? '', 'dashboard')
+))
+    @php
+        $isLoggedIn = Auth::guard('mahasiswa')->check() || Auth::guard('dosen')->check();
+    @endphp
 
-    <!-- JavaScript jQuery -->
-     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    @if(!$isLoggedIn)
+        <script>
+            window.location.href = "{{ route('login') }}";
+        </script>
+    @endif
+@endif
 
+<!-- Script untuk memastikan dropdown Bootstrap berfungsi -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inisialisasi semua dropdown
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        var dropdownList = dropdownElementList.map(function(dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl);
+        });
 
+        // Memastikan dropdown tetap terbuka sampai diklik di luar dropdown
+        document.querySelectorAll('.dropdown').forEach(function(dropdown) {
+            dropdown.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+    });
+</script>
+
+    
     @stack('scripts')
 </body>
 </html>
