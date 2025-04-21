@@ -27,7 +27,7 @@
                         AKUN
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle me-2"></i>Profil</a></li>
+                        <li><a class="dropdown-item" href="{{ route('profil') }}"><i class="bi bi-person-circle me-2"></i>Profil</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item text-danger" href="{{ route('logout') }}" 

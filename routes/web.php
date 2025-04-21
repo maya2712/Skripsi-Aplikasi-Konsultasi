@@ -16,21 +16,32 @@ Route::middleware(['guest'])->group(function () {
 
 // Route dashboard yang memerlukan autentikasi dan mencegah kembali setelah logout
 Route::middleware(['auth:mahasiswa,dosen', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
+    
     Route::get('/dashboardpesanmahasiswa', function () {
         return view('pesan.mahasiswa.dashboardpesanmahasiswa');
     })->name('mahasiswa.dashboard.pesan');
 
-    Route::get('/buatpesan', function () {
-        return view('pesan.mahasiswa.buatpesan');
+    Route::get('/buatpesanmahasiswa', function () {
+        return view('pesan.mahasiswa.buatpesanmahasiswa');
     });
 
-    Route::get('/isipesan', function () {
-        return view('pesan.mahasiswa.isipesan');
+    Route::get('/isipesanmahasiswa', function () {
+        return view('pesan.mahasiswa.isipesanmahasiswa');
+    });
+
+    Route::get('/riwayatpesanmahasiswa', function () {
+        return view('pesan.mahasiswa.riwayatpesanmahasiswa');
+    });
+
+    Route::get('/faqmahasiswa', function () {
+        return view('pesan.mahasiswa.faq_mahasiswa');
     });
 
     Route::get('/dashboardpesan', function () {
         return view('pesan.dashboardpesan');
     });
+
+    
 
     Route::get('/dashboardpesandosen', function () {
         return view('pesan.dosen.dashboardpesandosen');
@@ -75,10 +86,10 @@ Route::get('/back', function () {
     // Fallback jika tidak ada history
     if (auth()->guard('dosen')->check()) {
         return redirect('/dashboardpesandosen');
-    } else {
-        return redirect('/dashboardpesanmahasiswa');
-    }
-})->name('back');
+        } else {
+            return redirect('/dashboardpesanmahasiswa');
+        }
+    })->name('back');
 
 });
 
@@ -98,6 +109,11 @@ Route::get('/contohdashboard', function () {
 Route::get('/datausulanbimbingan', function () {
     return view('bimbingan.admin.datausulanbimbingan');
 });
+
+// Route untuk profil
+Route::get('/profil', function () {
+    return view('components.profil');
+})->name('profil');
 
 // Route untuk mahasiswa
 Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () {

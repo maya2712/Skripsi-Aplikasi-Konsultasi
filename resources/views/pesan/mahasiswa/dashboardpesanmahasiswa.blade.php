@@ -62,10 +62,8 @@
         padding: 10px 15px;
         transition: all 0.3s ease;
         cursor: pointer;
-        position: relative; /* Keep this for positioning */
+        position: relative;
     }
-    
-    /* Removed the :before styling that created the line effect */
     
     .sidebar-menu .nav-link.active {
         background: #E3F2FD;
@@ -75,8 +73,6 @@
     .sidebar-menu .nav-link:hover:not(.active) {
         background: #f8f9fa;
     }
-    
-    /* Removed the :hover:before that made the line appear */
 
     .komunikasi-submenu .nav-link.active {
         background: #E3F2FD;
@@ -86,10 +82,6 @@
     .komunikasi-submenu .nav-link:hover:not(.active) {
         background: #f8f9fa;
     }
-    
-    /* Removed the :before styling for submenu */
-    
-    /* Removed the :hover:before for submenu */
 
     .badge-notification {
         background: var(--bs-danger);
@@ -197,7 +189,7 @@
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesan') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                        <a href="{{ url('/buatpesanmahasiswa') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
                     </div>                                                    
@@ -214,9 +206,7 @@
                                 </div>
                             </a>
                             <div class="collapse komunikasi-submenu" id="komunikasiSubmenu">
-                                <a href="#" class="nav-link menu-item d-flex align-items-center" style="color: #546E7A;">
-                                    <i class="fas fa-plus me-2"></i>Grup Baru
-                                </a>
+                                <!-- Mahasiswa hanya bisa melihat daftar grup, tidak bisa membuat grup baru -->
                                 <a href="#" class="nav-link menu-item d-flex justify-content-between align-items-center">
                                     Bimbingan Skripsi
                                     <span class="badge bg-danger rounded-pill">3</span>
@@ -230,10 +220,10 @@
                                     <span class="badge bg-danger rounded-pill">4</span>
                                 </a>
                             </div>
-                            <a href="{{ url('/riwayat') }}" class="nav-link menu-item">
+                            <a href="{{ url('/riwayatpesanmahasiswa') }}" class="nav-link menu-item">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
-                            <a href="{{ url('/faq') }}" class="nav-link menu-item">
+                            <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
                                 <i class="fas fa-question-circle me-2"></i>FAQ
                             </a>
                         </div>
@@ -308,7 +298,7 @@
                 <!-- Message List -->
                 <div class="message-list">
                     <!-- Message 1 -->
-                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/isipesan') }}'">
+                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-8 d-flex align-items-center">
@@ -317,8 +307,8 @@
                                     </div>
                                     <div>
                                         <span class="badge bg-primary mb-1">Bimbingan Skripsi</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Edi Susilo, S.Pd., M.Kom., M.Eng.</h6>
-                                        <small class="text-muted">1991 1029 201903 010</small>
+                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Ahmad Sulaiman, M.Kom</h6>
+                                        <small class="text-muted">Dosen Pembimbing</small>
                                     </div>
                                 </div>
                                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -333,8 +323,8 @@
                         </div>
                     </div>
 
-                    <!-- Message 2 (Placeholder - tambahkan jika perlu) -->
-                    <div class="card mb-2 message-card umum" onclick="window.location.href='{{ url('/isipesan') }}'">
+                    <!-- Message 2 -->
+                    <div class="card mb-2 message-card umum" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-8 d-flex align-items-center">
@@ -343,8 +333,8 @@
                                     </div>
                                     <div>
                                         <span class="badge bg-primary mb-1">Bimbingan KRS</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Drs. Ahmad Herianto, M.Kom.</h6>
-                                        <small class="text-muted">1989 0517 201502 001</small>
+                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Siti Nurhaliza, M.Si</h6>
+                                        <small class="text-muted">Dosen Pembimbing Akademik</small>
                                     </div>
                                 </div>
                                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -359,8 +349,8 @@
                         </div>
                     </div>
 
-                    <!-- Message 3 (Placeholder - tambahkan jika perlu) -->
-                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/isipesan') }}'">
+                    <!-- Message 3 -->
+                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-8 d-flex align-items-center">
@@ -369,8 +359,8 @@
                                     </div>
                                     <div>
                                         <span class="badge bg-primary mb-1">Bimbingan MBKM</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Rini Amelia, S.T., M.T.</h6>
-                                        <small class="text-muted">1983 0215 201304 002</small>
+                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Budi Santoso, M.T</h6>
+                                        <small class="text-muted">Koordinator MBKM</small>
                                     </div>
                                 </div>
                                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -387,7 +377,7 @@
 
                     <!-- Pesan pencarian tidak tersedia -->
                     <div id="no-results" class="text-center py-4" style="display: none;">
-                        <p class="text-muted">Konsultasi tidak tersedia</p>
+                        <p class="text-muted">Pesan tidak tersedia</p>
                     </div>
                 </div>
             </div>
