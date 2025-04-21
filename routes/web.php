@@ -184,5 +184,32 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
     });
 });
 
+    // Route untuk admin
+    Route::middleware(['auth:admin', \App\Http\Middleware\PreventBackHistory::class])->prefix('admin')->group(function () {
+        // Dashboard utama admin
+        Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
+        
+        // Dashboard pesan admin
+        Route::get('/dashboardpesan', function () {
+            return view('pesan.admin.dashboardpesan_admin');
+        })->name('admin.dashboardpesan');
+
+        Route::get('/managementuser_dosen', function () {
+            return view('pesan.admin.managementuser_dosen');
+        })->name('admin.managementuser_dosen');
+        
+        Route::get('/managementuser_mahasiswa', function () {
+            return view('pesan.admin.managementuser_mahasiswa');
+        })->name('admin.managementuser_dosen');
+
+        Route::get('/tambahmahasiswa', function () {
+            return view('pesan.admin.tambahmahasiswa');
+        })->name('admin.tambahmahasiswa');
+        
+        Route::get('/tambahdosen', function () {
+            return view('pesan.admin.tambahdosen');
+        })->name('admin.tambahdosen');
+    });
+
 // Logout route
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
