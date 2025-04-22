@@ -15,7 +15,7 @@ Route::middleware(['guest'])->group(function () {
 });
 
 // Route dashboard yang memerlukan autentikasi dan mencegah kembali setelah logout
-Route::middleware(['auth:mahasiswa,dosen', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
+Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
     
     Route::get('/dashboardpesanmahasiswa', function () {
         return view('pesan.mahasiswa.dashboardpesanmahasiswa');
