@@ -255,7 +255,21 @@
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <!-- Heading dihapus -->
+                <!-- Notifikasi sukses -->
+                @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+                
+                <!-- Notifikasi error -->
+                @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
                 
                 <!-- Users Table -->
                 <div class="card">
@@ -286,7 +300,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Cari" style="height: 30px; font-size: 14px;">
                                 </div>
-                                <a href="{{ url('/admin/tambahdosen') }}" class="btn ms-2" style="background: linear-gradient(to right, #00ad51, #00ad51); color: white; height: 30px; font-size: 14px; display: flex; align-items: center; white-space: nowrap; width: auto; padding: 0 10px;">
+                                <a href="{{ route('admin.tambahdosen') }}" class="btn ms-2" style="background: linear-gradient(to right, #00ad51, #00ad51); color: white; height: 30px; font-size: 14px; display: flex; align-items: center; white-space: nowrap; width: auto; padding: 0 10px;">
                                     <i class="fas fa-plus me-1"></i> Dosen baru
                                 </a>
                             </div>
@@ -305,163 +319,64 @@
                                         <th>NIP <i class="fas fa-sort"></i></th>
                                         <th>Nama <i class="fas fa-sort"></i></th>
                                         <th>Email <i class="fas fa-sort"></i></th>
-                                        <th>Jabatan <i class="fas fa-sort"></i></th>
+                                        <th>Prodi <i class="fas fa-sort"></i></th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Dosen -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>1</td>
-                                        <td>101989001</td>
-                                        <td>Dr. Ahmad Fauzi, S.Kom., M.Kom.</td>
-                                        <td>ahmad.fauzi@university.ac.id</td>
-                                        <td>Dosen Tetap</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash me-2 text-danger"></i>Non-aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Dosen lain -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>2</td>
-                                        <td>101989023</td>
-                                        <td>Dr. Siti Rahayu, M.T.</td>
-                                        <td>siti.rahayu@university.ac.id</td>
-                                        <td>Dosen Tetap</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-check me-2 text-success"></i>Aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Dosen lain -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>3</td>
-                                        <td>101989045</td>
-                                        <td>Dr. Budi Santoso, M.Sc.</td>
-                                        <td>budi.santoso@university.ac.id</td>
-                                        <td>Dosen Tetap</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash me-2 text-danger"></i>Non-aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Dosen lain -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>4</td>
-                                        <td>101989067</td>
-                                        <td>Dr. Ani Wijayanti, M.Kom.</td>
-                                        <td>ani.wijayanti@university.ac.id</td>
-                                        <td>Dosen Tidak Tetap</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash me-2 text-danger"></i>Non-aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Dosen lain -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>5</td>
-                                        <td>101989002</td>
-                                        <td>Dr. Ridwan Kamil, Ph.D.</td>
-                                        <td>ridwan.kamil@university.ac.id</td>
-                                        <td>Profesor</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-check-circle me-2 text-success"></i>Setujui</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-times-circle me-2 text-danger"></i>Tolak</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    @if(isset($dosens) && count($dosens) > 0)
+                                        @foreach($dosens as $index => $dosen)
+                                        <tr>
+                                            <td>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="{{ $dosen->nip }}">
+                                                </div>
+                                            </td>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $dosen->nip }}</td>
+                                            <td>{{ $dosen->nama }}</td>
+                                            <td>{{ $dosen->email }}</td>
+                                            <td>{{ $dosen->prodi ? $dosen->prodi->nama_prodi : 'N/A' }}</td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <a href="#" class="edit-btn" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
+                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <form action="{{ route('admin.delete-dosen', $dosen->nip) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dosen ini?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-trash me-2 text-danger"></i>Hapus
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="7" class="text-center">Belum ada data dosen</td>
+                                        </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div>
-                                <button class="btn btn-sm btn-outline-danger me-2">
+                                <button class="btn btn-sm btn-outline-danger me-2" id="deleteSelected">
                                     <i class="fas fa-trash me-1"></i> Hapus yang dipilih
                                 </button>
                             </div>
                             
+                            <!-- Pagination -->
                             <nav aria-label="Page navigation">
                                 <ul class="pagination pagination-sm mb-0">
                                     <li class="page-item disabled">
@@ -552,6 +467,24 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // Handle delete selected
+    document.getElementById('deleteSelected').addEventListener('click', function() {
+        if (confirm('Apakah Anda yakin ingin menghapus dosen yang dipilih?')) {
+            const selectedNips = [];
+            document.querySelectorAll('tbody .form-check-input:checked').forEach(checkbox => {
+                selectedNips.push(checkbox.value);
+            });
+            
+            if (selectedNips.length > 0) {
+                // Implementasi AJAX untuk menghapus multiple dosen
+                alert('Fitur hapus massal sedang dalam pengembangan');
+                // Di sini Anda bisa menambahkan kode AJAX untuk menghapus massal
+            } else {
+                alert('Pilih minimal satu dosen untuk dihapus');
+            }
+        }
+    });
 });
 </script>
 @endpush

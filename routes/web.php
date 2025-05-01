@@ -184,32 +184,24 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
     });
 });
 
-    // Route untuk admin
-    Route::middleware(['auth:admin', \App\Http\Middleware\PreventBackHistory::class])->prefix('admin')->group(function () {
-        // Dashboard utama admin
-        Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
-        
-        // Dashboard pesan admin
-        Route::get('/dashboardpesan', function () {
-            return view('pesan.admin.dashboardpesan_admin');
-        })->name('admin.dashboardpesan');
-
-        Route::get('/managementuser_dosen', function () {
-            return view('pesan.admin.managementuser_dosen');
-        })->name('admin.managementuser_dosen');
-        
-        Route::get('/managementuser_mahasiswa', function () {
-            return view('pesan.admin.managementuser_mahasiswa');
-        })->name('admin.managementuser_dosen');
-
-        Route::get('/tambahmahasiswa', function () {
-            return view('pesan.admin.tambahmahasiswa');
-        })->name('admin.tambahmahasiswa');
-        
-        Route::get('/tambahdosen', function () {
-            return view('pesan.admin.tambahdosen');
-        })->name('admin.tambahdosen');
-    });
+// Pastikan routes sudah ada di web.php dalam grup admin
+Route::middleware(['auth:admin', \App\Http\Middleware\PreventBackHistory::class])->prefix('admin')->group(function () {
+    // Route yang sudah ada
+    Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
+    
+    // Route untuk manajemen user
+    Route::get('/managementuser_dosen', [App\Http\Controllers\AdminUserController::class, 'managementDosen'])->name('admin.managementuser_dosen');
+    Route::get('/managementuser_mahasiswa', [App\Http\Controllers\AdminUserController::class, 'managementMahasiswa'])->name('admin.managementuser_mahasiswa');
+    
+    Route::get('/tambahdosen', [App\Http\Controllers\AdminUserController::class, 'tambahDosen'])->name('admin.tambahdosen');
+    Route::post('/store-dosen', [App\Http\Controllers\AdminUserController::class, 'storeDosen'])->name('admin.store-dosen');
+    
+    Route::get('/tambahmahasiswa', [App\Http\Controllers\AdminUserController::class, 'tambahMahasiswa'])->name('admin.tambahmahasiswa');
+    Route::post('/store-mahasiswa', [App\Http\Controllers\AdminUserController::class, 'storeMahasiswa'])->name('admin.store-mahasiswa');
+    
+    Route::delete('/delete-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'deleteDosen'])->name('admin.delete-dosen');
+    Route::delete('/delete-mahasiswa/{nim}', [App\Http\Controllers\AdminUserController::class, 'deleteMahasiswa'])->name('admin.delete-mahasiswa');
+});
 
 // Logout route
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
