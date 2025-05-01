@@ -204,7 +204,7 @@
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesan_admin') }}" class="nav-link">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link">
                                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                             </a>
                             <a href="#" class="nav-link parent-active parent-menu" id="userManagementToggle">
@@ -254,7 +254,9 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9">                
+            <div class="col-md-9">
+                <!-- Heading dihapus -->
+                
                 <!-- Users Table -->
                 <div class="card">
                     <div class="card-body p-4">
