@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Mahasiswa;
 use App\Models\Dosen;
 use App\Models\User;
+use App\Models\Admin;
 
 class AuthController extends Controller
 {
@@ -30,35 +31,33 @@ class AuthController extends Controller
 
         Log::info('Mencoba login dengan: ' . $identifier);
 
-        // Cek admin dengan debug
-        $admin = User::where('email', $identifier)->first();
+        // Cek admin dengan tabel admins yang baru
+        $admin = Admin::where('email', $identifier)->first();
         if ($admin) {
-            Log::info('User ditemukan: ' . $admin->email . ', Role: ' . $admin->role);
+            Log::info('Admin ditemukan: ' . $admin->email);
             
             if (Hash::check($password, $admin->password)) {
-                Log::info('Password benar untuk user: ' . $admin->email);
+                Log::info('Password benar untuk admin: ' . $admin->email);
                 
-                if ($admin->role === 'admin') {
-                    Log::info('Login sebagai admin');
-                    Auth::guard('admin')->login($admin);
-                    session(['role' => 'admin']);
-                    Log::info('Login berhasil, redirect ke /admin/dashboard');
-                    return redirect('/admin/dashboard');
-                } else {
-                    Log::warning('User ditemukan tetapi bukan admin: ' . $admin->role);
-                }
+                Auth::guard('admin')->login($admin);
+                $request->session()->put('role', 'admin'); // Menggunakan session dari request
+                $request->session()->save(); // Pastikan session disimpan
+                
+                Log::info('Login sebagai admin berhasil, redirect ke /admin/dashboard');
+                return redirect('/admin/dashboard');
             } else {
-                Log::warning('Password salah untuk: ' . $admin->email);
+                Log::warning('Password salah untuk admin: ' . $admin->email);
             }
         } else {
-            Log::info('User tidak ditemukan dengan email: ' . $identifier);
+            Log::info('Admin tidak ditemukan dengan email: ' . $identifier);
         }
 
         // Cek mahasiswa
         $mahasiswa = Mahasiswa::where('nim', $identifier)->first();
         if ($mahasiswa && Hash::check($password, $mahasiswa->password)) {
             Auth::guard('mahasiswa')->login($mahasiswa);
-            session(['role' => 'mahasiswa']);
+            $request->session()->put('role', 'mahasiswa');
+            $request->session()->save();
             Log::info('Login berhasil untuk mahasiswa: ' . $mahasiswa->nim);
             return redirect('/dashboardpesanmahasiswa');
         }
@@ -67,7 +66,8 @@ class AuthController extends Controller
         $dosen = Dosen::where('nip', $identifier)->first();
         if ($dosen && Hash::check($password, $dosen->password)) {
             Auth::guard('dosen')->login($dosen);
-            session(['role' => 'dosen']);
+            $request->session()->put('role', 'dosen');
+            $request->session()->save();
             Log::info('Login berhasil untuk dosen: ' . $dosen->nip);
             return redirect('/dashboardpesandosen');
         }
