@@ -274,6 +274,28 @@
                 <!-- Users Table -->
                 <div class="card">
                     <div class="card-body p-4">
+                        <!-- Notifikasi sukses dengan desain modern -->
+                        @if(session('success'))
+                        <div class="alert mb-4" role="alert" style="background-color: rgba(39, 174, 96, 0.1); border-left: 4px solid #27AE60; color: #2E7D32; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 12px; position: relative;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle me-2" style="font-size: 18px; color: #27AE60;"></i>
+                                <div><strong>Berhasil!</strong> {{ session('success') }}</div>
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" style="font-size: 10px; padding: 8px;"></button>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        <!-- Notifikasi error dengan desain modern -->
+                        @if(session('error'))
+                        <div class="alert mb-4" role="alert" style="background-color: rgba(255, 82, 82, 0.1); border-left: 4px solid #FF5252; color: #D32F2F; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 12px; position: relative;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle me-2" style="font-size: 18px; color: #FF5252;"></i>
+                                <div><strong>Error!</strong> {{ session('error') }}</div>
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" style="font-size: 10px; padding: 8px;"></button>
+                            </div>
+                        </div>
+                        @endif
+                        
                         <div class="row mb-4">
                             <div class="col-auto mb-2 ms-3">
                                 <div class="d-flex align-items-center">
