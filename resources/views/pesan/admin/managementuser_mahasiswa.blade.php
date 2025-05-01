@@ -204,7 +204,7 @@
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesan_admin') }}" class="nav-link">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link">
                                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                             </a>
                             <a href="#" class="nav-link parent-active parent-menu" id="userManagementToggle">
@@ -255,7 +255,21 @@
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <!-- Heading dihapus -->
+                <!-- Notifikasi sukses -->
+                @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+                
+                <!-- Notifikasi error -->
+                @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
                 
                 <!-- Users Table -->
                 <div class="card">
@@ -288,7 +302,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Cari" style="height: 30px; font-size: 14px;">
                                 </div>
-                                <a href="{{ url('/admin/tambahmahasiswa') }}" class="btn ms-2" style="background: linear-gradient(to right, #00ad51, #00ad51); color: white; height: 30px; font-size: 14px; display: flex; align-items: center; white-space: nowrap; width: auto; padding: 0 10px;">
+                                <a href="{{ route('admin.tambahmahasiswa') }}" class="btn ms-2" style="background: linear-gradient(to right, #00ad51, #00ad51); color: white; height: 30px; font-size: 14px; display: flex; align-items: center; white-space: nowrap; width: auto; padding: 0 10px;">
                                     <i class="fas fa-plus me-1"></i> Mahasiswa baru
                                 </a>                                
                             </div>
@@ -305,159 +319,68 @@
                                         </th>
                                         <th>NIM <i class="fas fa-sort"></i></th>
                                         <th>Nama <i class="fas fa-sort"></i></th>
+                                        <th>Email <i class="fas fa-sort"></i></th>
                                         <th>Angkatan <i class="fas fa-sort"></i></th>
-                                        <th>Program Studi <i class="fas fa-sort"></i></th>
+                                        <th>Prodi <i class="fas fa-sort"></i></th>
+                                        <th>Konsentrasi <i class="fas fa-sort"></i></th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Mahasiswa 1 -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>2021001234</td>
-                                        <td>Ahmad Rizky</td>
-                                        <td>2021</td>
-                                        <td>Teknik Informatika</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash me-2 text-danger"></i>Non-aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Mahasiswa 2 -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>2021001235</td>
-                                        <td>Siti Nurhaliza</td>
-                                        <td>2021</td>
-                                        <td>Sistem Informasi</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash me-2 text-danger"></i>Non-aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Mahasiswa 3 -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>2022001236</td>
-                                        <td>Budi Setiawan</td>
-                                        <td>2022</td>
-                                        <td>Teknik Informatika</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-check me-2 text-success"></i>Aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Mahasiswa 4 -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>2022001237</td>
-                                        <td>Dewi Kartika</td>
-                                        <td>2022</td>
-                                        <td>Teknik Elektro</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash me-2 text-danger"></i>Non-aktifkan</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Mahasiswa 5 -->
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td>2023001238</td>
-                                        <td>Faisal Rahman</td>
-                                        <td>2023</td>
-                                        <td>Sistem Informasi</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a href="#" class="edit-btn" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-check-circle me-2 text-success"></i>Setujui</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-times-circle me-2 text-danger"></i>Tolak</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2 text-danger"></i>Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    @if(isset($mahasiswas) && count($mahasiswas) > 0)
+                                        @foreach($mahasiswas as $mahasiswa)
+                                        <tr>
+                                            <td>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="{{ $mahasiswa->nim }}">
+                                                </div>
+                                            </td>
+                                            <td>{{ $mahasiswa->nim }}</td>
+                                            <td>{{ $mahasiswa->nama }}</td>
+                                            <td>{{ $mahasiswa->email }}</td>
+                                            <td>{{ $mahasiswa->angkatan }}</td>
+                                            <td>{{ $mahasiswa->prodi ? $mahasiswa->prodi->nama_prodi : 'N/A' }}</td>
+                                            <td>{{ $mahasiswa->konsentrasi ? $mahasiswa->konsentrasi->nama_konsentrasi : 'N/A' }}</td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <a href="#" class="edit-btn" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
+                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <form action="{{ route('admin.delete-mahasiswa', $mahasiswa->nim) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus mahasiswa ini?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="fas fa-trash me-2 text-danger"></i>Hapus
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="8" class="text-center">Belum ada data mahasiswa</td>
+                                        </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div>
-                                <button class="btn btn-sm btn-outline-danger me-2">
+                                <button class="btn btn-sm btn-outline-danger me-2" id="deleteSelected">
                                     <i class="fas fa-trash me-1"></i> Hapus yang dipilih
                                 </button>
                             </div>
                             
+                            <!-- Pagination -->
                             <nav aria-label="Page navigation">
                                 <ul class="pagination pagination-sm mb-0">
                                     <li class="page-item disabled">
@@ -548,6 +471,24 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // Handle delete selected
+    document.getElementById('deleteSelected').addEventListener('click', function() {
+        if (confirm('Apakah Anda yakin ingin menghapus mahasiswa yang dipilih?')) {
+            const selectedNims = [];
+            document.querySelectorAll('tbody .form-check-input:checked').forEach(checkbox => {
+                selectedNims.push(checkbox.value);
+            });
+            
+            if (selectedNims.length > 0) {
+                // Implementasi AJAX untuk menghapus multiple mahasiswa
+                alert('Fitur hapus massal sedang dalam pengembangan');
+                // Di sini Anda bisa menambahkan kode AJAX untuk menghapus massal
+            } else {
+                alert('Pilih minimal satu mahasiswa untuk dihapus');
+            }
+        }
+    });
 });
 </script>
 @endpush
