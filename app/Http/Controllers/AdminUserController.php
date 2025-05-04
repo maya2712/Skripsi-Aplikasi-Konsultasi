@@ -17,7 +17,14 @@ class AdminUserController extends Controller
         try {
             // Ambil semua data dosen
             $dosens = Dosen::all();
-            return view('pesan.admin.managementuser_dosen', compact('dosens'));
+            
+            // Buat array prodi sesuai dengan isi database
+            $prodiMap = [
+                1 => 'Teknik Elektro',
+                2 => 'Teknik Informatika'
+            ];
+            
+            return view('pesan.admin.managementuser_dosen', compact('dosens', 'prodiMap'));
         } catch (\Exception $e) {
             Log::error('Error di managementDosen: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat memuat data dosen: ' . $e->getMessage());
@@ -30,7 +37,20 @@ class AdminUserController extends Controller
         try {
             // Ambil semua data mahasiswa
             $mahasiswas = Mahasiswa::all();
-            return view('pesan.admin.managementuser_mahasiswa', compact('mahasiswas'));
+            
+            // Buat array prodi dan konsentrasi sesuai database
+            $prodiMap = [
+                1 => 'Teknik Elektro',
+                2 => 'Teknik Informatika'
+            ];
+            
+            $konsentrasiMap = [
+                1 => 'Web Development',
+                2 => 'Mobile Development',
+                3 => 'Data Science'
+            ];
+            
+            return view('pesan.admin.managementuser_mahasiswa', compact('mahasiswas', 'prodiMap', 'konsentrasiMap'));
         } catch (\Exception $e) {
             Log::error('Error di managementMahasiswa: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat memuat data mahasiswa: ' . $e->getMessage());
@@ -41,11 +61,10 @@ class AdminUserController extends Controller
     public function tambahDosen()
     {
         try {
-            // Buat array prodi statis karena tabel prodis tidak ada
+            // Sesuaikan dengan data yang sebenarnya ada di database
             $prodis = [
-                ['id' => 1, 'nama_prodi' => 'Teknik Informatika'],
-                ['id' => 2, 'nama_prodi' => 'Sistem Informasi'],
-                ['id' => 3, 'nama_prodi' => 'Teknik Elektro']
+                ['id' => 1, 'nama_prodi' => 'Teknik Elektro'],
+                ['id' => 2, 'nama_prodi' => 'Teknik Informatika']
             ];
             
             return view('pesan.admin.tambahdosen', compact('prodis'));
@@ -220,6 +239,191 @@ class AdminUserController extends Controller
         } catch (\Exception $e) {
             Log::error('Error di deleteMahasiswa: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat menghapus mahasiswa: ' . $e->getMessage());
+        }
+    }
+    
+    // Method untuk menampilkan form edit dosen
+    public function editDosen($nip)
+    {
+        try {
+            // Cari dosen berdasarkan NIP
+            $dosen = Dosen::where('nip', $nip)->firstOrFail();
+            
+            // Sesuaikan dengan data yang sebenarnya ada di database
+            $prodis = [
+                ['id' => 1, 'nama_prodi' => 'Teknik Elektro'],
+                ['id' => 2, 'nama_prodi' => 'Teknik Informatika']
+            ];
+            
+            return view('pesan.admin.editdosen', compact('dosen', 'prodis'));
+        } catch (\Exception $e) {
+            Log::error('Error di editDosen: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat data dosen: ' . $e->getMessage());
+        }
+    }
+    
+    // Method untuk update data dosen
+    public function updateDosen(Request $request, $nip)
+    {
+        try {
+            Log::info('Attempting to update dosen with NIP: ' . $nip);
+            
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'nama' => 'required',
+                'email' => 'required|email|unique:dosens,email,'.$nip.',nip',
+                'prodi_id' => 'required|exists:prodi,id', // Validate prodi_id exists in prodi table
+                'password' => 'nullable|min:6',
+            ]);
+            
+            if ($validator->fails()) {
+                Log::warning('Validation failed: ' . json_encode($validator->errors()->toArray()));
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            
+            // Cari dosen berdasarkan NIP
+            $dosen = Dosen::where('nip', $nip)->firstOrFail();
+            
+            // Update data dosen
+            $dosen->nama = $request->nama;
+            $dosen->email = $request->email;
+            
+            // Field opsional
+            if ($request->has('nama_singkat')) {
+                $dosen->nama_singkat = $request->nama_singkat;
+            }
+            
+            // Kolom jabatan_fungsional jika ada
+            if ($request->has('jabatan_fungsional')) {
+                $dosen->jabatan_fungsional = $request->jabatan_fungsional;
+            }
+            
+            // Kolom prodi_id - pastikan nilai valid
+            $dosen->prodi_id = $request->prodi_id;
+            
+            // Update password jika diisi
+            if ($request->filled('password')) {
+                $dosen->password = Hash::make($request->password);
+            }
+            
+            // Simpan perubahan
+            $dosen->save();
+            
+            Log::info('Dosen berhasil diperbarui dengan NIP: ' . $dosen->nip);
+            
+            return redirect()->route('admin.managementuser_dosen')
+                ->with('success', 'Data dosen berhasil diperbarui!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error: ' . $e->getMessage());
+            return back()->withErrors($e->validator)->withInput();
+        } catch (\Illuminate\Database\QueryException $e) {
+            Log::error('Database error: ' . $e->getMessage());
+            // Pesan error yang lebih spesifik untuk foreign key constraint
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return back()->with('error', 'ID Program Studi tidak valid. Silahkan pilih Program Studi yang tersedia.')->withInput();
+            }
+            return back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Error di updateDosen: ' . $e->getMessage());
+            Log::error('Error detail: ' . $e->getTraceAsString());
+            return back()->with('error', 'Terjadi kesalahan saat memperbarui data dosen: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+    
+    // Method untuk menampilkan form edit mahasiswa
+    public function editMahasiswa($nim)
+    {
+        try {
+            // Cari mahasiswa berdasarkan NIM
+            $mahasiswa = Mahasiswa::where('nim', $nim)->firstOrFail();
+            
+            // Data statis untuk prodi dan konsentrasi
+            $prodis = [
+                ['id' => 1, 'nama_prodi' => 'Teknik Elektro'],
+                ['id' => 2, 'nama_prodi' => 'Teknik Informatika']
+            ];
+            
+            $konsentrasis = [
+                ['id' => 1, 'nama_konsentrasi' => 'Web Development'],
+                ['id' => 2, 'nama_konsentrasi' => 'Mobile Development'],
+                ['id' => 3, 'nama_konsentrasi' => 'Data Science']
+            ];
+            
+            return view('pesan.admin.editmahasiswa', compact('mahasiswa', 'prodis', 'konsentrasis'));
+        } catch (\Exception $e) {
+            Log::error('Error di editMahasiswa: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat data mahasiswa: ' . $e->getMessage());
+        }
+    }
+    
+    // Method untuk update data mahasiswa
+    public function updateMahasiswa(Request $request, $nim)
+    {
+        try {
+            Log::info('Attempting to update mahasiswa with NIM: ' . $nim);
+            
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'nama' => 'required',
+                'email' => 'required|email|unique:mahasiswas,email,'.$nim.',nim',
+                'angkatan' => 'required',
+                'prodi_id' => 'required|exists:prodi,id',
+                'password' => 'nullable|min:6',
+            ]);
+            
+            if ($validator->fails()) {
+                Log::warning('Validation failed: ' . json_encode($validator->errors()->toArray()));
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            
+            // Cari mahasiswa berdasarkan NIM
+            $mahasiswa = Mahasiswa::where('nim', $nim)->firstOrFail();
+            
+            // Update data mahasiswa
+            $mahasiswa->nama = $request->nama;
+            $mahasiswa->email = $request->email;
+            $mahasiswa->angkatan = $request->angkatan;
+            $mahasiswa->prodi_id = $request->prodi_id;
+            
+            // Konsentrasi (opsional)
+            if ($request->has('konsentrasi_id') && !empty($request->konsentrasi_id)) {
+                $mahasiswa->konsentrasi_id = $request->konsentrasi_id;
+            } else {
+                $mahasiswa->konsentrasi_id = null;
+            }
+            
+            // Update password jika diisi
+            if ($request->filled('password')) {
+                $mahasiswa->password = Hash::make($request->password);
+            }
+            
+            // Simpan perubahan
+            $mahasiswa->save();
+            
+            Log::info('Mahasiswa berhasil diperbarui dengan NIM: ' . $mahasiswa->nim);
+            
+            return redirect()->route('admin.managementuser_mahasiswa')
+                ->with('success', 'Data mahasiswa berhasil diperbarui!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error: ' . $e->getMessage());
+            return back()->withErrors($e->validator)->withInput();
+        } catch (\Illuminate\Database\QueryException $e) {
+            Log::error('Database error: ' . $e->getMessage());
+            // Pesan error yang lebih spesifik untuk foreign key constraint
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return back()->with('error', 'ID Program Studi atau Konsentrasi tidak valid. Silahkan pilih yang tersedia.')->withInput();
+            }
+            return back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Error di updateMahasiswa: ' . $e->getMessage());
+            Log::error('Error detail: ' . $e->getTraceAsString());
+            return back()->with('error', 'Terjadi kesalahan saat memperbarui data mahasiswa: ' . $e->getMessage())
+                ->withInput();
         }
     }
 }

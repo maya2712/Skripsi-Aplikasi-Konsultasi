@@ -186,6 +186,14 @@
         margin: 0;
         float: none;
     }
+
+    /* Sembunyikan notifikasi global yang ada di atas */
+    .alert.alert-success.global-alert,
+    .alert.alert-danger.global-alert,
+    .alert-success[style*="background-color: rgba(220, 242, 231, 0.2)"],
+    .alert-success:not(.mb-4) {
+        display: none !important;
+    }
 </style>
 @endpush
 
@@ -255,22 +263,6 @@
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <!-- Notifikasi sukses -->
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
-                
-                <!-- Notifikasi error -->
-                @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
-                
                 <!-- Users Table -->
                 <div class="card">
                     <div class="card-body p-4">
@@ -300,10 +292,9 @@
                             <div class="col-auto mb-2 ms-3">
                                 <div class="d-flex align-items-center">
                                     <label class="me-2 mb-0">Program Studi</label>
-                                    <select class="form-select form-select-sm" style="width: 150px; height: 30px; padding: 2px 8px;">
+                                    <select class="form-select form-select-sm" style="width: 150px; height: 30px; padding: 2px 8px;" id="prodiFilter">
                                         <option>Semua</option>
                                         <option>Teknik Informatika</option>
-                                        <option>Sistem Informasi</option>
                                         <option>Teknik Elektro</option>
                                     </select>
                                 </div>
@@ -311,7 +302,7 @@
                             <div class="col-auto mb-2 ms-4">
                                 <div class="d-flex align-items-center">
                                     <label class="me-2 mb-0">Angkatan</label>
-                                    <select class="form-select form-select-sm" style="width: 100px; height: 30px; padding: 2px 8px;">
+                                    <select class="form-select form-select-sm" style="width: 100px; height: 30px; padding: 2px 8px;" id="angkatanFilter">
                                         <option>Semua</option>
                                         <option>2023</option>
                                         <option>2022</option>
@@ -322,7 +313,7 @@
                             </div>
                             <div class="col ms-auto mb-2 d-flex">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Cari" style="height: 30px; font-size: 14px;">
+                                    <input type="text" class="form-control" placeholder="Cari" style="height: 30px; font-size: 14px;" id="searchInput">
                                 </div>
                                 <a href="{{ route('admin.tambahmahasiswa') }}" class="btn ms-2" style="background: linear-gradient(to right, #00ad51, #00ad51); color: white; height: 30px; font-size: 14px; display: flex; align-items: center; white-space: nowrap; width: auto; padding: 0 10px;">
                                     <i class="fas fa-plus me-1"></i> Mahasiswa baru
@@ -361,15 +352,27 @@
                                             <td>{{ $mahasiswa->nama }}</td>
                                             <td>{{ $mahasiswa->email }}</td>
                                             <td>{{ $mahasiswa->angkatan }}</td>
-                                            <td>{{ $mahasiswa->prodi ? $mahasiswa->prodi->nama_prodi : 'N/A' }}</td>
-                                            <td>{{ $mahasiswa->konsentrasi ? $mahasiswa->konsentrasi->nama_konsentrasi : 'N/A' }}</td>
+                                            <td>
+                                                @if(isset($prodiMap[$mahasiswa->prodi_id]))
+                                                    {{ $prodiMap[$mahasiswa->prodi_id] }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($mahasiswa->konsentrasi_id && isset($konsentrasiMap[$mahasiswa->konsentrasi_id]))
+                                                    {{ $konsentrasiMap[$mahasiswa->konsentrasi_id] }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div class="dropdown">
                                                     <a href="#" class="edit-btn" data-bs-toggle="dropdown">
                                                         <i class="fas fa-pen"></i>
                                                     </a>
                                                     <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
+                                                        <li><a class="dropdown-item" href="{{ route('admin.edit-mahasiswa', $mahasiswa->nim) }}"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
                                                         <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li>
@@ -432,6 +435,19 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Menyembunyikan semua flash message global dengan JavaScript
+    document.querySelectorAll('.alert.alert-success:not(.mb-4), .alert.alert-danger:not(.mb-4)').forEach(function(alert) {
+        alert.style.display = 'none';
+    });
+    
+    // Menyembunyikan notifikasi hijau di atas
+    const globalAlerts = document.querySelectorAll('.alert-success[style*="background-color"]');
+    globalAlerts.forEach(function(alert) {
+        if (!alert.classList.contains('mb-4')) {
+            alert.style.display = 'none';
+        }
+    });
+
     // Toggle dropdown for grup
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
     const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
@@ -503,14 +519,66 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (selectedNims.length > 0) {
-                // Implementasi AJAX untuk menghapus multiple mahasiswa
+                // Pesan bahwa fitur masih dalam pengembangan
                 alert('Fitur hapus massal sedang dalam pengembangan');
-                // Di sini Anda bisa menambahkan kode AJAX untuk menghapus massal
             } else {
                 alert('Pilih minimal satu mahasiswa untuk dihapus');
             }
         }
     });
+    
+    // Fungsi untuk filter tabel berdasarkan input
+    const prodiFilter = document.getElementById('prodiFilter');
+    const angkatanFilter = document.getElementById('angkatanFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    function filterTable() {
+        const prodiValue = prodiFilter.value;
+        const angkatanValue = angkatanFilter.value;
+        const searchValue = searchInput.value.toLowerCase();
+        
+        const tableRows = document.querySelectorAll('tbody tr');
+        
+        tableRows.forEach(row => {
+            if (row.cells.length <= 1) return; // Skip "Belum ada data" row
+            
+            let showRow = true;
+            
+            // Filter berdasarkan prodi
+            if (prodiValue !== 'Semua') {
+                const prodiCell = row.cells[5].textContent.trim();
+                if (prodiCell !== prodiValue) {
+                    showRow = false;
+                }
+            }
+            
+            // Filter berdasarkan angkatan
+            if (angkatanValue !== 'Semua') {
+                const angkatanCell = row.cells[4].textContent.trim();
+                if (angkatanCell !== angkatanValue) {
+                    showRow = false;
+                }
+            }
+            
+            // Filter berdasarkan pencarian
+            if (searchValue) {
+                const nim = row.cells[1].textContent.toLowerCase();
+                const nama = row.cells[2].textContent.toLowerCase();
+                const email = row.cells[3].textContent.toLowerCase();
+                
+                if (!nim.includes(searchValue) && !nama.includes(searchValue) && !email.includes(searchValue)) {
+                    showRow = false;
+                }
+            }
+            
+            row.style.display = showRow ? '' : 'none';
+        });
+    }
+    
+    // Event listeners untuk filter
+    if (prodiFilter) prodiFilter.addEventListener('change', filterTable);
+    if (angkatanFilter) angkatanFilter.addEventListener('change', filterTable);
+    if (searchInput) searchInput.addEventListener('keyup', filterTable);
 });
 </script>
 @endpush

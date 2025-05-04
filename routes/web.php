@@ -201,6 +201,13 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         
         Route::delete('/delete-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'deleteDosen'])->name('admin.delete-dosen');
         Route::delete('/delete-mahasiswa/{nim}', [App\Http\Controllers\AdminUserController::class, 'deleteMahasiswa'])->name('admin.delete-mahasiswa');
+    
+        Route::get('/edit-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'editDosen'])->name('admin.edit-dosen');
+        Route::put('/update-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'updateDosen'])->name('admin.update-dosen');
+   
+        Route::get('/edit-mahasiswa/{nim}', [App\Http\Controllers\AdminUserController::class, 'editMahasiswa'])->name('admin.edit-mahasiswa');
+        Route::put('/update-mahasiswa/{nim}', [App\Http\Controllers\AdminUserController::class, 'updateMahasiswa'])->name('admin.update-mahasiswa');
+   
     });
 
 // Logout route

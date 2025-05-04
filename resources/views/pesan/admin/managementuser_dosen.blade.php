@@ -186,6 +186,14 @@
         margin: 0;
         float: none;
     }
+    
+    /* Sembunyikan notifikasi global yang ada di atas */
+    .alert.alert-success.global-alert,
+    .alert.alert-danger.global-alert,
+    .alert-success[style*="background-color: rgba(220, 242, 231, 0.2)"],
+    .alert-success:not(.mb-4) {
+        display: none !important;
+    }
 </style>
 @endpush
 
@@ -255,50 +263,55 @@
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <!-- Notifikasi sukses -->
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
-                
-                <!-- Notifikasi error -->
-                @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
-                
                 <!-- Users Table -->
                 <div class="card">
                     <div class="card-body p-4">
+                        <!-- Notifikasi sukses dengan desain modern -->
+                        @if(session('success'))
+                        <div class="alert mb-4" role="alert" style="background-color: rgba(39, 174, 96, 0.1); border-left: 4px solid #27AE60; color: #2E7D32; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 12px; position: relative;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle me-2" style="font-size: 18px; color: #27AE60;"></i>
+                                <div><strong>Berhasil!</strong> {{ session('success') }}</div>
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" style="font-size: 10px; padding: 8px;"></button>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        <!-- Notifikasi error dengan desain modern -->
+                        @if(session('error'))
+                        <div class="alert mb-4" role="alert" style="background-color: rgba(255, 82, 82, 0.1); border-left: 4px solid #FF5252; color: #D32F2F; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 12px; position: relative;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle me-2" style="font-size: 18px; color: #FF5252;"></i>
+                                <div><strong>Error!</strong> {{ session('error') }}</div>
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" style="font-size: 10px; padding: 8px;"></button>
+                            </div>
+                        </div>
+                        @endif
+                        
                         <div class="row mb-4">
                             <div class="col-auto mb-2 ms-3">
                                 <div class="d-flex align-items-center">
                                     <label class="me-2 mb-0">Tampilkan</label>
-                                    <select class="form-select form-select-sm" style="width: 70px; height: 30px; padding: 2px 8px;">
-                                        <option>50</option>
-                                        <option>100</option>
-                                        <option>200</option>
+                                    <select class="form-select form-select-sm" style="width: 70px; height: 30px; padding: 2px 8px;" id="displayLimit">
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                        <option value="200">200</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-auto mb-2 ms-4">
                                 <div class="d-flex align-items-center">
                                     <label class="me-2 mb-0">Jurusan</label>
-                                    <select class="form-select form-select-sm" style="width: 120px; height: 30px; padding: 2px 8px;">
+                                    <select class="form-select form-select-sm" style="width: 180px; height: 30px; padding: 2px 8px;" id="prodiFilter">
                                         <option>Semua</option>
-                                        <option>Teknik Informatika</option>
-                                        <option>Sistem Informasi</option>
                                         <option>Teknik Elektro</option>
+                                        <option>Teknik Informatika</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col ms-auto mb-2 d-flex">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Cari" style="height: 30px; font-size: 14px;">
+                                    <input type="text" class="form-control" placeholder="Cari" style="height: 30px; font-size: 14px;" id="searchInput">
                                 </div>
                                 <a href="{{ route('admin.tambahdosen') }}" class="btn ms-2" style="background: linear-gradient(to right, #00ad51, #00ad51); color: white; height: 30px; font-size: 14px; display: flex; align-items: center; white-space: nowrap; width: auto; padding: 0 10px;">
                                     <i class="fas fa-plus me-1"></i> Dosen baru
@@ -319,6 +332,7 @@
                                         <th>NIP <i class="fas fa-sort"></i></th>
                                         <th>Nama <i class="fas fa-sort"></i></th>
                                         <th>Email <i class="fas fa-sort"></i></th>
+                                        <th>Jabatan <i class="fas fa-sort"></i></th>
                                         <th>Prodi <i class="fas fa-sort"></i></th>
                                         <th>Aksi</th>
                                     </tr>
@@ -336,14 +350,21 @@
                                             <td>{{ $dosen->nip }}</td>
                                             <td>{{ $dosen->nama }}</td>
                                             <td>{{ $dosen->email }}</td>
-                                            <td>{{ $dosen->prodi ? $dosen->prodi->nama_prodi : 'N/A' }}</td>
+                                            <td>{{ $dosen->jabatan_fungsional ?? 'N/A' }}</td>
+                                            <td>
+                                                @if(isset($prodiMap[$dosen->prodi_id]))
+                                                    {{ $prodiMap[$dosen->prodi_id] }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div class="dropdown">
                                                     <a href="#" class="edit-btn" data-bs-toggle="dropdown">
                                                         <i class="fas fa-pen"></i>
                                                     </a>
                                                     <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
+                                                        <li><a class="dropdown-item" href="{{ route('admin.edit-dosen', $dosen->nip) }}"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
                                                         <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
                                                         <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
                                                         <li><hr class="dropdown-divider"></li>
@@ -363,7 +384,7 @@
                                         @endforeach
                                     @else
                                         <tr>
-                                            <td colspan="7" class="text-center">Belum ada data dosen</td>
+                                            <td colspan="8" class="text-center">Belum ada data dosen</td>
                                         </tr>
                                     @endif
                                 </tbody>
@@ -407,6 +428,19 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Menyembunyikan semua flash message global dengan JavaScript
+    document.querySelectorAll('.alert.alert-success:not(.mb-4), .alert.alert-danger:not(.mb-4)').forEach(function(alert) {
+        alert.style.display = 'none';
+    });
+    
+    // Menyembunyikan notifikasi hijau di atas
+    const globalAlerts = document.querySelectorAll('.alert-success[style*="background-color"]');
+    globalAlerts.forEach(function(alert) {
+        if (!alert.classList.contains('mb-4')) {
+            alert.style.display = 'none';
+        }
+    });
+
     // Toggle dropdown for grup
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
     const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
@@ -486,6 +520,97 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Fungsi untuk filter tabel berdasarkan jumlah yang ditampilkan
+    const displayLimitSelect = document.getElementById('displayLimit');
+    if (displayLimitSelect) {
+        displayLimitSelect.addEventListener('change', function() {
+            filterTable();
+        });
+    }
+
+    // Fungsi untuk filter berdasarkan jurusan/prodi
+    const prodiSelect = document.getElementById('prodiFilter');
+    if (prodiSelect) {
+        prodiSelect.addEventListener('change', function() {
+            filterTable();
+        });
+    }
+
+    // Fungsi untuk pencarian
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            filterTable();
+        });
+    }
+
+    // Fungsi untuk melakukan filter pada tabel
+    function filterTable() {
+        const displayLimit = parseInt(displayLimitSelect.value);
+        const prodiFilter = prodiSelect.value;
+        const searchQuery = searchInput.value.toLowerCase();
+        
+        const tableRows = document.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+        
+        tableRows.forEach(function(row) {
+            // Skip row jika tidak berisi data dosen (baris pesan 'Belum ada data dosen')
+            if (row.querySelectorAll('td').length <= 1) {
+                return;
+            }
+            
+            let showRow = true;
+            
+            // Filter berdasarkan prodi jika tidak 'Semua'
+            if (prodiFilter !== 'Semua') {
+                const prodiCell = row.querySelector('td:nth-child(7)').textContent.trim();
+                if (prodiCell !== prodiFilter) {
+                    showRow = false;
+                }
+            }
+            
+            // Filter berdasarkan pencarian
+            if (searchQuery) {
+                const nip = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const nama = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                const email = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
+                const jabatan = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+                
+                if (!nip.includes(searchQuery) && 
+                    !nama.includes(searchQuery) && 
+                    !email.includes(searchQuery) && 
+                    !jabatan.includes(searchQuery)) {
+                    showRow = false;
+                }
+            }
+            
+            // Filter berdasarkan batas tampilan
+            if (showRow && visibleCount < displayLimit) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Update nomor urut berdasarkan yang terlihat
+        updateRowNumbers();
+    }
+
+    // Fungsi untuk update nomor urut
+    function updateRowNumbers() {
+        const visibleRows = Array.from(document.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+        visibleRows.forEach((row, index) => {
+            const numberCell = row.querySelector('td:nth-child(2)');
+            if (numberCell) {
+                numberCell.textContent = index + 1;
+            }
+        });
+    }
+
+    // Inisialisasi filter saat halaman dimuat
+    filterTable();
 });
 </script>
 @endpush
