@@ -99,9 +99,9 @@
                             </option>
                         @endforeach
                     @else
-                        <option value="1">Web Development</option>
-                        <option value="2">Mobile Development</option>
-                        <option value="3">Data Science</option>
+                        <option value="1">Rekayasa Perangkat Lunak</option>
+                        <option value="2">Komputasi Cerdas dan Visi</option>
+                        <option value="3">Komputasi Berbasis Jaringan</option>
                     @endif
                 </select>
                 @error('konsentrasi_id')
