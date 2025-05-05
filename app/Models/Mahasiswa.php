@@ -59,4 +59,11 @@ class Mahasiswa extends Authenticatable
     {
         return $this->role && $this->role->role_akses === $roleName;
     }
+
+    // Relasi dengan grup
+    public function grups()
+    {
+        return $this->belongsToMany(Grup::class, 'grup_mahasiswa', 'mahasiswa_nim', 'grup_id', 'nim', 'id')
+                    ->withTimestamps();
+    }
 }

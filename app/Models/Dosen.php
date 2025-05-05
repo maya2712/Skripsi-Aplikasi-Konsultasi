@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable; 
 use App\Traits\HasGoogleCalendar;
+use App\Models\Grup;
 
 class Dosen extends Authenticatable
 {
@@ -52,5 +53,11 @@ class Dosen extends Authenticatable
     public function hasRole($roleName)
     {
         return $this->role->name === $roleName;
+    }
+
+    // Relasi dengan grup
+    public function grups()
+    {
+        return $this->hasMany(Grup::class, 'dosen_id', 'nip');
     }
 }

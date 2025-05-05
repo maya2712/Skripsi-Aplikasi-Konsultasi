@@ -266,21 +266,28 @@
                                 </div>
                             </a>
                             <div class="collapse komunikasi-submenu" id="komunikasiSubmenu">
-                                <a href="{{ url('/buatgrupbaru') }}" class="nav-link menu-item d-flex align-items-center" style="color: #546E7A;">
+                                <a href="{{ route('dosen.grup.create') }}" class="nav-link menu-item d-flex align-items-center" style="color: #546E7A;">
                                     <i class="fas fa-plus me-2"></i>Grup Baru
                                 </a>
-                                <a href="#" class="nav-link menu-item d-flex justify-content-between align-items-center">
-                                    Bimbingan Skripsi
-                                    <span class="badge bg-danger rounded-pill">3</span>
-                                </a>
-                                <a href="#" class="nav-link menu-item d-flex justify-content-between align-items-center">
-                                    Kerja Praktek
-                                    <span class="badge bg-danger rounded-pill">1</span>
-                                </a>
-                                <a href="#" class="nav-link menu-item d-flex justify-content-between align-items-center">
-                                    Pembimbing Akademik
-                                    <span class="badge bg-danger rounded-pill">4</span>
-                                </a>
+                                
+                                @php
+                                    $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)->get();
+                                @endphp
+                                
+                                @if($grups && $grups->count() > 0)
+                                    @foreach($grups as $grup)
+                                    <a href="{{ route('dosen.grup.show', $grup->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                                        {{ $grup->nama_grup }}
+                                        @if($unreadCount = $grup->unreadMessages ?? 0)
+                                        <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                                        @endif
+                                    </a>
+                                    @endforeach
+                                @else
+                                    <div class="nav-link menu-item text-muted">
+                                        <small>Belum ada grup</small>
+                                    </div>
+                                @endif
                             </div>
                             <a href="{{ url('/riwayatpesandosen') }}" class="nav-link menu-item">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan

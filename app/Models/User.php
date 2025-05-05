@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Grup;
 
 class User extends Authenticatable
 {
@@ -56,5 +57,18 @@ class User extends Authenticatable
         } else {
             return $this->email; // untuk admin
         }
+    }
+    
+    // Grup yang dibuat oleh dosen
+    public function grups()
+    {
+        return $this->hasMany(Grup::class, 'dosen_id');
+    }
+    
+    // Grup dimana user menjadi anggota (untuk mahasiswa)
+    public function grupAnggota()
+    {
+        return $this->belongsToMany(Grup::class, 'grup_mahasiswa', 'mahasiswa_id', 'grup_id')
+                    ->withTimestamps();
     }
 }

@@ -50,10 +50,6 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
         return view('pesan.dosen.buatpesandosen');
     });
 
-    Route::get('/buatgrupbaru', function () {
-        return view('pesan.dosen.buatgrupbaru');
-    });
-
     Route::get('/isipesandosen', function () {
         return view('pesan.dosen.isipesandosen');
     });
@@ -177,7 +173,17 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         Route::get('/google/connect', 'connect')->name('dosen.google.connect');
         Route::get('/google/events', 'getEvents')->name('dosen.google.events');
         Route::get('/google/callback', 'callback')->name('dosen.google.callback');
+        
     });
+    
+    // Route untuk fitur grup
+    Route::get('/daftargrup', [App\Http\Controllers\GrupController::class, 'index'])->name('dosen.grup.index');
+    Route::get('/buatgrupbaru', [App\Http\Controllers\GrupController::class, 'create'])->name('dosen.grup.create');
+    Route::post('/simpangrup', [App\Http\Controllers\GrupController::class, 'store'])->name('dosen.grup.store');
+    Route::get('/detailgrup/{id}', [App\Http\Controllers\GrupController::class, 'show'])->name('dosen.grup.show');
+    Route::delete('/hapusgrup/{id}', [App\Http\Controllers\GrupController::class, 'destroy'])->name('dosen.grup.destroy');
+    Route::post('/tambah-anggota-grup/{id}', [App\Http\Controllers\GrupController::class, 'addMember'])->name('dosen.grup.addMember');
+    Route::delete('/grupanggota/hapus/{id}/{mahasiswa_id}', [App\Http\Controllers\GrupController::class, 'hapusAnggota']);
 });
 
 // Pastikan routes sudah ada di web.php dalam grup admin
@@ -197,6 +203,7 @@ Route::middleware(['auth:admin', \App\Http\Middleware\PreventBackHistory::class]
     
     Route::delete('/delete-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'deleteDosen'])->name('admin.delete-dosen');
     Route::delete('/delete-mahasiswa/{nim}', [App\Http\Controllers\AdminUserController::class, 'deleteMahasiswa'])->name('admin.delete-mahasiswa');
+    Route::delete('/delete-multiple-mahasiswa', [App\Http\Controllers\AdminUserController::class, 'deleteMultipleMahasiswa'])->name('admin.delete-multiple-mahasiswa');
 
     Route::get('/edit-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'editDosen'])->name('admin.edit-dosen');
     Route::put('/update-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'updateDosen'])->name('admin.update-dosen');
