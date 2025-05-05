@@ -80,9 +80,10 @@ class MahasiswaController extends Controller
                 'DISETUJUI' => 'bg-success',
                 'DITOLAK' => 'bg-danger',
                 'USULAN' => 'bg-info',
+                default => 'bg-secondary'
             };
             
-            \Log::info('Data usulan ditemukan', ['usulan' => $usulan]);
+            Log::info('Data usulan ditemukan', ['usulan' => $usulan]);
 
             // Kirim data ke view
             return view('bimbingan.aksiInformasi', compact(
@@ -94,7 +95,7 @@ class MahasiswaController extends Controller
             ));
 
         } catch (\Exception $e) {
-            \Log::error('Error di getDetailBimbingan: ' . $e->getMessage());
+            Log::error('Error di getDetailBimbingan: ' . $e->getMessage());
             return redirect()
                 ->back()
                 ->with('error', 'Terjadi kesalahan saat mengambil data usulan bimbingan');
@@ -145,11 +146,9 @@ class MahasiswaController extends Controller
         }
     }
 
-    public function getDetailDaftar($nip, Request $request)
+    public function getDetailDaftar($nip)
     {
         try {
-            $perPage = $request->input('per_page', 10);
-            
             $dosen = DB::table('dosens')
                 ->where('nip', $nip)
                 ->firstOrFail();
@@ -165,7 +164,7 @@ class MahasiswaController extends Controller
                 )
                 ->orderBy('ub.tanggal', 'desc')
                 ->orderBy('ub.waktu_mulai', 'asc')
-                ->paginate($perPage);
+                ->paginate(10);
 
             return view('bimbingan.mahasiswa.detaildaftar', compact('dosen', 'bimbingan'));
 
@@ -210,7 +209,42 @@ class MahasiswaController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error getting riwayat: ' . $e->getMessage());
-            return back()->with('error', 'Gagal memuat riwayat bimbingan');
+            return response()->json(['error' => 'Gagal memuat riwayat bimbingan'], 500);
+        }
+    }
+    
+    // Fungsi untuk mendapatkan grup-grup mahasiswa
+    public function getGrupMahasiswa()
+    {
+        try {
+            $mahasiswa = Auth::user();
+            $grups = $mahasiswa->grups;
+            
+            return view('pesan.mahasiswa.daftargrupmahasiswa', compact('grups'));
+        } catch (\Exception $e) {
+            Log::error('Error mendapatkan daftar grup: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memuat daftar grup');
+        }
+    }
+    
+    // Fungsi untuk mendapatkan detail grup
+    public function getDetailGrup($id)
+    {
+        try {
+            $mahasiswa = Auth::user();
+            $grup = \App\Models\Grup::with('mahasiswa')->findOrFail($id);
+            
+            // Cek apakah mahasiswa ini anggota grup
+            $isMember = $grup->mahasiswa->contains('nim', $mahasiswa->nim);
+            
+            if (!$isMember) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini');
+            }
+            
+            return view('pesan.mahasiswa.detailgrupmahasiswa', compact('grup'));
+        } catch (\Exception $e) {
+            Log::error('Error mendapatkan detail grup: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memuat detail grup');
         }
     }
 }

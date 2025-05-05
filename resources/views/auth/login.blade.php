@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Sistem Informasi Bimbingan dan Perpesanan Teknik Elektro UNRI">
     <meta name="author" content="SITEI JTE UNRI">
-    <title>APLIKASI BIMBINGAN DAN PERPESANAN</title>
+    <title>APLIKASI KONSULTASI</title>
+
+     {{-- custom logo website --}}
+     <link rel="icon" href="{{ asset('images/logounri.png') }}" type="image/png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">

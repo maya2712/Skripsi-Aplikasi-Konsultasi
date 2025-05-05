@@ -8,6 +8,7 @@ use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\PilihJadwalController;
 use App\Http\Controllers\MasukkanJadwalController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 
 // Route untuk guest (belum login)
 Route::middleware(['guest'])->group(function () {
@@ -112,6 +113,25 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
     Route::get('/riwayatmahasiswa', function () {
         return view('bimbingan.riwayatmahasiswa');
     });
+
+    // Route untuk Grup Mahasiswa - BARU
+    Route::get('/daftargrupmahasiswa', function () {
+        $mahasiswa = Auth::user();
+        $grups = $mahasiswa->grups; // Mengambil grup dari relasi yang sudah ada
+        return view('pesan.mahasiswa.daftargrupmahasiswa', compact('grups'));
+    })->name('mahasiswa.grup.index');
+    
+    Route::get('/detailgrupmahasiswa/{id}', function ($id) {
+        $grup = App\Models\Grup::with('mahasiswa')->findOrFail($id);
+        // Cek apakah mahasiswa ini anggota grup
+        $isMember = $grup->mahasiswa->contains('nim', Auth::user()->nim);
+        
+        if (!$isMember) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini');
+        }
+        
+        return view('pesan.mahasiswa.detailgrupmahasiswa', compact('grup'));
+    })->name('mahasiswa.grup.show');
 
     Route::controller(MahasiswaController::class)->group(function () {
         Route::get('/usulanbimbingan', 'index')->name('mahasiswa.usulanbimbingan');
