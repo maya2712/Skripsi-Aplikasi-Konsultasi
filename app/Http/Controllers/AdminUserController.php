@@ -81,14 +81,13 @@ class AdminUserController extends Controller
             // Data statis untuk prodi dan konsentrasi
             $prodis = [
                 ['id' => 1, 'nama_prodi' => 'Teknik Informatika'],
-                ['id' => 2, 'nama_prodi' => 'Sistem Informasi'],
-                ['id' => 3, 'nama_prodi' => 'Teknik Elektro']
+                ['id' => 2, 'nama_prodi' => 'Teknik Elektro'],
             ];
             
             $konsentrasis = [
-                ['id' => 1, 'nama_konsentrasi' => 'Web Development'],
-                ['id' => 2, 'nama_konsentrasi' => 'Mobile Development'],
-                ['id' => 3, 'nama_konsentrasi' => 'Data Science']
+                ['id' => 1, 'nama_konsentrasi' => 'Rekayasa Perangkat Lunak'],
+                ['id' => 2, 'nama_konsentrasi' => 'Komputasi Cerdas dan Visi'],
+                ['id' => 3, 'nama_konsentrasi' => 'Komputasi Berbasis Jaringan']
             ];
             
             return view('pesan.admin.tambahmahasiswa', compact('prodis', 'konsentrasis'));
@@ -424,6 +423,101 @@ class AdminUserController extends Controller
             Log::error('Error detail: ' . $e->getTraceAsString());
             return back()->with('error', 'Terjadi kesalahan saat memperbarui data mahasiswa: ' . $e->getMessage())
                 ->withInput();
+        }
+    }
+    
+    /**
+     * Menghapus multiple mahasiswa berdasarkan NIM yang dipilih
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteMultipleMahasiswa(Request $request)
+    {
+        try {
+            // Validasi request
+            $validator = Validator::make($request->all(), [
+                'nims' => 'required|array',
+                'nims.*' => 'exists:mahasiswas,nim'
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal: ' . $validator->errors()->first()
+                ]);
+            }
+            
+            $nims = $request->nims;
+            $count = count($nims);
+            
+            // Hapus semua mahasiswa yang dipilih
+            Mahasiswa::whereIn('nim', $nims)->delete();
+            
+            // Log aktivitas
+            Log::info('Admin menghapus ' . $count . ' mahasiswa dengan NIM: ' . implode(', ', $nims));
+            
+            return response()->json([
+                'success' => true,
+                'message' => $count . ' mahasiswa berhasil dihapus',
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error di deleteMultipleMahasiswa: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    /**
+     * Menampilkan form konfirmasi reset password dosen
+     */
+    public function showResetPassword($nip)
+    {
+        try {
+            // Cari dosen berdasarkan NIP
+            $dosen = Dosen::where('nip', $nip)->firstOrFail();
+            return view('pesan.admin.reset_password_dosen', compact('dosen'));
+        } catch (\Exception $e) {
+            Log::error('Error di showResetPassword: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat data dosen: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Melakukan reset password dosen
+     */
+    public function resetPassword(Request $request, $nip)
+    {
+        try {
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'new_password' => 'required|min:6|confirmed',
+            ]);
+            
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            
+            // Cari dosen berdasarkan NIP
+            $dosen = Dosen::where('nip', $nip)->firstOrFail();
+            
+            // Update password
+            $dosen->password = Hash::make($request->new_password);
+            $dosen->save();
+            
+            Log::info('Password untuk dosen ' . $dosen->nama . ' (NIP: ' . $dosen->nip . ') berhasil direset');
+            
+            // Redirect kembali ke halaman manajemen dosen dengan pesan sukses
+            return redirect()->route('admin.managementuser_dosen')
+                ->with('success', 'Password untuk ' . $dosen->nama . ' berhasil direset!');
+        } catch (\Exception $e) {
+            Log::error('Error di resetPassword: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat mereset password: ' . $e->getMessage());
         }
     }
 }

@@ -269,8 +269,8 @@
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesan_admin') }}" class="nav-link active">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link active">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
                             </a>
                             <a href="#" class="nav-link" id="userManagementToggle">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -304,15 +304,11 @@
                                     </a>
                                 </div>
                             </div>
-                            <a href="{{ url('/resetpassword_admin') }}" class="nav-link">
-                                <i class="fas fa-key me-2"></i>Reset Password
-                            </a>
+                           
                             <a href="{{ url('/logs_admin') }}" class="nav-link">
-                                <i class="fas fa-history me-2"></i>Log Aktivitas
+                                <i class="fas fa-history me-2"></i>Riwayat
                             </a>
-                            <a href="{{ url('/settings_admin') }}" class="nav-link">
-                                <i class="fas fa-cog me-2"></i>Pengaturan
-                            </a>
+                           
                         </div>
                     </div>
                 </div>
@@ -540,57 +536,6 @@
                     <!-- Pesan pencarian tidak tersedia -->
                     <div id="no-results" class="text-center py-4" style="display: none;">
                         <p class="text-muted">Pesan tidak tersedia</p>
-                    </div>
-                </div>
-                
-                <!-- Quick Access Cards -->
-                <div class="card mt-4">
-                    <div class="card-header bg-white">
-                        <h6 class="mb-0">Akses Cepat</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <a href="{{ url('/addmessage_admin') }}" class="card text-center h-100 text-decoration-none">
-                                    <div class="card-body">
-                                        <div class="mb-3 bg-primary bg-opacity-10 p-3 rounded d-inline-block">
-                                            <i class="fas fa-plus text-primary fa-2x"></i>
-                                        </div>
-                                        <h6 class="mb-0">Pesan Baru</h6>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="{{ url('/inbox_admin') }}" class="card text-center h-100 text-decoration-none">
-                                    <div class="card-body">
-                                        <div class="mb-3 bg-warning bg-opacity-10 p-3 rounded d-inline-block">
-                                            <i class="fas fa-inbox text-warning fa-2x"></i>
-                                        </div>
-                                        <h6 class="mb-0">Kotak Masuk</h6>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="{{ url('/creategroup_admin') }}" class="card text-center h-100 text-decoration-none">
-                                    <div class="card-body">
-                                        <div class="mb-3 bg-success bg-opacity-10 p-3 rounded d-inline-block">
-                                            <i class="fas fa-users text-success fa-2x"></i>
-                                        </div>
-                                        <h6 class="mb-0">Buat Grup</h6>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="{{ url('/archivedmessages_admin') }}" class="card text-center h-100 text-decoration-none">
-                                    <div class="card-body">
-                                        <div class="mb-3 bg-info bg-opacity-10 p-3 rounded d-inline-block">
-                                            <i class="fas fa-archive text-info fa-2x"></i>
-                                        </div>
-                                        <h6 class="mb-0">Arsip Pesan</h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

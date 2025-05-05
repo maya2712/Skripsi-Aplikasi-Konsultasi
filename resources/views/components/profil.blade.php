@@ -4,6 +4,7 @@
 
 @push('styles')
 <style>
+    /* CSS styles tetap sama seperti sebelumnya */
     body {
         background-color: #F5F7FA;
     }
@@ -220,10 +221,20 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="profile-wrapper">
-                <!-- Tombol Kembali di dalam container -->
+                <!-- Tombol Kembali sesuai dengan role user -->
+                @if($guard === 'mahasiswa')
                 <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="back-button">
                     <i class="fas fa-arrow-left"></i>
                 </a>
+                @elseif($guard === 'dosen')
+                <a href="{{ route('dosen.dashboard.pesan') }}" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                @elseif($guard === 'admin')
+                <a href="{{ route('admin.dashboard') }}" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                @endif
                 
                 <!-- Profile Header -->
                 <div class="profile-header">
@@ -237,8 +248,10 @@
                             <i class="fas fa-camera"></i>
                         </div>
                     </div>
-                    <h3>Desi Maya Sari</h3>
-                    <p>Mahasiswa</p>
+                    
+                    <!-- Nama dan role dinamis -->
+                    <h3>{{ $user->nama }}</h3>
+                    <p>{{ ucfirst($guard) }}</p>
                 </div>
                 
                 <!-- Profile Content -->
@@ -249,23 +262,29 @@
                         <div class="col-md-6">
                             <div class="info-group">
                                 <div class="info-label">Nama Lengkap</div>
-                                <div class="info-value">Desi Maya Sari</div>
+                                <div class="info-value">{{ $user->nama }}</div>
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="info-group">
-                                <div class="info-label">NIM</div>
-                                <div class="info-value">2107110665</div>
+                                <!-- Tampilkan NIM/NIP sesuai role -->
+                                <div class="info-label">{{ $guard === 'mahasiswa' ? 'NIM' : ($guard === 'dosen' ? 'NIP' : 'ID Admin') }}</div>
+                                <div class="info-value">{{ $guard === 'mahasiswa' ? $user->nim : ($guard === 'dosen' ? $user->nip : $user->id) }}</div>
                             </div>
                         </div>
                         
+                        <!-- Program Studi hanya untuk mahasiswa dan dosen -->
+                        @if($guard === 'mahasiswa' || $guard === 'dosen')
                         <div class="col-md-6">
                             <div class="info-group">
                                 <div class="info-label">Program Studi</div>
-                                <div class="info-value">Teknik Informatika</div>
+                                <div class="info-value">
+                                    {{ isset($prodiMap[$user->prodi_id]) ? $prodiMap[$user->prodi_id] : 'N/A' }}
+                                </div>
                             </div>
                         </div>
+                        @endif
                         
                         <div class="col-md-6">
                             <div class="info-group">
@@ -274,19 +293,44 @@
                             </div>
                         </div>
                         
+                        <!-- Angkatan hanya untuk mahasiswa -->
+                        @if($guard === 'mahasiswa')
                         <div class="col-md-6">
                             <div class="info-group">
                                 <div class="info-label">Angkatan</div>
-                                <div class="info-value">2021</div>
+                                <div class="info-value">{{ $user->angkatan }}</div>
                             </div>
                         </div>
+                        @endif
+                        
+                        <!-- Jabatan hanya untuk dosen -->
+                        @if($guard === 'dosen')
+                        <div class="col-md-6">
+                            <div class="info-group">
+                                <div class="info-label">Jabatan</div>
+                                <div class="info-value">{{ $user->jabatan_fungsional ?? 'N/A' }}</div>
+                            </div>
+                        </div>
+                        @endif
                         
                         <div class="col-md-6">
                             <div class="info-group">
                                 <div class="info-label">Email</div>
-                                <div class="info-value">desi.mayasari@students.unri.ac.id</div>
+                                <div class="info-value">{{ $user->email }}</div>
                             </div>
                         </div>
+                        
+                        <!-- Konsentrasi hanya untuk mahasiswa -->
+                        @if($guard === 'mahasiswa' && isset($user->konsentrasi_id))
+                        <div class="col-md-6">
+                            <div class="info-group">
+                                <div class="info-label">Konsentrasi</div>
+                                <div class="info-value">
+                                    {{ isset($konsentrasiMap[$user->konsentrasi_id]) ? $konsentrasiMap[$user->konsentrasi_id] : 'N/A' }}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     
                     <h4 class="section-title mt-4">Pengaturan Akun</h4>
@@ -371,7 +415,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Foto profil upload handling
+        // Script tetap sama seperti sebelumnya
         const uploadArea = document.getElementById('uploadArea');
         const photoInput = document.getElementById('photoInput');
         const photoPreview = document.getElementById('photoPreview');

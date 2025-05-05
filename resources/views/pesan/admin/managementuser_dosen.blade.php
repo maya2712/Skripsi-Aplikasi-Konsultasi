@@ -213,7 +213,7 @@
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
                             <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
                             </a>
                             <a href="#" class="nav-link parent-active parent-menu" id="userManagementToggle">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -233,7 +233,7 @@
                             </div>
                             <a href="#" class="nav-link parent-menu" id="grupDropdownToggle">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-user-tag me-2"></i>Manajemen Grup</span>
+                                    <span><i class="fas fa-user-tag me-2"></i>Daftar Grup</span>
                                     <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
                                 </div>
                             </a>
@@ -247,15 +247,10 @@
                                     </a>
                                 </div>
                             </div>
-                            <a href="{{ url('/resetpassword_admin') }}" class="nav-link">
-                                <i class="fas fa-key me-2"></i>Reset Password
-                            </a>
                             <a href="{{ url('/logs_admin') }}" class="nav-link">
-                                <i class="fas fa-history me-2"></i>Log Aktivitas
+                                <i class="fas fa-history me-2"></i>Riwayat
                             </a>
-                            <a href="{{ url('/settings_admin') }}" class="nav-link">
-                                <i class="fas fa-cog me-2"></i>Pengaturan
-                            </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -365,7 +360,6 @@
                                                     </a>
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li><a class="dropdown-item" href="{{ route('admin.edit-dosen', $dosen->nip) }}"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2 text-info"></i>Kirim Pesan</a></li>
                                                         <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li>
@@ -503,21 +497,66 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle delete selected
+    // Handle delete selected - KODE YANG DIPERBARUI
     document.getElementById('deleteSelected').addEventListener('click', function() {
-        if (confirm('Apakah Anda yakin ingin menghapus dosen yang dipilih?')) {
-            const selectedNips = [];
-            document.querySelectorAll('tbody .form-check-input:checked').forEach(checkbox => {
+        const selectedNips = [];
+        document.querySelectorAll('tbody .form-check-input:checked').forEach(checkbox => {
+            if (checkbox.value) {
                 selectedNips.push(checkbox.value);
+            }
+        });
+        
+        if (selectedNips.length === 0) {
+            alert('Pilih minimal satu dosen untuk dihapus');
+            return;
+        }
+        
+        if (confirm('Apakah Anda yakin ingin menghapus ' + selectedNips.length + ' dosen yang dipilih?')) {
+            // Gunakan URL yang ada di aplikasi
+            // Kita bisa gunakan route yang sudah ada untuk hapus satu dosen, lalu buat array
+            selectedNips.forEach(nip => {
+                // Buat form untuk setiap NIP
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/delete-dosen/' + nip; // Sesuaikan dengan URL yang ada di aplikasi
+                form.style.display = 'none';
+                
+                // Tambahkan CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                form.appendChild(csrfToken);
+                
+                // Tambahkan method spoofing untuk DELETE
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+                form.appendChild(methodField);
+                
+                // Tambahkan ke document
+                document.body.appendChild(form);
+                
+                // Kirim form secara asynchronous
+                fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => {
+                    // Hapus form dari DOM
+                    document.body.removeChild(form);
+                }).catch(error => {
+                    console.error('Error:', error);
+                });
             });
             
-            if (selectedNips.length > 0) {
-                // Implementasi AJAX untuk menghapus multiple dosen
-                alert('Fitur hapus massal sedang dalam pengembangan');
-                // Di sini Anda bisa menambahkan kode AJAX untuk menghapus massal
-            } else {
-                alert('Pilih minimal satu dosen untuk dihapus');
-            }
+            // Tunggu sebentar kemudian reload halaman
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
         }
     });
 

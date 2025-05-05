@@ -79,8 +79,7 @@
                         @endforeach
                     @else
                         <option value="1">Teknik Informatika</option>
-                        <option value="2">Sistem Informasi</option>
-                        <option value="3">Teknik Elektro</option>
+                        <option value="2">Teknik Elektro</option>
                     @endif
                 </select>
                 @error('prodi_id')

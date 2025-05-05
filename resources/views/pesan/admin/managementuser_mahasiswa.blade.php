@@ -213,7 +213,7 @@
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
                             <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
                             </a>
                             <a href="#" class="nav-link parent-active parent-menu" id="userManagementToggle">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -233,7 +233,7 @@
                             </div>
                             <a href="#" class="nav-link parent-menu" id="grupDropdownToggle">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-user-tag me-2"></i>Manajemen Grup</span>
+                                    <span><i class="fas fa-user-tag me-2"></i>Daftar Grup</span>
                                     <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
                                 </div>
                             </a>
@@ -247,15 +247,11 @@
                                     </a>
                                 </div>
                             </div>
-                            <a href="{{ url('/resetpassword_admin') }}" class="nav-link">
-                                <i class="fas fa-key me-2"></i>Reset Password
-                            </a>
+                           
                             <a href="{{ url('/logs_admin') }}" class="nav-link">
-                                <i class="fas fa-history me-2"></i>Log Aktivitas
+                                <i class="fas fa-history me-2"></i>Riwayat
                             </a>
-                            <a href="{{ url('/settings_admin') }}" class="nav-link">
-                                <i class="fas fa-cog me-2"></i>Pengaturan
-                            </a>
+                           
                         </div>
                     </div>
                 </div>
@@ -510,20 +506,97 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle delete selected
+    // Handle delete selected - KODE YANG DIPERBARUI
     document.getElementById('deleteSelected').addEventListener('click', function() {
-        if (confirm('Apakah Anda yakin ingin menghapus mahasiswa yang dipilih?')) {
-            const selectedNims = [];
-            document.querySelectorAll('tbody .form-check-input:checked').forEach(checkbox => {
+        const selectedNims = [];
+        document.querySelectorAll('tbody .form-check-input:checked').forEach(checkbox => {
+            if (checkbox.value) {
                 selectedNims.push(checkbox.value);
+            }
+        });
+        
+        if (selectedNims.length === 0) {
+            alert('Pilih minimal satu mahasiswa untuk dihapus');
+            return;
+        }
+        
+        if (confirm('Apakah Anda yakin ingin menghapus ' + selectedNims.length + ' mahasiswa yang dipilih?')) {
+            // Implementasi penghapusan mahasiswa yang dipilih
+            // Gunakan URL yang ada di aplikasi untuk menghapus satu per satu
+            let successCount = 0;
+            let failCount = 0;
+            let processedCount = 0;
+            
+            // Dapatkan token CSRF dari meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            
+            // Buat promises untuk setiap penghapusan
+            const deletePromises = selectedNims.map(nim => {
+                return new Promise((resolve, reject) => {
+                    // Buat form untuk submission
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/admin/delete-mahasiswa/' + nim; // Sesuaikan dengan URL yang benar
+                    form.style.display = 'none';
+                    
+                    // Tambahkan CSRF token
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '_token';
+                    tokenInput.value = csrfToken;
+                    form.appendChild(tokenInput);
+                    
+                    // Tambahkan method spoofing untuk DELETE
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+                    
+                    // Tambahkan form ke document
+                    document.body.appendChild(form);
+                    
+                    // Kirim form dengan fetch
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        document.body.removeChild(form);
+                        if (response.ok) {
+                            successCount++;
+                            resolve();
+                        } else {
+                            failCount++;
+                            reject();
+                        }
+                    })
+                    .catch(error => {
+                        document.body.removeChild(form);
+                        failCount++;
+                        reject(error);
+                    })
+                    .finally(() => {
+                        processedCount++;
+                        // Jika semua telah diproses, reload halaman
+                        if (processedCount === selectedNims.length) {
+                            if (successCount > 0) {
+                                alert('Berhasil menghapus ' + successCount + ' mahasiswa.' + 
+                                      (failCount > 0 ? ' Gagal menghapus ' + failCount + ' mahasiswa.' : ''));
+                                location.reload();
+                            } else {
+                                alert('Gagal menghapus mahasiswa. Silakan coba lagi nanti.');
+                            }
+                        }
+                    });
+                });
             });
             
-            if (selectedNims.length > 0) {
-                // Pesan bahwa fitur masih dalam pengembangan
-                alert('Fitur hapus massal sedang dalam pengembangan');
-            } else {
-                alert('Pilih minimal satu mahasiswa untuk dihapus');
-            }
+            // Jalankan semua promises
+            Promise.allSettled(deletePromises);
         }
     });
     
