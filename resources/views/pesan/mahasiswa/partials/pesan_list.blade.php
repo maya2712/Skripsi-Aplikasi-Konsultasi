@@ -9,8 +9,23 @@
                     </div>
                     <div>
                         <span class="badge bg-primary mb-1">{{ $p->subjek }}</span>
-                        <h6 class="mb-1" style="font-size: 14px;">{{ $p->penerima->nama }}</h6>
-                        <small class="text-muted">{{ $p->penerima->jabatan }}</small>
+                        
+                        @if($p->nim_pengirim == Auth::user()->nim)
+                            <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
+                            <h6 class="mb-1" style="font-size: 14px;">{{ $p->penerima->nama ?? 'Dosen' }}</h6>
+                            <small class="text-muted">{{ $p->penerima->jabatan ?? '' }}</small>
+                        @else
+                            <!-- Jika mahasiswa adalah penerima, tampilkan informasi dosen pengirim -->
+                            <h6 class="mb-1" style="font-size: 14px;">
+                                @php
+                                    $dosenPengirim = App\Models\Dosen::where('nip', $p->nip_pengirim)->first();
+                                    $namaPengirim = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
+                                    $jabatanPengirim = $dosenPengirim ? $dosenPengirim->jabatan ?? 'Dosen' : 'Dosen';
+                                @endphp
+                                {{ $namaPengirim }}
+                            </h6>
+                            <small class="text-muted">{{ $jabatanPengirim }}</small>
+                        @endif
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">

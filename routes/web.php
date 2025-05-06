@@ -125,6 +125,10 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
         // FAQ Mahasiswa
         Route::get('/faqmahasiswa', 'faq')
             ->name('mahasiswa.faq');
+        
+        // Route Debug Pesan - BARU
+        Route::get('/debug-pesan', 'debugPesan')
+            ->name('mahasiswa.debug.pesan');
     });
 
     // Route untuk Grup Mahasiswa - BARU

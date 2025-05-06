@@ -14,9 +14,9 @@ class Pesan extends Model
     protected $fillable = [
         'subjek',
         'nim_pengirim',
-        'nip_pengirim',
-        'nim_penerima',
+        'nip_pengirim',  
         'nip_penerima',
+        'nim_penerima',
         'isi_pesan',
         'prioritas',
         'status',
@@ -39,14 +39,21 @@ class Pesan extends Model
     public function penerima()
     {
         if (!empty($this->nim_penerima)) {
-            return $this->belongsTo(Mahasiswa::class, 'nim_penerima', 'nim');
+            return $this->belongsTo(Mahasiswa::class, 'nim_penerima', 'nim')->withDefault([
+                'nama' => 'Mahasiswa (Tidak Ditemukan)',
+                'nim' => $this->nim_penerima
+            ]);
         } 
         
         if (!empty($this->nip_penerima)) {
-            return $this->belongsTo(Dosen::class, 'nip_penerima', 'nip');
+            return $this->belongsTo(Dosen::class, 'nip_penerima', 'nip')->withDefault([
+                'nama' => 'Dosen (Tidak Ditemukan)',
+                'nip' => $this->nip_penerima,
+                'jabatan' => 'Tidak Tersedia'
+            ]);
         }
         
-        // Tambahkan fallback default relation untuk menghindari null
+        // Fallback default relation untuk menghindari null
         return $this->belongsTo(Dosen::class, 'nip_penerima', 'nip')->withDefault([
             'nama' => 'Tidak Ditemukan',
             'jabatan' => 'Tidak Tersedia'

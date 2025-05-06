@@ -664,7 +664,8 @@
                         <p class="text-muted mb-0 text-center">Dosen</p>
                     </div>
                     
-                    <!-- Bagian Informasi Pesan (Perbaikan Tabel) -->
+                    
+                    <!-- Bagian Informasi Pesan -->
                     <div class="info-title mt-4">Informasi Pesan</div>
                     <table class="info-table">
                         <tr>
@@ -677,7 +678,7 @@
                         </tr>
                         <tr>
                             <td>NIDN</td>
-                            <td>{{ $pesan->penerima->nip }}</td>
+                            <td>{{ $pesan->nip_penerima }}</td>
                         </tr>
                         <tr>
                             <td>Prioritas</td>
@@ -722,6 +723,7 @@
                     </div>
                 </div>
                 
+                
                 <!-- Container Pesan -->
                 <div class="chat-container" id="chatContainer">
                     @foreach($balasanByDate as $date => $messages)
@@ -732,14 +734,36 @@
                         @foreach($messages as $message)
                             @if($message instanceof App\Models\Pesan)
                                 <!-- Pesan Pertama (original message) -->
-                                <div class="chat-message message-reply">
-                                    <div class="message-bubble">
-                                        <p>{{ $message->isi_pesan }}</p>
-                                        <div class="message-time">
-                                            {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                @if($message->nim_pengirim == Auth::user()->nim)
+                                    <!-- Jika mahasiswa adalah pengirim, tampilkan di kanan (message-reply) -->
+                                    <div class="chat-message message-reply">
+                                        <div class="message-bubble">
+                                            <p>{{ $message->isi_pesan }}</p>
+                                            <div class="message-time">
+                                                {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @else
+                                    <!-- Jika mahasiswa adalah penerima (pesan dari dosen), tampilkan di kiri -->
+                                    <div class="chat-message">
+                                        <div class="message-bubble">
+                                            <div class="sender-name-container">
+                                                <span class="sender-name">
+                                                    @php
+                                                        $dosenPengirim = App\Models\Dosen::where('nip', $message->nip_pengirim)->first();
+                                                        $namaPengirim = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
+                                                    @endphp
+                                                    {{ $namaPengirim }}
+                                                </span>
+                                            </div>
+                                            <p>{{ $message->isi_pesan }}</p>
+                                            <div class="message-time">
+                                                {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             @else
                                 @if($message->tipe_pengirim == 'mahasiswa')
                                     <!-- Balasan dari Mahasiswa -->
@@ -881,9 +905,6 @@
         // Konfirmasi akhiri pesan
         if (confirmEndChatBtn) {
             confirmEndChatBtn.addEventListener('click', function() {
-                // Konfirmasi akhiri pesan
-        if (confirmEndChatBtn) {
-            confirmEndChatBtn.addEventListener('click', function() {
                 // Kirim request ke server untuk mengakhiri pesan
                 fetch('{{ route("mahasiswa.pesan.end", $pesan->id) }}', {
                     method: 'POST',
@@ -950,6 +971,10 @@
             
             sendButton.addEventListener('click', function() {
                 const message = messageInput.value.trim();
+                
+                // Debug untuk melihat apakah tombol diklik
+                console.log('Send button clicked. Message:', message);
+                
                 if (message && !isConversationEnded) {
                     // Kirim pesan ke server
                     fetch('{{ route("mahasiswa.pesan.reply", $pesan->id) }}', {
@@ -960,8 +985,15 @@
                         },
                         body: JSON.stringify({ balasan: message })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        // Log response untuk debugging
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
                     .then(data => {
+                        // Log data untuk debugging
+                        console.log('Response data:', data);
+                        
                         if (data.success) {
                             // Tambahkan pesan baru ke chat container
                             const newMessage = document.createElement('div');

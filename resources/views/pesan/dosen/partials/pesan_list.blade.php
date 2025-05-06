@@ -8,8 +8,32 @@
                 </div>
                 <div>
                     <span class="badge bg-primary mb-1">{{ $p->subjek }}</span>
-                    <h6 class="mb-1" style="font-size: 14px;">{{ $p->pengirim->nama }}</h6>
-                    <small class="text-muted">{{ $p->nim_pengirim }}</small>
+                    
+                    @if($p->nip_pengirim == Auth::user()->nip)
+                        <!-- Jika dosen adalah pengirim, tampilkan nama mahasiswa penerima -->
+                        <h6 class="mb-1" style="font-size: 14px;">
+                            <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
+                            @php
+                                // Ambil langsung data mahasiswa
+                                $mahasiswa = App\Models\Mahasiswa::where('nim', $p->nim_penerima)->first();
+                                $nama_penerima = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
+                            @endphp
+                            {{ $nama_penerima }}
+                        </h6>
+                        <small class="text-muted">{{ $p->nim_penerima }}</small>
+                    @else
+                        <!-- Jika dosen adalah penerima, tampilkan nama mahasiswa pengirim -->
+                        <h6 class="mb-1" style="font-size: 14px;">
+                            <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
+                            @php
+                                // Ambil langsung data mahasiswa
+                                $mahasiswa = App\Models\Mahasiswa::where('nim', $p->nim_pengirim)->first();
+                                $nama_pengirim = $mahasiswa ? $mahasiswa->nama : 'Pengirim';
+                            @endphp
+                            {{ $nama_pengirim }}
+                        </h6>
+                        <small class="text-muted">{{ $p->nim_pengirim }}</small>
+                    @endif
                 </div>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -41,9 +65,3 @@
     </div>
 </div>
 @endforeach
-
-@if($pesan->count() == 0)
-<div class="text-center py-5">
-    <p class="text-muted">Belum ada pesan</p>
-</div>
-@endif

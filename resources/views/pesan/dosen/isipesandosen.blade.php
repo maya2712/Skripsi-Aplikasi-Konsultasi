@@ -730,45 +730,64 @@
                         </div>
                     </div>
                     
-                    <!-- Bagian Informasi Pesan -->
-                    <div class="info-title">Informasi Pesan</div>
-                    <table class="info-table">
-                        <tr>
-                            <td>Subjek</td>
-                            <td>{{ $pesan->subjek }}</td>
-                        </tr>
-                        <tr>
-                            <td>Pengirim</td>
-                            <td>{{ $pesan->pengirim()->first()->nama }}</td>
-                        </tr>
-                        <tr>
-                            <td>NIM</td>
-                            <td>{{ $pesan->nim_pengirim }}</td>
-                        </tr>
-                        <tr>
-                            <td>Prioritas</td>
-                            <td>
-                                <span class="badge-priority {{ $pesan->prioritas }}">{{ $pesan->prioritas }}</span>
-                            </td>
-                        </tr>
-                        @if($pesan->lampiran)
-                        <tr>
-                            <td>Lampiran</td>
-                            <td>
-                                <a href="{{ $pesan->lampiran }}" target="_blank" class="text-primary">
-                                    <i class="fas fa-external-link-alt me-1"></i> Lihat Lampiran
-                                </a>
-                            </td>
-                        </tr>
-                        @endif
-                    </table>
+                   <!-- Bagian Informasi Pesan -->
+<!-- Bagian Informasi Pesan -->
+<div class="info-title">Informasi Pesan</div>
+<table class="info-table">
+    <tr>
+        <td>Subjek</td>
+        <td>{{ $pesan->subjek }}</td>
+    </tr>
+    @if($pesan->nip_pengirim == Auth::user()->nip)
+        <tr>
+            <td>Dikirim ke</td>
+            <td>{{ optional($pesan->penerima)->nama ?? 'Mahasiswa' }}</td>
+        </tr>
+        <tr>
+            <td>NIM</td>
+            <td>{{ $pesan->nim_penerima }}</td>
+        </tr>
+    @else
+        <tr>
+            <td>Pengirim</td>
+            <td>{{ optional($pesan->pengirim)->nama ?? 'Pengirim' }}</td>
+        </tr>
+        <tr>
+            <td>NIM</td>
+            <td>{{ $pesan->nim_pengirim }}</td>
+        </tr>
+    @endif
+    <tr>
+        <td>Prioritas</td>
+        <td>
+            <span class="badge-priority {{ $pesan->prioritas }}">{{ $pesan->prioritas }}</span>
+        </td>
+    </tr>
+    @if($pesan->lampiran)
+    <tr>
+        <td>Lampiran</td>
+        <td>
+            <a href="{{ $pesan->lampiran }}" target="_blank" class="text-primary">
+                <i class="fas fa-external-link-alt me-1"></i> Lihat Lampiran
+            </a>
+        </td>
+    </tr>
+    @endif
+</table>
                 </div>
             </div>
             
             <div class="col-md-8 col-lg-9">
                 <!-- Bagian Header Pesan -->
                 <div class="message-header">
-                    <h4><span class="status-dot"></span> {{ $pesan->pengirim()->first()->nama }} - {{ $pesan->nim_pengirim }}</h4>
+                    <h4>
+                        <span class="status-dot"></span>
+                        @if($pesan->nip_pengirim == Auth::user()->nip)
+                            {{ optional($pesan->penerima)->nama ?? 'Mahasiswa' }} - {{ $pesan->nim_penerima }}
+                        @else
+                            {{ optional($pesan->pengirim)->nama ?? 'Pengirim' }} - {{ $pesan->nim_pengirim }}
+                        @endif
+                    </h4>
                     <div class="action-buttons">
                         <button class="action-button" title="Bookmark" id="bookmarkButton">
                             <i class="far fa-bookmark"></i>
@@ -783,71 +802,89 @@
                 </div>
                 
                 <!-- Container Pesan -->
-                <div class="chat-container" id="chatContainer">
-                    @foreach($balasanByDate as $date => $messages)
-                        <div class="chat-date-divider">
-                            <span>{{ Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
+<div class="chat-container" id="chatContainer">
+    @foreach($balasanByDate as $date => $messages)
+        <div class="chat-date-divider">
+            <span>{{ Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
+        </div>
+        
+        @foreach($messages as $message)
+            @if($message instanceof App\Models\Pesan)
+                <!-- Pesan Awal -->
+                @if($message->nip_pengirim == Auth::user()->nip)
+                    <!-- Pesan yang dikirim dosen (posisi kanan) -->
+                    <div class="chat-message message-reply {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="message-{{ $message->id }}">
+                        <div class="message-bubble">
+                            <div class="bookmark-checkbox">
+                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
+                            </div>
+                            <p>{{ $message->isi_pesan }}</p>
+                            <div class="message-time">
+                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                            </div>
                         </div>
-                        
-                        @foreach($messages as $message)
-                            @if($message instanceof App\Models\Pesan)
-                                <!-- Pesan Mahasiswa (Pesan Awal) -->
-                                <div class="chat-message {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="message-{{ $message->id }}">
-                                    <div class="message-bubble">
-                                        <div class="bookmark-checkbox">
-                                            <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
-                                        </div>
-                                        <p>{{ $message->isi_pesan }}</p>
-                                        <div class="message-time">
-                                            {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
-                                            <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                            <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                @if($message->tipe_pengirim == 'mahasiswa')
-                                    <!-- Balasan dari Mahasiswa -->
-                                    <div class="chat-message {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="reply-{{ $message->id }}">
-                                        <div class="message-bubble">
-                                            <div class="bookmark-checkbox">
-                                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
-                                            </div>
-                                            <p>{{ $message->isi_balasan }}</p>
-                                            <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
-                                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <!-- Balasan dari Dosen -->
-                                    <div class="chat-message message-reply {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="reply-{{ $message->id }}">
-                                        <div class="message-bubble">
-                                            <div class="bookmark-checkbox">
-                                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
-                                            </div>
-                                            <p>{{ $message->isi_balasan }}</p>
-                                            <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
-                                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                            @endif
-                        @endforeach
-                    @endforeach
-                    
-                    @if($pesan->status == 'Berakhir')
-                        <!-- Pesan sistem - Pesan telah diakhiri -->
-                        <div class="system-message">
-                            <span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri oleh mahasiswa</span>
+                    </div>
+                @else
+                    <!-- Pesan dari mahasiswa (posisi kiri) -->
+                    <div class="chat-message {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="message-{{ $message->id }}">
+                        <div class="message-bubble">
+                            <div class="bookmark-checkbox">
+                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
+                            </div>
+                            <p>{{ $message->isi_pesan }}</p>
+                            <div class="message-time">
+                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                            </div>
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
+            @else
+                @if($message->tipe_pengirim == 'dosen')
+                    <!-- Balasan dari Dosen (posisi kanan) -->
+                    <div class="chat-message message-reply {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="reply-{{ $message->id }}">
+                        <div class="message-bubble">
+                            <div class="bookmark-checkbox">
+                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
+                            </div>
+                            <p>{{ $message->isi_balasan }}</p>
+                            <div class="message-time">
+                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <!-- Balasan dari Mahasiswa (posisi kiri) -->
+                    <div class="chat-message {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="reply-{{ $message->id }}">
+                        <div class="message-bubble">
+                            <div class="bookmark-checkbox">
+                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
+                            </div>
+                            <p>{{ $message->isi_balasan }}</p>
+                            <div class="message-time">
+                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endif
+        @endforeach
+    @endforeach
+    
+    @if($pesan->status == 'Berakhir')
+        <!-- Pesan sistem - Pesan telah diakhiri -->
+        <div class="system-message">
+            <span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri oleh mahasiswa</span>
+        </div>
+    @endif
+</div>
                 
                 <!-- Form Input Pesan -->
                 @if($pesan->status == 'Aktif')

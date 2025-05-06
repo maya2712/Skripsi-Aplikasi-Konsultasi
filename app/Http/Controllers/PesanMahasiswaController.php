@@ -18,20 +18,26 @@ class PesanMahasiswaController extends Controller
     {
         $mahasiswa = Auth::user();
         
-        // Mengambil semua pesan yang dikirim oleh mahasiswa
-        $pesan = Pesan::where('nim_pengirim', $mahasiswa->nim)
-                      ->orderBy('created_at', 'desc')
-                      ->get();
-                      
-        // Menghitung jumlah pesan belum dibaca
-        $belumDibaca = Pesan::where('nim_pengirim', $mahasiswa->nim)
-                          ->where('dibaca', false)
-                          ->count();
+        // Mengambil semua pesan yang diterima ATAU dikirim oleh mahasiswa
+        $pesan = Pesan::where(function($query) use ($mahasiswa) {
+            $query->where('nim_penerima', $mahasiswa->nim)
+                ->orWhere('nim_pengirim', $mahasiswa->nim);
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
+                
+        // Menghitung jumlah pesan belum dibaca (hanya yang diterima)
+        $belumDibaca = Pesan::where('nim_penerima', $mahasiswa->nim)
+                        ->where('dibaca', false)
+                        ->count();
         
-        // Menghitung jumlah pesan aktif
-        $pesanAktif = Pesan::where('nim_pengirim', $mahasiswa->nim)
-                         ->where('status', 'Aktif')
-                         ->count();
+        // Menghitung jumlah pesan aktif (baik yang diterima maupun dikirim)
+        $pesanAktif = Pesan::where(function($query) use ($mahasiswa) {
+                        $query->where('nim_penerima', $mahasiswa->nim)
+                            ->orWhere('nim_pengirim', $mahasiswa->nim);
+                    })
+                    ->where('status', 'Aktif')
+                    ->count();
         
         // Menghitung total pesan
         $totalPesan = $pesan->count();
@@ -88,72 +94,66 @@ class PesanMahasiswaController extends Controller
     
     // Menampilkan detail pesan (METODE YANG SUDAH DIPERBAIKI)
     public function show($id)
-{
-    try {
-        $pesan = Pesan::findOrFail($id);
-        
-        // Pastikan mahasiswa yang melihat adalah pengirim pesan
-        if ($pesan->nim_pengirim != Auth::user()->nim) {
-            return redirect()->route('mahasiswa.dashboard.pesan')
-                ->with('error', 'Anda tidak memiliki akses ke pesan ini');
-        }
-        
-        // Periksa terlebih dahulu apakah penerima ada sebelum dimuat
-        if (!$pesan->penerima) {
-            Log::error('Penerima tidak ditemukan untuk pesan ID: ' . $pesan->id);
-            return redirect()->route('mahasiswa.dashboard.pesan')
-                ->with('error', 'Terjadi kesalahan: Data penerima tidak ditemukan');
-        }
-        
-        // Load relasi balasan secara manual
-        $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
-        $pesan->setRelation('balasan', $balasan);
-        
-        // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
-        foreach ($pesan->balasan as $balasan) {
-            if ($balasan->tipe_pengirim == 'dosen') {
-                $dosenPengirim = Dosen::find($balasan->pengirim_id);
-                $balasan->pengirimData = $dosenPengirim;
-            } else {
-                $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
-                $balasan->pengirimData = $mahasiswaPengirim;
+    {
+        try {
+            $pesan = Pesan::findOrFail($id);
+            $mahasiswa = Auth::user();
+            
+            // Pastikan mahasiswa yang melihat adalah pengirim ATAU penerima pesan
+            if ($pesan->nim_pengirim != $mahasiswa->nim && $pesan->nim_penerima != $mahasiswa->nim) {
+                return redirect()->route('mahasiswa.dashboard.pesan')
+                    ->with('error', 'Anda tidak memiliki akses ke pesan ini');
             }
-        }
-        
-        // Kelompokkan balasan berdasarkan tanggal
-        $balasanByDate = [];
-        
-        // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
-        $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
-        $balasanByDate[$dateAwal][] = $pesan;
-        
-        // Tambahkan semua balasan ke grup berdasarkan tanggal
-        foreach ($pesan->balasan as $balasan) {
-            $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
-            if (!isset($balasanByDate[$date])) {
-                $balasanByDate[$date] = [];
+            
+            // Load relasi balasan secara manual
+            $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+            $pesan->setRelation('balasan', $balasan);
+            
+            // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
+            foreach ($pesan->balasan as $balasan) {
+                if ($balasan->tipe_pengirim == 'dosen') {
+                    $dosenPengirim = Dosen::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $dosenPengirim;
+                } else {
+                    $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $mahasiswaPengirim;
+                }
             }
-            $balasanByDate[$date][] = $balasan;
+            
+            // Kelompokkan balasan berdasarkan tanggal
+            $balasanByDate = [];
+            
+            // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
+            $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
+            $balasanByDate[$dateAwal][] = $pesan;
+            
+            // Tambahkan semua balasan ke grup berdasarkan tanggal
+            foreach ($pesan->balasan as $balasan) {
+                $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
+                if (!isset($balasanByDate[$date])) {
+                    $balasanByDate[$date] = [];
+                }
+                $balasanByDate[$date][] = $balasan;
+            }
+            
+            // Urutkan tanggal (dari paling lama)
+            ksort($balasanByDate);
+            
+            // Update status menjadi dibaca jika belum dibaca dan mahasiswa adalah penerima
+            if (!$pesan->dibaca && $pesan->nim_penerima == $mahasiswa->nim) {
+                $pesan->dibaca = true;
+                $pesan->save();
+            }
+            
+            return view('pesan.mahasiswa.isipesanmahasiswa', compact('pesan', 'balasanByDate'));
+        } catch (\Exception $e) {
+            // Log error dengan lebih detail
+            Log::error('Error saat menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            
+            return redirect()->route('mahasiswa.dashboard.pesan')
+                ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan: ' . $e->getMessage());
         }
-        
-        // Urutkan tanggal (dari paling lama)
-        ksort($balasanByDate);
-        
-        // Update status menjadi dibaca jika belum dibaca
-        if (!$pesan->dibaca) {
-            $pesan->dibaca = true;
-            $pesan->save();
-        }
-        
-        return view('pesan.mahasiswa.isipesanmahasiswa', compact('pesan', 'balasanByDate'));
-    } catch (\Exception $e) {
-        // Log error dengan lebih detail
-        Log::error('Error saat menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-        
-        return redirect()->route('mahasiswa.dashboard.pesan')
-            ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan: ' . $e->getMessage());
     }
-}
     
     // Mengirim balasan pesan
     public function reply(Request $request, $id)
@@ -163,9 +163,10 @@ class PesanMahasiswaController extends Controller
         ]);
         
         $pesan = Pesan::findOrFail($id);
+        $mahasiswa = Auth::user();
         
-        // Pastikan mahasiswa yang membalas adalah pengirim pesan
-        if ($pesan->nim_pengirim != Auth::user()->nim) {
+        // Pastikan mahasiswa yang membalas adalah pengirim ATAU penerima pesan
+        if ($pesan->nim_pengirim != $mahasiswa->nim && $pesan->nim_penerima != $mahasiswa->nim) {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda tidak memiliki akses ke pesan ini'
@@ -184,11 +185,19 @@ class PesanMahasiswaController extends Controller
             // Buat balasan baru
             $balasan = new BalasanPesan();
             $balasan->id_pesan = $id;
-            $balasan->pengirim_id = Auth::user()->nim;
+            $balasan->pengirim_id = $mahasiswa->nim;
             $balasan->tipe_pengirim = 'mahasiswa';
             $balasan->isi_balasan = $request->balasan;
             $balasan->dibaca = false;
             $balasan->save();
+            
+            // Log hasil untuk debugging
+            Log::info('Balasan berhasil dibuat', [
+                'id' => $balasan->id,
+                'pengirim_id' => $balasan->pengirim_id,
+                'tipe_pengirim' => $balasan->tipe_pengirim,
+                'isi_balasan' => $balasan->isi_balasan
+            ]);
             
             return response()->json([
                 'success' => true,
@@ -245,11 +254,14 @@ class PesanMahasiswaController extends Controller
     {
         $mahasiswa = Auth::user();
         
-        // Mengambil semua pesan dengan status 'Berakhir'
-        $riwayatPesan = Pesan::where('nim_pengirim', $mahasiswa->nim)
-                           ->where('status', 'Berakhir')
-                           ->orderBy('updated_at', 'desc')
-                           ->get();
+        // Mengambil semua pesan dengan status 'Berakhir' (dikirim ATAU diterima)
+        $riwayatPesan = Pesan::where(function($query) use ($mahasiswa) {
+                            $query->where('nim_pengirim', $mahasiswa->nim)
+                                  ->orWhere('nim_penerima', $mahasiswa->nim);
+                         })
+                         ->where('status', 'Berakhir')
+                         ->orderBy('updated_at', 'desc')
+                         ->get();
                            
         return view('pesan.mahasiswa.riwayatpesanmahasiswa', compact('riwayatPesan'));
     }
@@ -260,7 +272,10 @@ class PesanMahasiswaController extends Controller
         $mahasiswa = Auth::user();
         $filter = $request->filter;
         
-        $query = Pesan::where('nim_pengirim', $mahasiswa->nim);
+        $query = Pesan::where(function($query) use ($mahasiswa) {
+            $query->where('nim_pengirim', $mahasiswa->nim)
+                  ->orWhere('nim_penerima', $mahasiswa->nim);
+        });
         
         if ($filter == 'penting') {
             $query->where('prioritas', 'Penting');
@@ -282,16 +297,22 @@ class PesanMahasiswaController extends Controller
         $mahasiswa = Auth::user();
         $keyword = $request->keyword;
         
-        $pesan = Pesan::where('nim_pengirim', $mahasiswa->nim)
-                    ->where(function($query) use ($keyword) {
-                        $query->where('subjek', 'like', "%{$keyword}%")
-                              ->orWhere('isi_pesan', 'like', "%{$keyword}%")
-                              ->orWhereHas('penerima', function($q) use ($keyword) {
-                                  $q->where('nama', 'like', "%{$keyword}%");
-                              });
-                    })
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        $pesan = Pesan::where(function($query) use ($mahasiswa) {
+                    $query->where('nim_pengirim', $mahasiswa->nim)
+                          ->orWhere('nim_penerima', $mahasiswa->nim);
+                 })
+                 ->where(function($query) use ($keyword) {
+                    $query->where('subjek', 'like', "%{$keyword}%")
+                          ->orWhere('isi_pesan', 'like', "%{$keyword}%")
+                          ->orWhereHas('pengirim', function($q) use ($keyword) {
+                              $q->where('nama', 'like', "%{$keyword}%");
+                          })
+                          ->orWhereHas('penerima', function($q) use ($keyword) {
+                              $q->where('nama', 'like', "%{$keyword}%");
+                          });
+                 })
+                 ->orderBy('created_at', 'desc')
+                 ->get();
         
         return response()->json([
             'success' => true,
@@ -319,6 +340,27 @@ class PesanMahasiswaController extends Controller
             'Balasan' => $balasan->toArray(),
             'Penerima Exists' => $pesan->penerima ? true : false,
             'Balasan Count' => $balasan->count()
+        ]);
+    }
+    
+    /**
+     * Method untuk debugging seluruh pesan mahasiswa
+     * Gunakan method ini untuk memeriksa data pesan mahasiswa
+     */
+    public function debugPesan()
+    {
+        $mahasiswa = Auth::user();
+        
+        // Periksa pesan yang terkait dengan mahasiswa
+        $pesanPengirim = Pesan::where('nim_pengirim', $mahasiswa->nim)->get();
+        $pesanPenerima = Pesan::where('nim_penerima', $mahasiswa->nim)->get();
+        
+        dd([
+            'NIM Mahasiswa' => $mahasiswa->nim,
+            'Jumlah Pesan (Sebagai Pengirim)' => $pesanPengirim->count(),
+            'Contoh Pesan Pengirim' => $pesanPengirim->take(3)->toArray(),
+            'Jumlah Pesan (Sebagai Penerima)' => $pesanPenerima->count(),
+            'Contoh Pesan Penerima' => $pesanPenerima->take(3)->toArray(),
         ]);
     }
 }
