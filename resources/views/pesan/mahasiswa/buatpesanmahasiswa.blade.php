@@ -256,10 +256,11 @@
                 </a>
                 
                 <form id="formPesan">
+                    @csrf
                     <div class="mb-4">
                         <label for="subjek" class="form-label required-field fs-6">Subjek</label>
                         <div class="custom-select">
-                            <select class="form-select text-muted" id="subjek" required>
+                            <select class="form-select text-muted" id="subjek" name="subjek" required>
                                 <option value="" disabled selected>Masukkan subjek</option>
                                 <option value="Bimbingan KRS">Bimbingan KRS</option>
                                 <option value="Bimbingan KP">Bimbingan KP</option>
@@ -299,7 +300,7 @@
                     <div class="mb-4">
                         <label for="prioritas" class="form-label required-field fs-6">Prioritas</label>
                         <div class="custom-select">
-                            <select class="form-select text-muted" id="prioritas" required>
+                            <select class="form-select text-muted" id="prioritas" name="prioritas" required>
                                 <option value="" disabled selected>Masukkan prioritas</option>
                                 <option value="Penting">Penting</option>
                                 <option value="Umum">Umum</option>
@@ -309,12 +310,12 @@
                     
                     <div class="mb-4">
                         <label for="lampiran" class="form-label fs-6">Lampiran (Link Google Drive)</label>
-                        <input type="url" class="form-control" id="lampiran" placeholder="Masukkan link Google Drive">
+                        <input type="url" class="form-control" id="lampiran" name="lampiran" placeholder="Masukkan link Google Drive">
                     </div>
                     
                     <div class="mb-4">
                         <label for="pesanText" class="form-label required-field fs-6">Pesan</label>
-                        <textarea class="form-control" id="pesanText" rows="8" placeholder="Tulis pesan Anda di sini..." required></textarea>
+                        <textarea class="form-control" id="pesanText" name="pesanText" rows="8" placeholder="Tulis pesan Anda di sini..." required></textarea>
                     </div>
                     
                     <div class="d-flex justify-content-end">
@@ -331,152 +332,168 @@
 
 @push('scripts')
 <script>
-    // Data dosen untuk simulasi pencarian (nanti akan digantikan dengan data dari database)
-    const dataDosen = [
-        {id: 'D001', nama: 'Dr. Irsan Taufik Ali, S.T., M.T.', jabatan: 'Dosen Pembimbing KRS'},
-        {id: 'D002', nama: 'Dian Ramadhani, S.T., M.T.', jabatan: 'Koordinator KP'},
-        {id: 'D003', nama: 'Dr. Feri Candra, S.T., M.T.', jabatan: 'Koordinator MBKM'},
-        {id: 'D004', nama: 'Edi Susilo, Spd., M.Kom.,M.Eng', jabatan: 'Dosen Pembimbing Skripsi'},
-        {id: 'D005', nama: 'Dr. Ahmad Sulaiman, M.Kom', jabatan: 'Dosen Pembimbing Skripsi'},
-        {id: 'D006', nama: 'Dr. Siti Nurhaliza, M.Si', jabatan: 'Dosen Pembimbing Akademik'},
-        {id: 'D007', nama: 'Dr. Budi Santoso, M.T', jabatan: 'Koordinator Tugas Akhir'},
-        {id: 'D008', nama: 'Dr. Indra Wijaya, M.Kom', jabatan: 'Dosen Pembimbing Skripsi'}
-    ];
-    
-    // Variabel untuk menyimpan data dosen yang dipilih
-    let selectedDosen = null;
-    
-    // Get DOM elements
-    const dosenDropdownToggle = document.getElementById('dosenDropdownToggle');
-    const dosenDropdownMenu = document.getElementById('dosenDropdownMenu');
-    const dosenSearchInput = document.getElementById('dosenSearchInput');
-    const dosenDropdownItems = document.getElementById('dosenDropdownItems');
-    const noResults = document.getElementById('noResults');
-    
-    // Toggle dropdown
-    dosenDropdownToggle.addEventListener('click', function() {
-        if (dosenDropdownMenu.style.display === 'block') {
-            dosenDropdownMenu.style.display = 'none';
-        } else {
-            dosenDropdownMenu.style.display = 'block';
-            dosenSearchInput.focus();
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mengambil data dosen dari database
+        let dataDosen = [];
+        
+        // Langsung menggunakan data dosen dari database
+        dataDosen = [
+            { id: '198501012015041001', nama: 'Ummul Azhari', jabatan: 'Dosen tidak Tetap' },
+            { id: '198501012015041002', nama: 'Contoh Dosen 22', jabatan: 'Dosen tidak Tetap' },
+            { id: '198501012015041025', nama: 'Contoh Dosen 3', jabatan: 'Dosen tidak Tetap' }
+        ];
+        
+        // Variabel untuk menyimpan data dosen yang dipilih
+        let selectedDosen = null;
+        
+        // Get DOM elements
+        const dosenDropdownToggle = document.getElementById('dosenDropdownToggle');
+        const dosenDropdownMenu = document.getElementById('dosenDropdownMenu');
+        const dosenSearchInput = document.getElementById('dosenSearchInput');
+        const dosenDropdownItems = document.getElementById('dosenDropdownItems');
+        const noResults = document.getElementById('noResults');
+        
+        // Toggle dropdown
+        dosenDropdownToggle.addEventListener('click', function() {
+            if (dosenDropdownMenu.style.display === 'block') {
+                dosenDropdownMenu.style.display = 'none';
+            } else {
+                dosenDropdownMenu.style.display = 'block';
+                dosenSearchInput.focus();
+                
+                // Load semua dosen saat dropdown dibuka
+                if (dosenSearchInput.value.trim() === '') {
+                    renderDosenList(dataDosen);
+                }
+            }
+        });
+        
+        // Search functionality
+        dosenSearchInput.addEventListener('input', function() {
+            const keyword = this.value.toLowerCase().trim();
             
-            // Load semua dosen saat dropdown dibuka
-            if (dosenSearchInput.value.trim() === '') {
+            if (keyword === '') {
                 renderDosenList(dataDosen);
+                return;
+            }
+            
+            // Filter dosen berdasarkan keyword
+            const filteredDosen = dataDosen.filter(dosen => {
+                return dosen.nama.toLowerCase().includes(keyword) || 
+                      dosen.jabatan.toLowerCase().includes(keyword);
+            });
+            
+            renderDosenList(filteredDosen);
+        });
+        
+        // Render dosen list
+        function renderDosenList(dosenList) {
+            dosenDropdownItems.innerHTML = '';
+            
+            if (dosenList.length > 0) {
+                noResults.style.display = 'none';
+                
+                dosenList.forEach(dosen => {
+                    const item = document.createElement('div');
+                    item.className = 'dosen-dropdown-item';
+                    item.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div>${dosen.nama}</div>
+                                <div class="dosen-jabatan">${dosen.jabatan}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    item.addEventListener('click', function() {
+                        pilihDosen(dosen);
+                    });
+                    
+                    dosenDropdownItems.appendChild(item);
+                });
+            } else {
+                noResults.style.display = 'block';
             }
         }
-    });
-    
-    // Search functionality
-    dosenSearchInput.addEventListener('input', function() {
-        const keyword = this.value.toLowerCase().trim();
         
-        if (keyword === '') {
-            renderDosenList(dataDosen);
-            return;
-        }
-        
-        // Filter dosen berdasarkan keyword
-        const filteredDosen = dataDosen.filter(dosen => {
-            return dosen.nama.toLowerCase().includes(keyword) || 
-                  dosen.jabatan.toLowerCase().includes(keyword);
-        });
-        
-        renderDosenList(filteredDosen);
-    });
-    
-    // Render dosen list
-    function renderDosenList(dosenList) {
-        dosenDropdownItems.innerHTML = '';
-        
-        if (dosenList.length > 0) {
-            noResults.style.display = 'none';
+        // Fungsi untuk memilih dosen
+        function pilihDosen(dosen) {
+            selectedDosen = dosen;
             
-            dosenList.forEach(dosen => {
-                const item = document.createElement('div');
-                item.className = 'dosen-dropdown-item';
-                item.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <div>${dosen.nama}</div>
-                            <div class="dosen-jabatan">${dosen.jabatan}</div>
-                        </div>
+            // Set nilai ke hidden fields
+            document.getElementById('selectedDosenId').value = dosen.id;
+            document.getElementById('selectedDosenNama').value = dosen.nama;
+            document.getElementById('selectedDosenJabatan').value = dosen.jabatan;
+            
+            // Update dropdown toggle text
+            dosenDropdownToggle.innerHTML = `
+                <div class="selected-dosen">
+                    <div class="selected-dosen-avatar">
+                        <i class="fas fa-user" style="font-size: 8px;"></i>
                     </div>
-                `;
-                
-                item.addEventListener('click', function() {
-                    pilihDosen(dosen);
-                });
-                
-                dosenDropdownItems.appendChild(item);
-            });
-        } else {
-            noResults.style.display = 'block';
-        }
-    }
-    
-    // Fungsi untuk memilih dosen
-    function pilihDosen(dosen) {
-        selectedDosen = dosen;
-        
-        // Set nilai ke hidden fields
-        document.getElementById('selectedDosenId').value = dosen.id;
-        document.getElementById('selectedDosenNama').value = dosen.nama;
-        document.getElementById('selectedDosenJabatan').value = dosen.jabatan;
-        
-        // Update dropdown toggle text
-        dosenDropdownToggle.innerHTML = `
-            <div class="selected-dosen">
-                <div class="selected-dosen-avatar">
-                    <i class="fas fa-user" style="font-size: 8px;"></i>
+                    <span>${dosen.nama}</span>
                 </div>
-                <span>${dosen.nama}</span>
-            </div>
-            <i class="fas fa-chevron-down"></i>
-        `;
-        
-        // Hide dropdown
-        dosenDropdownMenu.style.display = 'none';
-    }
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!dosenDropdownToggle.contains(e.target) && !dosenDropdownMenu.contains(e.target)) {
+                <i class="fas fa-chevron-down"></i>
+            `;
+            
+            // Hide dropdown
             dosenDropdownMenu.style.display = 'none';
         }
-    });
-    
-    // Event listener untuk form submission
-    document.getElementById('formPesan').addEventListener('submit', function(e) {
-        e.preventDefault();
         
-        if (!selectedDosen) {
-            alert('Pilih penerima pesan terlebih dahulu');
-            return false;
-        }
-        
-        // Tampilkan data untuk demo
-        console.log('Data pesan:', {
-            subjek: document.getElementById('subjek').value,
-            penerima: selectedDosen,
-            prioritas: document.getElementById('prioritas').value,
-            lampiran: document.getElementById('lampiran').value,
-            pesan: document.getElementById('pesanText').value
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dosenDropdownToggle.contains(e.target) && !dosenDropdownMenu.contains(e.target)) {
+                dosenDropdownMenu.style.display = 'none';
+            }
         });
         
-        alert('Pesan berhasil dikirim!');
-        
-        // Reset form
-        this.reset();
-        selectedDosen = null;
-        document.getElementById('selectedDosenId').value = '';
-        document.getElementById('selectedDosenNama').value = '';
-        document.getElementById('selectedDosenJabatan').value = '';
-        dosenDropdownToggle.innerHTML = `
-            <span class="dosen-dropdown-placeholder">Pilih dosen</span>
-            <i class="fas fa-chevron-down"></i>
-        `;
+        // Event listener untuk form submission
+        document.getElementById('formPesan').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!selectedDosen) {
+                alert('Pilih penerima pesan terlebih dahulu');
+                return false;
+            }
+            
+            // Kumpulkan data dari form
+            const formData = new FormData(this);
+            
+            // Kirim data via AJAX
+            fetch('{{ route("mahasiswa.pesan.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Pesan berhasil dikirim!');
+                    
+                    // Reset form
+                    this.reset();
+                    selectedDosen = null;
+                    document.getElementById('selectedDosenId').value = '';
+                    document.getElementById('selectedDosenNama').value = '';
+                    document.getElementById('selectedDosenJabatan').value = '';
+                    dosenDropdownToggle.innerHTML = `
+                        <span class="dosen-dropdown-placeholder">Pilih dosen</span>
+                        <i class="fas fa-chevron-down"></i>
+                    `;
+                    
+                    // Redirect ke dashboard pesan
+                    window.location.href = '{{ route("mahasiswa.dashboard.pesan") }}';
+                } else {
+                    alert('Gagal mengirim pesan: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim pesan. Silahkan coba lagi.');
+            });
+        });
     });
 </script>
 @endpush

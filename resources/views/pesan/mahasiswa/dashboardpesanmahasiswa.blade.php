@@ -189,14 +189,14 @@
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesanmahasiswa') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                        <a href="{{ route('mahasiswa.pesan.create') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
                     </div>                                                    
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="#" class="nav-link active">
+                            <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="nav-link active">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
                             <a href="#" class="nav-link menu-item" id="grupDropdownToggle">
@@ -225,7 +225,7 @@
                                     </div>
                                 @endif
                             </div>
-                            <a href="{{ url('/riwayatpesanmahasiswa') }}" class="nav-link menu-item">
+                            <a href="{{ route('mahasiswa.pesan.history') }}" class="nav-link menu-item">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
@@ -245,7 +245,7 @@
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted mb-1">Belum dibaca</h6>
-                                    <h3 class="mb-0 fs-4">2</h3>
+                                    <h3 class="mb-0 fs-4">{{ $belumDibaca }}</h3>
                                 </div>
                                 <div class="bg-danger bg-opacity-10 p-3 rounded">
                                     <i class="fas fa-envelope text-danger"></i>
@@ -258,7 +258,7 @@
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted mb-1">Pesan Aktif</h6>
-                                    <h3 class="mb-0 fs-4">4</h3>
+                                    <h3 class="mb-0 fs-4">{{ $pesanAktif }}</h3>
                                 </div>
                                 <div class="bg-success bg-opacity-10 p-3 rounded">
                                     <i class="fas fa-comments text-success"></i>
@@ -272,7 +272,7 @@
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted mb-1">Total Pesan</h6>
-                                    <h3 class="mb-0 fs-4">4</h3>
+                                    <h3 class="mb-0 fs-4">{{ $totalPesan }}</h3>
                                 </div>
                                 <div class="bg-primary bg-opacity-10 p-3 rounded">
                                     <i class="fas fa-inbox text-primary"></i>
@@ -287,13 +287,13 @@
                     <div class="card-body">
                         <div class="row g-3 align-items-center">
                             <div class="col-md">
-                                <input type="text" class="form-control" placeholder="Cari Pesan..." style="font-size: 14px;">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Cari Pesan..." style="font-size: 14px;">
                             </div>
                             <div class="col-md-auto">
                                 <div class="btn-group">
-                                    <button class="btn btn-outline-danger rounded-pill px-4 py-2 me-2" style="font-size: 14px;">Penting</button>
-                                    <button class="btn btn-outline-success rounded-pill px-4 py-2 me-2" style="font-size: 14px;">Umum</button>
-                                    <button class="btn btn-primary rounded-pill px-4 py-2" style="font-size: 14px;">Semua</button>
+                                    <button class="btn btn-outline-danger rounded-pill px-4 py-2 me-2 filter-btn" data-filter="penting" style="font-size: 14px;">Penting</button>
+                                    <button class="btn btn-outline-success rounded-pill px-4 py-2 me-2 filter-btn" data-filter="umum" style="font-size: 14px;">Umum</button>
+                                    <button class="btn btn-primary rounded-pill px-4 py-2 filter-btn" data-filter="semua" style="font-size: 14px;">Semua</button>
                                 </div>
                             </div>
                         </div>
@@ -301,84 +301,45 @@
                 </div>
 
                 <!-- Message List -->
-                <div class="message-list">
-                    <!-- Message 1 -->
-                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
+                <div class="message-list" id="messageList">
+                    @if($pesan->count() > 0)
+                        @foreach($pesan as $p)
+                        <div class="card mb-2 message-card {{ strtolower($p->prioritas) }}" onclick="window.location.href='{{ route('mahasiswa.pesan.show', $p->id) }}'">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8 d-flex align-items-center">
+                                        <div class="profile-image-placeholder me-3">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-primary mb-1">{{ $p->subjek }}</span>
+                                            <h6 class="mb-1" style="font-size: 14px;">{{ $p->penerima->nama }}</h6>
+                                            <small class="text-muted">{{ $p->penerima->jabatan }}</small>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Bimbingan Skripsi</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Ahmad Sulaiman, M.Kom</h6>
-                                        <small class="text-muted">Dosen Pembimbing</small>
+                                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                        <span class="badge {{ $p->dibaca ? 'bg-success' : 'bg-danger' }} me-1">
+                                            {{ $p->dibaca ? 'Sudah dibaca' : 'Belum dibaca' }}
+                                        </span>
+                                        <span class="badge {{ $p->prioritas == 'Penting' ? 'bg-danger' : 'bg-success' }}">
+                                            {{ $p->prioritas }}
+                                        </span>
+                                        <small class="d-block text-muted my-1">
+                                            {{ \Carbon\Carbon::parse($p->created_at)->diffForHumans() }}
+                                        </small>
+                                        <a href="{{ route('mahasiswa.pesan.show', $p->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
+                                            <i class="fas fa-eye me-1"></i>Lihat
+                                        </a>
                                     </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-danger me-1">Belum dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">2 jam yang lalu</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Message 2 -->
-                    <div class="card mb-2 message-card umum" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Bimbingan KRS</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Siti Nurhaliza, M.Si</h6>
-                                        <small class="text-muted">Dosen Pembimbing Akademik</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-success">Umum</span>
-                                    <small class="d-block text-muted my-1">14 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
-                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <p class="text-muted">Belum ada pesan</p>
                         </div>
-                    </div>
-
-                    <!-- Message 3 -->
-                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Bimbingan MBKM</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Budi Santoso, M.T</h6>
-                                        <small class="text-muted">Koordinator MBKM</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-danger me-1">Belum dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">2 jam yang lalu</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endif
 
                     <!-- Pesan pencarian tidak tersedia -->
                     <div id="no-results" class="text-center py-4" style="display: none;">
@@ -411,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Tombol filter
-    const filterButtons = document.querySelectorAll('.btn-group .btn');
+    const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Hapus class active dari semua tombol
@@ -421,13 +382,34 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             
             // Filter pesan berdasarkan tombol yang diklik
-            const filter = this.textContent.trim().toLowerCase();
+            const filter = this.dataset.filter;
             filterMessages(filter);
         });
     });
 
-    // Fungsi filter pesan
+    // Fungsi filter pesan melalui AJAX
     function filterMessages(filter) {
+        fetch(`{{ route('mahasiswa.pesan.filter') }}?filter=${filter}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('messageList').innerHTML = data.html;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback ke filter lokal jika AJAX gagal
+            fallbackFilterMessages(filter);
+        });
+    }
+
+    // Fungsi filter fallback (client-side)
+    function fallbackFilterMessages(filter) {
         const messageCards = document.querySelectorAll('.message-card');
         let visibleCount = 0;
         
@@ -450,21 +432,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Pencarian pesan
-    const searchInput = document.querySelector('.form-control');
+    const searchInput = document.getElementById('searchInput');
+    let searchTimeout;
+    
     searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        searchMessages(searchTerm);
+        clearTimeout(searchTimeout);
+        const searchTerm = this.value.trim();
+        
+        // Tambahkan delay untuk mencegah terlalu banyak request
+        searchTimeout = setTimeout(() => {
+            if (searchTerm.length > 0) {
+                searchMessages(searchTerm);
+            } else {
+                // Jika input kosong, reset ke tampilan awal
+                filterMessages('semua');
+            }
+        }, 500);
     });
 
-    // Fungsi pencarian pesan
-    function searchMessages(searchTerm) {
+    // Fungsi pencarian pesan melalui AJAX
+    function searchMessages(keyword) {
+        fetch(`{{ route('mahasiswa.pesan.search') }}?keyword=${encodeURIComponent(keyword)}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('messageList').innerHTML = data.html;
+                
+                // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai pencarian
+                document.getElementById('no-results').style.display = 
+                    document.querySelectorAll('.message-card').length === 0 ? 'block' : 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback ke pencarian lokal jika AJAX gagal
+            fallbackSearchMessages(keyword);
+        });
+    }
+
+    // Fungsi pencarian fallback (client-side)
+    function fallbackSearchMessages(searchTerm) {
         const messageCards = document.querySelectorAll('.message-card');
         let visibleCount = 0;
         
         messageCards.forEach(card => {
             const messageText = card.textContent.toLowerCase();
             
-            if (messageText.includes(searchTerm)) {
+            if (messageText.includes(searchTerm.toLowerCase())) {
                 card.style.display = 'block';
                 visibleCount++;
             } else {

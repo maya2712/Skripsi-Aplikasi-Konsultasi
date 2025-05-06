@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Traits\HasGoogleCalendar;
+use App\Models\Pesan;
 
 class Mahasiswa extends Authenticatable
 {
@@ -65,5 +66,11 @@ class Mahasiswa extends Authenticatable
     {
         return $this->belongsToMany(Grup::class, 'grup_mahasiswa', 'mahasiswa_nim', 'grup_id', 'nim', 'id')
                     ->withTimestamps();
+    }
+    
+    // Relasi dengan pesan yang dikirim
+    public function pesanDikirim()
+    {
+        return $this->hasMany(Pesan::class, 'nim_pengirim', 'nim');
     }
 }

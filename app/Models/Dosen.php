@@ -7,6 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable; 
 use App\Traits\HasGoogleCalendar;
 use App\Models\Grup;
+use App\Models\Pesan;
 
 class Dosen extends Authenticatable
 {
@@ -59,5 +60,11 @@ class Dosen extends Authenticatable
     public function grups()
     {
         return $this->hasMany(Grup::class, 'dosen_id', 'nip');
+    }
+    
+    // Relasi dengan pesan yang diterima
+    public function pesanDiterima()
+    {
+        return $this->hasMany(Pesan::class, 'nip_penerima', 'nip');
     }
 }

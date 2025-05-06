@@ -243,26 +243,31 @@
                             <a href="{{ url('/dashboardpesanmahasiswa') }}" class="nav-link">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
-                            <a href="#" class="nav-link menu-item" id="grupDropdownToggle" data-bs-toggle="collapse" data-bs-target="#komunikasiSubmenu">
+                            <a href="#" class="nav-link menu-item" id="grupDropdownToggle">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
                                     <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
                                 </div>
                             </a>
                             <div class="collapse komunikasi-submenu" id="komunikasiSubmenu">
-                                <!-- Mahasiswa tidak punya akses untuk membuat grup baru, jadi opsi ini dihilangkan -->
-                                <a href="#" class="nav-link menu-item d-flex justify-content-between align-items-center">
-                                    Bimbingan Skripsi
-                                    <span class="badge bg-danger rounded-pill">3</span>
-                                </a>
-                                <a href="#" class="nav-link menu-item d-flex justify-content-between align-items-center">
-                                    Kerja Praktek
-                                    <span class="badge bg-danger rounded-pill">1</span>
-                                </a>
-                                <a href="#" class="nav-link menu-item d-flex justify-content-between align-items-center">
-                                    Pembimbing Akademik
-                                    <span class="badge bg-danger rounded-pill">4</span>
-                                </a>
+                                @php
+                                    $userGrups = Auth::user()->grups;
+                                @endphp
+                                
+                                @if($userGrups && $userGrups->count() > 0)
+                                    @foreach($userGrups as $grupItem)
+                                    <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                                        {{ $grupItem->nama_grup }}
+                                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
+                                        <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                                        @endif
+                                    </a>
+                                    @endforeach
+                                @else
+                                    <div class="nav-link menu-item text-muted">
+                                        <small>Belum ada grup</small>
+                                    </div>
+                                @endif
                             </div>
                             <a href="{{ url('/riwayatpesanmahasiswa') }}" class="nav-link active">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan

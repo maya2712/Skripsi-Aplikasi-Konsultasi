@@ -16,29 +16,13 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
+// API untuk daftar dosen
+Route::get('/api/dosen', [App\Http\Controllers\Api\DosenApiController::class, 'getDosen'])
+    ->name('api.dosen.list');
+
 // Route dashboard yang memerlukan autentikasi dan mencegah kembali setelah logout
 Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
     
-    Route::get('/dashboardpesanmahasiswa', function () {
-        return view('pesan.mahasiswa.dashboardpesanmahasiswa');
-    })->name('mahasiswa.dashboard.pesan');
-
-    Route::get('/buatpesanmahasiswa', function () {
-        return view('pesan.mahasiswa.buatpesanmahasiswa');
-    });
-
-    Route::get('/isipesanmahasiswa', function () {
-        return view('pesan.mahasiswa.isipesanmahasiswa');
-    });
-
-    Route::get('/riwayatpesanmahasiswa', function () {
-        return view('pesan.mahasiswa.riwayatpesanmahasiswa');
-    });
-
-    Route::get('/faqmahasiswa', function () {
-        return view('pesan.mahasiswa.faq_mahasiswa');
-    });
-
     Route::get('/dashboardpesan', function () {
         return view('pesan.dashboardpesan');
     });
@@ -114,24 +98,50 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
         return view('bimbingan.riwayatmahasiswa');
     });
 
+    // Routes untuk fitur pesan mahasiswa
+    Route::controller(App\Http\Controllers\PesanMahasiswaController::class)->group(function () {
+        // Dashboard pesan
+        Route::get('/dashboardpesanmahasiswa', 'index')
+            ->name('mahasiswa.dashboard.pesan');
+        
+        // Buat pesan baru
+        Route::get('/buatpesanmahasiswa', 'create')
+            ->name('mahasiswa.pesan.create');
+        Route::post('/kirimpesan', 'store')
+            ->name('mahasiswa.pesan.store');
+        
+        // Lihat detail pesan
+        Route::get('/isipesanmahasiswa/{id}', 'show')
+            ->name('mahasiswa.pesan.show');
+        
+        // Kirim balasan pesan
+        Route::post('/balaspesan/{id}', 'reply')
+            ->name('mahasiswa.pesan.reply');
+        
+        // Akhiri pesan
+        Route::post('/akhiripesan/{id}', 'endChat')
+            ->name('mahasiswa.pesan.end');
+        
+        // Riwayat pesan
+        Route::get('/riwayatpesanmahasiswa', 'history')
+            ->name('mahasiswa.pesan.history');
+        
+        // Filter pesan
+        Route::get('/filterpesan', 'filter')
+            ->name('mahasiswa.pesan.filter');
+        
+        // Pencarian pesan
+        Route::get('/caripesan', 'search')
+            ->name('mahasiswa.pesan.search');
+        
+        // FAQ Mahasiswa
+        Route::get('/faqmahasiswa', 'faq')
+            ->name('mahasiswa.faq');
+    });
+
     // Route untuk Grup Mahasiswa - BARU
-    Route::get('/daftargrupmahasiswa', function () {
-        $mahasiswa = Auth::user();
-        $grups = $mahasiswa->grups; // Mengambil grup dari relasi yang sudah ada
-        return view('pesan.mahasiswa.daftargrupmahasiswa', compact('grups'));
-    })->name('mahasiswa.grup.index');
-    
-    Route::get('/detailgrupmahasiswa/{id}', function ($id) {
-        $grup = App\Models\Grup::with('mahasiswa')->findOrFail($id);
-        // Cek apakah mahasiswa ini anggota grup
-        $isMember = $grup->mahasiswa->contains('nim', Auth::user()->nim);
-        
-        if (!$isMember) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini');
-        }
-        
-        return view('pesan.mahasiswa.detailgrupmahasiswa', compact('grup'));
-    })->name('mahasiswa.grup.show');
+    Route::get('/daftargrupmahasiswa', [MahasiswaController::class, 'getGrupMahasiswa'])->name('mahasiswa.grup.index');
+    Route::get('/detailgrupmahasiswa/{id}', [MahasiswaController::class, 'getDetailGrup'])->name('mahasiswa.grup.show');
 
     Route::controller(MahasiswaController::class)->group(function () {
         Route::get('/usulanbimbingan', 'index')->name('mahasiswa.usulanbimbingan');

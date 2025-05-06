@@ -1,312 +1,149 @@
 @extends('layouts.app')
 @section('title', 'Isi Pesan Mahasiswa')
+
 @push('styles')
     <style>
-        :root {
+        /* CSS Variables yang hanya berlaku dalam konten pesan */
+        #pesan-container {
             --primary-color: #0070dc;
-            --primary-gradient: linear-gradient(to right, #0056b3, #00a5e3);
-            --primary-hover: linear-gradient(to right, #004494, #0090d0);
-            --light-bg: #F5F7FA;
+            --primary-gradient: linear-gradient(135deg, #0070dc, #00a5e3);
+            --primary-hover: linear-gradient(135deg, #006ccc, #0099d6);
+            --secondary-color: #6c757d;
             --success-color: #27AE60;
             --danger-color: #FF5252;
+            --danger-gradient: linear-gradient(135deg, #FF5252, #e63946);
+            --light-bg: #f8f9fa;
             --dark-text: #333333;
             --light-text: #ffffff;
             --gray-text: #6c757d;
-            --border-radius: 10px;
-            --shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 0.5rem;
+            --card-radius: 0.5rem;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
         
-        body {
+        /* Gaya untuk konten pesan, bukan untuk navbar/footer */
+        #pesan-container .content-wrapper {
             background-color: var(--light-bg);
             font-family: 'Nunito', sans-serif;
-            font-size: 14px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            padding: 0;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 30px 0; 
         }
         
-        .custom-container {
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Left Panel Styling */
-        .left-panel {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 25px;
-            margin-bottom: 20px;
-            width: 100%;
-            position: sticky;
-            top: 20px;
-        }
-        
-        .back-button {
-            background: var(--primary-gradient);
+        /* Header dengan gradasi */
+        #pesan-container .header-gradient {
+            background: linear-gradient(to right, #004AAD, #5DE0E6);
             color: var(--light-text);
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            margin-bottom: 25px;
-            width: 100%;
-            font-size: 14px;
         }
         
-        .back-button:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 85, 179, 0.3);
-        }
-        
-        .back-button i {
-            margin-right: 10px;
-            font-size: 16px;
-        }
-        
-        .end-chat-button {
-            background: linear-gradient(to right, #e74c3c, #c0392b);
+        /* Tombol kembali dengan gradasi */
+        #pesan-container .btn-gradient-primary {
+            background: linear-gradient(to right, #004AAD, #5DE0E6);
             color: var(--light-text);
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 74, 173, 0.2);
             transition: all 0.3s ease;
-            text-decoration: none;
-            margin-top: 20px;
-            width: 100%;
-            font-size: 14px;
         }
         
-        .end-chat-button:hover {
-            background: linear-gradient(to right, #c0392b, #a63326);
+        #pesan-container .btn-gradient-primary:hover {
+            background: linear-gradient(to right, #003d91, #4bcad0);
+            color: var(--light-text);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+            box-shadow: 0 5px 12px rgba(0, 74, 173, 0.3);
         }
         
-        .end-chat-button i {
-            margin-right: 10px;
-            font-size: 16px;
-        }
-        
-        /* Disable style for ended conversation */
-        .end-chat-button.disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            pointer-events: none;
-            opacity: 0.6;
-        }
-        
-        .profile-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 5px;
-            position: relative;
-        }
-        
-        .profile-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #ffffff;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 10px;
-            background-color: #f0f4f8;
-        }
-        
-        .info-title {
-            font-size: 18px;
-            color: var(--dark-text);
-            margin-bottom: 8px;
-            margin-top: 0;
-            text-align: center;
-            font-weight: 600;
-            position: relative;
-            display: block;
-        }
-        
-        .info-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid #eaedf1;
-            table-layout: auto;
-        }
-        
-        .info-table tr {
-            transition: background-color 0.2s ease;
-        }
-        
-        .info-table tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .info-table td {
-            padding: 14px 15px;
-            vertical-align: middle;
-            white-space: normal;
-            word-break: break-word;
-        }
-        
-        .info-table td:first-child {
-            width: 90px;
-            color: var(--gray-text);
-            background-color: #f0f4f8;
-            font-weight: 500;
-            border-bottom: 1px solid #eaedf1;
-        }
-        
-        .info-table td:last-child {
-            border-bottom: 1px solid #eaedf1;
-            padding-right: 20px;
-            word-break: normal;
-            white-space: normal;
-        }
-        
-        .info-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .badge-priority {
-            display: inline-block;
-            padding: 5px 10px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-            background-color: var(--danger-color);
-            border-radius: 20px;
-        }
-        
-        .badge-status {
-            display: inline-block;
-            padding: 5px 10px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-            border-radius: 20px;
-        }
-        
-        .badge-status.active {
-            background-color: var(--success-color);
-        }
-        
-        .badge-status.ended {
-            background-color: #6c757d;
-        }
-        
-        /* Chat Container Styling */
-        .message-header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 20px 25px;
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-            margin-bottom: 0;
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .message-header h4 {
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            font-size: 16px;
-        }
-        
-        .message-header h4 .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--success-color);
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .action-button {
-            background: rgba(255, 255, 255, 0.15);
+        /* Tombol akhiri dengan gradasi */
+        #pesan-container .btn-gradient-danger {
+            background: var(--danger-gradient);
+            color: var(--light-text);
             border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(255, 82, 82, 0.2);
         }
         
-        .action-button:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
+        #pesan-container .btn-gradient-danger:hover {
+            background: linear-gradient(135deg, #e63946, #FF5252);
+            color: var(--light-text);
         }
         
-        .chat-container {
-            background: white;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        /* Card styling */
+        #pesan-container .custom-card {
+            border-radius: var(--card-radius);
             box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            padding: 30px;
+            border: none;
+        }
+        
+        /* Profile image */
+        #pesan-container .profile-image {
+            border: 4px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Chat container */
+        #pesan-container .chat-container {
             max-height: 500px;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #d1d5db transparent;
+            padding: 1.25rem !important;
+        }
+        
+        /* Message bubble */
+        #pesan-container .message-bubble {
+            max-width: 85%;
+            border-radius: 1rem;
             position: relative;
         }
         
-        .chat-container::-webkit-scrollbar {
-            width: 6px;
+        #pesan-container .user-message .message-bubble {
+            background-color: #0f57c4;
+            border-radius: 1rem;
+            margin-left: auto;
         }
         
-        .chat-container::-webkit-scrollbar-track {
-            background: transparent;
+        #pesan-container .received-message .message-bubble {
+            background-color: #3a3a3a;
+            border-radius: 1rem;
+            color: #ffffff;
         }
         
-        .chat-container::-webkit-scrollbar-thumb {
-            background-color: #d1d5db;
-            border-radius: 20px;
+        /* Memastikan teks dalam bubble chat berwarna putih */
+        #pesan-container .message-bubble p {
+            color: #ffffff !important;
         }
         
-        .chat-date-divider {
+        #pesan-container .received-message .message-bubble p {
+            color: #ffffff !important;
+        }
+        
+        /* Nama pengirim dalam pesan dosen */
+        #pesan-container .received-message .fw-bold.text-primary {
+            color: #ffffff !important;
+        }
+        
+        /* Badge */
+        #pesan-container .badge-priority {
+            padding: 4px 8px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+        
+        /* Input standard */
+        #pesan-container .custom-input {
+            border-radius: 0.5rem;
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+        }
+        
+        #pesan-container .custom-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 112, 220, 0.1);
+        }
+        
+        /* Date divider */
+        #pesan-container .chat-date-divider {
             text-align: center;
-            margin: 20px 0;
             position: relative;
+            margin: 20px 0;
         }
         
-        .chat-date-divider:before {
+        #pesan-container .chat-date-divider:before {
             content: '';
             position: absolute;
             left: 0;
@@ -317,361 +154,24 @@
             z-index: 1;
         }
         
-        .chat-date-divider span {
+        #pesan-container .chat-date-divider span {
             background-color: white;
             padding: 0 15px;
             font-size: 12px;
             color: #6c757d;
             position: relative;
             z-index: 2;
-        }
-        
-        .chat-message {
-            margin-bottom: 25px;
-            position: relative;
-            max-width: 85%;
-            clear: both;
-        }
-        
-        .chat-message:last-child {
-            margin-bottom: 10px;
-        }
-        
-        .sender-info {
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .sender-name {
-            font-weight: 600;
-            color: #f8ac30;
-            font-size: 14px;
-        }
-        
-        .message-bubble {
-            background-color: #585f67;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
-            position: relative;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            width: fit-content;
-            max-width: 80%;
-        }
-        
-        .message-bubble .sender-name-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .message-bubble .sender-name {
-            color: #f8ac30;
-            font-weight: 500;
-        }
-        
-        .message-bubble p {
-            margin: 0 0 8px;
-            line-height: 1.5;
-        }
-        
-        .message-bubble p:last-of-type {
-            margin-bottom: 0;
-        }
-        
-        .message-time {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-            text-align: right;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        }
-        
-        /* Pesan dari user (mahasiswa) */
-        .chat-message.user-message {
-            display: flex;
-            justify-content: flex-end;
-            margin-left: auto;
-        }
-        
-        .chat-message.user-message .message-bubble {
-            background-color: var(--primary-color);
-            border-radius: var(--border-radius) 0 var(--border-radius) var(--border-radius);
-            margin-left: auto;
-        }
-        
-        .message-status {
-            position: absolute;
-            bottom: -18px;
-            right: 0;
-            color: #6c757d;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .message-status i {
-            color: #27AE60;
-            margin-left: 4px;
-        }
-        
-        .typing-indicator {
-            display: flex;
-            padding: 10px;
-            width: fit-content;
             border-radius: 20px;
-            background-color: #f1f3f5;
-            margin-bottom: 20px;
         }
         
-        .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background-color: #adb5bd;
-            border-radius: 50%;
-            display: inline-block;
-            margin: 0 1px;
-            animation: typing 1.5s infinite ease-in-out;
-        }
-        
-        .typing-indicator span:nth-child(1) {
-            animation-delay: 0s;
-        }
-        
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @keyframes typing {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-        
-        .message-input-container {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 18px 20px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        
-        .message-input-container.hidden {
-            display: none;
-        }
-        
-        .input-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .input-action-button {
-            background: transparent;
-            border: none;
-            color: #6c757d;
-            font-size: 18px;
-            padding: 8px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .input-action-button:hover {
-            background-color: #f0f4f8;
-            color: var(--primary-color);
-        }
-        
-        .message-input {
-            flex-grow: 1;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 12px 20px;
-            outline: none;
-            transition: all 0.2s ease;
-            font-size: 14px;
-        }
-        
-        .message-input:focus {
-            border-color: #a3c7ff;
-            box-shadow: 0 0 0 3px rgba(0, 112, 220, 0.1);
-        }
-        
-        .send-button {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 25px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        
-        .send-button i {
-            margin-right: 8px;
-        }
-        
-        .send-button:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 85, 179, 0.2);
-        }
-        
-        /* Modal untuk konfirmasi akhiri pesan */
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            backdrop-filter: blur(3px);
-        }
-        
-        .modal-backdrop.show {
-            display: block;
-        }
-        
-        .confirm-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            max-width: 90%;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            z-index: 1001;
-            padding: 0;
-            overflow: hidden;
-            animation: modalFadeIn 0.3s ease;
-        }
-        
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -60%);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
-        }
-        
-        .confirm-modal.show {
-            display: block;
-        }
-        
-        .confirm-modal-header {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            padding: 20px 25px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .confirm-modal-header h5 {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .confirm-modal-header h5 i {
-            margin-right: 10px;
-            font-size: 22px;
-        }
-        
-        .confirm-modal-body {
-            padding: 25px;
-            background-color: #f8f9fa;
-        }
-        
-        .confirm-modal-body p {
-            color: #495057;
-            font-size: 15px;
-            line-height: 1.6;
-            margin: 0;
-        }
-        
-        .confirm-modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            padding: 20px 25px;
-            background-color: white;
-            border-top: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .btn-cancel {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .btn-cancel:hover {
-            background-color: #e9ecef;
-            transform: translateY(-2px);
-        }
-        
-        .btn-confirm {
-            background: linear-gradient(to right, #e74c3c, #c0392b);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
-        }
-        
-        .btn-confirm:hover {
-            background: linear-gradient(to right, #c0392b, #a63326);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
-        }
-        
-        /* Pesan sistem - Pesan telah diakhiri */
-        .system-message {
+        /* System message */
+        #pesan-container .system-message {
             text-align: center;
             position: relative;
             margin: 30px 0;
         }
         
-        .system-message:before {
+        #pesan-container .system-message:before {
             content: '';
             position: absolute;
             left: 0;
@@ -683,7 +183,7 @@
             opacity: 0.3;
         }
         
-        .system-message span {
+        #pesan-container .system-message span {
             background-color: white;
             padding: 5px 15px;
             color: #e74c3c;
@@ -692,205 +192,320 @@
             position: relative;
             z-index: 2;
             border-radius: 20px;
-            box-shadow: 0 2px 6px rgba(231, 76, 60, 0.2);
             display: inline-block;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.1);
         }
         
-        /* Notification styling */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background-color: #fff;
-            color: #333;
-            border-left: 4px solid;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            border-radius: 4px;
-            z-index: 1005;
-            font-size: 14px;
+        /* Status dot dengan animasi standard */
+        #pesan-container .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+            margin-right: 8px;
+            position: relative;
+        }
+        
+        #pesan-container .status-dot:before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(39, 174, 96, 0.4);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.7;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        /* Modal standard */
+        .modal-content {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        #pesan-container .modal-header.danger-gradient {
+            background: var(--danger-gradient);
+        }
+        
+        /* Toast standard */
+        #pesan-container .custom-toast {
+            border-radius: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Tabel dengan ujung melengkung */
+        #pesan-container .info-table {
+            width: 100%;
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.85rem;
+            border-radius: 0.8rem;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+        }
+        
+        #pesan-container .info-table th, 
+        #pesan-container .info-table td {
+            padding: 6px 8px;
+            vertical-align: middle;
+            border-bottom: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+            word-break: break-word;
+        }
+        
+        #pesan-container .info-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        #pesan-container .info-table td:last-child {
+            border-right: none;
+        }
+        
+        #pesan-container .info-table tr td:first-child {
+            width: 80px;
+            background-color: rgba(0, 0, 0, 0.03);
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        /* Penyesuaian untuk tampilan badge dalam tabel */
+        #pesan-container .info-table .badge {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 50px;
+        }
+        
+        /* Message time */
+        #pesan-container .message-time {
+            font-size: 12px;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        /* Layout */
+        #pesan-container .layout-wrapper {
             display: flex;
-            align-items: center;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
+            flex-direction: column;
         }
         
-        .notification.show {
-            transform: translateX(0);
+        #pesan-container .content-wrapper {
+            flex: 1;
+            padding: 20px 0;
         }
         
-        .notification.success {
-            border-left-color: var(--success-color);
+        /* Smaller content for sidebar */
+        #pesan-container .sidebar-text {
+            font-size: 0.85rem;
         }
         
-        .notification.success i {
-            color: var(--success-color);
+        #pesan-container .sidebar-name {
+            font-size: 1.1rem;
+            margin-bottom: 0;
         }
         
-        .notification.warning {
-            border-left-color: #f39c12;
+        #pesan-container .sidebar-role {
+            font-size: 0.75rem;
         }
         
-        .notification.warning i {
-            color: #f39c12;
+        /* Smaller status badge */
+        #pesan-container .status-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
         }
         
-        .notification i {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 992px) {
-            .chat-message {
-                max-width: 90%;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .chat-message {
-                max-width: 100%;
-            }
-            
-            .main-content {
-                padding: 15px 0;
-            }
-            
-            .message-header {
-                padding: 15px 20px;
-            }
-            
-            .left-panel {
-                position: static;
-                margin-bottom: 20px;
-            }
-            
-            .profile-image {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .confirm-modal {
-                width: 90%;
-            }
+        /* Column spacing */
+        #pesan-container .g-3 {
+            --bs-gutter-x: 1rem;
         }
     </style>
 @endpush
 
 @section('content')
-<div class="main-content">
-    <div class="custom-container">
-        <div class="row">
-            <div class="col-md-4 col-lg-3">
-                <!-- Panel Kiri -->
-                <div class="left-panel">
-                    <!-- Tombol Kembali -->
-                    <a href="{{ url('/dashboardpesanmahasiswa') }}" class="back-button">
-                        <i class="fas fa-arrow-left"></i> Kembali
-                    </a>
-                    
-                    <!-- Bagian Profil -->
-                    <div class="profile-section">
-                        <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="Profil Dosen" class="profile-image">
-                    </div>
-                    
-                    <!-- Bagian Informasi Pesan -->
-                    <div class="info-title">Informasi Pesan</div>
-                    <table class="info-table">
-                        <tr>
-                            <td>Subjek</td>
-                            <td>Bimbingan KRS</td>
-                        </tr>
-                        <tr>
-                            <td>Penerima</td>
-                            <td>Dr. Ahmad Fauzi, M.Kom</td>
-                        </tr>
-                        <tr>
-                            <td>NIDN</td>
-                            <td>0015087203</td>
-                        </tr>
-                        <tr>
-                            <td>Prioritas</td>
-                            <td><span class="badge-priority">Penting</span></td>
-                        </tr>
-                        <tr>
-                            <td>Status</td>
-                            <td><span class="badge-status active" id="pesanStatus">Aktif</span></td>
-                        </tr>
-                    </table>
-                    
-                    <!-- Tombol Akhiri Pesan -->
-                    <button class="end-chat-button" id="endChatButton">
-                        <i class="fas fa-times-circle"></i> Akhiri Pesan
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-8 col-lg-9">
-                <!-- Bagian Header Pesan -->
-                <div class="message-header">
-                    <h4><span class="status-dot"></span> Dr. Ahmad Fauzi, M.Kom</h4>
-                    <div class="action-buttons">
-                        <button class="action-button" title="Opsi Lainnya">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Container Pesan -->
-                <div class="chat-container" id="chatContainer">
-                    <div class="chat-date-divider">
-                        <span>Sabtu, 20 Januari 2024</span>
-                    </div>
-                    
-                    <!-- Pesan Mahasiswa 1 -->
-                    <div class="chat-message user-message">
-                        <div class="message-bubble">
-                            <p>Assalamuaikum pak</p>
-                            <p>izin bertanya, untuk bimbingan KRS dilakukan mulai kapan ya pak?</p>
-                            <div class="message-time">
-                                09:30
+<div id="pesan-container">
+    <div class="content-wrapper bg-light">
+        <div class="container">
+            <div class="row g-3">
+                <!-- Panel Kiri (Sidebar) -->
+                <div class="col-lg-4 col-xl-3">
+                    <div class="custom-card card">
+                        <div class="card-body p-3">
+                            <!-- Tombol Kembali -->
+                            <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="btn btn-gradient-primary d-block w-100 mb-3">
+                                <i class="fas fa-arrow-left me-2"></i> Kembali
+                            </a>
+                            
+                            <!-- Bagian Profil -->
+                            <div class="text-center mb-3">
+                                <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="Profil Dosen" 
+                                    class="rounded-circle profile-image mb-2" style="width: 100px; height: 100px; object-fit: cover;">
+                                <h5 class="sidebar-name fw-bold text-primary">{{ $pesan->penerima->nama }}</h5>
+                                <p class="sidebar-role text-muted mb-0">Dosen</p>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Balasan Dosen -->
-                    <div class="chat-message">
-                        <div class="message-bubble">
-                            <div class="sender-name-container">
-                                <span class="sender-name">Dr. Ahmad Fauzi, M.Kom</span>
-                            </div>
-                            <p>Wa'alaikumsalam Warohmatulloh Wabarokatuh</p>
-                            <p>Bimbingan KRS dilakukan mulai tanggal 25-30 Januari 2025</p>
-                            <div class="message-time">
-                                09:32
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Pesan Mahasiswa 2 -->
-                    <div class="chat-message user-message">
-                        <div class="message-bubble">
-                            <p>Baik pak</p>
-                            <p>Terimakasih Informasinya.</p>
-                            <div class="message-time">
-                                09:35
-                            </div>
+                            
+                            <!-- Bagian Informasi Pesan -->
+                            <h6 class="fw-bold text-center mb-2 text-primary sidebar-text">
+                                <i class="fas fa-info-circle me-1"></i> Informasi Pesan
+                            </h6>
+                            
+                            <table class="info-table mb-3">
+                                <tbody>
+                                    <tr>
+                                        <td class="bg-light">Subjek</td>
+                                        <td>{{ $pesan->subjek }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="bg-light">Penerima</td>
+                                        <td>{{ $pesan->penerima->nama }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="bg-light">NIDN</td>
+                                        <td>{{ $pesan->penerima->nip }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="bg-light">Prioritas</td>
+                                        <td>
+                                            <span class="badge badge-priority {{ $pesan->prioritas == 'Umum' ? 'bg-success' : 'bg-danger' }}">
+                                                {{ $pesan->prioritas }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="bg-light">Status</td>
+                                        <td>
+                                            <span id="pesanStatus" 
+                                                class="badge badge-priority {{ $pesan->status == 'Aktif' ? 'bg-success' : 'bg-secondary' }}">
+                                                {{ $pesan->status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <!-- Tombol Akhiri Pesan -->
+                            @if($pesan->status == 'Aktif')
+                                <button id="endChatButton" class="btn btn-gradient-danger d-block w-100">
+                                    <i class="fas fa-times-circle me-2"></i> Akhiri Pesan
+                                </button>
+                            @else
+                                <button class="btn btn-secondary d-block w-100" disabled>
+                                    <i class="fas fa-times-circle me-2"></i> Pesan Diakhiri
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
                 
-                <!-- Form Input Pesan -->
-                <div class="message-input-container" id="messageInputContainer">
-                    <div class="input-actions">
-                        <button class="input-action-button" title="Lampirkan File">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
+                <!-- Panel Kanan - Chat -->
+                <div class="col-lg-8 col-xl-9">
+                    <!-- Header Pesan -->
+                    <div class="custom-card card mb-3">
+                        <div class="card-header header-gradient p-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <span class="status-dot"></span>
+                                <h5 class="mb-0 fw-bold">{{ $pesan->penerima->nama }}</h5>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm bg-white bg-opacity-10 rounded-circle" title="Opsi Lainnya">
+                                    <i class="fas fa-ellipsis-v text-white"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <input type="text" class="message-input" placeholder="Tulis Pesan Anda disini.." id="messageInput">
-                    <button class="send-button" id="sendButton">
-                        <i class="fas fa-paper-plane"></i> Kirim
-                    </button>
+                    
+                    <!-- Container Pesan -->
+                    <div class="custom-card card mb-3">
+                        <div class="card-body chat-container" id="chatContainer">
+                            @foreach($balasanByDate as $date => $messages)
+                                <div class="chat-date-divider">
+                                    <span>{{ \Carbon\Carbon::parse($date)->format('d F Y') }}</span>
+                                </div>
+                                
+                                @foreach($messages as $message)
+                                    @if($message instanceof App\Models\Pesan)
+                                        <!-- Pesan Pertama (original message) -->
+                                        <div class="d-flex justify-content-end mb-4 user-message">
+                                            <div class="message-bubble p-3">
+                                                <p class="mb-1">{{ $message->isi_pesan }}</p>
+                                                <div class="message-time text-white-50">
+                                                    {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        @if($message->tipe_pengirim == 'mahasiswa')
+                                            <!-- Balasan dari Mahasiswa -->
+                                            <div class="d-flex justify-content-end mb-4 user-message">
+                                                <div class="message-bubble p-3">
+                                                    <p class="mb-1">{{ $message->isi_balasan }}</p>
+                                                    <div class="message-time text-white-50">
+                                                        {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <!-- Balasan dari Dosen -->
+                                            <div class="d-flex mb-4 received-message">
+                                                <div class="message-bubble p-3">
+                                                    <div class="mb-1">
+                                                        <span class="fw-bold text-primary">{{ $pesan->penerima->nama }}</span>
+                                                    </div>
+                                                    <p class="mb-1">{{ $message->isi_balasan }}</p>
+                                                    <div class="message-time text-muted">
+                                                        {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endif
+                                @endforeach
+                            @endforeach
+                            
+                            @if($pesan->status == 'Berakhir')
+                                <div class="system-message">
+                                    <span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <!-- Form Input Pesan -->
+                    @if($pesan->status == 'Aktif')
+                        <div class="custom-card card" id="messageInputContainer">
+                            <div class="card-body p-3">
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary" title="Lampirkan File">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <input type="text" class="form-control custom-input" id="messageInput" 
+                                        placeholder="Tulis Pesan Anda disini..">
+                                    <button class="btn btn-gradient-primary" id="sendButton">
+                                        <i class="fas fa-paper-plane me-1"></i> Kirim
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -898,24 +513,41 @@
 </div>
 
 <!-- Modal konfirmasi akhiri pesan -->
-<div class="modal-backdrop" id="modalBackdrop"></div>
-<div class="confirm-modal" id="confirmModal">
-    <div class="confirm-modal-header">
-        <h5><i class="fas fa-exclamation-circle"></i> Konfirmasi Akhiri Pesan</h5>
-    </div>
-    <div class="confirm-modal-body">
-        <p>Apakah Anda yakin ingin mengakhiri pesan ini? Setelah diakhiri, Anda tidak dapat mengirim pesan baru dalam percakapan ini.</p>
-    </div>
-    <div class="confirm-modal-footer">
-        <button type="button" class="btn-cancel" id="cancelEndChat">Tidak</button>
-        <button type="button" class="btn-confirm" id="confirmEndChat">Ya, Akhiri</button>
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header danger-gradient text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-circle me-2"></i> Konfirmasi Akhiri Pesan
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-0">Apakah Anda yakin ingin mengakhiri pesan ini? Setelah diakhiri, Anda tidak dapat mengirim pesan baru dalam percakapan ini.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="cancelEndChat">
+                    <i class="fas fa-times me-1"></i> Tidak
+                </button>
+                <button type="button" class="btn btn-gradient-danger" id="confirmEndChat">
+                    <i class="fas fa-check me-1"></i> Ya, Akhiri
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Notification element -->
-<div class="notification" id="notification">
-    <i class="fas fa-check-circle"></i>
-    <span id="notificationMessage">Pesan berhasil diakhiri</span>
+<!-- Toast Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="notificationToast" class="toast custom-toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="notificationMessage">Pesan berhasil dikirim</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -924,20 +556,24 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Elemen yang diperlukan
         const endChatButton = document.getElementById('endChatButton');
-        const modalBackdrop = document.getElementById('modalBackdrop');
-        const confirmModal = document.getElementById('confirmModal');
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
         const cancelEndChatBtn = document.getElementById('cancelEndChat');
         const confirmEndChatBtn = document.getElementById('confirmEndChat');
         const messageInputContainer = document.getElementById('messageInputContainer');
         const pesanStatus = document.getElementById('pesanStatus');
-        const notification = document.getElementById('notification');
+        const notificationToast = document.getElementById('notificationToast');
         const notificationMessage = document.getElementById('notificationMessage');
         const chatContainer = document.getElementById('chatContainer');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         
+        // Inisialisasi Toast
+        const toast = new bootstrap.Toast(notificationToast, {
+            delay: 3000
+        });
+        
         // Status percakapan (aktif atau berakhir)
-        let isConversationEnded = false;
+        let isConversationEnded = {{ $pesan->status == 'Berakhir' ? 'true' : 'false' }};
         
         // Auto-scroll ke bawah chat container
         if (chatContainer) {
@@ -948,55 +584,67 @@
         if (endChatButton) {
             endChatButton.addEventListener('click', function() {
                 if (!isConversationEnded) {
-                    modalBackdrop.classList.add('show');
-                    confirmModal.classList.add('show');
+                    confirmModal.show();
                 }
-            });
-        }
-        
-        // Tutup modal konfirmasi
-        if (cancelEndChatBtn) {
-            cancelEndChatBtn.addEventListener('click', function() {
-                modalBackdrop.classList.remove('show');
-                confirmModal.classList.remove('show');
             });
         }
         
         // Konfirmasi akhiri pesan
         if (confirmEndChatBtn) {
             confirmEndChatBtn.addEventListener('click', function() {
-                // Mengakhiri percakapan
-                isConversationEnded = true;
-                
-                // Sembunyikan modal
-                modalBackdrop.classList.remove('show');
-                confirmModal.classList.remove('show');
-                
-                // Sembunyikan form input pesan
-                messageInputContainer.classList.add('hidden');
-                
-                // Ubah status pesan
-                pesanStatus.textContent = 'Berakhir';
-                pesanStatus.classList.remove('active');
-                pesanStatus.classList.add('ended');
-                
-                // Nonaktifkan tombol akhiri pesan
-                endChatButton.classList.add('disabled');
-                
-                // Tambahkan pesan sistem di chat container
-                const systemMessage = document.createElement('div');
-                systemMessage.className = 'system-message';
-                systemMessage.innerHTML = '<span>Pesan telah diakhiri</span>';
-                chatContainer.appendChild(systemMessage);
-                
-                // Scroll ke bawah untuk menampilkan pesan sistem
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-                
-                // Tampilkan notifikasi
-                showNotification('Pesan berhasil diakhiri', 'success');
-                
-                // Simpan status ke "backend" (simulasi)
-                console.log('Pesan diakhiri oleh mahasiswa');
+                // Kirim request ke server untuk mengakhiri pesan
+                fetch('{{ route("mahasiswa.pesan.end", $pesan->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mengakhiri percakapan
+                        isConversationEnded = true;
+                        
+                        // Sembunyikan modal
+                        confirmModal.hide();
+                        
+                        // Sembunyikan form input pesan
+                        if (messageInputContainer) {
+                            messageInputContainer.style.display = 'none';
+                        }
+                        
+                        // Ubah status pesan
+                        pesanStatus.textContent = 'Berakhir';
+                        pesanStatus.classList.remove('bg-success');
+                        pesanStatus.classList.add('bg-secondary');
+                        
+                        // Nonaktifkan tombol akhiri pesan
+                        endChatButton.classList.add('disabled');
+                        endChatButton.disabled = true;
+                        endChatButton.classList.remove('btn-gradient-danger');
+                        endChatButton.classList.add('btn-secondary');
+                        
+                        // Tambahkan pesan sistem di chat container
+                        const systemMessage = document.createElement('div');
+                        systemMessage.className = 'system-message';
+                        systemMessage.innerHTML = '<span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri</span>';
+                        chatContainer.appendChild(systemMessage);
+                        
+                        // Scroll ke bawah untuk menampilkan pesan sistem
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        
+                        // Tampilkan notifikasi
+                        showNotification('Pesan berhasil diakhiri', 'success');
+                    } else {
+                        // Tampilkan pesan error
+                        showNotification('Gagal mengakhiri pesan: ' + data.message, 'warning');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat mengakhiri pesan', 'warning');
+                });
             });
         }
         
@@ -1012,45 +660,67 @@
             sendButton.addEventListener('click', function() {
                 const message = messageInput.value.trim();
                 if (message && !isConversationEnded) {
-                    // Tambahkan pesan baru ke chat container
-                    const newMessage = document.createElement('div');
-                    newMessage.className = 'chat-message user-message';
-                    
-                    const currentTime = new Date();
-                    const hours = currentTime.getHours().toString().padStart(2, '0');
-                    const minutes = currentTime.getMinutes().toString().padStart(2, '0');
-                    const timeString = `${hours}:${minutes}`;
-                    
-                    newMessage.innerHTML = `
-                        <div class="message-bubble">
-                            <p>${message}</p>
-                            <div class="message-time">
-                                ${timeString}
-                            </div>
-                        </div>
-                    `;
-                    
-                    chatContainer.appendChild(newMessage);
-                    
-                    // Bersihkan input pesan
-                    messageInput.value = '';
-                    
-                    // Scroll ke bawah untuk menampilkan pesan baru
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    // Kirim pesan ke server
+                    fetch('{{ route("mahasiswa.pesan.reply", $pesan->id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ balasan: message })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Tambahkan pesan baru ke chat container
+                            const newMessage = document.createElement('div');
+                            newMessage.className = 'd-flex justify-content-end mb-4 user-message';
+                            
+                            newMessage.innerHTML = `
+                                <div class="message-bubble p-3">
+                                    <p class="mb-1">${data.data.isi_balasan}</p>
+                                    <div class="message-time text-white-50">
+                                        ${data.data.created_at}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            chatContainer.appendChild(newMessage);
+                            
+                            // Bersihkan input pesan
+                            messageInput.value = '';
+                            
+                            // Scroll ke bawah untuk menampilkan pesan baru
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                            
+                            // Tampilkan notifikasi
+                            showNotification('Pesan berhasil dikirim', 'success');
+                        } else {
+                            // Tampilkan pesan error
+                            showNotification('Gagal mengirim pesan: ' + data.message, 'warning');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
+                    });
                 }
             });
         }
         
         // Fungsi untuk menampilkan notifikasi
         function showNotification(message, type = 'success') {
-            notification.className = `notification ${type}`;
+            notificationToast.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+            notificationToast.classList.remove('text-white', 'text-dark');
+            
+            if (type === 'success') {
+                notificationToast.classList.add('bg-success', 'text-white');
+            } else if (type === 'warning') {
+                notificationToast.classList.add('bg-warning', 'text-dark');
+            }
+            
             notificationMessage.textContent = message;
-            
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+            toast.show();
         }
     });
 </script>
