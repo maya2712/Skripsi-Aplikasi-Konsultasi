@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Buat Pesan Dosen')
+@section('title', 'Buat Pesan Baru')
+
 @push('styles')
     <style>
         :root {
@@ -8,516 +9,424 @@
             --bs-danger: #FF5252;
             --bs-success: #27AE60;
         }
-        
+
         body {
             background-color: #F5F7FA;
-            font-size: 13px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            padding: 0;
+            font-size: 14px;
         }
 
         .main-content {
-            flex: 1;
-            padding-top: 20px; 
-            padding-bottom: 20px; 
+            padding-top: 20px;
+            padding-bottom: 20px;
         }
-        
-        .tab-penerima {
-            border-radius: 5px;
-            padding: 8px 15px;
-            background: transparent;
-            border: 1px solid #ddd;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            font-weight: 500;
-            text-align: center;
+
+        .form-control, .form-select {
+            font-size: 14px;
+            padding: 0.6rem 0.85rem;
         }
-        
-        .tab-penerima.active {
-            background: linear-gradient(to right, #9fa4a9, #838f87);
-            color: white;
-            border: none;
+
+        .btn {
+            font-size: 14px;
+            padding: 0.6rem 1.2rem;
         }
-        
-        .form-header {
+
+        .badge {
+            font-weight: normal;
+            font-size: 13px;
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+
+        .title-divider {
+            border-bottom: 2px solid #dee2e6;
             padding-bottom: 15px;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #dee2e6;
-        }
-        
-        .btn-gradient {
-            background: linear-gradient(to right, #004AAD, #5DE0E6);
-            color: white;
-            border: none;
-        }
-        
-        .btn-gradient:hover {
-            background: linear-gradient(to right, #1558b7, #1558b7);
-            color: white;
-        }
-        
-        .btn-kembali {
-            background: linear-gradient(to right, #004AAD, #5DE0E6);
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            padding: 8px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
             margin-bottom: 20px;
-            width: fit-content;
+        }
+
+        .btn-gradient-primary {
+            background: linear-gradient(to right, #004AAD, #5DE0E6);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient-primary:hover {
+            background: linear-gradient(to right, #003c8a, #4bc4c9);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
-        .btn-kembali:hover {
-            background: linear-gradient(to right, #1558b7, #1558b7);
-            color: white;
+        .form-check-label {
+            font-size: 14px;
+        }
+        
+        h4 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        h6 {
+            font-size: 16px;
+            font-weight: 500;
         }
         
         .form-label {
-            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .search-result {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .search-result::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .search-result::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .search-result::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        .search-result::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        #search-info {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 5px;
         }
         
         .required-field:after {
             content: "*";
             color: red;
         }
-        
-        #daftarAngkatan, #daftarMahasiswa {
-            display: none;
-            margin-top: 15px;
-            position: relative;
-        }
-        
-        .dropdown-priority {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .penerima-tag {
-            display: inline-block;
-            background-color: #e9f2ff;
-            border: 1px solid #c2dcff;
-            padding: 4px 10px;
-            border-radius: 20px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-        
-        .penerima-tag .close {
-            margin-left: 5px;
-            cursor: pointer;
-            opacity: 0.7;
-        }
-        
-        .penerima-tag .close:hover {
-            opacity: 1;
-        }
-        
-        #selectedPenerima {
-            margin-top: 15px;
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            min-height: 50px;
-            background-color: #f8f9fa;
-        }
-        
-        .checkbox-angkatan {
-            margin-bottom: 5px;
-        }
-        
-        .checkbox-angkatan .form-check-input:checked {
-            background-color: #1a73e8;
-            border-color: #1a73e8;
-        }
-
-        #hasilPencarianMahasiswa {
-            display: none;
-            position: absolute;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .custom-select {
-            position: relative;
-            width: 100%;
-        }
-
-        .custom-select select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background: white;
-            cursor: pointer;
-        }
-
-        .custom-select::after {
-            content: '\f107';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-        }
-
-        .font-size-10 {
-            font-size: 10px !important;
-        }
     </style>
 @endpush
 
 @section('content')
-<div class="main-content">
-    <div class="container">
-        <h4 class="form-header">Buat Pesan Baru</h4>
-        
-        <a href="{{ route('back') }}" class="btn-kembali">
-            <i class="fas fa-arrow-left me-2"></i> Kembali
-        </a>
-        
-        <form id="formPesan">
-            <div class="mb-4">
-                <label for="subjek" class="form-label required-field fs-6">Subjek</label>
-                <div class="custom-select">
-                    <select class="form-select text-muted small" id="subjek" required>
-                        <option value="" disabled selected>Masukkan subjek</option>
-                        <option value="Bimbingan KRS">Bimbingan KRS</option>
-                        <option value="Bimbingan KP">Bimbingan KP</option>
-                        <option value="Bimbingan Skripsi">Bimbingan Skripsi</option>
-                        <option value="Bimbingan MBKM">Bimbingan MBKM</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="mb-4">
-                <label class="form-label required-field fs-6">Penerima</label>
-                <div class="d-flex gap-3">
-                    <div class="tab-penerima active" id="tabIndividual" onclick="switchTab('individual')">
-                        Mahasiswa Individual
-                    </div>
-                    <div class="tab-penerima" id="tabAngkatan" onclick="switchTab('angkatan')">
-                        Berdasarkan Angkatan
-                    </div>
-                </div>
-                
-                <!-- Form Mahasiswa Individual -->
-                <div id="daftarMahasiswa" class="mt-3">
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="searchMahasiswa" placeholder="Cari mahasiswa..." oninput="searchMahasiswa(this.value)">
-                        <button class="btn btn-outline-secondary" type="button" id="buttonSearchMahasiswa">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="list-group" id="hasilPencarianMahasiswa">
-                        <!-- Hasil pencarian akan ditampilkan di sini -->
-                    </div>
-                </div>
-                
-                <!-- Form Angkatan -->
-                <div id="daftarAngkatan" class="mt-3">
-                    <div class="mb-3">
-                        <div class="form-check checkbox-angkatan">
-                            <input class="form-check-input" type="checkbox" id="angkatanAll" onclick="pilihSemuaAngkatan()">
-                            <label class="form-check-label" for="angkatanAll">
-                                <strong>Semua Angkatan</strong>
-                            </label>
-                        </div>
-                        <hr>
-                        <div class="form-check checkbox-angkatan">
-                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2019" onclick="updateAngkatanSelection('2019', 'Angkatan 2019')">
-                            <label class="form-check-label" for="angkatan2019">
-                                Angkatan 2019
-                            </label>
-                        </div>
-                        <div class="form-check checkbox-angkatan">
-                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2020" onclick="updateAngkatanSelection('2020', 'Angkatan 2020')">
-                            <label class="form-check-label" for="angkatan2020">
-                                Angkatan 2020
-                            </label>
-                        </div>
-                        <div class="form-check checkbox-angkatan">
-                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2021" onclick="updateAngkatanSelection('2021', 'Angkatan 2021')">
-                            <label class="form-check-label" for="angkatan2021">
-                                Angkatan 2021
-                            </label>
-                        </div>
-                        <div class="form-check checkbox-angkatan">
-                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2022" onclick="updateAngkatanSelection('2022', 'Angkatan 2022')">
-                            <label class="form-check-label" for="angkatan2022">
-                                Angkatan 2022
-                            </label>
-                        </div>
-                        <div class="form-check checkbox-angkatan">
-                            <input class="form-check-input angkatan-checkbox" type="checkbox" id="angkatan2023" onclick="updateAngkatanSelection('2023', 'Angkatan 2023')">
-                            <label class="form-check-label" for="angkatan2023">
-                                Angkatan 2023
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tampilkan penerima yang sudah dipilih -->
-                <div id="selectedPenerima" class="mt-3">
-                    <!-- Penerima yang dipilih akan ditampilkan di sini -->
-                </div>
-            </div>
-            
-            <div class="mb-4">
-                <label for="prioritas" class="form-label required-field fs-6">Prioritas</label>
-                <div class="custom-select">
-                    <select class="form-select text-muted small" id="prioritas" required>
-                        <option value="" disabled selected>Masukkan prioritas</option>
-                        <option value="Penting">Penting</option>
-                        <option value="Umum">Umum</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="mb-4">
-                <label for="lampiran" class="form-label fs-6">Lampiran (Link Google Drive)</label>
-                <input type="url" class="form-control" id="lampiran" placeholder="Masukkan link Google Drive">
-            </div>
-            
-            <div class="mb-4">
-                <label for="pesanText" class="form-label required-field fs-6">Pesan</label>
-                <textarea class="form-control" id="pesanText" rows="8" placeholder="Tulis pesan Anda di sini..." required></textarea>
-            </div>
-            
-            <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-gradient px-4 py-2">
-                    Kirim
-                </button>
-            </div>
-        </form>
+<div class="container py-4">
+    <div class="title-divider">
+        <h4 class="mb-0">Buat Pesan Baru</h4>
     </div>
+
+    <a href="{{ route('dosen.dashboard.pesan') }}" class="btn btn-gradient-primary mb-4">
+        <i class="fas fa-arrow-left me-2"></i> Kembali
+    </a>
+
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    <form id="formPesan">
+        @csrf
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <label class="form-label required-field">Subjek</label>
+                            <select class="form-select" id="subjek" name="subjek" required>
+                                <option value="" disabled selected>Pilih subjek pesan</option>
+                                <option value="Bimbingan KRS">Bimbingan KRS</option>
+                                <option value="Bimbingan KP">Bimbingan KP</option>
+                                <option value="Bimbingan Skripsi">Bimbingan Skripsi</option>
+                                <option value="Bimbingan MBKM">Bimbingan MBKM</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label required-field">Prioritas</label>
+                            <select class="form-select" id="prioritas" name="prioritas" required>
+                                <option value="" disabled selected>Pilih prioritas</option>
+                                <option value="Penting">Penting</option>
+                                <option value="Umum">Umum</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Lampiran (Link Google Drive)</label>
+                            <input type="url" class="form-control" id="lampiran" name="lampiran" placeholder="Masukkan link Google Drive (opsional)">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label required-field">Pesan</label>
+                            <textarea class="form-control" id="pesanText" name="pesanText" rows="8" placeholder="Tulis pesan Anda di sini..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <label class="form-label required-field">Penerima</label>
+                            <div class="input-group mb-2">
+                                <input type="text" id="search_mahasiswa" class="form-control" placeholder="Cari mahasiswa (minimal 3 karakter)...">
+                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="search-info" class="small text-muted">Ketik minimal 3 karakter untuk mencari</div>
+
+                            <div class="mt-3">
+                                <div class="card border-0">
+                                    <div class="card-body p-0 search-result" id="search_results">
+                                        <!-- Hasil pencarian akan ditampilkan di sini -->
+                                        <div class="no-results">
+                                            Ketik nama atau NIM mahasiswa pada form pencarian
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6 class="mb-3">Penerima Terpilih:</h6>
+                            <div id="selected_members">
+                                <p class="text-muted" id="no_selected">Belum ada penerima yang dipilih</p>
+                                <!-- Daftar penerima yang dipilih akan tampil di sini -->
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-gradient-primary px-4">
+                                <i class="fas fa-paper-plane me-2"></i> Kirim Pesan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    // Menyimpan daftar penerima
-    let daftarPenerima = {};
-
-    // Data mahasiswa untuk simulasi pencarian
-    const dataMahasiswa = [
-        {id: 'M001', nama: 'Desi Maya Sari', nim: '2055301140'},
-        {id: 'M002', nama: 'Ahmad Fauzi', nim: '2055301141'},
-        {id: 'M003', nama: 'Rina Wijaya', nim: '2055301142'},
-        {id: 'M004', nama: 'Budi Santoso', nim: '2055301143'},
-        {id: 'M005', nama: 'Putri Amelia', nim: '2055301144'},
-        {id: 'M006', nama: 'Sarah Annisa', nim: '2055301145'},
-        {id: 'M007', nama: 'Muhammad Rizki', nim: '2055301146'},
-        {id: 'M008', nama: 'Indah Permata', nim: '2055301147'},
-        {id: 'M009', nama: 'Farhan Malik', nim: '2055301148'},
-        {id: 'M010', nama: 'Nova Diana', nim: '2055301149'}
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search_mahasiswa');
+    const searchResults = document.getElementById('search_results');
+    const selectedMembersContainer = document.getElementById('selected_members');
+    const noSelectedMessage = document.getElementById('no_selected');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const searchInfo = document.getElementById('search-info');
+    const formPesan = document.getElementById('formPesan');
+    
+    // Data mahasiswa dari database
+    const mahasiswaData = [
+        @foreach($mahasiswa as $mhs)
+        {
+            nim: '{{ $mhs->nim }}',
+            nama: '{{ $mhs->nama }}'
+        },
+        @endforeach
     ];
-
-    // Fungsi untuk beralih antar tab
-    function switchTab(tabType) {
-        // Reset tampilan tab
-        document.getElementById('tabIndividual').classList.remove('active');
-        document.getElementById('tabAngkatan').classList.remove('active');
-        document.getElementById('daftarMahasiswa').style.display = 'none';
-        document.getElementById('daftarAngkatan').style.display = 'none';
-        
-        // Hapus semua penerima yang sudah dipilih sebelumnya
-        daftarPenerima = {};
-        renderPenerima();
-        
-        // Reset checkbox angkatan
-        if (tabType === 'individual') {
-            document.getElementById('tabIndividual').classList.add('active');
-            document.getElementById('daftarMahasiswa').style.display = 'block';
-            // Reset input pencarian
-            document.getElementById('searchMahasiswa').value = '';
-        } else if (tabType === 'angkatan') {
-            document.getElementById('tabAngkatan').classList.add('active');
-            document.getElementById('daftarAngkatan').style.display = 'block';
-            // Reset semua checkbox angkatan
-            document.getElementById('angkatanAll').checked = false;
-            document.querySelectorAll('.angkatan-checkbox').forEach(cb => cb.checked = false);
+    
+    // Simpan mahasiswa yang dipilih
+    const selectedMahasiswa = new Set();
+    
+    // Fungsi untuk memperbarui tampilan penerima yang dipilih
+    function updateSelectedMembers() {
+        if (selectedMahasiswa.size === 0) {
+            noSelectedMessage.style.display = 'block';
+        } else {
+            noSelectedMessage.style.display = 'none';
         }
-    }
-
-    // Fungsi untuk memilih semua angkatan
-    function pilihSemuaAngkatan() {
-        const isChecked = document.getElementById('angkatanAll').checked;
-        const angkatanCheckboxes = document.querySelectorAll('.angkatan-checkbox');
         
-        angkatanCheckboxes.forEach(checkbox => {
-            checkbox.checked = isChecked;
-            
-            if (isChecked) {
-                const id = checkbox.id.replace('angkatan', '');
-                const nama = checkbox.nextElementSibling.textContent.trim();
-                updateAngkatanSelection(id, nama);
-            } else {
-                const id = checkbox.id.replace('angkatan', '');
-                hapusPenerima('A' + id);
+        // Hapus badge yang sudah tidak dipilih
+        document.querySelectorAll('#selected_members .badge').forEach(badge => {
+            const nim = badge.getAttribute('data-nim');
+            if (!selectedMahasiswa.has(nim)) {
+                badge.remove();
             }
         });
-    }
-
-    // Fungsi untuk memperbarui pilihan angkatan
-    function updateAngkatanSelection(angkatanId, angkatanNama) {
-        const checkbox = document.getElementById('angkatan' + angkatanId);
         
-        if (checkbox.checked) {
-            tambahPenerima('A' + angkatanId, angkatanNama, 'angkatan');
-        } else {
-            hapusPenerima('A' + angkatanId);
-            document.getElementById('angkatanAll').checked = false;
-        }
-    }
-
-    // Fungsi untuk menambah penerima
-    function tambahPenerima(id, nama, tipe = 'mahasiswa') {
-        if (!daftarPenerima[id]) {
-            daftarPenerima[id] = {id, nama, tipe};
-            renderPenerima();
-        }
-    }
-
-    // Fungsi untuk menghapus penerima
-    function hapusPenerima(id) {
-        if (daftarPenerima[id]) {
-            delete daftarPenerima[id];
-            renderPenerima();
-            
-            if (id.startsWith('A')) {
-                const angkatanId = id.substring(1);
-                document.getElementById('angkatan' + angkatanId).checked = false;
+        // Tambahkan badge untuk mahasiswa yang baru dipilih
+        selectedMahasiswa.forEach(nim => {
+            if (!document.querySelector(`#selected_members .badge[data-nim="${nim}"]`)) {
+                const mahasiswa = mahasiswaData.find(m => m.nim === nim);
+                if (mahasiswa) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-light text-dark border p-2 me-2 mb-2';
+                    badge.setAttribute('data-nim', nim);
+                    badge.innerHTML = `
+                        ${mahasiswa.nama} - ${mahasiswa.nim}
+                        <button type="button" class="btn-close ms-2" style="font-size: 8px;" data-nim="${nim}"></button>
+                        <input type="hidden" name="anggota[]" value="${nim}">
+                    `;
+                    selectedMembersContainer.appendChild(badge);
+                }
             }
-        }
-    }
-
-    // Fungsi untuk merender daftar penerima
-    function renderPenerima() {
-        const container = document.getElementById('selectedPenerima');
-        container.innerHTML = '';
-        
-        if (Object.keys(daftarPenerima).length === 0) {
-            container.innerHTML = '<p class="text-muted mb-0">Belum ada penerima yang dipilih</p>';
-            return;
-        }
-        
-        for (const id in daftarPenerima) {
-            const penerima = daftarPenerima[id];
-            const tag = document.createElement('div');
-            tag.className = 'penerima-tag';
-            tag.innerHTML = `${penerima.nama} <span class="close" onclick="hapusPenerima('${id}')">&times;</span>`;
-            container.appendChild(tag);
-        }
-    }
-
-    // Fungsi untuk pencarian mahasiswa
-    function searchMahasiswa(keyword) {
-        const hasilPencarianContainer = document.getElementById('hasilPencarianMahasiswa');
-        
-        if (keyword.length < 1) {
-            hasilPencarianContainer.style.display = 'none';
-            return;
-        }
-
-        keyword = keyword.toLowerCase();
-        const hasilPencarian = dataMahasiswa.filter(mhs => {
-            return mhs.nama.toLowerCase().includes(keyword) || 
-                mhs.nim.includes(keyword);
         });
         
-        hasilPencarianContainer.style.display = 'block';
-        hasilPencarianContainer.innerHTML = '';
-        
-        if (hasilPencarian.length === 0) {
-            hasilPencarianContainer.innerHTML = '<div class="list-group-item">Tidak ada hasil</div>';
-        } else {
-            hasilPencarian.forEach(mhs => {
-                const item = document.createElement('a');
-                item.href = '#';
-                item.className = 'list-group-item list-group-item-action';
-                item.textContent = `${mhs.nama} - ${mhs.nim}`;
-                item.onclick = function(e) {
-                    e.preventDefault();
-                    tambahPenerima(mhs.id, mhs.nama);
-                    document.getElementById('searchMahasiswa').value = '';
-                    hasilPencarianContainer.style.display = 'none';
-                };
-                hasilPencarianContainer.appendChild(item);
+        // Tambahkan event listener untuk tombol close di badges
+        document.querySelectorAll('#selected_members .btn-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nim = this.getAttribute('data-nim');
+                selectedMahasiswa.delete(nim);
+                updateSelectedMembers();
+                
+                // Update checkbox jika sedang ditampilkan
+                const checkbox = document.querySelector(`input[type="checkbox"][value="${nim}"]`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
             });
-        }
+        });
     }
-
-    // Event listener untuk tombol search
-    document.getElementById('buttonSearchMahasiswa').addEventListener('click', function() {
-        const keyword = document.getElementById('searchMahasiswa').value;
-        if (keyword) {
-            searchMahasiswa(keyword);
+    
+    // Fungsi untuk menampilkan hasil pencarian
+    function showSearchResults(searchTerm) {
+        if (searchTerm.length < 3) {
+            searchResults.innerHTML = `
+                <div class="no-results">
+                    Ketik minimal 3 karakter untuk mencari mahasiswa
+                </div>
+            `;
+            return;
         }
+        
+        searchTerm = searchTerm.toLowerCase();
+        
+        // Filter mahasiswa berdasarkan kata kunci
+        const filteredMahasiswa = mahasiswaData.filter(mhs => 
+            mhs.nama.toLowerCase().includes(searchTerm) || 
+            mhs.nim.toLowerCase().includes(searchTerm)
+        );
+        
+        if (filteredMahasiswa.length === 0) {
+            searchResults.innerHTML = `
+                <div class="no-results">
+                    Tidak ada mahasiswa yang sesuai dengan kata kunci "${searchTerm}"
+                </div>
+            `;
+            return;
+        }
+        
+        // Tampilkan hasil pencarian
+        let html = '<div class="list-group">';
+        
+        filteredMahasiswa.forEach(mhs => {
+            const isSelected = selectedMahasiswa.has(mhs.nim);
+            html += `
+                <div class="list-group-item">
+                    <div class="form-check">
+                        <input class="form-check-input mahasiswa-checkbox" type="checkbox" value="${mhs.nim}" id="mhs${mhs.nim}" ${isSelected ? 'checked' : ''}>
+                        <label class="form-check-label" for="mhs${mhs.nim}">
+                            ${mhs.nama} - ${mhs.nim}
+                        </label>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        searchResults.innerHTML = html;
+        
+        // Event listener untuk checkbox hasil pencarian
+        document.querySelectorAll('.mahasiswa-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const nim = this.value;
+                
+                if (this.checked) {
+                    selectedMahasiswa.add(nim);
+                } else {
+                    selectedMahasiswa.delete(nim);
+                }
+                
+                updateSelectedMembers();
+            });
+        });
+    }
+    
+    // Event listener untuk input pencarian
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        
+        if (searchTerm.length >= 3) {
+            searchInfo.textContent = `Menampilkan hasil pencarian untuk: "${searchTerm}"`;
+        } else {
+            searchInfo.textContent = 'Ketik minimal 3 karakter untuk mencari mahasiswa';
+        }
+        
+        showSearchResults(searchTerm);
     });
-
-    // Event listener untuk form submission
-    document.getElementById('formPesan').addEventListener('submit', function(e) {
+    
+    // Event listener untuk tombol clear search
+    clearSearchBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        searchInfo.textContent = 'Ketik minimal 3 karakter untuk mencari mahasiswa';
+        searchResults.innerHTML = `
+            <div class="no-results">
+                Ketik nama atau NIM mahasiswa pada form pencarian
+            </div>
+        `;
+    });
+    
+    // Form Submit Handler
+    formPesan.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if (Object.keys(daftarPenerima).length === 0) {
+        // Validasi form
+        if (selectedMahasiswa.size === 0) {
             alert('Pilih minimal satu penerima');
-            return false;
+            return;
         }
         
-        // Tampilkan data untuk demo
-        console.log('Data pesan:', {
-            subjek: document.getElementById('subjek').value,
-            penerima: Object.values(daftarPenerima),
-            prioritas: document.getElementById('prioritas').value,
-            lampiran: document.getElementById('lampiran').value,
-            pesan: document.getElementById('pesanText').value
+        // Kumpulkan data dari form
+        const formData = new FormData(this);
+        
+        // Kirim ke server
+        fetch('{{ route("dosen.pesan.store") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.href = '{{ route("dosen.dashboard.pesan") }}';
+            } else {
+                alert('Gagal mengirim pesan: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat mengirim pesan');
         });
-        
-        alert('Pesan berhasil dikirim!');
-        
-        // Reset form
-        this.reset();
-        daftarPenerima = {};
-        renderPenerima();
-        document.querySelectorAll('.angkatan-checkbox').forEach(cb => cb.checked = false);
-        document.getElementById('angkatanAll').checked = false;
-        document.getElementById('hasilPencarianMahasiswa').style.display = 'none';
     });
-
-    // Close hasil pencarian when clicking outside
-    document.addEventListener('click', function(e) {
-        const searchContainer = document.getElementById('daftarMahasiswa');
-        const hasilPencarian = document.getElementById('hasilPencarianMahasiswa');
-        
-        if (!searchContainer.contains(e.target)) {
-            hasilPencarian.style.display = 'none';
-        }
-    });
-
-    // Inisialisasi tampilan
-    document.addEventListener('DOMContentLoaded', function() {
-        switchTab('individual');
-        renderPenerima();
-    });
+    
+    // Inisialisasi tampilan penerima terpilih
+    updateSelectedMembers();
+});
 </script>
 @endpush

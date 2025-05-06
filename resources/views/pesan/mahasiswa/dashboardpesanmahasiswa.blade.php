@@ -376,10 +376,24 @@ document.addEventListener('DOMContentLoaded', function() {
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Hapus class active dari semua tombol
-            filterButtons.forEach(btn => btn.classList.remove('active'));
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                
+                // Reset juga styling untuk tombol semua
+                if (btn.dataset.filter === 'semua') {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline-primary');
+                }
+            });
             
             // Tambahkan class active ke tombol yang diklik
             this.classList.add('active');
+            
+            // Tambahkan styling khusus jika tombol semua yang diklik
+            if (this.dataset.filter === 'semua') {
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('btn-primary');
+            }
             
             // Filter pesan berdasarkan tombol yang diklik
             const filter = this.dataset.filter;
@@ -445,7 +459,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 searchMessages(searchTerm);
             } else {
                 // Jika input kosong, reset ke tampilan awal
-                filterMessages('semua');
+                // Dapatkan filter aktif saat ini
+                const activeFilter = document.querySelector('.filter-btn.active');
+                if (activeFilter) {
+                    filterMessages(activeFilter.dataset.filter);
+                } else {
+                    filterMessages('semua');
+                }
             }
         }, 500);
     });
@@ -477,13 +497,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fungsi pencarian fallback (client-side)
     function fallbackSearchMessages(searchTerm) {
+        // Dapatkan filter aktif saat ini untuk digabungkan dengan pencarian
+        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+        
         const messageCards = document.querySelectorAll('.message-card');
         let visibleCount = 0;
         
         messageCards.forEach(card => {
             const messageText = card.textContent.toLowerCase();
+            const isPenting = card.classList.contains('penting');
+            const isUmum = card.classList.contains('umum');
             
-            if (messageText.includes(searchTerm.toLowerCase())) {
+            // Kombinasikan filter pencarian dengan filter prioritas
+            const matchesSearch = messageText.includes(searchTerm.toLowerCase());
+            const matchesFilter = activeFilter === 'semua' || 
+                               (activeFilter === 'penting' && isPenting) || 
+                               (activeFilter === 'umum' && isUmum);
+            
+            if (matchesSearch && matchesFilter) {
                 card.style.display = 'block';
                 visibleCount++;
             } else {
@@ -494,6 +525,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai pencarian
         document.getElementById('no-results').style.display = visibleCount === 0 ? 'block' : 'none';
     }
+    
+    // Set default filter ke "semua" saat halaman dimuat
+    window.addEventListener('load', function() {
+        // Hapus kelas active dari semua tombol filter kecuali 'semua'
+        filterButtons.forEach(btn => {
+            // Jika tombol filter adalah 'semua', berikan class active
+            if (btn.dataset.filter === 'semua') {
+                btn.classList.add('active');
+                // Pastikan pakai style yang benar (btn-primary)
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-primary');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        // Aktifkan filter 'semua' secara default
+        filterMessages('semua');
+    });
 });
 </script>
 @endpush

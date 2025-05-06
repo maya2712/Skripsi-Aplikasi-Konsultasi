@@ -4,8 +4,8 @@
     <style>
         :root {
             --primary-color: #0070dc;
-            --primary-gradient: linear-gradient(to right, #0056b3, #00a5e3);
-            --primary-hover: linear-gradient(to right, #004494, #0090d0);
+            --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
+            --primary-hover: linear-gradient(to right, #003d91, #4bcad0);
             --light-bg: #F5F7FA;
             --success-color: #27AE60;
             --danger-color: #FF5252;
@@ -98,7 +98,20 @@
             background-color: #f0f4f8;
         }
         
-        /* Indikator online dihilangkan sesuai permintaan */
+        .profile-image-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #6c757d;
+            border: 4px solid #ffffff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
         
         .info-title {
             font-size: 18px;
@@ -119,7 +132,7 @@
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             border: 1px solid #eaedf1;
-            table-layout: auto;
+            table-layout: fixed !important;
         }
         
         .info-table tr {
@@ -138,7 +151,8 @@
         }
         
         .info-table td:first-child {
-            width: 90px;
+            width: 100px !important;
+            white-space: nowrap !important;
             color: var(--gray-text);
             background-color: #f0f4f8;
             font-weight: 500;
@@ -146,6 +160,7 @@
         }
         
         .info-table td:last-child {
+            width: calc(100% - 100px) !important;
             border-bottom: 1px solid #eaedf1;
             padding-right: 20px;
             word-break: normal;
@@ -164,6 +179,10 @@
             color: white;
             background-color: var(--danger-color);
             border-radius: 20px;
+        }
+        
+        .badge-priority.Umum {
+            background-color: var(--success-color);
         }
         
         /* Chat Container Styling */
@@ -362,18 +381,6 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             width: fit-content;
             max-width: 80%;
-        }
-        
-        .message-bubble .sender-name-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .message-bubble .sender-name {
-            color: #f8ac30;
-            font-weight: 500;
         }
         
         .message-bubble p {
@@ -639,6 +646,38 @@
             border: none;
         }
         
+        /* System message for chat ended */
+        .system-message {
+            text-align: center;
+            position: relative;
+            margin: 30px 0;
+        }
+        
+        .system-message:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background-color: #e74c3c;
+            z-index: 1;
+            opacity: 0.3;
+        }
+        
+        .system-message span {
+            background-color: white;
+            padding: 5px 15px;
+            color: #e74c3c;
+            font-weight: 600;
+            font-size: 14px;
+            position: relative;
+            z-index: 2;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.1);
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 992px) {
             .chat-message {
@@ -680,14 +719,15 @@
                 <!-- Panel Kiri -->
                 <div class="left-panel">
                     <!-- Tombol Kembali -->
-                    <a href="{{ url('/dashboardpesandosen') }}" class="back-button">
+                    <a href="{{ route('dosen.dashboard.pesan') }}" class="back-button">
                         <i class="fas fa-arrow-left"></i> Kembali
                     </a>
                     
                     <!-- Bagian Profil -->
                     <div class="profile-section">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profil Mahasiswa" class="profile-image">
-                        <!-- Indikator online dihilangkan -->
+                        <div class="profile-image-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
                     </div>
                     
                     <!-- Bagian Informasi Pesan -->
@@ -695,22 +735,32 @@
                     <table class="info-table">
                         <tr>
                             <td>Subjek</td>
-                            <td>Bimbingan KRS</td>
+                            <td>{{ $pesan->subjek }}</td>
                         </tr>
                         <tr>
                             <td>Pengirim</td>
-                            <td>Desi Maya Sari</td>
+                            <td>{{ $pesan->pengirim()->first()->nama }}</td>
                         </tr>
                         <tr>
                             <td>NIM</td>
-                            <td>2107110665</td>
+                            <td>{{ $pesan->nim_pengirim }}</td>
                         </tr>
-
                         <tr>
                             <td>Prioritas</td>
-                            <td><span class="badge-priority">Penting</span></td>
+                            <td>
+                                <span class="badge-priority {{ $pesan->prioritas }}">{{ $pesan->prioritas }}</span>
+                            </td>
                         </tr>
-
+                        @if($pesan->lampiran)
+                        <tr>
+                            <td>Lampiran</td>
+                            <td>
+                                <a href="{{ $pesan->lampiran }}" target="_blank" class="text-primary">
+                                    <i class="fas fa-external-link-alt me-1"></i> Lihat Lampiran
+                                </a>
+                            </td>
+                        </tr>
+                        @endif
                     </table>
                 </div>
             </div>
@@ -718,11 +768,8 @@
             <div class="col-md-8 col-lg-9">
                 <!-- Bagian Header Pesan -->
                 <div class="message-header">
-                    <h4><span class="status-dot"></span> Desi Maya Sari - 2107110665</h4>
+                    <h4><span class="status-dot"></span> {{ $pesan->pengirim()->first()->nama }} - {{ $pesan->nim_pengirim }}</h4>
                     <div class="action-buttons">
-                        <button class="action-button" title="Arsipkan">
-                            <i class="fas fa-archive"></i>
-                        </button>
                         <button class="action-button" title="Bookmark" id="bookmarkButton">
                             <i class="far fa-bookmark"></i>
                         </button>
@@ -737,80 +784,97 @@
                 
                 <!-- Container Pesan -->
                 <div class="chat-container" id="chatContainer">
-                    <div class="chat-date-divider">
-                        <span>Sabtu, 20 Januari 2024</span>
-                    </div>
-                    
-                    <!-- Pesan Mahasiswa 1 -->
-                    <div class="chat-message" data-id="message-1">
-                        <div class="message-bubble">
-                            <div class="sender-name-container">
-                                <span class="sender-name">Desi Maya Sari</span>
-                                <div class="bookmark-checkbox">
-                                    <input class="form-check-input" type="checkbox" value="" id="bookmark1">
+                    @foreach($balasanByDate as $date => $messages)
+                        <div class="chat-date-divider">
+                            <span>{{ Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
+                        </div>
+                        
+                        @foreach($messages as $message)
+                            @if($message instanceof App\Models\Pesan)
+                                <!-- Pesan Mahasiswa (Pesan Awal) -->
+                                <div class="chat-message {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="message-{{ $message->id }}">
+                                    <div class="message-bubble">
+                                        <div class="bookmark-checkbox">
+                                            <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
+                                        </div>
+                                        <p>{{ $message->isi_pesan }}</p>
+                                        <div class="message-time">
+                                            {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                            <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                            <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <p>Assalamuaikum pak</p>
-                            <p>izin bertanya, untuk bimbingan KRS dilakukan mulai kapan ya pak?</p>
-                            <div class="message-time">
-                                09:35
-                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                            </div>
-                        </div>
-                    </div>
+                            @else
+                                @if($message->tipe_pengirim == 'mahasiswa')
+                                    <!-- Balasan dari Mahasiswa -->
+                                    <div class="chat-message {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="reply-{{ $message->id }}">
+                                        <div class="message-bubble">
+                                            <div class="bookmark-checkbox">
+                                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
+                                            </div>
+                                            <p>{{ $message->isi_balasan }}</p>
+                                            <div class="message-time">
+                                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <!-- Balasan dari Dosen -->
+                                    <div class="chat-message message-reply {{ $message->bookmarked ? 'bookmarked' : '' }}" data-id="reply-{{ $message->id }}">
+                                        <div class="message-bubble">
+                                            <div class="bookmark-checkbox">
+                                                <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}">
+                                            </div>
+                                            <p>{{ $message->isi_balasan }}</p>
+                                            <div class="message-time">
+                                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+                        @endforeach
+                    @endforeach
                     
-                    <!-- Balasan Dosen -->
-                    <div class="chat-message message-reply" data-id="message-2">
-                        <div class="message-bubble">
-                            <div class="bookmark-checkbox">
-                                <input class="form-check-input" type="checkbox" value="" id="bookmark2">
-                            </div>
-                            <p>Wa'alaikumsalam Warohmatulloh Wabarokatuh</p>
-                            <p>Bimbingan KRS dilakukan mulai tanggal 25-30 Januari 2025</p>
-                            <div class="message-time">
-                                09:30
-                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                            </div>
+                    @if($pesan->status == 'Berakhir')
+                        <!-- Pesan sistem - Pesan telah diakhiri -->
+                        <div class="system-message">
+                            <span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri oleh mahasiswa</span>
                         </div>
-                    </div>
-                    
-                    <!-- Pesan Mahasiswa 2 -->
-                    <div class="chat-message" data-id="message-3">
-                        <div class="message-bubble">
-                            <div class="sender-name-container">
-                                <span class="sender-name">Desi Maya Sari</span>
-                                <div class="bookmark-checkbox">
-                                    <input class="form-check-input" type="checkbox" value="" id="bookmark3">
-                                </div>
-                            </div>
-                            <p>Baik pak</p>
-                            <p>Terimakasih Informasinya.</p>
-                            <div class="message-time">
-                                09:35
-                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                            </div>
-                        </div>
-                    </div>
+                    @endif
                 </div>
                 
                 <!-- Form Input Pesan -->
+                @if($pesan->status == 'Aktif')
                 <div class="message-input-container">
                     <div class="input-actions">
                         <button class="input-action-button" title="Lampirkan File">
                             <i class="fas fa-paperclip"></i>
                         </button>
-                        <button class="input-action-button" title="Emoji">
-                            <i class="far fa-smile"></i>
-                        </button>
                     </div>
-                    <input type="text" class="message-input" placeholder="Tulis Pesan Anda disini..">
-                    <button class="send-button">
+                    <input type="text" class="message-input" id="messageInput" placeholder="Tulis Pesan Anda disini..">
+                    <button class="send-button" id="sendButton">
                         <i class="fas fa-paper-plane"></i> Kirim
                     </button>
                 </div>
+                @else
+                <div class="message-input-container" style="display: none;">
+                    <div class="input-actions">
+                        <button class="input-action-button" title="Lampirkan File">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="message-input" id="messageInput" placeholder="Tulis Pesan Anda disini..">
+                    <button class="send-button" id="sendButton">
+                        <i class="fas fa-paper-plane"></i> Kirim
+                    </button>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -818,7 +882,7 @@
 
 <!-- Modal untuk pengaturan waktu sematkan -->
 <div class="sematkan-modal" id="sematkanModal">
-    <div class="sematkan-modal-content">
+<div class="sematkan-modal-content">
         <h5>Pilih berapa lama Sematan Berlangsung</h5>
         <p>Anda bisa melepas sematan kapan saja</p>
         
@@ -860,11 +924,19 @@
         const sematkanModal = document.querySelector('#sematkanModal');
         const batalSematkanBtn = document.querySelector('#batalSematkan');
         const simpanSematkanBtn = document.querySelector('#simpanSematkan');
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.querySelector('.message-input');
+        const sendButton = document.querySelector('.send-button');
         
         let isBookmarkMode = false;
         
         // Sembunyikan tombol simpan secara default
         simpanButton.style.display = 'none';
+        
+        // Auto-scroll ke bawah chat container
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
         
         // Toggle mode bookmark
         if (bookmarkButton) {
@@ -970,22 +1042,41 @@
                 // Dapatkan durasi yang dipilih
                 const durasiValue = document.querySelector('input[name="sematkanDurasi"]:checked').value;
                 
-                // Simpan ke "backend" (simulasi - untuk prototype)
-                console.log('Pesan yang disematkan:', bookmarkedMessages);
-                console.log('Durasi sematan:', durasiValue, 'jam');
-                
-                // Sembunyikan modal
-                sematkanModal.classList.remove('show');
-                
-                // Hapus centang pada checkbox
-                checkboxInputs.forEach(checkbox => {
-                    checkbox.checked = false;
+                // Kirim data bookmark ke server
+                fetch('{{ route("dosen.pesan.bookmark", $pesan->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        message_ids: bookmarkedMessages,
+                        durasi: durasiValue
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Sembunyikan modal
+                        sematkanModal.classList.remove('show');
+                        
+                        // Hapus centang pada checkbox
+                        checkboxInputs.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                        
+                        // Sembunyikan tombol simpan
+                        simpanButton.style.display = 'none';
+                        
+                        showNotification('Pesan berhasil disematkan', 'success');
+                    } else {
+                        showNotification(data.message, 'warning');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat menyematkan pesan', 'warning');
                 });
-                
-                // Sembunyikan tombol simpan
-                simpanButton.style.display = 'none';
-                
-                showNotification('Pesan berhasil disematkan');
             });
         }
         
@@ -1006,10 +1097,70 @@
             }
         });
         
-        // Auto-scroll ke bawah chat container
-        const chatContainer = document.querySelector('#chatContainer');
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+        // Menangani pengiriman pesan saat menekan Enter di input
+        if (messageInput && sendButton) {
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendButton.click();
+                }
+            });
+            
+            sendButton.addEventListener('click', function() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // Kirim pesan ke server
+                    fetch('{{ route("dosen.pesan.reply", $pesan->id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            balasan: message
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Tambahkan pesan baru ke chat container
+                            const newMessage = document.createElement('div');
+                            newMessage.className = 'chat-message message-reply';
+                            newMessage.setAttribute('data-id', 'reply-' + data.data.id);
+                            
+                            newMessage.innerHTML = `
+                                <div class="message-bubble">
+                                    <div class="bookmark-checkbox">
+                                        <input class="form-check-input" type="checkbox" value="" id="bookmark-${data.data.id}">
+                                    </div>
+                                    <p>${data.data.isi_balasan}</p>
+                                    <div class="message-time">
+                                        ${data.data.created_at}
+                                        <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                        <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            chatContainer.appendChild(newMessage);
+                            
+                            // Bersihkan input pesan
+                            messageInput.value = '';
+                            
+                            // Scroll ke bawah untuk menampilkan pesan baru
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                            
+                            showNotification('Pesan berhasil dikirim', 'success');
+                        } else {
+                            showNotification(data.message, 'warning');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
+                    });
+                }
+            });
         }
         
         // Fungsi untuk menampilkan notifikasi
@@ -1031,28 +1182,6 @@
             setTimeout(() => {
                 notification.remove();
             }, 3000);
-        }
-        
-        // Menangani pengiriman pesan saat menekan Enter di input
-        const messageInput = document.querySelector('.message-input');
-        const sendButton = document.querySelector('.send-button');
-        
-        if (messageInput && sendButton) {
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    sendButton.click();
-                }
-            });
-            
-            sendButton.addEventListener('click', function() {
-                const message = messageInput.value.trim();
-                if (message) {
-                    // Fungsi untuk mengirim pesan bisa ditambahkan di sini
-                    messageInput.value = '';
-                    // showNotification('Pesan berhasil dikirim');
-                }
-            });
         }
     });
 </script>

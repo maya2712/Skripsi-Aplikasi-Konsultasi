@@ -14,6 +14,8 @@ class Pesan extends Model
     protected $fillable = [
         'subjek',
         'nim_pengirim',
+        'nip_pengirim',
+        'nim_penerima',
         'nip_penerima',
         'isi_pesan',
         'prioritas',
@@ -22,16 +24,33 @@ class Pesan extends Model
         'dibaca'
     ];
     
-    // Relasi dengan pengirim (mahasiswa)
+    // Helper method untuk mendapatkan pengirim (baik mahasiswa maupun dosen)
     public function pengirim()
     {
-        return $this->belongsTo(Mahasiswa::class, 'nim_pengirim', 'nim');
+        if (!empty($this->nim_pengirim)) {
+            return $this->belongsTo(Mahasiswa::class, 'nim_pengirim', 'nim');
+        } elseif (!empty($this->nip_pengirim)) {
+            return $this->belongsTo(Dosen::class, 'nip_pengirim', 'nip');
+        }
+        return null;
     }
     
-    // Relasi dengan penerima (dosen)
+   // Helper method untuk mendapatkan penerima (baik mahasiswa maupun dosen)
     public function penerima()
     {
-        return $this->belongsTo(Dosen::class, 'nip_penerima', 'nip');
+        if (!empty($this->nim_penerima)) {
+            return $this->belongsTo(Mahasiswa::class, 'nim_penerima', 'nim');
+        } 
+        
+        if (!empty($this->nip_penerima)) {
+            return $this->belongsTo(Dosen::class, 'nip_penerima', 'nip');
+        }
+        
+        // Tambahkan fallback default relation untuk menghindari null
+        return $this->belongsTo(Dosen::class, 'nip_penerima', 'nip')->withDefault([
+            'nama' => 'Tidak Ditemukan',
+            'jabatan' => 'Tidak Tersedia'
+        ]);
     }
 
     // Relasi untuk balasan pesan

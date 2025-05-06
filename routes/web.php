@@ -26,18 +26,6 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
     Route::get('/dashboardpesan', function () {
         return view('pesan.dashboardpesan');
     });
-
-    Route::get('/dashboardpesandosen', function () {
-        return view('pesan.dosen.dashboardpesandosen');
-    });
-
-    Route::get('/buatpesandosen', function () {
-        return view('pesan.dosen.buatpesandosen');
-    });
-
-    Route::get('/isipesandosen', function () {
-        return view('pesan.dosen.isipesandosen');
-    });
     
     // Route profil - sudah diperbarui untuk menggunakan controller
     Route::get('/profil', [ProfileController::class, 'index'])->name('profil');
@@ -68,10 +56,10 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
         // Fallback jika tidak ada history
         if (auth()->guard('dosen')->check()) {
             return redirect('/dashboardpesandosen');
-            } else {
-                return redirect('/dashboardpesanmahasiswa');
-            }
-        })->name('back');
+        } else {
+            return redirect('/dashboardpesanmahasiswa');
+        }
+    })->name('back');
 
 });
 
@@ -177,10 +165,6 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         return view('bimbingan.riwayatdosen');
     });
 
-    Route::get('/riwayatpesandosen', function () {
-        return view('pesan.dosen.riwayatpesandosen');
-    });
-
     Route::get('/faqdosen', function () {
         return view('pesan.dosen.faq_dosen');
     });
@@ -193,6 +177,43 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         return view('bimbingan.dosen.editusulan');
     });
 
+    // Routes untuk fitur pesan dosen
+    Route::controller(App\Http\Controllers\PesanDosenController::class)->group(function () {
+        // Dashboard pesan
+        Route::get('/dashboardpesandosen', 'index')
+            ->name('dosen.dashboard.pesan');
+        
+        // Buat pesan baru
+        Route::get('/buatpesandosen', 'create')
+            ->name('dosen.pesan.create');
+        Route::post('/kirimpesandosen', 'store')
+            ->name('dosen.pesan.store');
+        
+        // Lihat detail pesan
+        Route::get('/isipesandosen/{id}', 'show')
+            ->name('dosen.pesan.show');
+        
+        // Kirim balasan pesan
+        Route::post('/balaspesandosen/{id}', 'reply')
+            ->name('dosen.pesan.reply');
+        
+        // Bookmark pesan
+        Route::post('/bookmarkpesan/{id}', 'bookmark')
+            ->name('dosen.pesan.bookmark');
+        
+        // Riwayat pesan
+        Route::get('/riwayatpesandosen', 'history')
+            ->name('dosen.pesan.history');
+        
+        // Filter pesan
+        Route::get('/filterpesandosen', 'filter')
+            ->name('dosen.pesan.filter');
+        
+        // Pencarian pesan
+        Route::get('/caripesandosen', 'search')
+            ->name('dosen.pesan.search');
+    });
+
     Route::controller(MasukkanJadwalController::class)->prefix('masukkanjadwal')->group(function () {
         Route::get('/', 'index')->name('dosen.jadwal.index');
         Route::post('/store', 'store')->name('dosen.jadwal.store');
@@ -203,7 +224,6 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         Route::get('/google/connect', 'connect')->name('dosen.google.connect');
         Route::get('/google/events', 'getEvents')->name('dosen.google.events');
         Route::get('/google/callback', 'callback')->name('dosen.google.callback');
-        
     });
     
     // Route untuk fitur grup

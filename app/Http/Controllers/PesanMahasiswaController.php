@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Pesan;
 use App\Models\BalasanPesan;
 use App\Models\Dosen;
+use App\Models\Mahasiswa; // Tambahkan import model Mahasiswa
 use Carbon\Carbon;
 
 class PesanMahasiswaController extends Controller
@@ -85,36 +86,58 @@ class PesanMahasiswaController extends Controller
         }
     }
     
-    // Menampilkan detail pesan
+    // Menampilkan detail pesan (METODE YANG SUDAH DIPERBAIKI)
     public function show($id)
-    {
-        $pesan = Pesan::with(['pengirim', 'penerima', 'balasan'])->findOrFail($id);
+{
+    try {
+        $pesan = Pesan::findOrFail($id);
         
         // Pastikan mahasiswa yang melihat adalah pengirim pesan
         if ($pesan->nim_pengirim != Auth::user()->nim) {
             return redirect()->route('mahasiswa.dashboard.pesan')
-                        ->with('error', 'Anda tidak memiliki akses ke pesan ini');
+                ->with('error', 'Anda tidak memiliki akses ke pesan ini');
         }
         
-        // Kelompokkan balasan berdasarkan tanggal untuk tampilan yang lebih baik
+        // Periksa terlebih dahulu apakah penerima ada sebelum dimuat
+        if (!$pesan->penerima) {
+            Log::error('Penerima tidak ditemukan untuk pesan ID: ' . $pesan->id);
+            return redirect()->route('mahasiswa.dashboard.pesan')
+                ->with('error', 'Terjadi kesalahan: Data penerima tidak ditemukan');
+        }
+        
+        // Load relasi balasan secara manual
+        $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+        $pesan->setRelation('balasan', $balasan);
+        
+        // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
+        foreach ($pesan->balasan as $balasan) {
+            if ($balasan->tipe_pengirim == 'dosen') {
+                $dosenPengirim = Dosen::find($balasan->pengirim_id);
+                $balasan->pengirimData = $dosenPengirim;
+            } else {
+                $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
+                $balasan->pengirimData = $mahasiswaPengirim;
+            }
+        }
+        
+        // Kelompokkan balasan berdasarkan tanggal
         $balasanByDate = [];
         
-        // Tambahkan pesan awal ke balasan untuk ditampilkan dalam chat
-        $allMessages = collect([$pesan]);
+        // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
+        $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
+        $balasanByDate[$dateAwal][] = $pesan;
         
-        // Gabungkan dengan balasan
-        if ($pesan->balasan) {
-            $allMessages = $allMessages->concat($pesan->balasan);
-        }
-        
-        // Kelompokkan berdasarkan tanggal
-        foreach ($allMessages as $message) {
-            $date = Carbon::parse($message->created_at)->format('Y-m-d');
+        // Tambahkan semua balasan ke grup berdasarkan tanggal
+        foreach ($pesan->balasan as $balasan) {
+            $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
             if (!isset($balasanByDate[$date])) {
                 $balasanByDate[$date] = [];
             }
-            $balasanByDate[$date][] = $message;
+            $balasanByDate[$date][] = $balasan;
         }
+        
+        // Urutkan tanggal (dari paling lama)
+        ksort($balasanByDate);
         
         // Update status menjadi dibaca jika belum dibaca
         if (!$pesan->dibaca) {
@@ -123,7 +146,14 @@ class PesanMahasiswaController extends Controller
         }
         
         return view('pesan.mahasiswa.isipesanmahasiswa', compact('pesan', 'balasanByDate'));
+    } catch (\Exception $e) {
+        // Log error dengan lebih detail
+        Log::error('Error saat menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+        
+        return redirect()->route('mahasiswa.dashboard.pesan')
+            ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan: ' . $e->getMessage());
     }
+}
     
     // Mengirim balasan pesan
     public function reply(Request $request, $id)
@@ -273,5 +303,22 @@ class PesanMahasiswaController extends Controller
     public function faq()
     {
         return view('pesan.mahasiswa.faq_mahasiswa');
+    }
+    
+    /**
+     * Method untuk debugging
+     * Gunakan method ini jika masih terjadi error pada pesan
+     */
+    public function debug($id)
+    {
+        $pesan = Pesan::findOrFail($id);
+        $balasan = BalasanPesan::where('id_pesan', $id)->get();
+        
+        dd([
+            'Pesan' => $pesan->toArray(),
+            'Balasan' => $balasan->toArray(),
+            'Penerima Exists' => $pesan->penerima ? true : false,
+            'Balasan Count' => $balasan->count()
+        ]);
     }
 }

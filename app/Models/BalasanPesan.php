@@ -19,19 +19,31 @@ class BalasanPesan extends Model
         'dibaca'
     ];
     
-    // Relasi dengan pesan utama
+    // Relasi ke pesan
     public function pesan()
     {
         return $this->belongsTo(Pesan::class, 'id_pesan');
     }
     
-    // Relasi polymorphic untuk pengirim
-    public function pengirim()
+    // Pengirim berdasarkan tipe
+    public function pengirimMahasiswa()
+    {
+        return $this->belongsTo(Mahasiswa::class, 'pengirim_id', 'nim');
+    }
+    
+    public function pengirimDosen()
+    {
+        return $this->belongsTo(Dosen::class, 'pengirim_id', 'nip');
+    }
+    
+    // Helper method untuk mendapatkan pengirim
+    public function getPengirimAttribute()
     {
         if ($this->tipe_pengirim == 'mahasiswa') {
-            return Mahasiswa::find($this->pengirim_id);
-        } else {
-            return Dosen::find($this->pengirim_id);
+            return $this->pengirimMahasiswa;
+        } else if ($this->tipe_pengirim == 'dosen') {
+            return $this->pengirimDosen;
         }
+        return null;
     }
 }
