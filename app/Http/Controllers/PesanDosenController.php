@@ -21,10 +21,12 @@ class PesanDosenController extends Controller
         $dosen = Auth::user();
         
         // Mengambil semua pesan yang diterima ATAU dikirim oleh dosen
-            $pesan = Pesan::where(function($query) use ($dosen) {
+        // hanya yang statusnya masih 'Aktif'
+        $pesan = Pesan::where(function($query) use ($dosen) {
                 $query->where('nip_penerima', $dosen->nip)
                     ->orWhere('nip_pengirim', $dosen->nip);
             })
+            ->where('status', 'Aktif') // Hanya tampilkan pesan aktif di dashboard
             ->orderBy('created_at', 'desc')
             ->get();
                       
@@ -41,8 +43,12 @@ class PesanDosenController extends Controller
                        ->where('status', 'Aktif')
                        ->count();
         
-        // Menghitung total pesan
-        $totalPesan = $pesan->count();
+        // Menghitung total pesan (termasuk aktif dan berakhir)
+        $totalPesan = Pesan::where(function($query) use ($dosen) {
+                         $query->where('nip_penerima', $dosen->nip)
+                               ->orWhere('nip_pengirim', $dosen->nip);
+                     })
+                     ->count();
         
         return view('pesan.dosen.dashboardpesandosen', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan'));
     }
@@ -62,67 +68,68 @@ class PesanDosenController extends Controller
      * Menyimpan pesan baru dari dosen ke mahasiswa (bisa lebih dari satu)
      */
     public function store(Request $request)
-{
-    // Validasi input
-    $request->validate([
-        'subjek' => 'required',
-        'anggota' => 'required|array',
-        'anggota.*' => 'exists:mahasiswas,nim',
-        'prioritas' => 'required|in:Penting,Umum',
-        'pesanText' => 'required'
-    ]);
-    
-    try {
-        // Ambil dosen yang sedang login
-        $dosen = Auth::user();
-        
-        // Tambahkan log untuk debugging
-        Log::info('Mengirim pesan dari dosen', [
-            'nip_dosen' => $dosen->nip,
-            'nama_dosen' => $dosen->nama,
-            'jumlah_penerima' => count($request->anggota)
+    {
+        // Validasi input
+        $request->validate([
+            'subjek' => 'required',
+            'anggota' => 'required|array',
+            'anggota.*' => 'exists:mahasiswas,nim',
+            'prioritas' => 'required|in:Penting,Umum',
+            'pesanText' => 'required'
         ]);
         
-        // Array untuk menyimpan ID pesan yang dibuat
-        $pesanIds = [];
-        
-        // Kirim pesan ke setiap mahasiswa yang dipilih
-        foreach($request->anggota as $nim) {
-            $pesan = new Pesan();
-            $pesan->subjek = $request->subjek;
-            $pesan->nip_pengirim = $dosen->nip;
-            $pesan->nim_penerima = $nim;
-            $pesan->isi_pesan = $request->pesanText;
-            $pesan->prioritas = $request->prioritas;
-            $pesan->lampiran = $request->has('lampiran') ? $request->lampiran : null;
-            $pesan->status = 'Aktif';
-            $pesan->dibaca = false;
-            $pesan->save();
+        try {
+            // Ambil dosen yang sedang login
+            $dosen = Auth::user();
             
-            // Log pesan yang berhasil disimpan
-            Log::info('Pesan berhasil dibuat', [
-                'id' => $pesan->id,
-                'nip_pengirim' => $pesan->nip_pengirim,
-                'nim_penerima' => $pesan->nim_penerima
+            // Tambahkan log untuk debugging
+            Log::info('Mengirim pesan dari dosen', [
+                'nip_dosen' => $dosen->nip,
+                'nama_dosen' => $dosen->nama,
+                'jumlah_penerima' => count($request->anggota)
             ]);
             
-            $pesanIds[] = $pesan->id;
+            // Array untuk menyimpan ID pesan yang dibuat
+            $pesanIds = [];
+            
+            // Kirim pesan ke setiap mahasiswa yang dipilih
+            foreach($request->anggota as $nim) {
+                $pesan = new Pesan();
+                $pesan->subjek = $request->subjek;
+                $pesan->nip_pengirim = $dosen->nip;
+                $pesan->nim_penerima = $nim;
+                $pesan->isi_pesan = $request->pesanText;
+                $pesan->prioritas = $request->prioritas;
+                $pesan->lampiran = $request->has('lampiran') ? $request->lampiran : null;
+                $pesan->status = 'Aktif';
+                $pesan->dibaca = false;
+                $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
+                $pesan->save();
+                
+                // Log pesan yang berhasil disimpan
+                Log::info('Pesan berhasil dibuat', [
+                    'id' => $pesan->id,
+                    'nip_pengirim' => $pesan->nip_pengirim,
+                    'nim_penerima' => $pesan->nim_penerima
+                ]);
+                
+                $pesanIds[] = $pesan->id;
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan berhasil dikirim ke ' . count($request->anggota) . ' mahasiswa',
+                'pesan_ids' => $pesanIds
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saat mengirim pesan: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim pesan: ' . $e->getMessage()
+            ], 500);
         }
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Pesan berhasil dikirim ke ' . count($request->anggota) . ' mahasiswa',
-            'pesan_ids' => $pesanIds
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error saat mengirim pesan: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal mengirim pesan: ' . $e->getMessage()
-        ], 500);
     }
-}
     
     /**
      * Menampilkan detail pesan
@@ -137,6 +144,21 @@ class PesanDosenController extends Controller
             if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
                 return redirect()->route('dosen.dashboard.pesan')
                     ->with('error', 'Anda tidak memiliki akses ke pesan ini');
+            }
+            
+            // Load relasi balasan secara manual
+            $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+            $pesan->setRelation('balasan', $balasan);
+            
+            // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
+            foreach ($pesan->balasan as $balasan) {
+                if ($balasan->tipe_pengirim == 'dosen') {
+                    $dosenPengirim = Dosen::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $dosenPengirim;
+                } else {
+                    $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $mahasiswaPengirim;
+                }
             }
             
             // Kelompokkan balasan berdasarkan tanggal
@@ -166,7 +188,7 @@ class PesanDosenController extends Controller
             
             return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
         } catch (\Exception $e) {
-            Log::error('Error menampilkan detail pesan: ' . $e->getMessage());
+            Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
             
             return redirect()->route('dosen.dashboard.pesan')
                 ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
@@ -211,6 +233,13 @@ class PesanDosenController extends Controller
             $balasan->dibaca = false;
             $balasan->save();
             
+            // Log informasi
+            Log::info('Balasan dosen berhasil dibuat', [
+                'id' => $balasan->id,
+                'pengirim_id' => $balasan->pengirim_id,
+                'tipe_pengirim' => $balasan->tipe_pengirim
+            ]);
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Balasan berhasil dikirim',
@@ -226,6 +255,55 @@ class PesanDosenController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengirim balasan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Mengakhiri pesan (dosen juga dapat mengakhiri pesan)
+     */
+    public function endChat($id)
+    {
+        try {
+            $pesan = Pesan::findOrFail($id);
+            $dosen = Auth::user();
+            
+            // Pastikan dosen yang mengakhiri adalah pengirim ATAU penerima pesan
+            if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses ke pesan ini'
+                ], 403);
+            }
+            
+            // Pastikan pesan masih aktif
+            if ($pesan->status == 'Berakhir') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pesan sudah diakhiri sebelumnya'
+                ], 400);
+            }
+            
+            // Update status pesan
+            $pesan->status = 'Berakhir';
+            $pesan->save();
+            
+            // Log informasi
+            Log::info('Pesan diakhiri oleh dosen', [
+                'id_pesan' => $pesan->id,
+                'nip_dosen' => $dosen->nip
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan berhasil diakhiri'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saat mengakhiri pesan: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengakhiri pesan: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -290,10 +368,16 @@ class PesanDosenController extends Controller
                           ->orWhere('nip_pengirim', $dosen->nip);
                 });
         
+        // Filter berdasarkan prioritas
         if ($filter == 'penting') {
             $query->where('prioritas', 'Penting');
         } elseif ($filter == 'umum') {
             $query->where('prioritas', 'Umum');
+        }
+        
+        // Filter hanya pesan aktif untuk dashboard utama
+        if (!$request->has('include_ended') || !$request->include_ended) {
+            $query->where('status', 'Aktif');
         }
         
         $pesan = $query->orderBy('created_at', 'desc')->get();
@@ -312,7 +396,7 @@ class PesanDosenController extends Controller
         $dosen = Auth::user();
         $keyword = $request->keyword;
         
-        $pesan = Pesan::where(function($query) use ($dosen) {
+        $query = Pesan::where(function($query) use ($dosen) {
                     $query->where('nip_penerima', $dosen->nip)
                           ->orWhere('nip_pengirim', $dosen->nip);
                 })
@@ -325,13 +409,46 @@ class PesanDosenController extends Controller
                           ->orWhereHas('penerima', function($q) use ($keyword) {
                               $q->where('nama', 'like', "%{$keyword}%");
                           });
-                })
-                ->orderBy('created_at', 'desc')
-                ->get();
+                });
+                
+        // Filter berdasarkan status jika parameter diberikan
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        } else {
+            // Default hanya tampilkan pesan aktif
+            $query->where('status', 'Aktif');
+        }
+        
+        $pesan = $query->orderBy('created_at', 'desc')->get();
         
         return response()->json([
             'success' => true,
             'html' => view('pesan.dosen.partials.pesan_list', compact('pesan'))->render()
+        ]);
+    }
+    
+    /**
+     * Halaman FAQ untuk dosen
+     */
+    public function faq()
+    {
+        return view('pesan.dosen.faq_dosen');
+    }
+    
+    /**
+     * Method untuk debugging
+     * Gunakan method ini jika masih terjadi error pada pesan
+     */
+    public function debug($id)
+    {
+        $pesan = Pesan::findOrFail($id);
+        $balasan = BalasanPesan::where('id_pesan', $id)->get();
+        
+        dd([
+            'Pesan' => $pesan->toArray(),
+            'Balasan' => $balasan->toArray(),
+            'Penerima Exists' => $pesan->penerima ? true : false,
+            'Balasan Count' => $balasan->count()
         ]);
     }
 }

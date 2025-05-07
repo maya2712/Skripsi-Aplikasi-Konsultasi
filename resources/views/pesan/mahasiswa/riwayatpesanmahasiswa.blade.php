@@ -180,26 +180,47 @@
             border: 2px solid #f8f9fa;
         }
         
-        /* Tambahan untuk button aktif */
-        .btn-filter.active-filter {
-            background-color: #1a73e8;
-            color: white;
-            border-color: #1a73e8;
+        /* Style untuk tombol filter */
+        /* Filter Penting */
+        .btn-outline-danger.btn-filter {
+            color: #FF5252;
+            border-color: #FF5252;
+            transition: all 0.2s ease;
         }
         
-        .btn-outline-primary {
+        .btn-outline-danger.btn-filter:hover,
+        .btn-outline-danger.btn-filter.active-filter {
+            background-color: #FF5252;
+            color: white;
+            border-color: #FF5252;
+        }
+        
+        /* Filter Umum */
+        .btn-outline-success.btn-filter {
+            color: #27AE60;
+            border-color: #27AE60;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline-success.btn-filter:hover,
+        .btn-outline-success.btn-filter.active-filter {
+            background-color: #27AE60;
+            color: white;
+            border-color: #27AE60;
+        }
+        
+        /* Filter Semua */
+        .btn-outline-primary.btn-filter {
             color: #1a73e8;
             border-color: #1a73e8;
+            transition: all 0.2s ease;
         }
         
-        .btn-outline-primary:hover {
+        .btn-outline-primary.btn-filter:hover,
+        .btn-outline-primary.btn-filter.active-filter {
             background-color: #1a73e8;
             color: white;
-        }
-        
-        /* Hide pesan yang tidak sesuai dengan filter */
-        .message-card.hidden {
-            display: none;
+            border-color: #1a73e8;
         }
         
         /* Animasi fade untuk pesan */
@@ -210,7 +231,12 @@
         
         .message-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Hide pesan yang tidak sesuai dengan filter */
+        .message-card.hidden {
+            display: none;
         }
         
         /* Pesan not found */
@@ -256,7 +282,7 @@
                                 
                                 @if($userGrups && $userGrups->count() > 0)
                                     @foreach($userGrups as $grupItem)
-                                    <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                                    <a href="{{ url('/detailgrup/' . $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
                                         {{ $grupItem->nama_grup }}
                                         @if($unreadCount = $grupItem->unreadMessages ?? 0)
                                         <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
@@ -304,109 +330,70 @@
                 
                 <!-- Riwayat Pesan List -->
                 <div class="messages-wrapper" id="messagesContainer">
-                    <!-- Message 1 -->
-                    <div class="card mb-2 message-card umum" data-kategori="umum" data-pengirim="Dr. Siti Nurhaliza" data-judul="Bimbingan KRS" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
+                    @if($riwayatPesan->count() > 0)
+                        @foreach($riwayatPesan as $pesan)
+                        <div class="card mb-2 message-card {{ strtolower($pesan->prioritas) }}" data-kategori="{{ strtolower($pesan->prioritas) }}" 
+                             data-pengirim="{{ $pesan->nim_pengirim == Auth::user()->nim ? ($pesan->penerima->nama ?? 'Dosen') : ($pesan->pengirim->nama ?? 'Pengirim') }}" 
+                             data-judul="{{ $pesan->subjek }}" 
+                             onclick="window.location.href='{{ url('/isipesanmahasiswa/' . $pesan->id) }}'">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8 d-flex align-items-center">
+                                        <div class="profile-image-placeholder me-3">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-primary mb-1">{{ $pesan->subjek }}</span>
+                                            @if($pesan->nim_pengirim == Auth::user()->nim)
+                                                <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    @php
+                                                        $dosenPenerima = App\Models\Dosen::where('nip', $pesan->nip_penerima)->first();
+                                                        $namaPenerima = $dosenPenerima ? $dosenPenerima->nama : 'Dosen';
+                                                        $jabatanPenerima = $dosenPenerima ? $dosenPenerima->jabatan ?? 'Dosen' : 'Dosen';
+                                                    @endphp
+                                                    {{ $namaPenerima }}
+                                                </h6>
+                                                <small class="text-muted">{{ $jabatanPenerima }}</small>
+                                            @else
+                                                <!-- Jika mahasiswa adalah penerima, tampilkan informasi dosen pengirim -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    @php
+                                                        $dosenPengirim = App\Models\Dosen::where('nip', $pesan->nip_pengirim)->first();
+                                                        $namaPengirim = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
+                                                        $jabatanPengirim = $dosenPengirim ? $dosenPengirim->jabatan ?? 'Dosen' : 'Dosen';
+                                                    @endphp
+                                                    {{ $namaPengirim }}
+                                                </h6>
+                                                <small class="text-muted">{{ $jabatanPengirim }}</small>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Bimbingan KRS</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Siti Nurhaliza, M.Si</h6>
-                                        <small class="text-muted">Dosen Pembimbing Akademik</small>
+                                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                        <span class="badge bg-secondary me-1">Diakhiri</span>
+                                        <span class="badge {{ $pesan->prioritas == 'Penting' ? 'bg-danger' : 'bg-success' }}">
+                                            {{ $pesan->prioritas }}
+                                        </span>
+                                        <small class="d-block text-muted my-1">
+                                            {{ \Carbon\Carbon::parse($pesan->updated_at)->format('d M Y') }}
+                                        </small>
+                                        <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesanmahasiswa/' . $pesan->id) }}'">
+                                            <i class="fas fa-eye me-1"></i>Lihat
+                                        </button>
                                     </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-success">Umum</span>
-                                    <small class="d-block text-muted my-1">14 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Message 2 -->
-                    <div class="card mb-2 message-card penting" data-kategori="penting" data-pengirim="Dr. Ahmad Sulaiman" data-judul="Jadwal Sidang" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Jadwal Sidang</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Ahmad Sulaiman, M.Kom</h6>
-                                        <small class="text-muted">Dosen Pembimbing Skripsi</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">12 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <div class="p-4 text-center">
+                                <i class="fas fa-history fa-3x mb-3 text-muted"></i>
+                                <h5>Belum ada riwayat pesan</h5>
+                                <p class="text-muted">Riwayat pesan yang telah diakhiri akan muncul di sini</p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Message 3 -->
-                    <div class="card mb-2 message-card umum" data-kategori="umum" data-pengirim="Dr. Budi Santoso" data-judul="Konsultasi TA" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Konsultasi TA</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Budi Santoso, M.T</h6>
-                                        <small class="text-muted">Koordinator Tugas Akhir</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-success">Umum</span>
-                                    <small class="d-block text-muted my-1">10 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Message 4 -->
-                    <div class="card mb-2 message-card penting" data-kategori="penting" data-pengirim="Dr. Indra Wijaya" data-judul="Revisi Proposal" onclick="window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Revisi Proposal</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Indra Wijaya, M.Kom</h6>
-                                        <small class="text-muted">Dosen Pembimbing Skripsi</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">5 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesanmahasiswa') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endif
                     
                     <!-- Pesan tidak ditemukan -->
                     <div class="no-messages-found" id="noMessagesFound">
@@ -473,6 +460,7 @@
                 const kategori = card.getAttribute('data-kategori');
                 const pengirim = card.getAttribute('data-pengirim').toLowerCase();
                 const judul = card.getAttribute('data-judul').toLowerCase();
+                const cardContent = card.textContent.toLowerCase();
                 
                 // Check filter category
                 const matchesFilter = currentFilter === 'semua' || kategori === currentFilter;
@@ -480,7 +468,8 @@
                 // Check search term
                 const matchesSearch = searchTerm === '' || 
                                     pengirim.includes(searchTerm) || 
-                                    judul.includes(searchTerm);
+                                    judul.includes(searchTerm) || 
+                                    cardContent.includes(searchTerm);
                 
                 // Show/hide card based on both conditions
                 if (matchesFilter && matchesSearch) {
@@ -509,7 +498,7 @@
                 filterButtons.forEach(btn => {
                     btn.classList.remove('active-filter');
                     
-                    // Reset semua tombol ke outline style
+                    // Reset semua tombol ke outline style sesuai dengan jenisnya
                     if (btn.id === 'filterPenting') {
                         btn.className = 'btn btn-outline-danger rounded-pill px-4 py-2 me-2 btn-filter';
                     } else if (btn.id === 'filterUmum') {
@@ -519,16 +508,8 @@
                     }
                 });
                 
-                // Add active-filter class to clicked button and change its style
+                // Add active-filter class to clicked button
                 this.classList.add('active-filter');
-                
-                if (this.id === 'filterPenting') {
-                    this.className = 'btn btn-danger rounded-pill px-4 py-2 me-2 btn-filter active-filter';
-                } else if (this.id === 'filterUmum') {
-                    this.className = 'btn btn-success rounded-pill px-4 py-2 me-2 btn-filter active-filter';
-                } else if (this.id === 'filterSemua') {
-                    this.className = 'btn btn-primary rounded-pill px-4 py-2 btn-filter active-filter';
-                }
                 
                 // Update current filter
                 currentFilter = this.getAttribute('data-filter');

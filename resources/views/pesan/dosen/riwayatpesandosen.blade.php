@@ -55,10 +55,6 @@
             font-size: 14px;
         }
 
-        .sidebar-buttons .btn:last-child {
-            margin-bottom: 0;
-        }
-
         .sidebar-menu {
             padding: 15px;
         }
@@ -69,6 +65,8 @@
             margin-bottom: 8px;
             padding: 10px 15px;
             transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
         }
         
         .sidebar-menu .nav-link.active {
@@ -76,7 +74,16 @@
             color: var(--bs-primary);
         }
         
-        .sidebar-menu .nav-link:hover {
+        .sidebar-menu .nav-link:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .komunikasi-submenu .nav-link.active {
+            background: #E3F2FD;
+            color: var(--bs-primary);
+        }
+
+        .komunikasi-submenu .nav-link:hover:not(.active) {
             background: #f8f9fa;
         }
 
@@ -90,14 +97,6 @@
             z-index: 100;
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .messages-wrapper {
-            position: relative;
-            margin-top: 20px;
-            background-color: #F5F7FA;  
-            z-index: 1;
         }
 
         .message-container {
@@ -144,6 +143,8 @@
         
         .card {
             margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
         .message-list .card {
@@ -180,37 +181,45 @@
             border: 2px solid #f8f9fa;
         }
         
-        /* Tambahan untuk button aktif */
-        .btn-filter.active-filter {
-            background-color: #1a73e8;
-            color: white;
-            border-color: #1a73e8;
+        .bookmark-icon {
+            color: #ffc107;
+            cursor: pointer;
         }
         
-        .btn-outline-primary {
-            color: #1a73e8;
-            border-color: #1a73e8;
+        .bookmark-icon.active {
+            color: #ffc107;
         }
         
-        .btn-outline-primary:hover {
-            background-color: #1a73e8;
-            color: white;
+        .bookmark-icon:not(.active) {
+            color: #dee2e6;
+        }
+        
+        /* Style baru untuk message card clickable */
+        .message-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .message-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Memastikan tombol-tombol tetap berfungsi dan tidak mengganggu card clickable */
+        .message-card .btn, 
+        .message-card .bookmark-icon {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .action-buttons {
+            position: relative;
+            z-index: 10;
         }
         
         /* Hide pesan yang tidak sesuai dengan filter */
         .message-card.hidden {
             display: none;
-        }
-        
-        /* Animasi fade untuk pesan */
-        .message-card {
-            transition: opacity 0.3s ease, transform 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .message-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         /* Pesan not found */
@@ -223,13 +232,56 @@
             margin-top: 20px;
             display: none;
         }
+        
+        /* Style untuk tombol filter */
+        /* Filter Penting */
+        .btn-outline-danger.btn-filter {
+            color: #FF5252;
+            border-color: #FF5252;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline-danger.btn-filter:hover,
+        .btn-outline-danger.btn-filter.active-filter {
+            background-color: #FF5252;
+            color: white;
+            border-color: #FF5252;
+        }
+        
+        /* Filter Umum */
+        .btn-outline-success.btn-filter {
+            color: #27AE60;
+            border-color: #27AE60;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline-success.btn-filter:hover,
+        .btn-outline-success.btn-filter.active-filter {
+            background-color: #27AE60;
+            color: white;
+            border-color: #27AE60;
+        }
+        
+        /* Filter Semua */
+        .btn-outline-primary.btn-filter {
+            color: #1a73e8;
+            border-color: #1a73e8;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline-primary.btn-filter:hover,
+        .btn-outline-primary.btn-filter.active-filter {
+            background-color: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
     </style>
 @endpush
+
 @section('content')
 <div class="main-content">
     <div class="custom-container">
         <div class="row g-4">
-            <!-- Sidebar -->
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
@@ -243,14 +295,14 @@
                             <a href="{{ url('/dashboardpesandosen') }}" class="nav-link">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
-                            <a href="#" class="nav-link menu-item" id="grupDropdownToggle" data-bs-toggle="collapse" data-bs-target="#komunikasiSubmenu">
+                            <a href="#" class="nav-link menu-item" id="grupDropdownToggle">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
                                     <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
                                 </div>
                             </a>
                             <div class="collapse komunikasi-submenu" id="komunikasiSubmenu">
-                                <a href="{{ route('dosen.grup.create') }}" class="nav-link menu-item d-flex align-items-center" style="color: #546E7A;">
+                                <a href="{{ url('/buatgrupdosen') }}" class="nav-link menu-item d-flex align-items-center" style="color: #546E7A;">
                                     <i class="fas fa-plus me-2"></i>Grup Baru
                                 </a>
                                 
@@ -259,10 +311,10 @@
                                 @endphp
                                 
                                 @if($grups && $grups->count() > 0)
-                                    @foreach($grups as $grup)
-                                    <a href="{{ route('dosen.grup.show', $grup->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
-                                        {{ $grup->nama_grup }}
-                                        @if($unreadCount = $grup->unreadMessages ?? 0)
+                                    @foreach($grups as $grupItem)
+                                    <a href="{{ url('/detailgrup/' . $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                                        {{ $grupItem->nama_grup }}
+                                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
                                         <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
                                         @endif
                                     </a>
@@ -273,6 +325,7 @@
                                     </div>
                                 @endif
                             </div>
+                            
                             <a href="{{ url('/riwayatpesandosen') }}" class="nav-link active">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
@@ -283,7 +336,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Main Content -->
             <div class="col-md-9">
                 <h4 class="mb-4">Riwayat Pesan</h4>
@@ -305,112 +358,87 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Riwayat Pesan List -->
                 <div class="messages-wrapper" id="messagesContainer">
-                    <!-- Message 1 -->
-                    <div class="card mb-2 message-card umum" data-kategori="umum" data-pengirim="Syahirah Tri Meilina" data-judul="Bimbingan KRS" onclick="window.location.href='{{ url('/isipesandosen') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
+                    @if($riwayatPesan->count() > 0)
+                        @foreach($riwayatPesan as $pesan)
+                        <div class="card mb-2 message-card {{ strtolower($pesan->prioritas) }}" data-kategori="{{ strtolower($pesan->prioritas) }}" 
+                             data-pengirim="{{ $pesan->nip_pengirim == Auth::user()->nip ? ($pesan->mahasiswaPenerima->nama ?? 'Mahasiswa') : ($pesan->mahasiswaPengirim->nama ?? 'Pengirim') }}" 
+                             data-judul="{{ $pesan->subjek }}" 
+                             onclick="window.location.href='{{ url('/isipesandosen/' . $pesan->id) }}'">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8 d-flex align-items-center">
+                                        <div class="profile-image-placeholder me-3">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-primary mb-1">{{ $pesan->subjek }}</span>
+                                            
+                                            @if($pesan->nip_pengirim == Auth::user()->nip)
+                                                <!-- Jika dosen adalah pengirim, tampilkan nama mahasiswa penerima -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
+                                                    @php
+                                                        // Ambil langsung data mahasiswa penerima
+                                                        $mahasiswa = App\Models\Mahasiswa::where('nim', $pesan->nim_penerima)->first();
+                                                        $nama_penerima = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
+                                                    @endphp
+                                                    {{ $nama_penerima }}
+                                                </h6>
+                                                <small class="text-muted">{{ $pesan->nim_penerima }}</small>
+                                            @else
+                                                <!-- Jika dosen adalah penerima, tampilkan nama mahasiswa pengirim -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
+                                                    @php
+                                                        // Ambil langsung data mahasiswa pengirim
+                                                        $mahasiswa = App\Models\Mahasiswa::where('nim', $pesan->nim_pengirim)->first();
+                                                        $nama_pengirim = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
+                                                    @endphp
+                                                    {{ $nama_pengirim }}
+                                                </h6>
+                                                <small class="text-muted">{{ $pesan->nim_pengirim }}</small>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Bimbingan KRS</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Syahirah Tri Meilina</h6>
-                                        <small class="text-muted">210711065 - Teknik Informatika</small>
+                                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                        <span class="badge bg-secondary me-1">Diakhiri</span>
+                                        <span class="badge {{ $pesan->prioritas == 'Penting' ? 'bg-danger' : 'bg-success' }}">
+                                            {{ $pesan->prioritas }}
+                                        </span>
+                                        
+                                        <small class="d-block text-muted my-1">
+                                            {{ \Carbon\Carbon::parse($pesan->updated_at)->format('d M Y') }}
+                                        </small>
+                                        
+                                        <div class="d-flex justify-content-end align-items-center action-buttons" onclick="event.stopPropagation();">
+                                            <form action="{{ url('/bookmarkpesandosen/' . $pesan->id) }}" method="POST" class="d-inline me-2">
+                                                @csrf
+                                                <button type="submit" class="btn btn-link p-0" title="{{ $pesan->bookmarked ? 'Hapus Bookmark' : 'Bookmark Pesan' }}">
+                                                    <i class="fas fa-bookmark bookmark-icon {{ $pesan->bookmarked ? 'active' : '' }}"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            <a href="{{ url('/isipesandosen/' . $pesan->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
+                                                <i class="fas fa-eye me-1"></i>Lihat
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-success">Umum</span>
-                                    <small class="d-block text-muted my-1">14 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesandosen') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Message 2 -->
-                    <div class="card mb-2 message-card penting" data-kategori="penting" data-pengirim="Ahmad Fauzan" data-judul="Jadwal Sidang" onclick="window.location.href='{{ url('/isipesandosen') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Jadwal Sidang</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Ahmad Fauzan</h6>
-                                        <small class="text-muted">210711087 - Teknik Informatika</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">12 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesandosen') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <div class="p-4 text-center">
+                                <i class="fas fa-history fa-3x mb-3 text-muted"></i>
+                                <h5>Belum ada riwayat pesan</h5>
+                                <p class="text-muted">Riwayat pesan yang telah diakhiri akan muncul di sini</p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Message 3 -->
-                    <div class="card mb-2 message-card umum" data-kategori="umum" data-pengirim="Rosalina Dewi" data-judul="Konsultasi TA" onclick="window.location.href='{{ url('/isipesandosen') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Konsultasi TA</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Rosalina Dewi</h6>
-                                        <small class="text-muted">210711045 - Teknik Informatika</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-success">Umum</span>
-                                    <small class="d-block text-muted my-1">10 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesandosen') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Message 4 -->
-                    <div class="card mb-2 message-card penting" data-kategori="penting" data-pengirim="Muhammad Rizky" data-judul="Revisi Proposal" onclick="window.location.href='{{ url('/isipesandosen') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Revisi Proposal</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Muhammad Rizky</h6>
-                                        <small class="text-muted">210711033 - Teknik Informatika</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">5 februari 2025</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;" onclick="event.stopPropagation(); window.location.href='{{ url('/isipesandosen') }}'">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endif
                     
                     <!-- Pesan tidak ditemukan -->
                     <div class="no-messages-found" id="noMessagesFound">
@@ -426,15 +454,16 @@
     </div>
 </div>
 @endsection
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Toggle dropdown untuk menu grup
+        // Initialize the dropdown manually
         const grupDropdownToggle = document.getElementById('grupDropdownToggle');
         const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
         const grupDropdownIcon = document.getElementById('grupDropdownIcon');
         
-        // Membuat instance Bootstrap collapse
+        // Buat instance collapse
         const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
             toggle: false
         });
@@ -442,20 +471,12 @@
         if (grupDropdownToggle) {
             grupDropdownToggle.addEventListener('click', function(e) {
                 e.preventDefault();
-                // Menggunakan metode toggle dari Bootstrap daripada manipulasi kelas manual
+                // Toggle the collapse
                 bsCollapse.toggle();
-            });
-            
-            // Mengubah ikon saat submenu dibuka
-            komunikasiSubmenu.addEventListener('shown.bs.collapse', function() {
-                grupDropdownIcon.classList.remove('fa-chevron-down');
-                grupDropdownIcon.classList.add('fa-chevron-up');
-            });
-            
-            // Mengubah ikon saat submenu ditutup
-            komunikasiSubmenu.addEventListener('hidden.bs.collapse', function() {
-                grupDropdownIcon.classList.remove('fa-chevron-up');
-                grupDropdownIcon.classList.add('fa-chevron-down');
+                
+                // Toggle the icon
+                grupDropdownIcon.classList.toggle('fa-chevron-up');
+                grupDropdownIcon.classList.toggle('fa-chevron-down');
             });
         }
         
@@ -477,6 +498,7 @@
                 const kategori = card.getAttribute('data-kategori');
                 const pengirim = card.getAttribute('data-pengirim').toLowerCase();
                 const judul = card.getAttribute('data-judul').toLowerCase();
+                const cardContent = card.textContent.toLowerCase();
                 
                 // Check filter category
                 const matchesFilter = currentFilter === 'semua' || kategori === currentFilter;
@@ -484,7 +506,8 @@
                 // Check search term
                 const matchesSearch = searchTerm === '' || 
                                     pengirim.includes(searchTerm) || 
-                                    judul.includes(searchTerm);
+                                    judul.includes(searchTerm) || 
+                                    cardContent.includes(searchTerm);
                 
                 // Show/hide card based on both conditions
                 if (matchesFilter && matchesSearch) {
@@ -513,7 +536,7 @@
                 filterButtons.forEach(btn => {
                     btn.classList.remove('active-filter');
                     
-                    // Reset semua tombol ke outline style
+                    // Reset semua tombol ke outline style sesuai dengan jenisnya
                     if (btn.id === 'filterPenting') {
                         btn.className = 'btn btn-outline-danger rounded-pill px-4 py-2 me-2 btn-filter';
                     } else if (btn.id === 'filterUmum') {
@@ -523,16 +546,8 @@
                     }
                 });
                 
-                // Add active-filter class to clicked button and change its style
+                // Add active-filter class to clicked button
                 this.classList.add('active-filter');
-                
-                if (this.id === 'filterPenting') {
-                    this.className = 'btn btn-danger rounded-pill px-4 py-2 me-2 btn-filter active-filter';
-                } else if (this.id === 'filterUmum') {
-                    this.className = 'btn btn-success rounded-pill px-4 py-2 me-2 btn-filter active-filter';
-                } else if (this.id === 'filterSemua') {
-                    this.className = 'btn btn-primary rounded-pill px-4 py-2 btn-filter active-filter';
-                }
                 
                 // Update current filter
                 currentFilter = this.getAttribute('data-filter');

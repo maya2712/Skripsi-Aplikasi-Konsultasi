@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Pesan;
 use App\Models\BalasanPesan;
 use App\Models\Dosen;
-use App\Models\Mahasiswa; // Tambahkan import model Mahasiswa
+use App\Models\Mahasiswa; // Import model Mahasiswa
 use Carbon\Carbon;
 
 class PesanMahasiswaController extends Controller
@@ -19,10 +19,12 @@ class PesanMahasiswaController extends Controller
         $mahasiswa = Auth::user();
         
         // Mengambil semua pesan yang diterima ATAU dikirim oleh mahasiswa
+        // dengan status 'Aktif' (pesan yang berakhir masuk ke riwayat)
         $pesan = Pesan::where(function($query) use ($mahasiswa) {
             $query->where('nim_penerima', $mahasiswa->nim)
                 ->orWhere('nim_pengirim', $mahasiswa->nim);
         })
+        ->where('status', 'Aktif') // Hanya tampilkan pesan aktif
         ->orderBy('created_at', 'desc')
         ->get();
                 
@@ -39,8 +41,12 @@ class PesanMahasiswaController extends Controller
                     ->where('status', 'Aktif')
                     ->count();
         
-        // Menghitung total pesan
-        $totalPesan = $pesan->count();
+        // Menghitung total pesan (termasuk yang aktif dan berakhir)
+        $totalPesan = Pesan::where(function($query) use ($mahasiswa) {
+                        $query->where('nim_penerima', $mahasiswa->nim)
+                            ->orWhere('nim_pengirim', $mahasiswa->nim);
+                    })
+                    ->count();
         
         return view('pesan.mahasiswa.dashboardpesanmahasiswa', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan'));
     }
@@ -76,7 +82,15 @@ class PesanMahasiswaController extends Controller
             $pesan->lampiran = $request->lampiran; // Opsional
             $pesan->status = 'Aktif';
             $pesan->dibaca = false;
+            $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
             $pesan->save();
+            
+            // Log informasi untuk debugging
+            Log::info('Pesan mahasiswa berhasil dibuat', [
+                'id' => $pesan->id,
+                'pengirim' => $pesan->nim_pengirim,
+                'penerima' => $pesan->nip_penerima
+            ]);
             
             return response()->json([
                 'success' => true,
@@ -92,7 +106,7 @@ class PesanMahasiswaController extends Controller
         }
     }
     
-    // Menampilkan detail pesan (METODE YANG SUDAH DIPERBAIKI)
+    // Menampilkan detail pesan
     public function show($id)
     {
         try {
@@ -192,7 +206,7 @@ class PesanMahasiswaController extends Controller
             $balasan->save();
             
             // Log hasil untuk debugging
-            Log::info('Balasan berhasil dibuat', [
+            Log::info('Balasan mahasiswa berhasil dibuat', [
                 'id' => $balasan->id,
                 'pengirim_id' => $balasan->pengirim_id,
                 'tipe_pengirim' => $balasan->tipe_pengirim,
@@ -221,19 +235,35 @@ class PesanMahasiswaController extends Controller
     // Mengakhiri pesan
     public function endChat($id)
     {
-        $pesan = Pesan::findOrFail($id);
-        
-        // Pastikan mahasiswa yang mengakhiri adalah pengirim pesan
-        if ($pesan->nim_pengirim != Auth::user()->nim) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki akses ke pesan ini'
-            ], 403);
-        }
-        
         try {
+            $pesan = Pesan::findOrFail($id);
+            $mahasiswa = Auth::user();
+            
+            // Pastikan mahasiswa yang mengakhiri adalah pengirim ATAU penerima pesan
+            if ($pesan->nim_pengirim != $mahasiswa->nim && $pesan->nim_penerima != $mahasiswa->nim) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses ke pesan ini'
+                ], 403);
+            }
+            
+            // Pastikan pesan masih aktif
+            if ($pesan->status == 'Berakhir') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pesan sudah diakhiri sebelumnya'
+                ], 400);
+            }
+            
+            // Update status pesan
             $pesan->status = 'Berakhir';
             $pesan->save();
+            
+            // Log informasi
+            Log::info('Pesan diakhiri oleh mahasiswa', [
+                'id_pesan' => $pesan->id,
+                'nim_mahasiswa' => $mahasiswa->nim
+            ]);
             
             return response()->json([
                 'success' => true,
@@ -246,6 +276,32 @@ class PesanMahasiswaController extends Controller
                 'success' => false,
                 'message' => 'Gagal mengakhiri pesan: ' . $e->getMessage()
             ], 500);
+        }
+    }
+    
+    // Fungsi untuk bookmark pesan
+    public function bookmark(Request $request, $id)
+    {
+        try {
+            $pesan = Pesan::findOrFail($id);
+            $mahasiswa = Auth::user();
+            
+            // Pastikan mahasiswa yang membookmark adalah penerima ATAU pengirim pesan
+            if ($pesan->nim_penerima != $mahasiswa->nim && $pesan->nim_pengirim != $mahasiswa->nim) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke pesan ini');
+            }
+            
+            // Toggle status bookmark
+            $pesan->bookmarked = !$pesan->bookmarked;
+            $pesan->save();
+            
+            return redirect()->back()->with('success', 
+                $pesan->bookmarked ? 'Pesan berhasil ditandai' : 'Tanda pada pesan berhasil dihapus');
+            
+        } catch (\Exception $e) {
+            Log::error('Error saat bookmark pesan: ' . $e->getMessage());
+            
+            return redirect()->back()->with('error', 'Gagal menandai pesan');
         }
     }
     
@@ -277,10 +333,16 @@ class PesanMahasiswaController extends Controller
                   ->orWhere('nim_penerima', $mahasiswa->nim);
         });
         
+        // Filter berdasarkan prioritas
         if ($filter == 'penting') {
             $query->where('prioritas', 'Penting');
         } elseif ($filter == 'umum') {
             $query->where('prioritas', 'Umum');
+        }
+        
+        // Filter hanya pesan aktif untuk dashboard utama
+        if (!$request->has('include_ended') || !$request->include_ended) {
+            $query->where('status', 'Aktif');
         }
         
         $pesan = $query->orderBy('created_at', 'desc')->get();
@@ -297,7 +359,7 @@ class PesanMahasiswaController extends Controller
         $mahasiswa = Auth::user();
         $keyword = $request->keyword;
         
-        $pesan = Pesan::where(function($query) use ($mahasiswa) {
+        $query = Pesan::where(function($query) use ($mahasiswa) {
                     $query->where('nim_pengirim', $mahasiswa->nim)
                           ->orWhere('nim_penerima', $mahasiswa->nim);
                  })
@@ -310,9 +372,17 @@ class PesanMahasiswaController extends Controller
                           ->orWhereHas('penerima', function($q) use ($keyword) {
                               $q->where('nama', 'like', "%{$keyword}%");
                           });
-                 })
-                 ->orderBy('created_at', 'desc')
-                 ->get();
+                 });
+                 
+        // Filter berdasarkan status jika parameter diberikan 
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        } else {
+            // Default hanya tampilkan pesan aktif
+            $query->where('status', 'Aktif');
+        }
+        
+        $pesan = $query->orderBy('created_at', 'desc')->get();
         
         return response()->json([
             'success' => true,
