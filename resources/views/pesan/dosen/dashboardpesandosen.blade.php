@@ -349,7 +349,7 @@
                     </div>
                 </div>
 
-                <!-- Message List -->
+                <!-- Message List - PERBAIKAN -->
                 <div class="message-list" id="messageList">
                     @if($pesan->count() > 0)
                         @foreach($pesan as $item)
@@ -362,12 +362,32 @@
                                         </div>
                                         <div>
                                             <span class="badge bg-primary mb-1">{{ $item->subjek }}</span>
-                                            <h6 class="mb-1" style="font-size: 14px;">
-                                                {{ $item->pengirim()->first()->nama ?? 'Pengirim' }}
-                                            </h6>
-                                            <small class="text-muted">
-                                                {{ $item->nim_pengirim ?? $item->nim_penerima }}
-                                            </small>
+                                            
+                                            @if($item->nip_pengirim == Auth::user()->nip)
+                                                <!-- Jika dosen adalah pengirim, tampilkan nama mahasiswa penerima -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
+                                                    @php
+                                                        // Ambil langsung data mahasiswa penerima
+                                                        $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_penerima)->first();
+                                                        $nama_penerima = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
+                                                    @endphp
+                                                    {{ $nama_penerima }}
+                                                </h6>
+                                                <small class="text-muted">{{ $item->nim_penerima }}</small>
+                                            @else
+                                                <!-- Jika dosen adalah penerima, tampilkan nama mahasiswa pengirim -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
+                                                    @php
+                                                        // Ambil langsung data mahasiswa pengirim
+                                                        $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_pengirim)->first();
+                                                        $nama_pengirim = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
+                                                    @endphp
+                                                    {{ $nama_pengirim }}
+                                                </h6>
+                                                <small class="text-muted">{{ $item->nim_pengirim }}</small>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-md-end mt-3 mt-md-0">

@@ -37,7 +37,6 @@
         position: sticky;
         top: 20px; 
         max-height: calc(100vh - 100px);
-        margin-right: 15px; /* Tambahkan margin untuk jarak dari konten utama */
     }
 
     .sidebar-buttons {
@@ -145,7 +144,7 @@
         padding: 15px;
         border-radius: 10px;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-        margin-top: 15px; /* Tambahkan jarak atas */
+        margin-top: 15px;
     }
 
     .header-icon {
@@ -170,37 +169,53 @@
         background-color: rgba(255, 82, 82, 0.2);
     }
     
-    /* Container untuk memberi jarak dari tepi */
+    /* Container untuk memberi jarak dari tepi - menggunakan custom-container dari dashboard pesan */
     .custom-container {
+        max-width: 1400px;
+        margin: 0 auto;
         padding: 0 15px;
-        width: 100%;
-        margin-right: auto;
-        margin-left: auto;
     }
     
-    /* Untuk memastikan konten utama memiliki jarak yang tepat */
-    .main-content-area {
-        padding-left: 15px;
+    .badge-notification {
+        background: var(--bs-danger);
+    }
+    
+    .message-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .message-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .message-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    .message-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="main-content">
-    <div class="container-fluid">
+    <div class="custom-container">
         <div class="row g-4">
             <!-- Sidebar - Kolom Kiri -->
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesandosen') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                        <a href="{{ route('dosen.pesan.create') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
                     </div>                                                    
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesandosen') }}" class="nav-link">
+                            <a href="{{ route('dosen.dashboard.pesan') }}" class="nav-link">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
                             <a href="#" class="nav-link menu-item active" id="grupDropdownToggle">
@@ -234,7 +249,7 @@
                                 @endif
                             </div>
                             
-                            <a href="{{ url('/riwayatpesandosen') }}" class="nav-link menu-item">
+                            <a href="{{ route('dosen.pesan.history') }}" class="nav-link menu-item">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
@@ -247,51 +262,49 @@
 
             <!-- Main Content Area - Kolom Kanan -->
             <div class="col-md-9">
-                <div class="main-content-area">
-                    <!-- Group Header -->
-                    <div class="group-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-0 fw-semibold">{{ $grup->nama_grup }}</h5>
-                                <small>{{ $grup->mahasiswa->count() }} anggota</small>
-                            </div>
-                            <div class="d-flex">
-                                <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#tambahAnggotaModal"></i>
-                                <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
-                                <form action="{{ route('dosen.grup.destroy', $grup->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus grup ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-transparent border-0 p-0">
-                                        <i class="fas fa-trash header-icon danger"></i>
-                                    </button>
-                                </form>
-                            </div>
+                <!-- Group Header -->
+                <div class="group-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0 fw-semibold">{{ $grup->nama_grup }}</h5>
+                            <small>{{ $grup->mahasiswa->count() }} anggota</small>
+                        </div>
+                        <div class="d-flex">
+                            <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#tambahAnggotaModal"></i>
+                            <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
+                            <form action="{{ route('dosen.grup.destroy', $grup->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus grup ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-transparent border-0 p-0">
+                                    <i class="fas fa-trash header-icon danger"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    
-                    <!-- Chat Content -->
-                    <div class="message-container">
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-comments fa-3x mb-3"></i>
-                            <p>Belum ada pesan di grup ini.</p>
-                            <p>Mulai percakapan dengan mengirim pesan!</p>
+                </div>
+                
+                <!-- Chat Content -->
+                <div class="message-container">
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <p>Belum ada pesan di grup ini.</p>
+                        <p>Mulai percakapan dengan mengirim pesan!</p>
+                    </div>
+                </div>
+                
+                <!-- Message Input -->
+                <div class="message-input">
+                    <form>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-light">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <input type="text" class="form-control" placeholder="Tulis Pesan Anda disini..">
+                            <button type="submit" class="btn btn-gradient-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
                         </div>
-                    </div>
-                    
-                    <!-- Message Input -->
-                    <div class="message-input">
-                        <form>
-                            <div class="input-group">
-                                <button type="button" class="btn btn-light">
-                                    <i class="fas fa-paperclip"></i>
-                                </button>
-                                <input type="text" class="form-control" placeholder="Tulis Pesan Anda disini..">
-                                <button type="submit" class="btn btn-gradient-primary">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>

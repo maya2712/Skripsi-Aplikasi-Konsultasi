@@ -199,6 +199,30 @@
             text-decoration: none !important;
         }
 
+        /* Animasi untuk error validation tooltip */
+        .validation-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 5;
+            width: 100%;
+            background-color: rgba(220, 53, 69, 0.9);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0 0 8px 8px;
+            margin-top: -8px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .validation-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 992px) {
             .carousel-section {
                 margin-bottom: 2rem;
@@ -302,6 +326,9 @@
                                                 autocomplete="username" 
                                                 autofocus>
                                             <label for="username">NIP/NIM <span class="text-danger">*</span></label>
+                                            <div class="validation-tooltip" id="usernameTooltip">
+                                                <i class="fas fa-exclamation-circle me-1"></i>Mohon masukkan NIP/NIM Anda
+                                            </div>
                                             @error('username')
                                                 <div class="custom-feedback custom-invalid-feedback d-block">
                                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
@@ -322,6 +349,9 @@
                                                    id="togglePassword">
                                                 <i class="fas fa-eye-slash"></i>
                                             </button>
+                                            <div class="validation-tooltip" id="passwordTooltip">
+                                                <i class="fas fa-exclamation-circle me-1"></i>Mohon masukkan password Anda
+                                            </div>
                                             @error('password')
                                                 <div class="custom-feedback custom-invalid-feedback d-block">
                                                     <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
@@ -384,6 +414,18 @@
             'use strict';
             const form = document.querySelector('form.needs-validation');
             const inputs = form.querySelectorAll('input');
+            const usernameTooltip = document.getElementById('usernameTooltip');
+            const passwordTooltip = document.getElementById('passwordTooltip');
+            
+            // Fungsi untuk menampilkan pesan validasi
+            function showValidationMessage(input, tooltip) {
+                tooltip.classList.add('show');
+                
+                // Sembunyikan tooltip setelah 3 detik
+                setTimeout(() => {
+                    tooltip.classList.remove('show');
+                }, 3000);
+            }
             
             // Tambahkan event listener untuk validasi kustom
             form.addEventListener('submit', function(event) {
@@ -391,8 +433,14 @@
                 
                 // Cek validitas setiap input
                 inputs.forEach(input => {
-                    if (!input.validity.valid) {
+                    if (!input.value.trim()) {
                         isValid = false;
+                        // Tampilkan pesan validasi yang sesuai
+                        if (input.id === 'username') {
+                            showValidationMessage(input, usernameTooltip);
+                        } else if (input.id === 'password') {
+                            showValidationMessage(input, passwordTooltip);
+                        }
                     }
                 });
                 
@@ -412,6 +460,15 @@
                     // Jangan tambahkan class apapun untuk validasi
                     input.classList.remove('is-valid');
                     input.classList.remove('is-invalid');
+                });
+                
+                // Sembunyikan tooltip ketika input mendapatkan fokus
+                input.addEventListener('focus', function() {
+                    if (input.id === 'username') {
+                        usernameTooltip.classList.remove('show');
+                    } else if (input.id === 'password') {
+                        passwordTooltip.classList.remove('show');
+                    }
                 });
             });
         })();

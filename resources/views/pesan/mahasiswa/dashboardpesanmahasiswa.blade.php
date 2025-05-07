@@ -179,6 +179,31 @@
         font-size: 20px;
         border: 2px solid #f8f9fa;
     }
+    
+    /* Tambahan CSS untuk card yang bisa diklik */
+    .message-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .message-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Pastikan tombol tetap bisa diklik dan tidak memicu klik pada card */
+    .message-card .btn,
+    .message-card a {
+        position: relative;
+        z-index: 10;
+    }
+    
+    /* Memastikan event dari tombol tidak menyebar ke card */
+    .action-buttons {
+        position: relative;
+        z-index: 5;
+    }
 </style>
 @endpush
 
@@ -300,7 +325,7 @@
                     </div>
                 </div>
 
-                <!-- Message List -->
+                <!-- Message List - PERBAIKAN -->
                 <div class="message-list" id="messageList">
                     @if($pesan->count() > 0)
                         @foreach($pesan as $p)
@@ -313,8 +338,32 @@
                                         </div>
                                         <div>
                                             <span class="badge bg-primary mb-1">{{ $p->subjek }}</span>
-                                            <h6 class="mb-1" style="font-size: 14px;">{{ $p->penerima->nama }}</h6>
-                                            <small class="text-muted">{{ $p->penerima->jabatan }}</small>
+                                            
+                                            @if($p->nim_pengirim == Auth::user()->nim)
+                                                <!-- Jika mahasiswa adalah pengirim, tampilkan nama dosen penerima -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
+                                                    @php
+                                                        // Ambil langsung data dosen penerima
+                                                        $dosen = App\Models\Dosen::where('nip', $p->nip_penerima)->first();
+                                                        $nama_penerima = $dosen ? $dosen->nama : 'Dosen';
+                                                    @endphp
+                                                    {{ $nama_penerima }}
+                                                </h6>
+                                                <small class="text-muted">{{ $p->nip_penerima }}</small>
+                                            @else
+                                                <!-- Jika mahasiswa adalah penerima, tampilkan nama dosen pengirim -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
+                                                    @php
+                                                        // Ambil langsung data dosen pengirim
+                                                        $dosen = App\Models\Dosen::where('nip', $p->nip_pengirim)->first();
+                                                        $nama_pengirim = $dosen ? $dosen->nama : 'Dosen';
+                                                    @endphp
+                                                    {{ $nama_pengirim }}
+                                                </h6>
+                                                <small class="text-muted">{{ $p->nip_pengirim }}</small>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -327,9 +376,11 @@
                                         <small class="d-block text-muted my-1">
                                             {{ \Carbon\Carbon::parse($p->created_at)->diffForHumans() }}
                                         </small>
-                                        <a href="{{ route('mahasiswa.pesan.show', $p->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                            <i class="fas fa-eye me-1"></i>Lihat
-                                        </a>
+                                        <div class="action-buttons" onclick="event.stopPropagation();">
+                                            <a href="{{ route('mahasiswa.pesan.show', $p->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
+                                                <i class="fas fa-eye me-1"></i>Lihat
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -371,10 +422,100 @@ document.addEventListener('DOMContentLoaded', function() {
         grupDropdownIcon.classList.toggle('fa-chevron-down');
     });
 
-    // Tombol filter
+    // Tombol filter - PERBAIKAN
     const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    // Fungsi filter pesan
+    function filterMessages(filter) {
+        // Menampilkan indikator loading jika diperlukan
+        // document.getElementById('loadingIndicator').style.display = 'block';
+        
+        fetch(`{{ route('mahasiswa.pesan.filter') }}?filter=${filter}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Periksa apakah HTML respons hanya berisi pesan kosong
+                if (data.html.includes('Belum ada pesan') || data.html.trim() === '') {
+                    // Tidak ada hasil, tampilkan pesan "Pesan tidak tersedia"
+                    document.getElementById('messageList').innerHTML = 
+                        '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
+                } else {
+                    // Ada hasil, perbarui konten
+                    document.getElementById('messageList').innerHTML = data.html;
+                    
+                    // Tambahkan event listener pada tombol action
+                    document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
+                        element.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                        });
+                    });
+                }
+                
+                // Tampilkan/sembunyikan pesan "tidak tersedia" berdasarkan hasil
+                const messageCards = document.querySelectorAll('.message-card');
+                document.getElementById('no-results').style.display = 
+                    messageCards.length === 0 ? 'block' : 'none';
+            } else {
+                console.error('Filter response indicates failure:', data);
+                fallbackFilterMessages(filter);
+            }
+            // document.getElementById('loadingIndicator').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error during filter operation:', error);
+            // Fallback ke filter lokal jika AJAX gagal
+            fallbackFilterMessages(filter);
+            // document.getElementById('loadingIndicator').style.display = 'none';
+        });
+    }
+
+    // Fungsi filter fallback (client-side)
+    function fallbackFilterMessages(filter) {
+        console.log('Using fallback filter with:', filter);
+        const messageCards = document.querySelectorAll('.message-card');
+        let visibleCount = 0;
+        
+        messageCards.forEach(card => {
+            const isPenting = card.classList.contains('penting');
+            const isUmum = card.classList.contains('umum');
+            
+            if (filter === 'semua' || 
+                (filter === 'penting' && isPenting) || 
+                (filter === 'umum' && isUmum)) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang terlihat
+        if (visibleCount === 0) {
+            document.getElementById('messageList').innerHTML = 
+                '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
+        }
+        
+        // Sembunyikan elemen no-results karena kita sudah menangani pesan kosong
+        document.getElementById('no-results').style.display = 'none';
+    }
+
+    // Tambahkan event listener untuk setiap tombol filter
     filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent any default behavior
+            
             // Hapus class active dari semua tombol
             filterButtons.forEach(btn => {
                 btn.classList.remove('active');
@@ -397,53 +538,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Filter pesan berdasarkan tombol yang diklik
             const filter = this.dataset.filter;
+            console.log('Filter clicked:', filter);
             filterMessages(filter);
         });
     });
-
-    // Fungsi filter pesan melalui AJAX
-    function filterMessages(filter) {
-        fetch(`{{ route('mahasiswa.pesan.filter') }}?filter=${filter}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('messageList').innerHTML = data.html;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Fallback ke filter lokal jika AJAX gagal
-            fallbackFilterMessages(filter);
-        });
-    }
-
-    // Fungsi filter fallback (client-side)
-    function fallbackFilterMessages(filter) {
-        const messageCards = document.querySelectorAll('.message-card');
-        let visibleCount = 0;
-        
-        messageCards.forEach(card => {
-            const isPenting = card.classList.contains('penting');
-            const isUmum = card.classList.contains('umum');
-            
-            if (filter === 'semua' || 
-                (filter === 'penting' && isPenting) || 
-                (filter === 'umum' && isUmum)) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai filter
-        document.getElementById('no-results').style.display = visibleCount === 0 ? 'block' : 'none';
-    }
 
     // Pencarian pesan
     const searchInput = document.getElementById('searchInput');
@@ -473,23 +571,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fungsi pencarian pesan melalui AJAX
     function searchMessages(keyword) {
         fetch(`{{ route('mahasiswa.pesan.search') }}?keyword=${encodeURIComponent(keyword)}`, {
+            method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                document.getElementById('messageList').innerHTML = data.html;
+                // Periksa apakah HTML respons kosong atau hanya berisi pesan kosong
+                if (data.html.includes('Belum ada pesan') || data.html.trim() === '') {
+                    // Tidak ada hasil, tampilkan pesan "Pesan tidak tersedia"
+                    document.getElementById('messageList').innerHTML = 
+                        '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
+                } else {
+                    // Ada hasil, perbarui konten
+                    document.getElementById('messageList').innerHTML = data.html;
+                    
+                    // Tambahkan event listener pada tombol action
+                    document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
+                        element.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                        });
+                    });
+                }
                 
-                // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai pencarian
+                // Tampilkan/sembunyikan pesan "tidak tersedia" berdasarkan hasil
+                const messageCards = document.querySelectorAll('.message-card');
                 document.getElementById('no-results').style.display = 
-                    document.querySelectorAll('.message-card').length === 0 ? 'block' : 'none';
+                    messageCards.length === 0 ? 'block' : 'none';
+            } else {
+                console.error('Search response indicates failure:', data);
+                fallbackSearchMessages(keyword);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error during search operation:', error);
             // Fallback ke pencarian lokal jika AJAX gagal
             fallbackSearchMessages(keyword);
         });
@@ -497,8 +621,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fungsi pencarian fallback (client-side)
     function fallbackSearchMessages(searchTerm) {
+        console.log('Using fallback search with:', searchTerm);
+        
         // Dapatkan filter aktif saat ini untuk digabungkan dengan pencarian
-        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+        const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'semua';
         
         const messageCards = document.querySelectorAll('.message-card');
         let visibleCount = 0;
@@ -522,12 +648,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai pencarian
-        document.getElementById('no-results').style.display = visibleCount === 0 ? 'block' : 'none';
+        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang terlihat
+        if (visibleCount === 0) {
+            document.getElementById('messageList').innerHTML = 
+                '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
+        }
+        
+        // Sembunyikan elemen no-results karena kita sudah menangani pesan kosong
+        document.getElementById('no-results').style.display = 'none';
     }
     
     // Set default filter ke "semua" saat halaman dimuat
     window.addEventListener('load', function() {
+        console.log('Page loaded, setting default filter');
+        
         // Hapus kelas active dari semua tombol filter kecuali 'semua'
         filterButtons.forEach(btn => {
             // Jika tombol filter adalah 'semua', berikan class active
@@ -543,6 +677,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Aktifkan filter 'semua' secara default
         filterMessages('semua');
+        
+        // Menghentikan propagasi klik pada tombol-tombol di dalam card
+        document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
     });
 });
 </script>

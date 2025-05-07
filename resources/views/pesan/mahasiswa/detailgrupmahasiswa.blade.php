@@ -37,7 +37,6 @@
         position: sticky;
         top: 20px; 
         max-height: calc(100vh - 100px);
-        margin-right: 15px;
     }
 
     .sidebar-buttons {
@@ -164,16 +163,46 @@
         background-color: rgba(255, 255, 255, 0.2);
         transform: scale(1.1);
     }
+
+    .header-icon.danger:hover {
+        color: #FF5252;
+        background-color: rgba(255, 82, 82, 0.2);
+    }
     
-    .main-content-area {
-        padding-left: 15px;
+    /* Container untuk memberi jarak dari tepi - menggunakan custom-container dari dashboard pesan */
+    .custom-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    
+    .badge-notification {
+        background: var(--bs-danger);
+    }
+    
+    .message-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .message-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .message-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    .message-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="main-content">
-    <div class="container-fluid">
+    <div class="custom-container">
         <div class="row g-4">
             <!-- Sidebar -->
             <div class="col-md-3">
@@ -229,44 +258,42 @@
 
             <!-- Main Content Area -->
             <div class="col-md-9">
-                <div class="main-content-area">
-                    <!-- Group Header -->
-                    <div class="group-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-0 fw-semibold">{{ $grup->nama_grup }}</h5>
-                                <small>{{ $grup->mahasiswa->count() }} anggota</small>
-                            </div>
-                            <div class="d-flex">
-                                <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#anggotaGrupModal"></i>
-                                <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
-                            </div>
+                <!-- Group Header -->
+                <div class="group-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0 fw-semibold">{{ $grup->nama_grup }}</h5>
+                            <small>{{ $grup->mahasiswa->count() }} anggota</small>
+                        </div>
+                        <div class="d-flex">
+                            <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#anggotaGrupModal"></i>
+                            <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
                         </div>
                     </div>
-                    
-                    <!-- Chat Content -->
-                    <div class="message-container">
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-comments fa-3x mb-3"></i>
-                            <p>Belum ada pesan di grup ini.</p>
-                            <p>Mulai percakapan dengan mengirim pesan!</p>
+                </div>
+                
+                <!-- Chat Content -->
+                <div class="message-container">
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <p>Belum ada pesan di grup ini.</p>
+                        <p>Mulai percakapan dengan mengirim pesan!</p>
+                    </div>
+                </div>
+                
+                <!-- Message Input -->
+                <div class="message-input">
+                    <form>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-light">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <input type="text" class="form-control" placeholder="Tulis Pesan Anda disini..">
+                            <button type="submit" class="btn btn-gradient-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
                         </div>
-                    </div>
-                    
-                    <!-- Message Input -->
-                    <div class="message-input">
-                        <form>
-                            <div class="input-group">
-                                <button type="button" class="btn btn-light">
-                                    <i class="fas fa-paperclip"></i>
-                                </button>
-                                <input type="text" class="form-control" placeholder="Tulis Pesan Anda disini..">
-                                <button type="submit" class="btn btn-gradient-primary">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
