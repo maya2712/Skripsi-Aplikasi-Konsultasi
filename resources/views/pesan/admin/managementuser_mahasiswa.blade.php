@@ -194,12 +194,18 @@
     .alert-success:not(.mb-4) {
         display: none !important;
     }
+    
+    .custom-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
 </style>
 @endpush
 
 @section('content')
 <div class="main-content">
-    <div class="container-fluid">
+    <div class="custom-container">
         <div class="row g-4">
             <!-- Sidebar -->
             <div class="col-md-3">
@@ -251,7 +257,6 @@
                             <a href="{{ url('/logs_admin') }}" class="nav-link">
                                 <i class="fas fa-history me-2"></i>Riwayat
                             </a>
-                           
                         </div>
                     </div>
                 </div>
