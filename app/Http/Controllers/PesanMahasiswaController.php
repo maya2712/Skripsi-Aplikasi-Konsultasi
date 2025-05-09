@@ -55,7 +55,7 @@ class PesanMahasiswaController extends Controller
     public function create()
     {
         // Dapatkan daftar dosen untuk dropdown
-        $dosen = Dosen::all();
+        $dosen = Dosen::orderBy('nama')->get();
         
         return view('pesan.mahasiswa.buatpesanmahasiswa', compact('dosen'));
     }

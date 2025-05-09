@@ -793,15 +793,7 @@
                                     <!-- Jika mahasiswa adalah penerima (pesan dari dosen), tampilkan di kiri -->
                                     <div class="chat-message">
                                         <div class="message-bubble">
-                                            <div class="sender-name-container">
-                                                <span class="sender-name">
-                                                    @php
-                                                        $dosenPengirim = App\Models\Dosen::where('nip', $message->nip_pengirim)->first();
-                                                        $namaPengirim = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
-                                                    @endphp
-                                                    {{ $namaPengirim }}
-                                                </span>
-                                            </div>
+                                            <!-- Hapus container nama pengirim yang ada di dalam bubble chat -->
                                             <p>{{ $message->isi_pesan }}</p>
                                             <div class="message-time">
                                                 {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
@@ -824,15 +816,7 @@
                                     <!-- Balasan dari Dosen -->
                                     <div class="chat-message">
                                         <div class="message-bubble">
-                                            <div class="sender-name-container">
-                                                <span class="sender-name">
-                                                    @if(isset($message->pengirimData) && $message->pengirimData)
-                                                        {{ $message->pengirimData->nama }}
-                                                    @else
-                                                        Dosen
-                                                    @endif
-                                                </span>
-                                            </div>
+                                            <!-- Hapus container nama pengirim yang ada di dalam bubble chat -->
                                             <p>{{ $message->isi_balasan }}</p>
                                             <div class="message-time">
                                                 {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}

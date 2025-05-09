@@ -336,11 +336,15 @@
         // Mengambil data dosen dari database
         let dataDosen = [];
         
-        // Langsung menggunakan data dosen dari database
+         // Menggunakan Blade untuk mengisi data dosen dari database
         dataDosen = [
-            { id: '198501012015041001', nama: 'Ummul Azhari', jabatan: 'Dosen tidak Tetap' },
-            { id: '198501012015041002', nama: 'Contoh Dosen 22', jabatan: 'Dosen tidak Tetap' },
-            { id: '198501012015041025', nama: 'Contoh Dosen 3', jabatan: 'Dosen tidak Tetap' }
+            @foreach($dosen as $d)
+                { 
+                    id: '{{ $d->nip }}', 
+                    nama: '{{ $d->nama }}', 
+                    jabatan: '{{ $d->jabatan_fungsional ?? "Dosen" }}' 
+                },
+            @endforeach
         ];
         
         // Variabel untuk menyimpan data dosen yang dipilih
