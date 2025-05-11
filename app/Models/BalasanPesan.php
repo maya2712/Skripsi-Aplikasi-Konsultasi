@@ -19,6 +19,13 @@ class BalasanPesan extends Model
         'dibaca'
     ];
     
+    // PERBAIKAN: Pastikan cast untuk field dibaca bekerja dengan benar
+    protected $casts = [
+        'dibaca' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+    
     // Relasi ke pesan
     public function pesan()
     {
@@ -45,5 +52,17 @@ class BalasanPesan extends Model
             return $this->pengirimDosen;
         }
         return null;
+    }
+    
+    // PENAMBAHAN: Method accessor untuk memastikan dibaca selalu boolean
+    public function getDibacaAttribute($value)
+    {
+        return (bool) $value;
+    }
+    
+    // PENAMBAHAN: Method mutator untuk memastikan dibaca selalu boolean
+    public function setDibacaAttribute($value)
+    {
+        $this->attributes['dibaca'] = (bool) $value;
     }
 }

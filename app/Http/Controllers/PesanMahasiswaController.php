@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB; // Ditambahkan import DB
 use App\Models\Pesan;
 use App\Models\BalasanPesan;
 use App\Models\Dosen;
-use App\Models\Mahasiswa; // Import model Mahasiswa
+use App\Models\Mahasiswa;
 use Carbon\Carbon;
 
 class PesanMahasiswaController extends Controller
@@ -18,16 +19,24 @@ class PesanMahasiswaController extends Controller
     {
         $mahasiswa = Auth::user();
         
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
+        
         // Mengambil semua pesan yang diterima ATAU dikirim oleh mahasiswa
         // dengan status 'Aktif' (pesan yang berakhir masuk ke riwayat)
         $pesan = Pesan::where(function($query) use ($mahasiswa) {
-            $query->where('nim_penerima', $mahasiswa->nim)
-                ->orWhere('nim_pengirim', $mahasiswa->nim);
-        })
-        ->where('status', 'Aktif') // Hanya tampilkan pesan aktif
-        ->orderBy('created_at', 'desc')
-        ->get();
-                
+                $query->where('nim_penerima', $mahasiswa->nim)
+                    ->orWhere('nim_pengirim', $mahasiswa->nim);
+            })
+            ->where('status', 'Aktif') // Hanya tampilkan pesan aktif
+            ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+            })
+            ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+            ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+            ->get();
+                    
         // Menghitung jumlah pesan belum dibaca (hanya yang diterima)
         $belumDibaca = Pesan::where('nim_penerima', $mahasiswa->nim)
                         ->where('dibaca', false)
@@ -159,6 +168,18 @@ class PesanMahasiswaController extends Controller
                 $pesan->save();
             }
             
+            // Update status balasan yang belum dibaca (hanya balasan dari dosen)
+            foreach ($pesan->balasan as $balasan) {
+                if (!$balasan->dibaca && $balasan->tipe_pengirim == 'dosen') {
+                    // Ambil objek balasan dari database (tanpa properti tambahan)
+                    $baUpdate = BalasanPesan::find($balasan->id);
+                    if ($baUpdate) {
+                        $baUpdate->dibaca = true;
+                        $baUpdate->save();
+                    }
+                }
+            }
+            
             return view('pesan.mahasiswa.isipesanmahasiswa', compact('pesan', 'balasanByDate'));
         } catch (\Exception $e) {
             // Log error dengan lebih detail
@@ -168,7 +189,7 @@ class PesanMahasiswaController extends Controller
                 ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan: ' . $e->getMessage());
         }
     }
-    
+      
     // Mengirim balasan pesan
     public function reply(Request $request, $id)
     {
@@ -196,13 +217,13 @@ class PesanMahasiswaController extends Controller
         }
         
         try {
-            // Buat balasan baru
+            // Buat balasan baru dengan nilai dibaca yang jelas
             $balasan = new BalasanPesan();
             $balasan->id_pesan = $id;
             $balasan->pengirim_id = $mahasiswa->nim;
             $balasan->tipe_pengirim = 'mahasiswa';
             $balasan->isi_balasan = $request->balasan;
-            $balasan->dibaca = false;
+            $balasan->dibaca = false; // Gunakan false untuk konsistensi dengan accessor/mutator
             $balasan->save();
             
             // Log hasil untuk debugging
@@ -210,7 +231,8 @@ class PesanMahasiswaController extends Controller
                 'id' => $balasan->id,
                 'pengirim_id' => $balasan->pengirim_id,
                 'tipe_pengirim' => $balasan->tipe_pengirim,
-                'isi_balasan' => $balasan->isi_balasan
+                'isi_balasan' => $balasan->isi_balasan,
+                'dibaca' => $balasan->dibaca
             ]);
             
             return response()->json([
@@ -310,13 +332,21 @@ class PesanMahasiswaController extends Controller
     {
         $mahasiswa = Auth::user();
         
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
+        
         // Mengambil semua pesan dengan status 'Berakhir' (dikirim ATAU diterima)
         $riwayatPesan = Pesan::where(function($query) use ($mahasiswa) {
                             $query->where('nim_pengirim', $mahasiswa->nim)
                                   ->orWhere('nim_penerima', $mahasiswa->nim);
                          })
                          ->where('status', 'Berakhir')
-                         ->orderBy('updated_at', 'desc')
+                         ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                            $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                         })
+                         ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.updated_at) as last_activity'))
+                         ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
                          ->get();
                            
         return view('pesan.mahasiswa.riwayatpesanmahasiswa', compact('riwayatPesan'));
@@ -327,6 +357,10 @@ class PesanMahasiswaController extends Controller
     {
         $mahasiswa = Auth::user();
         $filter = $request->filter;
+        
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
         
         $query = Pesan::where(function($query) use ($mahasiswa) {
             $query->where('nim_pengirim', $mahasiswa->nim)
@@ -345,7 +379,13 @@ class PesanMahasiswaController extends Controller
             $query->where('status', 'Aktif');
         }
         
-        $pesan = $query->orderBy('created_at', 'desc')->get();
+        // Gabungkan dengan subquery balasan terakhir
+        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                    $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                })
+                ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                ->get();
         
         return response()->json([
             'success' => true,
@@ -358,6 +398,10 @@ class PesanMahasiswaController extends Controller
     {
         $mahasiswa = Auth::user();
         $keyword = $request->keyword;
+        
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
         
         $query = Pesan::where(function($query) use ($mahasiswa) {
                     $query->where('nim_pengirim', $mahasiswa->nim)
@@ -382,7 +426,13 @@ class PesanMahasiswaController extends Controller
             $query->where('status', 'Aktif');
         }
         
-        $pesan = $query->orderBy('created_at', 'desc')->get();
+        // Gabungkan dengan subquery balasan terakhir
+        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                    $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                })
+                ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                ->get();
         
         return response()->json([
             'success' => true,

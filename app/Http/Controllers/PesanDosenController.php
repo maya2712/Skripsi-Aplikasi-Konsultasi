@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB; // Ditambahkan import DB
 use App\Models\Pesan;
 use App\Models\BalasanPesan;
 use App\Models\Mahasiswa;
@@ -20,6 +21,10 @@ class PesanDosenController extends Controller
     {
         $dosen = Auth::user();
         
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
+        
         // Mengambil semua pesan yang diterima ATAU dikirim oleh dosen
         // hanya yang statusnya masih 'Aktif'
         $pesan = Pesan::where(function($query) use ($dosen) {
@@ -27,7 +32,11 @@ class PesanDosenController extends Controller
                     ->orWhere('nip_pengirim', $dosen->nip);
             })
             ->where('status', 'Aktif') // Hanya tampilkan pesan aktif di dashboard
-            ->orderBy('created_at', 'desc')
+            ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+            })
+            ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+            ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
             ->get();
                       
         // Menghitung jumlah pesan belum dibaca (hanya yang diterima)
@@ -134,130 +143,152 @@ class PesanDosenController extends Controller
     /**
      * Menampilkan detail pesan
      */
-    public function show($id)
-    {
-        try {
-            $pesan = Pesan::findOrFail($id);
-            $dosen = Auth::user();
-            
-            // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
-            if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
-                return redirect()->route('dosen.dashboard.pesan')
-                    ->with('error', 'Anda tidak memiliki akses ke pesan ini');
-            }
-            
-            // Load relasi balasan secara manual
-            $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
-            $pesan->setRelation('balasan', $balasan);
-            
-            // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
-            foreach ($pesan->balasan as $balasan) {
-                if ($balasan->tipe_pengirim == 'dosen') {
-                    $dosenPengirim = Dosen::find($balasan->pengirim_id);
-                    $balasan->pengirimData = $dosenPengirim;
-                } else {
-                    $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
-                    $balasan->pengirimData = $mahasiswaPengirim;
-                }
-            }
-            
-            // Kelompokkan balasan berdasarkan tanggal
-            $balasanByDate = [];
-            
-            // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
-            $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
-            $balasanByDate[$dateAwal][] = $pesan;
-            
-            // Tambahkan semua balasan ke grup berdasarkan tanggal
-            foreach ($pesan->balasan as $balasan) {
-                $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
-                if (!isset($balasanByDate[$date])) {
-                    $balasanByDate[$date] = [];
-                }
-                $balasanByDate[$date][] = $balasan;
-            }
-            
-            // Urutkan tanggal (dari paling lama)
-            ksort($balasanByDate);
-            
-            // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
-            if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
-                $pesan->dibaca = true;
-                $pesan->save();
-            }
-            
-            return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
-        } catch (\Exception $e) {
-            Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-            
+   public function show($id)
+{
+    try {
+        $pesan = Pesan::findOrFail($id);
+        $dosen = Auth::user();
+        
+        // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
+        if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
             return redirect()->route('dosen.dashboard.pesan')
-                ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
+                ->with('error', 'Anda tidak memiliki akses ke pesan ini');
         }
+        
+        // Load relasi balasan secara manual
+        $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+        $pesan->setRelation('balasan', $balasan);
+        
+        // Log jumlah balasan untuk debug
+        Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
+        
+        // Cek balasan yang belum dibaca
+        $unreadBalasan = $balasan->filter(function($item) {
+            return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
+        })->count();
+        
+        Log::info('Unread balasan count: ' . $unreadBalasan);
+        
+        // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
+        foreach ($pesan->balasan as $balasan) {
+            if ($balasan->tipe_pengirim == 'dosen') {
+                $dosenPengirim = Dosen::find($balasan->pengirim_id);
+                $balasan->pengirimData = $dosenPengirim;
+            } else {
+                $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
+                $balasan->pengirimData = $mahasiswaPengirim;
+            }
+        }
+        
+        // Kelompokkan balasan berdasarkan tanggal
+        $balasanByDate = [];
+        
+        // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
+        $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
+        $balasanByDate[$dateAwal][] = $pesan;
+        
+        // Tambahkan semua balasan ke grup berdasarkan tanggal
+        foreach ($pesan->balasan as $balasan) {
+            $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
+            if (!isset($balasanByDate[$date])) {
+                $balasanByDate[$date] = [];
+            }
+            $balasanByDate[$date][] = $balasan;
+        }
+        
+        // Urutkan tanggal (dari paling lama)
+        ksort($balasanByDate);
+        
+        // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
+        if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
+            $pesan->dibaca = true;
+            $pesan->save();
+            
+            Log::info('Marked message as read: ' . $pesan->id);
+        }
+        
+        // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
+        // Gunakan direct query untuk update balasan yang belum dibaca
+        $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
+            ->where('tipe_pengirim', 'mahasiswa')
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+            
+        Log::info('Updated ' . $updatedCount . ' unread replies to read');
+        
+        return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
+    } catch (\Exception $e) {
+        Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+        
+        return redirect()->route('dosen.dashboard.pesan')
+            ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
     }
+}
     
     /**
      * Mengirim balasan pesan
      */
     public function reply(Request $request, $id)
-    {
-        $request->validate([
-            'balasan' => 'required'
+{
+    $request->validate([
+        'balasan' => 'required'
+    ]);
+    
+    $pesan = Pesan::findOrFail($id);
+    $dosen = Auth::user();
+    
+    // Pastikan dosen yang membalas adalah penerima ATAU pengirim pesan
+    if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda tidak memiliki akses ke pesan ini'
+        ], 403);
+    }
+    
+    // Pastikan pesan masih aktif
+    if ($pesan->status == 'Berakhir') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Pesan telah diakhiri'
+        ], 400);
+    }
+    
+    try {
+        // Buat balasan baru dengan nilai dibaca yang jelas
+        $balasan = new BalasanPesan();
+        $balasan->id_pesan = $id;
+        $balasan->pengirim_id = $dosen->nip;
+        $balasan->tipe_pengirim = 'dosen';
+        $balasan->isi_balasan = $request->balasan;
+        $balasan->dibaca = false; // PERBAIKAN: Gunakan false (boolean) untuk konsistensi
+        $balasan->save();
+        
+        // Log informasi
+        Log::info('Balasan dosen berhasil dibuat', [
+            'id' => $balasan->id,
+            'pengirim_id' => $balasan->pengirim_id,
+            'tipe_pengirim' => $balasan->tipe_pengirim,
+            'dibaca' => $balasan->dibaca
         ]);
         
-        $pesan = Pesan::findOrFail($id);
-        $dosen = Auth::user();
-        
-        // Pastikan dosen yang membalas adalah penerima ATAU pengirim pesan
-        if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki akses ke pesan ini'
-            ], 403);
-        }
-        
-        // Pastikan pesan masih aktif
-        if ($pesan->status == 'Berakhir') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pesan telah diakhiri'
-            ], 400);
-        }
-        
-        try {
-            // Buat balasan baru
-            $balasan = new BalasanPesan();
-            $balasan->id_pesan = $id;
-            $balasan->pengirim_id = $dosen->nip;
-            $balasan->tipe_pengirim = 'dosen';
-            $balasan->isi_balasan = $request->balasan;
-            $balasan->dibaca = false;
-            $balasan->save();
-            
-            // Log informasi
-            Log::info('Balasan dosen berhasil dibuat', [
+        return response()->json([
+            'success' => true,
+            'message' => 'Balasan berhasil dikirim',
+            'data' => [
                 'id' => $balasan->id,
-                'pengirim_id' => $balasan->pengirim_id,
-                'tipe_pengirim' => $balasan->tipe_pengirim
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Balasan berhasil dikirim',
-                'data' => [
-                    'id' => $balasan->id,
-                    'isi_balasan' => $balasan->isi_balasan,
-                    'created_at' => Carbon::parse($balasan->created_at)->format('H:i')
-                ]
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error saat mengirim balasan: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengirim balasan: ' . $e->getMessage()
-            ], 500);
-        }
+                'isi_balasan' => $balasan->isi_balasan,
+                'created_at' => Carbon::parse($balasan->created_at)->format('H:i')
+            ]
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error saat mengirim balasan: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengirim balasan: ' . $e->getMessage()
+        ], 500);
     }
+}
     
     /**
      * Mengakhiri pesan (dosen juga dapat mengakhiri pesan)
@@ -343,13 +374,21 @@ class PesanDosenController extends Controller
     {
         $dosen = Auth::user();
         
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
+        
         // Mengambil semua pesan dengan status 'Berakhir' yang diterima ATAU dikirim oleh dosen
         $riwayatPesan = Pesan::where(function($query) use ($dosen) {
                            $query->where('nip_penerima', $dosen->nip)
                                  ->orWhere('nip_pengirim', $dosen->nip);
                        })
                        ->where('status', 'Berakhir')
-                       ->orderBy('updated_at', 'desc')
+                       ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                            $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                       })
+                       ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.updated_at) as last_activity'))
+                       ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
                        ->get();
                          
         return view('pesan.dosen.riwayatpesandosen', compact('riwayatPesan'));
@@ -362,6 +401,10 @@ class PesanDosenController extends Controller
     {
         $dosen = Auth::user();
         $filter = $request->filter;
+        
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
         
         $query = Pesan::where(function($query) use ($dosen) {
                     $query->where('nip_penerima', $dosen->nip)
@@ -380,7 +423,13 @@ class PesanDosenController extends Controller
             $query->where('status', 'Aktif');
         }
         
-        $pesan = $query->orderBy('created_at', 'desc')->get();
+        // Gabungkan dengan subquery balasan terakhir
+        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                    $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                })
+                ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                ->get();
         
         return response()->json([
             'success' => true,
@@ -395,6 +444,10 @@ class PesanDosenController extends Controller
     {
         $dosen = Auth::user();
         $keyword = $request->keyword;
+        
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
         
         $query = Pesan::where(function($query) use ($dosen) {
                     $query->where('nip_penerima', $dosen->nip)
@@ -419,7 +472,13 @@ class PesanDosenController extends Controller
             $query->where('status', 'Aktif');
         }
         
-        $pesan = $query->orderBy('created_at', 'desc')->get();
+        // Gabungkan dengan subquery balasan terakhir
+        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                    $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                })
+                ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                ->get();
         
         return response()->json([
             'success' => true,

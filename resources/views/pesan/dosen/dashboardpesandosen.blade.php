@@ -351,9 +351,14 @@
 
                 <!-- Message List - PERBAIKAN -->
                 <div class="message-list" id="messageList">
+                    <!-- Tambahkan elemen untuk menampilkan pesan "tidak ada hasil" -->
+                    <div id="no-results" style="display: none;" class="text-center py-4">
+                        <p class="text-muted">Tidak ada pesan yang sesuai dengan filter</p>
+                    </div>
+                    
                     @if($pesan->count() > 0)
                         @foreach($pesan as $item)
-                        <div class="card mb-2 message-card {{ $item->prioritas == 'Penting' ? 'penting' : 'umum' }}" onclick="window.location.href='{{ route('dosen.pesan.show', $item->id) }}'">
+                        <div class="card mb-2 message-card {{ strtolower($item->prioritas) }}" onclick="window.location.href='{{ route('dosen.pesan.show', $item->id) }}';" style="cursor: pointer;">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 d-flex align-items-center">
@@ -391,11 +396,33 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                        @if(!$item->dibaca)
-                                            <span class="badge bg-danger me-1">Belum dibaca</span>
-                                        @else
-                                            <span class="badge bg-success me-1">Sudah dibaca</span>
-                                        @endif
+                                        @php
+                                            // Hitung jumlah balasan yang belum dibaca dengan Query Builder
+                                            $unreadReplies = App\Models\BalasanPesan::where('id_pesan', $item->id)
+                                                ->where('dibaca', false)
+                                                ->where('tipe_pengirim', 'mahasiswa') // Hanya balasan dari mahasiswa
+                                                ->count();
+                                            
+                                            // Tentukan status badge - Gunakan pengecekan yang lebih ketat
+                                            $badgeClass = 'bg-success';
+                                            $badgeText = 'Sudah dibaca';
+                                            
+                                            if ($item->nip_penerima == Auth::user()->nip && $item->dibaca == false) {
+                                                // Pesan utama belum dibaca oleh dosen (sebagai penerima)
+                                                $badgeClass = 'bg-danger';
+                                                $badgeText = 'Belum dibaca';
+                                            } 
+                                            elseif ($unreadReplies > 0) {
+                                                // Ada balasan baru dari mahasiswa yang belum dibaca
+                                                $badgeClass = 'bg-danger';
+                                                $badgeText = $unreadReplies . ' balasan baru';
+                                            }
+                                        @endphp
+                                        
+                                        <!-- Status dibaca/balasan baru dalam satu badge -->
+                                        <span class="badge {{ $badgeClass }} me-1">
+                                            {{ $badgeText }}
+                                        </span>
                                         
                                         <span class="badge {{ $item->prioritas == 'Penting' ? 'bg-danger' : 'bg-success' }}">
                                             {{ $item->prioritas }}
@@ -405,15 +432,17 @@
                                             {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}
                                         </small>
                                         
-                                        <div class="d-flex justify-content-end align-items-center action-buttons" onclick="event.stopPropagation();">
+                                        <div class="action-buttons" onclick="event.stopPropagation();">
+                                            @if(isset($item->bookmarked))
                                             <form action="{{ route('dosen.pesan.bookmark', $item->id) }}" method="POST" class="d-inline me-2">
                                                 @csrf
-                                                <button type="submit" class="btn btn-link p-0" title="{{ $item->bookmarked ? 'Hapus Bookmark' : 'Bookmark Pesan' }}">
+                                                <button type="submit" class="btn btn-link p-0 bookmark-btn" title="{{ $item->bookmarked ? 'Hapus Bookmark' : 'Bookmark Pesan' }}">
                                                     <i class="fas fa-bookmark bookmark-icon {{ $item->bookmarked ? 'active' : '' }}"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                             
-                                            <a href="{{ route('dosen.pesan.show', $item->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
+                                            <a href="{{ route('dosen.pesan.show', $item->id) }}" class="btn btn-custom-primary btn-sm view-btn" style="font-size: 10px;">
                                                 <i class="fas fa-eye me-1"></i>Lihat
                                             </a>
                                         </div>
@@ -427,11 +456,6 @@
                             <p class="text-muted">Belum ada pesan</p>
                         </div>
                     @endif
-                    
-                    <!-- Pesan pencarian tidak tersedia -->
-                    <div id="no-results" class="text-center py-4" style="display: none;">
-                        <p class="text-muted">Pesan tidak tersedia</p>
-                    </div>
                 </div>
             </div>
         </div>
