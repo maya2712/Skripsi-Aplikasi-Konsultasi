@@ -113,6 +113,11 @@ class PesanDosenController extends Controller
                 $pesan->status = 'Aktif';
                 $pesan->dibaca = false;
                 $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
+                
+                // Force timezone untuk timestamp
+                $pesan->created_at = Carbon::now('Asia/Jakarta');
+                $pesan->updated_at = Carbon::now('Asia/Jakarta');
+                
                 $pesan->save();
                 
                 // Log pesan yang berhasil disimpan
@@ -229,67 +234,72 @@ class PesanDosenController extends Controller
      * Mengirim balasan pesan
      */
     public function reply(Request $request, $id)
-{
-    $request->validate([
-        'balasan' => 'required'
-    ]);
-    
-    $pesan = Pesan::findOrFail($id);
-    $dosen = Auth::user();
-    
-    // Pastikan dosen yang membalas adalah penerima ATAU pengirim pesan
-    if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Anda tidak memiliki akses ke pesan ini'
-        ], 403);
-    }
-    
-    // Pastikan pesan masih aktif
-    if ($pesan->status == 'Berakhir') {
-        return response()->json([
-            'success' => false,
-            'message' => 'Pesan telah diakhiri'
-        ], 400);
-    }
-    
-    try {
-        // Buat balasan baru dengan nilai dibaca yang jelas
-        $balasan = new BalasanPesan();
-        $balasan->id_pesan = $id;
-        $balasan->pengirim_id = $dosen->nip;
-        $balasan->tipe_pengirim = 'dosen';
-        $balasan->isi_balasan = $request->balasan;
-        $balasan->dibaca = false; // PERBAIKAN: Gunakan false (boolean) untuk konsistensi
-        $balasan->save();
-        
-        // Log informasi
-        Log::info('Balasan dosen berhasil dibuat', [
-            'id' => $balasan->id,
-            'pengirim_id' => $balasan->pengirim_id,
-            'tipe_pengirim' => $balasan->tipe_pengirim,
-            'dibaca' => $balasan->dibaca
+    {
+        $request->validate([
+            'balasan' => 'required'
         ]);
         
-        return response()->json([
-            'success' => true,
-            'message' => 'Balasan berhasil dikirim',
-            'data' => [
+        $pesan = Pesan::findOrFail($id);
+        $dosen = Auth::user();
+        
+        // Pastikan dosen yang membalas adalah penerima ATAU pengirim pesan
+        if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses ke pesan ini'
+            ], 403);
+        }
+        
+        // Pastikan pesan masih aktif
+        if ($pesan->status == 'Berakhir') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesan telah diakhiri'
+            ], 400);
+        }
+        
+        try {
+            // Buat balasan baru dengan nilai dibaca yang jelas
+            $balasan = new BalasanPesan();
+            $balasan->id_pesan = $id;
+            $balasan->pengirim_id = $dosen->nip;
+            $balasan->tipe_pengirim = 'dosen';
+            $balasan->isi_balasan = $request->balasan;
+            $balasan->dibaca = false; // PERBAIKAN: Gunakan false (boolean) untuk konsistensi
+            
+            // Force timezone untuk timestamp
+            $balasan->created_at = Carbon::now('Asia/Jakarta');
+            $balasan->updated_at = Carbon::now('Asia/Jakarta');
+            
+            $balasan->save();
+            
+            // Log informasi
+            Log::info('Balasan dosen berhasil dibuat', [
                 'id' => $balasan->id,
-                'isi_balasan' => $balasan->isi_balasan,
-                'created_at' => Carbon::parse($balasan->created_at)->format('H:i')
-            ]
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error saat mengirim balasan: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal mengirim balasan: ' . $e->getMessage()
-        ], 500);
+                'pengirim_id' => $balasan->pengirim_id,
+                'tipe_pengirim' => $balasan->tipe_pengirim,
+                'dibaca' => $balasan->dibaca
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Balasan berhasil dikirim',
+                'data' => [
+                    'id' => $balasan->id,
+                    'isi_balasan' => $balasan->isi_balasan,
+                    'created_at' => Carbon::parse($balasan->created_at)->timezone('Asia/Jakarta')->format('H:i')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saat mengirim balasan: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim balasan: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
-    
+        
     /**
      * Mengakhiri pesan (dosen juga dapat mengakhiri pesan)
      */

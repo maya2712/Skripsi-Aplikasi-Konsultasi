@@ -92,6 +92,11 @@ class PesanMahasiswaController extends Controller
             $pesan->status = 'Aktif';
             $pesan->dibaca = false;
             $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
+            
+            // Force timezone untuk timestamp
+            $pesan->created_at = Carbon::now('Asia/Jakarta');
+            $pesan->updated_at = Carbon::now('Asia/Jakarta');
+            
             $pesan->save();
             
             // Log informasi untuk debugging
@@ -114,7 +119,8 @@ class PesanMahasiswaController extends Controller
             ], 500);
         }
     }
-    
+   
+     
     // Menampilkan detail pesan
     public function show($id)
     {
@@ -224,6 +230,11 @@ class PesanMahasiswaController extends Controller
             $balasan->tipe_pengirim = 'mahasiswa';
             $balasan->isi_balasan = $request->balasan;
             $balasan->dibaca = false; // Gunakan false untuk konsistensi dengan accessor/mutator
+            
+            // Force timezone untuk timestamp
+            $balasan->created_at = Carbon::now('Asia/Jakarta');
+            $balasan->updated_at = Carbon::now('Asia/Jakarta');
+            
             $balasan->save();
             
             // Log hasil untuk debugging
@@ -241,7 +252,7 @@ class PesanMahasiswaController extends Controller
                 'data' => [
                     'id' => $balasan->id,
                     'isi_balasan' => $balasan->isi_balasan,
-                    'created_at' => Carbon::parse($balasan->created_at)->format('H:i'),
+                    'created_at' => Carbon::parse($balasan->created_at)->timezone('Asia/Jakarta')->format('H:i'),
                 ]
             ]);
         } catch (\Exception $e) {

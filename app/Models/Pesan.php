@@ -1,14 +1,12 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Pesan extends Model
 {
     use HasFactory;
-
     protected $table = 'pesan';
     
     protected $fillable = [
@@ -22,6 +20,10 @@ class Pesan extends Model
         'status',
         'lampiran',
         'dibaca'
+    ];
+    
+    protected $casts = [
+        'dibaca' => 'boolean',
     ];
     
     // Helper method untuk mendapatkan pengirim (baik mahasiswa maupun dosen)
@@ -59,10 +61,33 @@ class Pesan extends Model
             'jabatan' => 'Tidak Tersedia'
         ]);
     }
-
+    
     // Relasi untuk balasan pesan
     public function balasan()
     {
         return $this->hasMany(BalasanPesan::class, 'id_pesan');
+    }
+    
+    // Sebelum menyimpan ke database, konversi ke UTC
+    public function setCreatedAtAttribute($value)
+    {
+        $this->attributes['created_at'] = Carbon::parse($value)->setTimezone('UTC');
+    }
+    
+    // Saat mengambil dari database, konversi ke waktu lokal
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->setTimezone('Asia/Jakarta');
+    }
+    
+    // Juga untuk updated_at
+    public function setUpdatedAtAttribute($value)
+    {
+        $this->attributes['updated_at'] = Carbon::parse($value)->setTimezone('UTC');
+    }
+    
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->setTimezone('Asia/Jakarta');
     }
 }

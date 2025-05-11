@@ -1,14 +1,12 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class BalasanPesan extends Model
 {
     use HasFactory;
-
     protected $table = 'balasan_pesan';
     
     protected $fillable = [
@@ -22,8 +20,6 @@ class BalasanPesan extends Model
     // PERBAIKAN: Pastikan cast untuk field dibaca bekerja dengan benar
     protected $casts = [
         'dibaca' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
     
     // Relasi ke pesan
@@ -64,5 +60,28 @@ class BalasanPesan extends Model
     public function setDibacaAttribute($value)
     {
         $this->attributes['dibaca'] = (bool) $value;
+    }
+    
+    // Sebelum menyimpan ke database, konversi ke UTC
+    public function setCreatedAtAttribute($value)
+    {
+        $this->attributes['created_at'] = Carbon::parse($value)->setTimezone('UTC');
+    }
+    
+    // Saat mengambil dari database, konversi ke waktu lokal
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->setTimezone('Asia/Jakarta');
+    }
+    
+    // Juga untuk updated_at
+    public function setUpdatedAtAttribute($value)
+    {
+        $this->attributes['updated_at'] = Carbon::parse($value)->setTimezone('UTC');
+    }
+    
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->setTimezone('Asia/Jakarta');
     }
 }

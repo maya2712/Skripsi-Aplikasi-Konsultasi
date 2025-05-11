@@ -374,8 +374,9 @@
                                             {{ $p->prioritas }}
                                         </span>
                                         <small class="d-block text-muted my-1">
-                                            {{ \Carbon\Carbon::parse($p->created_at)->diffForHumans() }}
+                                           {{ \Carbon\Carbon::parse($p->created_at)->timezone('Asia/Jakarta')->diffForHumans() }}
                                         </small>
+
                                         <div class="action-buttons" onclick="event.stopPropagation();">
                                             <a href="{{ route('mahasiswa.pesan.show', $p->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
                                                 <i class="fas fa-eye me-1"></i>Lihat

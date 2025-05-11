@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => env('APP_TIMEZONE', 'UTC'),
+    'timezone' => 'Asia/Jakarta', // Diubah dari UTC ke Asia/Jakarta untuk zona waktu Indonesia (WIB)
 
     /*
     |--------------------------------------------------------------------------

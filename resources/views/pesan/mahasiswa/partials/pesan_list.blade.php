@@ -71,7 +71,7 @@
                 </span>
                 
                 <small class="d-block text-muted my-1">
-                    {{ \Carbon\Carbon::parse($p->created_at)->diffForHumans() }}
+                 {{ \Carbon\Carbon::parse($p->created_at)->timezone('Asia/Jakarta')->diffForHumans() }}
                 </small>
                 
                 <div class="action-buttons" onclick="event.stopPropagation();">
