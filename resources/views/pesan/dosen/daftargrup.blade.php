@@ -46,11 +46,22 @@
         
         .grup-card {
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .grup-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Style untuk badge notifikasi */
+        .notification-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            padding: 3px 8px;
+            z-index: 2;
         }
     </style>
 @endpush
@@ -97,6 +108,11 @@
         <div class="col-md-4 mb-4">
             <a href="{{ route('dosen.grup.show', $grup->id) }}" class="text-decoration-none">
                 <div class="card h-100 border-0 grup-card">
+                    <!-- Badge notifikasi -->
+                    @if($grup->unreadCount > 0)
+                    <span class="badge bg-danger notification-badge">{{ $grup->unreadCount }} baru</span>
+                    @endif
+                    
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">{{ $grup->nama_grup }}</h5>

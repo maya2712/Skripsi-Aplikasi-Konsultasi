@@ -8,9 +8,30 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\Grup;
 use App\Models\GrupPesan;
+use App\Models\GrupPesanRead;
 
 class MahasiswaController extends Controller
 {   
+    // Tambahkan method untuk mendapatkan jumlah pesan belum dibaca
+    public function getUnreadCount($grupId)
+    {
+        $mahasiswa = Auth::user();
+        
+        // Hitung jumlah pesan grup yang belum dibaca oleh mahasiswa
+        $unreadCount = GrupPesan::where('grup_id', $grupId)
+            ->whereNotExists(function ($query) use ($mahasiswa) {
+                $query->select(DB::raw(1))
+                    ->from('grup_pesan_reads')
+                    ->whereRaw('grup_pesan_reads.grup_pesan_id = grup_pesan.id')
+                    ->where('user_id', $mahasiswa->nim)
+                    ->where('user_type', 'mahasiswa')
+                    ->where('read', true);
+            })
+            ->where('pengirim_id', '!=', $mahasiswa->nim) // Jangan hitung pesan yang dikirim oleh mahasiswa sendiri
+            ->count();
+        
+        return $unreadCount;
+    }
 
     public function index()
     {
@@ -222,6 +243,13 @@ class MahasiswaController extends Controller
             $mahasiswa = Auth::user();
             $grups = $mahasiswa->grups;
             
+            // Tambahkan unread count untuk setiap grup menggunakan accessor model
+            foreach ($grups as $grup) {
+                // Sudah tidak perlu menambahkan properti baru, karena model sudah menyediakan accessor
+                // Jika ingin memastikan, bisa logging nilai unreadMessages
+                \Illuminate\Support\Facades\Log::info('Grup ' . $grup->nama_grup . ': unreadMessages = ' . $grup->unreadMessages);
+            }
+            
             return view('pesan.mahasiswa.daftargrupmahasiswa', compact('grups'));
         } catch (\Exception $e) {
             Log::error('Error mendapatkan daftar grup: ' . $e->getMessage());
@@ -234,7 +262,7 @@ class MahasiswaController extends Controller
     {
         try {
             $mahasiswa = Auth::user();
-            $grup = Grup::with(['mahasiswa', 'pesan'])->findOrFail($id);
+            $grup = Grup::with('mahasiswa')->findOrFail($id);
             
             // Cek apakah mahasiswa ini anggota grup
             $isMember = $grup->mahasiswa->contains('nim', $mahasiswa->nim);
@@ -243,15 +271,27 @@ class MahasiswaController extends Controller
                 return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini');
             }
             
+            // Ambil semua pesan grup
+            $pesans = GrupPesan::where('grup_id', $id)->orderBy('created_at', 'asc')->get();
+            
             // Kelompokkan pesan berdasarkan tanggal
             $grupPesanByDate = [];
-            
-            foreach ($grup->pesan as $pesan) {
+            foreach ($pesans as $pesan) {
                 $date = $pesan->created_at->format('Y-m-d');
                 if (!isset($grupPesanByDate[$date])) {
                     $grupPesanByDate[$date] = [];
                 }
                 $grupPesanByDate[$date][] = $pesan;
+                
+                // Tandai pesan sebagai dibaca oleh mahasiswa
+                GrupPesanRead::updateOrCreate(
+                    [
+                        'grup_pesan_id' => $pesan->id,
+                        'user_id' => $mahasiswa->nim,
+                        'user_type' => 'mahasiswa'
+                    ],
+                    ['read' => true]
+                );
             }
             
             // Urutkan tanggal (dari paling lama ke paling baru)
@@ -301,6 +341,32 @@ class MahasiswaController extends Controller
         }
         
         $pesan->save();
+        
+        // Buat record di grup_pesan_reads
+        // Tandai sebagai belum dibaca untuk semua anggota grup kecuali pengirim
+        
+        // Untuk semua mahasiswa di grup
+        foreach ($grup->mahasiswa as $mahasiswaItem) {
+            // Jangan buat record untuk pengirim
+            if ($mahasiswaItem->nim == $mahasiswa->nim) {
+                continue;
+            }
+            
+            GrupPesanRead::create([
+                'grup_pesan_id' => $pesan->id,
+                'user_id' => $mahasiswaItem->nim,
+                'user_type' => 'mahasiswa',
+                'read' => false
+            ]);
+        }
+        
+        // Tandai belum dibaca untuk dosen
+        GrupPesanRead::create([
+            'grup_pesan_id' => $pesan->id,
+            'user_id' => $grup->dosen_id,
+            'user_type' => 'dosen',
+            'read' => false
+        ]);
         
         return response()->json([
             'success' => true,

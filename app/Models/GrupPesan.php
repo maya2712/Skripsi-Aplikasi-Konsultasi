@@ -37,6 +37,12 @@ class GrupPesan extends Model
         return $this->belongsTo(Mahasiswa::class, 'pengirim_id', 'nim');
     }
     
+    // Relasi ke status membaca pesan
+    public function readStatus()
+    {
+        return $this->hasMany(GrupPesanRead::class, 'grup_pesan_id');
+    }
+    
     // Accessor untuk waktu
     public function getCreatedAtAttribute($value)
     {

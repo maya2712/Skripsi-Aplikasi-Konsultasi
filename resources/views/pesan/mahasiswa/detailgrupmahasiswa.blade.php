@@ -207,7 +207,9 @@
         color: rgba(255, 255, 255, 0.7);
         font-size: 12px;
         text-align: right;
-        margin-top: 8px;
+        margin-top: 5px;
+        width: 100%;
+        display: block;
     }
     
     .chat-message {
@@ -241,6 +243,14 @@
         color: white;
         border-radius: 15px 15px 3px 15px;
         margin-left: auto;
+        min-width: 80px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-message.mahasiswa p {
+        margin-bottom: 0;
+        word-break: break-word;
     }
     
     /* Pesan dari mahasiswa lain */
@@ -248,6 +258,14 @@
         background-color: #585f67;
         color: white;
         border-radius: 15px 15px 15px 3px;
+        min-width: 80px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-message.mahasiswa-lain p {
+        margin-bottom: 0;
+        word-break: break-word;
     }
     
     /* Pesan dari dosen */
@@ -255,6 +273,14 @@
         background-color: #585f67;
         color: white;
         border-radius: 15px 15px 15px 3px;
+        min-width: 80px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-message.dosen p {
+        margin-bottom: 0;
+        word-break: break-word;
     }
     
     .sender-name {
@@ -305,51 +331,55 @@
         <div class="row g-4">
             <!-- Sidebar -->
             <div class="col-md-3">
-                <div class="sidebar">
-                    <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesanmahasiswa') }}" class="btn" style="background: var(--primary-gradient); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
-                            <i class="fas fa-plus me-2"></i> Pesan Baru
-                        </a>
-                    </div>                                                    
+                <div class="sidebar">                                                 
                     
-                    <div class="sidebar-menu">
-                        <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesanmahasiswa') }}" class="nav-link">
-                                <i class="fas fa-home me-2"></i>Daftar Pesan
+                    <!-- Sidebar dengan Notifikasi Pesan Belum Dibaca -->
+                    <div class="sidebar">
+                        <div class="sidebar-buttons">
+                            <a href="{{ url('/buatpesanmahasiswa') }}" class="btn" style="background: var(--primary-gradient); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                                <i class="fas fa-plus me-2"></i> Pesan Baru
                             </a>
-                            <a href="#" class="nav-link menu-item active" id="grupDropdownToggle">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
-                                    <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
-                                </div>
-                            </a>
-                            <div class="collapse show komunikasi-submenu" id="komunikasiSubmenu">
-                                @php
-                                    $grups = Auth::user()->grups;
-                                @endphp
-                                
-                                @if($grups && $grups->count() > 0)
-                                    @foreach($grups as $grupItem)
-                                    <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center {{ $grupItem->id == $grup->id ? 'active' : '' }}">
-                                        {{ $grupItem->nama_grup }}
-                                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
-                                        <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
-                                        @endif
-                                    </a>
-                                    @endforeach
-                                @else
-                                    <div class="nav-link menu-item text-muted">
-                                        <small>Belum ada grup</small>
+                        </div>                                                    
+                        
+                        <div class="sidebar-menu">
+                            <div class="nav flex-column">
+                                <a href="{{ url('/dashboardpesanmahasiswa') }}" class="nav-link">
+                                    <i class="fas fa-home me-2"></i>Daftar Pesan
+                                </a>
+                                <a href="#" class="nav-link menu-item active" id="grupDropdownToggle">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
+                                        <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
                                     </div>
-                                @endif
+                                </a>
+                                <div class="collapse show komunikasi-submenu" id="komunikasiSubmenu">
+                                    @php
+                                        $grups = Auth::user()->grups;
+                                    @endphp
+                                    
+                                    @if($grups && $grups->count() > 0)
+                                        @foreach($grups as $grupItem)
+                                        <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center {{ $grupItem->id == $grup->id ? 'active' : '' }}">
+                                            {{ $grupItem->nama_grup }}
+                                            @if(isset($grupItem->unreadMessages) && $grupItem->unreadMessages > 0)
+                                            <span class="badge bg-danger rounded-pill">{{ $grupItem->unreadMessages }}</span>
+                                            @endif
+                                        </a>
+                                        @endforeach
+                                    @else
+                                        <div class="nav-link menu-item text-muted">
+                                            <small>Belum ada grup</small>
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <a href="{{ url('/riwayatpesanmahasiswa') }}" class="nav-link menu-item">
+                                    <i class="fas fa-history me-2"></i>Riwayat Pesan
+                                </a>
+                                <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
+                                    <i class="fas fa-question-circle me-2"></i>FAQ
+                                </a>
                             </div>
-                            
-                            <a href="{{ url('/riwayatpesanmahasiswa') }}" class="nav-link menu-item">
-                                <i class="fas fa-history me-2"></i>Riwayat Pesan
-                            </a>
-                            <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
-                                <i class="fas fa-question-circle me-2"></i>FAQ
-                            </a>
                         </div>
                     </div>
                 </div>

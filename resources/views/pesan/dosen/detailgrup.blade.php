@@ -294,6 +294,7 @@
                         </a>
                     </div>                                                    
                     
+                    <!-- Sidebar Menu dengan Notifikasi Pesan Belum Dibaca -->
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
                             <a href="{{ route('dosen.dashboard.pesan') }}" class="nav-link">
@@ -318,8 +319,8 @@
                                     @foreach($grups as $grupItem)
                                     <a href="{{ route('dosen.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center {{ $grupItem->id == $grup->id ? 'active' : '' }}">
                                         {{ $grupItem->nama_grup }}
-                                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
-                                        <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                                        @if(isset($grupItem->unreadCount) && $grupItem->unreadCount > 0)
+                                        <span class="badge bg-danger rounded-pill">{{ $grupItem->unreadCount }}</span>
                                         @endif
                                     </a>
                                     @endforeach

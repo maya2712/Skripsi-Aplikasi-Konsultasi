@@ -104,6 +104,7 @@
         margin-bottom: 20px;
         border: none;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
     }
     
     .grup-card:hover {
@@ -171,8 +172,8 @@
                                     @foreach($grups as $grupItem)
                                     <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
                                         {{ $grupItem->nama_grup }}
-                                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
-                                        <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                                        @if(isset($grupItem->unreadMessages) && $grupItem->unreadMessages > 0)
+                                        <span class="badge bg-danger rounded-pill">{{ $grupItem->unreadMessages }}</span>
                                         @endif
                                     </a>
                                     @endforeach
@@ -214,8 +215,8 @@
                                         </div>
                                         <div class="grup-info">
                                             <span><i class="fas fa-calendar-alt me-2"></i>{{ $grup->created_at->format('d M Y') }}</span>
-                                            @if($unreadCount = $grup->unreadMessages ?? 0)
-                                            <span class="badge badge-custom bg-danger">{{ $unreadCount }} pesan baru</span>
+                                            @if($grup->unreadCount > 0)
+                                            <span class="badge badge-custom bg-danger">{{ $grup->unreadCount }} pesan baru</span>
                                             @else
                                             <span class="badge badge-custom bg-success">Sudah dibaca</span>
                                             @endif

@@ -5,16 +5,44 @@ namespace App\Http\Controllers;
 use App\Models\Grup;
 use App\Models\Mahasiswa;
 use App\Models\GrupPesan;
+use App\Models\GrupPesanRead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GrupController extends Controller
 {
+    // Tambahkan method untuk mendapatkan jumlah pesan belum dibaca
+    public function getUnreadCount($grupId)
+    {
+        $dosen = Auth::user();
+        
+        // Hitung jumlah pesan grup yang belum dibaca oleh dosen
+        $unreadCount = GrupPesan::where('grup_id', $grupId)
+            ->whereNotExists(function ($query) use ($dosen) {
+                $query->select(DB::raw(1))
+                      ->from('grup_pesan_reads')
+                      ->whereRaw('grup_pesan_reads.grup_pesan_id = grup_pesan.id')
+                      ->where('user_id', $dosen->nip)
+                      ->where('user_type', 'dosen')
+                      ->where('read', true);
+            })
+            ->where('pengirim_id', '!=', $dosen->nip) // Jangan hitung pesan yang dikirim oleh dosen sendiri
+            ->count();
+        
+        return $unreadCount;
+    }
+    
     // Tampilkan daftar grup dosen
     public function index()
     {
         $dosen = Auth::user();
         $grups = Grup::where('dosen_id', $dosen->nip)->get();
+        
+        // Tambahkan unread count untuk setiap grup
+        foreach ($grups as $grup) {
+            $grup->unreadCount = $this->getUnreadCount($grup->id);
+        }
         
         return view('pesan.dosen.daftargrup', compact('grups'));
     }
@@ -53,22 +81,35 @@ class GrupController extends Controller
     // Lihat detail grup
     public function show($id)
     {
-        $grup = Grup::with(['mahasiswa', 'pesan'])->findOrFail($id);
+        $grup = Grup::with('mahasiswa')->findOrFail($id);
+        $dosen = Auth::user();
         
         // Pastikan dosen yang melihat adalah pemilik grup
-        if ($grup->dosen_id != Auth::user()->nip) {
+        if ($grup->dosen_id != $dosen->nip) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini');
         }
         
+        // Ambil semua pesan grup
+        $pesans = GrupPesan::where('grup_id', $id)->orderBy('created_at', 'asc')->get();
+        
         // Kelompokkan pesan berdasarkan tanggal
         $grupPesanByDate = [];
-        
-        foreach ($grup->pesan as $pesan) {
+        foreach ($pesans as $pesan) {
             $date = $pesan->created_at->format('Y-m-d');
             if (!isset($grupPesanByDate[$date])) {
                 $grupPesanByDate[$date] = [];
             }
             $grupPesanByDate[$date][] = $pesan;
+            
+            // Tandai pesan sebagai dibaca oleh dosen
+            GrupPesanRead::updateOrCreate(
+                [
+                    'grup_pesan_id' => $pesan->id,
+                    'user_id' => $dosen->nip,
+                    'user_type' => 'dosen'
+                ],
+                ['read' => true]
+            );
         }
         
         // Urutkan tanggal (dari paling lama ke paling baru)
@@ -93,7 +134,7 @@ class GrupController extends Controller
                          ->with('success', 'Grup berhasil dihapus');
     }
 
-    // Tambahkan method di GrupController.php
+    // Tambah anggota grup
     public function addMember(Request $request, $id)
     {
         $request->validate([
@@ -115,7 +156,7 @@ class GrupController extends Controller
                         ->with('success', 'Anggota berhasil ditambahkan ke grup');
     }
 
-    // hapusAnggota
+    // Hapus anggota grup
     public function hapusAnggota($id, $mahasiswa_id)
     {
         $grup = Grup::findOrFail($id);
@@ -159,6 +200,34 @@ class GrupController extends Controller
         }
         
         $pesan->save();
+        
+        // Buat record di grup_pesan_reads
+        // Tandai sebagai belum dibaca untuk semua anggota grup kecuali pengirim
+        
+        // Untuk semua mahasiswa di grup
+        foreach ($grup->mahasiswa as $mahasiswa) {
+            // Jangan buat record untuk pengirim (jika pengirim adalah mahasiswa)
+            if ($pesan->tipe_pengirim == 'mahasiswa' && $pesan->pengirim_id == $mahasiswa->nim) {
+                continue;
+            }
+            
+            GrupPesanRead::create([
+                'grup_pesan_id' => $pesan->id,
+                'user_id' => $mahasiswa->nim,
+                'user_type' => 'mahasiswa',
+                'read' => false
+            ]);
+        }
+        
+        // Jika pengirim bukan dosen, tandai belum dibaca untuk dosen juga
+        if ($pesan->tipe_pengirim != 'dosen') {
+            GrupPesanRead::create([
+                'grup_pesan_id' => $pesan->id,
+                'user_id' => $grup->dosen_id,
+                'user_type' => 'dosen',
+                'read' => false
+            ]);
+        }
         
         return response()->json([
             'success' => true,
