@@ -820,7 +820,7 @@
                             </div>
                             <p>{{ $message->isi_pesan }}</p>
                             <div class="message-time">
-                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                 <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
                                 <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
                             </div>
@@ -835,7 +835,7 @@
                             </div>
                             <p>{{ $message->isi_pesan }}</p>
                             <div class="message-time">
-                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                 <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
                                 <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
                             </div>
@@ -852,7 +852,7 @@
                             </div>
                             <p>{{ $message->isi_balasan }}</p>
                             <div class="message-time">
-                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                               {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                 <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
                                 <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
                             </div>
@@ -867,7 +867,7 @@
                             </div>
                             <p>{{ $message->isi_balasan }}</p>
                             <div class="message-time">
-                                {{ Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                 <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
                                 <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
                             </div>

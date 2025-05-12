@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Pesan Admin')
+@section('title', 'Dashboard Admin')
 
 @push('styles')
 <style>
@@ -41,18 +41,6 @@
         max-height: calc(100vh - 100px);
     }
 
-    .sidebar-buttons {
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .sidebar-buttons .btn {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-
     .sidebar-menu {
         padding: 15px;
     }
@@ -79,82 +67,6 @@
     .badge-notification {
         background: var(--bs-danger);
     }
-
-    /* Tabel style */
-    .table-header {
-        background-color: #222;
-        color: white;
-    }
-    
-    .table-header th {
-        font-weight: normal;
-        vertical-align: middle;
-        padding: 10px 15px;
-        border: 1px solid #444 !important;
-        text-align: center;
-    }
-    
-    .table-striped > tbody > tr:nth-of-type(odd) {
-        background-color: #f9f9f9;
-    }
-    
-    .table-striped > tbody > tr > td {
-        padding: 12px 15px;
-        vertical-align: middle;
-        border: 1px solid #dee2e6 !important;
-        text-align: center;
-    }
-    
-    .table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-    
-    .edit-btn {
-        background-color: #ffc107;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #000;
-        text-decoration: none;
-        margin: 0 auto;
-        font-size: 12px;
-    }
-
-    .search-filter-card {
-        position: sticky;
-        top: 76px;
-        z-index: 100;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .message-container {
-        max-height: calc(100vh - 320px);
-        overflow-y: auto;
-        padding-right: 10px; 
-    }
-
-    .message-container::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .message-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .message-container::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 10px;
-    }
-    
-    .message-container::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
     
     .custom-container {
         max-width: 1400px;
@@ -169,43 +81,6 @@
         border: none;
     }
     
-    .user-list .card {
-        margin-bottom: 15px;
-    }
-    
-    .user-card.dosen {
-        border-left: 4px solid var(--bs-info);
-    }
-    
-    .user-card.mahasiswa {
-        border-left: 4px solid var(--bs-success);
-    }
-    
-    .user-card.admin {
-        border-left: 4px solid var(--bs-warning);
-    }
-
-    .profile-image {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #f8f9fa;
-    }
-
-    .profile-image-placeholder {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background-color: #e9ecef;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6c757d;
-        font-size: 20px;
-        border: 2px solid #f8f9fa;
-    }
-    
     .stats-card {
         transition: all 0.3s ease;
     }
@@ -215,41 +90,141 @@
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
     
-    .action-buttons .btn {
-        margin-right: 5px;
-    }
-    
-    /* Style untuk card pesan seperti di dashboard mahasiswa */
-    .message-card {
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-radius: 10px;
-    }
-    
-    .message-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    
-    .message-card.penting {
-        border-left: 4px solid var(--bs-danger);
-    }
-    
-    .message-card.umum {
-        border-left: 4px solid var(--bs-success);
-    }
-    
-    .message-card.akademik {
-        border-left: 4px solid var(--bs-primary);
-    }
-    
-    .message-card.pengumuman {
-        border-left: 4px solid var(--bs-warning);
-    }
-    
     .stats-cards .card {
         height: 100%;
         margin-bottom: 0;
+    }
+    
+    .welcome-banner {
+        background: linear-gradient(135deg, #1a73e8, #6c49e3);
+        color: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 100%;
+        background: url('https://via.placeholder.com/200') no-repeat;
+        background-size: cover;
+        opacity: 0.1;
+    }
+    
+    .welcome-banner h4 {
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 24px;
+    }
+    
+    .notification-card {
+        border-left: 4px solid var(--bs-warning);
+        transition: all 0.2s ease;
+        margin-bottom: 12px;
+    }
+    
+    .notification-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .notification-card .card-body {
+        padding: 15px;
+    }
+    
+    .notification-card.dosen {
+        border-left-color: var(--bs-info);
+        background-color: rgba(0, 188, 212, 0.05);
+    }
+    
+    .notification-card.mahasiswa {
+        border-left-color: var(--bs-success);
+        background-color: rgba(39, 174, 96, 0.05);
+    }
+    
+    .notif-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #1a73e8;
+    }
+    
+    .notif-header h5 {
+        margin-bottom: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .notifications-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .notifications-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .notifications-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .notifications-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+    
+    .notifications-container::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+    }
+    
+    .empty-notif {
+        padding: 40px 20px;
+        text-align: center;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .empty-notif i {
+        font-size: 40px;
+        color: #ccc;
+        margin-bottom: 15px;
+    }
+    
+    .empty-notif p {
+        color: #777;
+        margin-bottom: 0;
+    }
+    
+    .profile-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+        margin-right: 15px;
+    }
+    
+    .profile-icon.dosen {
+        background-color: var(--bs-info);
+    }
+    
+    .profile-icon.mahasiswa {
+        background-color: var(--bs-success);
     }
 </style>
 @endpush
@@ -258,15 +233,9 @@
 <div class="main-content">
     <div class="custom-container">
         <div class="row g-4">
-            <!-- Sidebar - Dipertahankan persis seperti aslinya -->
+            <!-- Sidebar - Tanpa tombol -->
             <div class="col-md-3">
                 <div class="sidebar">
-                    <div class="sidebar-buttons">
-                        <a href="{{ url('/addmessage_admin') }}" class="btn w-100" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
-                            <i class="fas fa-plus me-2"></i> Pesan Baru
-                        </a>                        
-                    </div>                                                    
-                    
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
                             <a href="{{ route('admin.dashboard') }}" class="nav-link active">
@@ -314,7 +283,7 @@
                 </div>
             </div>
 
-            <!-- Main Content - Redesigned to match mahasiswa dashboard style -->
+            <!-- Main Content - Redesigned sesuai fungsi admin -->
             <div class="col-md-9">
                 <!-- Notifikasi sukses dengan desain modern -->
                 @if(session('success'))
@@ -327,215 +296,166 @@
                 </div>
                 @endif
                 
-                <!-- Stats Cards - Mirip dengan dashboard mahasiswa -->
+                <!-- Welcome Banner yang lebih besar dan menarik (tanpa tombol) -->
+                <div class="welcome-banner">
+                    <h4>Selamat Datang, Admin!</h4>
+                </div>
+                
+                <!-- Stats Cards - Fokus pada jumlah user (hanya Total Dosen, Total Mahasiswa, Reset Password) -->
                 <div class="stats-cards row g-3 mb-4">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1">Pesan Hari Ini</h6>
+                                    <h6 class="text-muted mb-1">Total Dosen</h6>
                                     <h3 class="mb-0 fs-4">56</h3>
                                 </div>
                                 <div class="bg-primary bg-opacity-10 p-3 rounded">
-                                    <i class="fas fa-envelope text-primary"></i>
+                                    <i class="fas fa-chalkboard-teacher text-primary"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1">Belum Dibaca</h6>
-                                    <h3 class="mb-0 fs-4">23</h3>
-                                </div>
-                                <div class="bg-danger bg-opacity-10 p-3 rounded">
-                                    <i class="fas fa-envelope-open text-danger"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card h-100 stats-card">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="text-muted mb-1">Total Pesan</h6>
-                                    <h3 class="mb-0 fs-4">215</h3>
+                                    <h6 class="text-muted mb-1">Total Mahasiswa</h6>
+                                    <h3 class="mb-0 fs-4">238</h3>
                                 </div>
                                 <div class="bg-success bg-opacity-10 p-3 rounded">
-                                    <i class="fas fa-inbox text-success"></i>
+                                    <i class="fas fa-user-graduate text-success"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1">Total Grup</h6>
-                                    <h3 class="mb-0 fs-4">24</h3>
+                                    <h6 class="text-muted mb-1">Reset Password</h6>
+                                    <h3 class="mb-0 fs-4">12</h3>
                                 </div>
-                                <div class="bg-info bg-opacity-10 p-3 rounded">
-                                    <i class="fas fa-users text-info"></i>
+                                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-key text-warning"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Search and Filters - Mirip dengan dashboard mahasiswa -->
-                <div class="card mb-4 search-filter-card">
+                
+                <!-- Notifications Section (Disederhanakan tanpa "Lihat Semua") -->
+                <div class="card">
                     <div class="card-body">
-                        <div class="row g-3 align-items-center">
-                            <div class="col-md">
-                                <input type="text" class="form-control" placeholder="Cari Pesan..." style="font-size: 14px;" id="searchInput">
-                            </div>
-                            <div class="col-md-auto">
-                                <div class="btn-group">
-                                    <button class="btn btn-outline-danger rounded-pill px-4 py-2 me-2 filter-btn" data-filter="penting" style="font-size: 14px;">Penting</button>
-                                    <button class="btn btn-outline-success rounded-pill px-4 py-2 me-2 filter-btn" data-filter="umum" style="font-size: 14px;">Umum</button>
-                                    <button class="btn btn-primary rounded-pill px-4 py-2 filter-btn" data-filter="semua" style="font-size: 14px;">Semua</button>
-                                </div>
-                            </div>
+                        <div class="notif-header">
+                            <h5><i class="fas fa-bell me-2"></i> Permintaan Reset Password</h5>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Message List - Style mirip dengan dashboard mahasiswa -->
-                <div class="message-list">
-                    <!-- Message 1 - Penting - Belum dibaca -->
-                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/viewmessage_admin') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
+                        
+                        <div class="notifications-container">
+                            <!-- Permintaan Reset dari Dosen -->
+                            <div class="notification-card dosen">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="profile-icon dosen">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Dr. Ahmad Fauzi</h6>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-info me-2">Dosen</span>
+                                                <small class="text-muted">NIP: D003</small>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3 d-flex flex-column align-items-end">
+                                            <span class="badge bg-danger mb-2">15 menit lalu</span>
+                                            <button class="btn btn-primary btn-sm">
+                                                <i class="fas fa-check me-1"></i>Proses
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-primary mb-1">Bimbingan Skripsi</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Ahmad Fauzi, S.Kom., M.Kom.</h6>
-                                        <small class="text-muted">Dosen Tetap</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-danger me-1">Belum dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">20 Apr 2025, 08:12</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Message 2 - Umum - Sudah dibaca -->
-                    <div class="card mb-2 message-card umum" onclick="window.location.href='{{ url('/viewmessage_admin') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user-graduate"></i>
+                            
+                            <!-- Permintaan Reset dari Mahasiswa -->
+                            <div class="notification-card mahasiswa">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="profile-icon mahasiswa">
+                                            <i class="fas fa-user-graduate"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Ahmad Rizaldi</h6>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">Mahasiswa</span>
+                                                <small class="text-muted">NIM: 2023005</small>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3 d-flex flex-column align-items-end">
+                                            <span class="badge bg-danger mb-2">45 menit lalu</span>
+                                            <button class="btn btn-primary btn-sm">
+                                                <i class="fas fa-check me-1"></i>Proses
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-warning mb-1">Konsultasi</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dinda Pratiwi</h6>
-                                        <small class="text-muted">Mahasiswa</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-success">Umum</span>
-                                    <small class="d-block text-muted my-1">19 Apr 2025, 15:43</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Message 3 - Penting - Belum dibaca -->
-                    <div class="card mb-2 message-card penting" onclick="window.location.href='{{ url('/viewmessage_admin') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user-shield"></i>
+                            
+                            <!-- Permintaan Reset dari Dosen -->
+                            <div class="notification-card dosen">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="profile-icon dosen">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Dr. Siti Rahayu</h6>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-info me-2">Dosen</span>
+                                                <small class="text-muted">NIP: D005</small>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3 d-flex flex-column align-items-end">
+                                            <span class="badge bg-secondary mb-2">3 jam lalu</span>
+                                            <button class="btn btn-primary btn-sm">
+                                                <i class="fas fa-check me-1"></i>Proses
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-danger mb-1">Sistem</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Admin Sistem</h6>
-                                        <small class="text-muted">Pengumuman: Pemeliharaan Sistem</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-danger me-1">Belum dibaca</span>
-                                    <span class="badge bg-danger">Penting</span>
-                                    <small class="d-block text-muted my-1">19 Apr 2025, 09:15</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Message 4 - Akademik -->
-                    <div class="card mb-2 message-card akademik" onclick="window.location.href='{{ url('/viewmessage_admin') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-user"></i>
+                            
+                            <!-- Permintaan Reset dari Mahasiswa -->
+                            <div class="notification-card mahasiswa">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="profile-icon mahasiswa">
+                                            <i class="fas fa-user-graduate"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Dinda Pratiwi</h6>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">Mahasiswa</span>
+                                                <small class="text-muted">NIM: 2022007</small>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3 d-flex flex-column align-items-end">
+                                            <span class="badge bg-secondary mb-2">5 jam lalu</span>
+                                            <button class="btn btn-primary btn-sm">
+                                                <i class="fas fa-check me-1"></i>Proses
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-info mb-1">Akademik</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Dr. Siti Rahayu, M.T.</h6>
-                                        <small class="text-muted">Dosen Tetap</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-info">Akademik</span>
-                                    <small class="d-block text-muted my-1">18 Apr 2025, 10:30</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Message 5 - Pengumuman -->
-                    <div class="card mb-2 message-card pengumuman" onclick="window.location.href='{{ url('/viewmessage_admin') }}'">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8 d-flex align-items-center">
-                                    <div class="profile-image-placeholder me-3">
-                                        <i class="fas fa-bullhorn"></i>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-warning mb-1">Pengumuman</span>
-                                        <h6 class="mb-1" style="font-size: 14px;">Jadwal UAS Semester Genap</h6>
-                                        <small class="text-muted">BAAK Universitas</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <span class="badge bg-success me-1">Sudah dibaca</span>
-                                    <span class="badge bg-warning">Pengumuman</span>
-                                    <small class="d-block text-muted my-1">17 Apr 2025, 14:15</small>
-                                    <button class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
-                                        <i class="fas fa-eye me-1"></i>Lihat
-                                    </button>
-                                </div>
+                            
+                            <!-- Jika Tidak Ada Notifikasi -->
+                            <!--
+                            <div class="empty-notif">
+                                <i class="fas fa-bell-slash d-block"></i>
+                                <p>Tidak ada permintaan reset password saat ini</p>
                             </div>
+                            -->
                         </div>
-                    </div>
-
-                    <!-- Pesan pencarian tidak tersedia -->
-                    <div id="no-results" class="text-center py-4" style="display: none;">
-                        <p class="text-muted">Pesan tidak tersedia</p>
                     </div>
                 </div>
             </div>
@@ -592,86 +512,6 @@ document.addEventListener('DOMContentLoaded', function() {
             userManagementIcon.classList.toggle('fa-chevron-up');
             userManagementIcon.classList.toggle('fa-chevron-down');
         });
-    }
-    
-    // Tombol filter
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Hapus class active dari semua tombol
-            filterButtons.forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.classList.contains('btn-primary')) {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-outline-primary');
-                }
-            });
-            
-            // Tambahkan class active ke tombol yang diklik
-            this.classList.add('active');
-            if (this.classList.contains('btn-outline-primary') || 
-                this.classList.contains('btn-outline-danger') || 
-                this.classList.contains('btn-outline-success')) {
-                this.classList.remove('btn-outline-primary');
-                this.classList.remove('btn-outline-danger');
-                this.classList.remove('btn-outline-success');
-                this.classList.add('btn-primary');
-            }
-            
-            // Filter pesan berdasarkan tombol yang diklik
-            const filter = this.getAttribute('data-filter');
-            filterMessages(filter);
-        });
-    });
-
-    // Fungsi filter pesan
-    function filterMessages(filter) {
-        const messageCards = document.querySelectorAll('.message-card');
-        let visibleCount = 0;
-        
-        messageCards.forEach(card => {
-            const isPenting = card.classList.contains('penting');
-            const isUmum = card.classList.contains('umum');
-            
-            if (filter === 'semua' || 
-                (filter === 'penting' && isPenting) || 
-                (filter === 'umum' && isUmum)) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai filter
-        document.getElementById('no-results').style.display = visibleCount === 0 ? 'block' : 'none';
-    }
-
-    // Pencarian pesan
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        searchMessages(searchTerm);
-    });
-
-    // Fungsi pencarian pesan
-    function searchMessages(searchTerm) {
-        const messageCards = document.querySelectorAll('.message-card');
-        let visibleCount = 0;
-        
-        messageCards.forEach(card => {
-            const messageText = card.textContent.toLowerCase();
-            
-            if (messageText.includes(searchTerm)) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai pencarian
-        document.getElementById('no-results').style.display = visibleCount === 0 ? 'block' : 'none';
     }
 });
 </script>

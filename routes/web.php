@@ -134,6 +134,9 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
     // Route untuk Grup Mahasiswa - BARU
     Route::get('/daftargrupmahasiswa', [MahasiswaController::class, 'getGrupMahasiswa'])->name('mahasiswa.grup.index');
     Route::get('/detailgrupmahasiswa/{id}', [MahasiswaController::class, 'getDetailGrup'])->name('mahasiswa.grup.show');
+    // Route untuk kirim pesan grup oleh mahasiswa
+    Route::post('/mahasiswa/kirim-pesan-grup/{id}', [MahasiswaController::class, 'sendMessageGrup'])
+        ->name('mahasiswa.grup.sendMessage');
 
     Route::controller(MahasiswaController::class)->group(function () {
         Route::get('/usulanbimbingan', 'index')->name('mahasiswa.usulanbimbingan');
@@ -238,6 +241,9 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
     Route::delete('/hapusgrup/{id}', [App\Http\Controllers\GrupController::class, 'destroy'])->name('dosen.grup.destroy');
     Route::post('/tambah-anggota-grup/{id}', [App\Http\Controllers\GrupController::class, 'addMember'])->name('dosen.grup.addMember');
     Route::delete('/grupanggota/hapus/{id}/{mahasiswa_id}', [App\Http\Controllers\GrupController::class, 'hapusAnggota']);
+    // Route untuk kirim pesan grup oleh dosen
+    Route::post('/kirim-pesan-grup/{id}', [App\Http\Controllers\GrupController::class, 'sendMessage'])
+        ->name('dosen.grup.sendMessage');
 });
 
 // Pastikan routes sudah ada di web.php dalam grup admin

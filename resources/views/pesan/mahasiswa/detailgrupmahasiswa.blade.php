@@ -8,6 +8,8 @@
         --bs-primary: #1a73e8;
         --bs-danger: #FF5252;
         --bs-success: #27AE60;
+        --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
+        --primary-hover: linear-gradient(to right, #003c8a, #4bc4c9);
     }
     
     body {
@@ -106,20 +108,20 @@
     }
     
     .btn-gradient-primary {
-        background: linear-gradient(to right, #004AAD, #5DE0E6);
+        background: var(--primary-gradient);
         border: none;
         color: white;
         transition: all 0.3s ease;
     }
 
     .btn-gradient-primary:hover {
-        background: linear-gradient(to right, #003c8a, #4bc4c9);
+        background: var(--primary-hover);
         color: white;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     
     .group-header {
-        background: linear-gradient(to right, #004AAD, #5DE0E6);
+        background: var(--primary-gradient);
         color: white;
         border-radius: 10px;
         padding: 20px;
@@ -134,7 +136,9 @@
         background-color: white;
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        padding: 15px;
+        padding: 15px 20px;
+        display: flex;
+        flex-direction: column;
     }
     
     .message-input {
@@ -197,6 +201,101 @@
     .message-container::-webkit-scrollbar-thumb:hover {
         background: #555;
     }
+    
+    /* Style baru untuk chat bubble sesuai dengan halaman isi pesan */
+    .message-time {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 12px;
+        text-align: right;
+        margin-top: 8px;
+    }
+    
+    .chat-message {
+        margin-bottom: 25px;
+        position: relative;
+        max-width: 85%;
+        clear: both;
+    }
+    
+    .chat-message:last-child {
+        margin-bottom: 10px;
+    }
+    
+    .message-bubble {
+        padding: 15px 20px;
+        border-radius: 15px;
+        position: relative;
+        word-wrap: break-word;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        width: fit-content;
+        max-width: 85%;
+    }
+    
+    /* Pesan dari mahasiswa yang sedang login (diri sendiri) */
+    .chat-message.mahasiswa {
+        margin-left: auto;
+    }
+    
+    .chat-message.mahasiswa .message-bubble {
+        background-color: #1a73e8;
+        color: white;
+        border-radius: 15px 15px 3px 15px;
+        margin-left: auto;
+    }
+    
+    /* Pesan dari mahasiswa lain */
+    .chat-message.mahasiswa-lain .message-bubble {
+        background-color: #585f67;
+        color: white;
+        border-radius: 15px 15px 15px 3px;
+    }
+    
+    /* Pesan dari dosen */
+    .chat-message.dosen .message-bubble {
+        background-color: #585f67;
+        color: white;
+        border-radius: 15px 15px 15px 3px;
+    }
+    
+    .sender-name {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    
+    .chat-message.dosen .sender-name {
+        color: #5DE0E6; /* Warna toska */
+    }
+    
+    .chat-message.mahasiswa-lain .sender-name {
+        color: #f8ac30; /* Warna orange */
+    }
+    
+    .chat-date-divider {
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+    }
+    
+    .chat-date-divider:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: 1px;
+        background-color: #e9ecef;
+        z-index: 1;
+    }
+    
+    .chat-date-divider span {
+        background-color: white;
+        padding: 0 15px;
+        font-size: 12px;
+        color: #6c757d;
+        position: relative;
+        z-index: 2;
+    }
 </style>
 @endpush
 
@@ -208,7 +307,7 @@
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesanmahasiswa') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                        <a href="{{ url('/buatpesanmahasiswa') }}" class="btn" style="background: var(--primary-gradient); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
                     </div>                                                    
@@ -273,23 +372,71 @@
                 </div>
                 
                 <!-- Chat Content -->
-                <div class="message-container">
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-comments fa-3x mb-3"></i>
-                        <p>Belum ada pesan di grup ini.</p>
-                        <p>Mulai percakapan dengan mengirim pesan!</p>
-                    </div>
+                <div class="message-container" id="messageContainer">
+                    @if(isset($grupPesanByDate) && count($grupPesanByDate) > 0)
+                        @foreach($grupPesanByDate as $date => $pesanList)
+                            <div class="chat-date-divider">
+                                <span data-date="{{ $date }}">{{ \Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
+                            </div>
+                            
+                            @foreach($pesanList as $pesan)
+                                @if($pesan->tipe_pengirim == 'mahasiswa')
+                                    @if($pesan->pengirim_id == Auth::user()->nim)
+                                        <!-- Pesan dari mahasiswa yang sedang login (diri sendiri) -->
+                                        <div class="chat-message mahasiswa">
+                                            <div class="message-bubble">
+                                                <p>{{ $pesan->isi_pesan }}</p>
+                                                <div class="message-time">
+                                                    {{ $pesan->created_at->format('H:i') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <!-- Pesan dari mahasiswa lain -->
+                                        <div class="chat-message mahasiswa-lain">
+                                            <div class="message-bubble">
+                                                <div class="sender-name">{{ $pesan->pengirim->nama ?? 'Mahasiswa' }}</div>
+                                                <p>{{ $pesan->isi_pesan }}</p>
+                                                <div class="message-time">
+                                                    {{ $pesan->created_at->format('H:i') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @else
+                                    <!-- Pesan dari dosen -->
+                                    <div class="chat-message dosen">
+                                        <div class="message-bubble">
+                                            <div class="sender-name">{{ $pesan->pengirim->nama ?? 'Dosen' }}</div>
+                                            <p>{{ $pesan->isi_pesan }}</p>
+                                            <div class="message-time">
+                                                {{ $pesan->created_at->format('H:i') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        @endforeach
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <p>Belum ada pesan di grup ini.</p>
+                            <p>Mulai percakapan dengan mengirim pesan!</p>
+                        </div>
+                    @endif
                 </div>
                 
                 <!-- Message Input -->
                 <div class="message-input">
-                    <form>
+                    <form id="sendMessageForm" enctype="multipart/form-data">
+                        @csrf
+                        <input type="file" id="lampiran" name="lampiran" style="display: none;">
                         <div class="input-group">
-                            <button type="button" class="btn btn-light">
+                            <button type="button" class="btn btn-light" id="attachmentBtn">
                                 <i class="fas fa-paperclip"></i>
                             </button>
-                            <input type="text" class="form-control" placeholder="Tulis Pesan Anda disini..">
-                            <button type="submit" class="btn btn-gradient-primary">
+                            <input type="text" class="form-control" id="messageInput" name="isi_pesan" placeholder="Tulis Pesan Anda disini..">
+                            <button type="submit" class="btn btn-gradient-primary" id="sendBtn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -380,7 +527,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the dropdown manually
+    // Kode dropdown grup yang sudah ada
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
     const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
     const grupDropdownIcon = document.getElementById('grupDropdownIcon');
@@ -395,6 +542,101 @@ document.addEventListener('DOMContentLoaded', function() {
         grupDropdownIcon.classList.toggle('fa-chevron-up');
         grupDropdownIcon.classList.toggle('fa-chevron-down');
     });
+    
+    // Kode baru - Auto scroll ke chat terbaru
+    const messageContainer = document.getElementById('messageContainer');
+    if (messageContainer) {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+    
+    // Kode baru - Kirim pesan
+    const sendMessageForm = document.getElementById('sendMessageForm');
+    const messageInput = document.getElementById('messageInput');
+    const attachmentBtn = document.getElementById('attachmentBtn');
+    const lampiran = document.getElementById('lampiran');
+    
+    // Event saat klik tombol lampiran
+    if (attachmentBtn) {
+        attachmentBtn.addEventListener('click', function() {
+            lampiran.click();
+        });
+    }
+    
+    if (sendMessageForm) {
+        sendMessageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Kirim pesan ke server
+            fetch('{{ route("mahasiswa.grup.sendMessage", $grup->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ isi_pesan: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Buat pesan baru
+                    const today = new Date();
+                    const dateStr = today.toISOString().split('T')[0];
+                    
+                    // Cek apakah sudah ada divider untuk hari ini
+                    let dateDivider = document.querySelector(`.chat-date-divider span[data-date="${dateStr}"]`);
+                    if (!dateDivider) {
+                        // Buat date divider baru jika belum ada
+                        const dividerDiv = document.createElement('div');
+                        dividerDiv.className = 'chat-date-divider';
+                        
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                        const dateDisplay = today.toLocaleDateString('id-ID', options);
+                        
+                        dividerDiv.innerHTML = `<span data-date="${dateStr}">${dateDisplay}</span>`;
+                        messageContainer.appendChild(dividerDiv);
+                    }
+                    
+                    // Tambah pesan baru - selalu sebagai pesan dari diri sendiri (mahasiswa)
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'chat-message mahasiswa'; // Selalu mahasiswa untuk pengirim sendiri
+                    msgDiv.innerHTML = `
+                        <div class="message-bubble">
+                            <p>${data.data.isi_pesan}</p>
+                            <div class="message-time">
+                                ${data.data.created_at}
+                            </div>
+                        </div>
+                    `;
+                    
+                    messageContainer.appendChild(msgDiv);
+                    
+                    // Clear input
+                    messageInput.value = '';
+                    
+                    // Scroll ke pesan terbaru
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                    
+                    // Jika container pesan kosong, hapus pesan "belum ada pesan"
+                    const emptyMessage = messageContainer.querySelector('.text-center.py-5');
+                    if (emptyMessage) {
+                        emptyMessage.remove();
+                    }
+                } else {
+                    alert('Gagal mengirim pesan: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim pesan');
+            });
+        });
+    }
+    
+    // Mungkin nanti bisa ditambahkan kode untuk mengirim lampiran
+    // Misalnya dengan FormData jika perlu mengirim file
 });
 </script>
 @endpush

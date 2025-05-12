@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Models\Grup;
+use App\Models\GrupPesan;
 
 class MahasiswaController extends Controller
 {   
@@ -232,7 +234,7 @@ class MahasiswaController extends Controller
     {
         try {
             $mahasiswa = Auth::user();
-            $grup = \App\Models\Grup::with('mahasiswa')->findOrFail($id);
+            $grup = Grup::with(['mahasiswa', 'pesan'])->findOrFail($id);
             
             // Cek apakah mahasiswa ini anggota grup
             $isMember = $grup->mahasiswa->contains('nim', $mahasiswa->nim);
@@ -241,10 +243,74 @@ class MahasiswaController extends Controller
                 return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini');
             }
             
-            return view('pesan.mahasiswa.detailgrupmahasiswa', compact('grup'));
+            // Kelompokkan pesan berdasarkan tanggal
+            $grupPesanByDate = [];
+            
+            foreach ($grup->pesan as $pesan) {
+                $date = $pesan->created_at->format('Y-m-d');
+                if (!isset($grupPesanByDate[$date])) {
+                    $grupPesanByDate[$date] = [];
+                }
+                $grupPesanByDate[$date][] = $pesan;
+            }
+            
+            // Urutkan tanggal (dari paling lama ke paling baru)
+            ksort($grupPesanByDate);
+            
+            return view('pesan.mahasiswa.detailgrupmahasiswa', compact('grup', 'grupPesanByDate'));
         } catch (\Exception $e) {
             Log::error('Error mendapatkan detail grup: ' . $e->getMessage());
             return back()->with('error', 'Gagal memuat detail grup');
         }
+    }
+
+    // Fungsi untuk mengirim pesan dalam grup dari sisi mahasiswa
+    public function sendMessageGrup(Request $request, $id)
+    {
+        $request->validate([
+            'isi_pesan' => 'required'
+        ]);
+        
+        $grup = Grup::findOrFail($id);
+        $mahasiswa = Auth::user();
+        
+        // Cek apakah mahasiswa adalah anggota grup
+        $isMember = $grup->mahasiswa->contains('nim', $mahasiswa->nim);
+        
+        if (!$isMember) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda bukan anggota grup ini'
+            ], 403);
+        }
+        
+        // Buat pesan baru
+        $pesan = new GrupPesan();
+        $pesan->grup_id = $id;
+        $pesan->pengirim_id = $mahasiswa->nim;
+        $pesan->tipe_pengirim = 'mahasiswa';
+        $pesan->isi_pesan = $request->isi_pesan;
+        
+        // Jika ada lampiran
+        if ($request->hasFile('lampiran')) {
+            // Proses upload file lampiran
+            $file = $request->file('lampiran');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/lampiran', $fileName);
+            $pesan->lampiran = 'storage/lampiran/' . $fileName;
+        }
+        
+        $pesan->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan berhasil dikirim',
+            'data' => [
+                'id' => $pesan->id,
+                'pengirim' => $mahasiswa->nama,
+                'isi_pesan' => $pesan->isi_pesan,
+                'created_at' => $pesan->created_at->format('H:i')
+            ]
+        ]);
     }
 }

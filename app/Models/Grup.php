@@ -28,4 +28,11 @@ class Grup extends Model
         return $this->belongsToMany(Mahasiswa::class, 'grup_mahasiswa', 'grup_id', 'mahasiswa_nim', 'id', 'nim')
                     ->withTimestamps();
     }
+    
+    // Relasi dengan pesan grup
+    public function pesan()
+    {
+        return $this->hasMany(GrupPesan::class, 'grup_id')->orderBy('created_at', 'asc');
+    }
+    
 }

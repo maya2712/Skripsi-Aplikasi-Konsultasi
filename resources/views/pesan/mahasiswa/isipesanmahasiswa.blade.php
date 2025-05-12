@@ -785,7 +785,7 @@
                                         <div class="message-bubble">
                                             <p>{{ $message->isi_pesan }}</p>
                                             <div class="message-time">
-                                                {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                               {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                             </div>
                                         </div>
                                     </div>
@@ -796,7 +796,7 @@
                                             <!-- Hapus container nama pengirim yang ada di dalam bubble chat -->
                                             <p>{{ $message->isi_pesan }}</p>
                                             <div class="message-time">
-                                                {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                             </div>
                                         </div>
                                     </div>
@@ -808,7 +808,7 @@
                                         <div class="message-bubble">
                                             <p>{{ $message->isi_balasan }}</p>
                                             <div class="message-time">
-                                                {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                             </div>
                                         </div>
                                     </div>
@@ -819,7 +819,7 @@
                                             <!-- Hapus container nama pengirim yang ada di dalam bubble chat -->
                                             <p>{{ $message->isi_balasan }}</p>
                                             <div class="message-time">
-                                                {{ \Carbon\Carbon::parse($message->created_at)->format('H:i') }}
+                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
                                             </div>
                                         </div>
                                     </div>

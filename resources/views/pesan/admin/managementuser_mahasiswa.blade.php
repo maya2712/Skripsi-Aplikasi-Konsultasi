@@ -210,11 +210,11 @@
             <!-- Sidebar -->
             <div class="col-md-3">
                 <div class="sidebar">
-                    <div class="sidebar-buttons">
+                    {{-- <div class="sidebar-buttons">
                         <a href="{{ url('/addmessage_admin') }}" class="btn w-100" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
-                    </div>                                                    
+                    </div>                                                     --}}
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
