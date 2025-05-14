@@ -453,31 +453,46 @@ class PesanMahasiswaController extends Controller
     }
     
     // Halaman FAQ
-    public function faq()
-    {
-        // Ambil sematan yang masih aktif dari semua dosen
-        $sematan = PesanSematan::where('aktif', true)
-                            ->where('durasi_sematan', '>', now())
-                            ->orderBy('created_at', 'desc')
-                            ->get();
-        
-        // Kelompokkan sematan berdasarkan kategori
-        $sematanByKategori = [
-            'krs' => [],
-            'kp' => [],
-            'skripsi' => [],
-            'mbkm' => []
-        ];
-        
-        foreach ($sematan as $item) {
-            $sematanByKategori[$item->kategori][] = $item;
-        }
-        
-        return view('pesan.mahasiswa.faq_mahasiswa', [
-            'sematan' => $sematan,
-            'sematanByKategori' => $sematanByKategori
-        ]);
+    /**
+ * Halaman FAQ
+ */
+public function faq()
+{
+    // Ambil sematan yang masih aktif dari semua dosen
+    $sematan = PesanSematan::with('dosen')
+                        ->where('aktif', true)
+                        ->where('durasi_sematan', '>', now())
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+    
+    // Kelompokkan sematan berdasarkan kategori
+    $sematanByKategori = [
+        'krs' => [],
+        'kp' => [],
+        'skripsi' => [],
+        'mbkm' => []
+    ];
+    
+    foreach ($sematan as $item) {
+        $sematanByKategori[$item->kategori][] = $item;
     }
+    
+    // Jika tidak ada sematan, ambil daftar dosen langsung dari tabel dosen
+    if ($sematan->isEmpty()) {
+        $dosenList = Dosen::orderBy('nama')->get(['nip', 'nama']);
+    } else {
+        // Ekstrak daftar dosen dari sematan
+        $dosenList = $sematan->map(function($item) {
+            return $item->dosen;
+        })->unique('nip')->sortBy('nama')->values();
+    }
+    
+    return view('pesan.mahasiswa.faq_mahasiswa', [
+        'sematan' => $sematan,
+        'sematanByKategori' => $sematanByKategori,
+        'dosenList' => $dosenList
+    ]);
+}
     
     /**
      * Method untuk debugging

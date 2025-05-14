@@ -137,6 +137,9 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
     // Route untuk kirim pesan grup oleh mahasiswa
     Route::post('/mahasiswa/kirim-pesan-grup/{id}', [MahasiswaController::class, 'sendMessageGrup'])
         ->name('mahasiswa.grup.sendMessage');
+    // Route untuk debugging grup pesan - BARU
+    Route::get('/debug-grup-messages/{grupId}', [MahasiswaController::class, 'debugGrupUnreadMessages'])
+        ->name('mahasiswa.debug.grup-messages');
 
     Route::controller(MahasiswaController::class)->group(function () {
         Route::get('/usulanbimbingan', 'index')->name('mahasiswa.usulanbimbingan');

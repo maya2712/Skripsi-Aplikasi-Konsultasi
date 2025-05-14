@@ -41,12 +41,12 @@ class GrupController extends Controller
         
         // Tambahkan unread count untuk setiap grup
         foreach ($grups as $grup) {
-            $grup->unreadCount = $this->getUnreadCount($grup->id);
+            // Hitung menggunakan accessor yang telah diperbaiki
+            $grup->unreadCount = $grup->unreadMessages;
         }
         
         return view('pesan.dosen.daftargrup', compact('grups'));
     }
-    
     // Tampilkan form buat grup baru
     public function create()
     {

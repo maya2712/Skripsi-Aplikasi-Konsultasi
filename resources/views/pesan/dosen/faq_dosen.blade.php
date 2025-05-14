@@ -326,10 +326,10 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" data-dosen="Semua Dosen">Semua Dosen</a></li>
-                                <li><a class="dropdown-item" href="#" data-dosen="Irsan Taufik Ali">Dr. Irsan Taufik Ali, S.T., M.T.</a></li>
-                                <li><a class="dropdown-item" href="#" data-dosen="Dian Ramadhani">Dian Ramadhani, S.T., M.T.</a></li>
-                                <li><a class="dropdown-item" href="#" data-dosen="Feri Candra">Dr. Feri Candra, S.T., M.T</a></li>
-                                <li><a class="dropdown-item" href="#" data-dosen="Edi Susilo">Edi Susilo, Spd., M.Kom.,M.Eng</a></li>
+                                
+                                @foreach($dosenList as $dosen)
+                                    <li><a class="dropdown-item" href="#" data-dosen="{{ $dosen->nama }}">{{ $dosen->nama }}</a></li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>

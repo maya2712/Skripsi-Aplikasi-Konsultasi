@@ -20,20 +20,6 @@ class DosenController extends Controller
         $this->googleCalendarController = $googleCalendarController;
     }
 
-    /**
-     * Menampilkan halaman masukkan jadwal
-     */
-    public function index()
-    {
-        $dosen = Auth::guard('dosen')->user();
-        $isConnected = $dosen->hasGoogleCalendarConnected() && !$dosen->isGoogleTokenExpired();
-        
-        return view('bimbingan.dosen.masukkanjadwal', [
-            'isConnected' => $isConnected,
-            'email' => $dosen->email
-        ]);
-    }
-
         /**
          * Menyimpan jadwal baru
          */

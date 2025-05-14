@@ -149,87 +149,103 @@ class PesanDosenController extends Controller
     /**
      * Menampilkan detail pesan
      */
-    public function show($id)
-    {
-        try {
-            $pesan = Pesan::findOrFail($id);
-            $dosen = Auth::user();
-            
-            // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
-            if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
-                return redirect()->route('dosen.dashboard.pesan')
-                    ->with('error', 'Anda tidak memiliki akses ke pesan ini');
-            }
-            
-            // Load relasi balasan secara manual
-            $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
-            $pesan->setRelation('balasan', $balasan);
-            
-            // Log jumlah balasan untuk debug
-            Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
-            
-            // Cek balasan yang belum dibaca
-            $unreadBalasan = $balasan->filter(function($item) {
-                return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
-            })->count();
-            
-            Log::info('Unread balasan count: ' . $unreadBalasan);
-            
-            // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
-            foreach ($pesan->balasan as $balasan) {
-                if ($balasan->tipe_pengirim == 'dosen') {
-                    $dosenPengirim = Dosen::find($balasan->pengirim_id);
-                    $balasan->pengirimData = $dosenPengirim;
-                } else {
-                    $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
-                    $balasan->pengirimData = $mahasiswaPengirim;
-                }
-            }
-            
-            // Kelompokkan balasan berdasarkan tanggal
-            $balasanByDate = [];
-            
-            // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
-            $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
-            $balasanByDate[$dateAwal][] = $pesan;
-            
-            // Tambahkan semua balasan ke grup berdasarkan tanggal
-            foreach ($pesan->balasan as $balasan) {
-                $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
-                if (!isset($balasanByDate[$date])) {
-                    $balasanByDate[$date] = [];
-                }
-                $balasanByDate[$date][] = $balasan;
-            }
-            
-            // Urutkan tanggal (dari paling lama)
-            ksort($balasanByDate);
-            
-            // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
-            if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
-                $pesan->dibaca = true;
-                $pesan->save();
-                
-                Log::info('Marked message as read: ' . $pesan->id);
-            }
-            
-            // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
-            // Gunakan direct query untuk update balasan yang belum dibaca
-            $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
-                ->where('tipe_pengirim', 'mahasiswa')
-                ->where('dibaca', false)
-                ->update(['dibaca' => true]);
-                
-            Log::info('Updated ' . $updatedCount . ' unread replies to read');
-            
-            return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
-        } catch (\Exception $e) {
-            Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-            
+    /**
+ * Menampilkan detail pesan
+ */
+public function show($id)
+{
+    try {
+        $pesan = Pesan::findOrFail($id);
+        $dosen = Auth::user();
+        
+        // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
+        if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
             return redirect()->route('dosen.dashboard.pesan')
-                ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
+                ->with('error', 'Anda tidak memiliki akses ke pesan ini');
         }
+        
+        // Load relasi balasan secara manual
+        $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+        $pesan->setRelation('balasan', $balasan);
+        
+        // Log jumlah balasan untuk debug
+        Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
+        
+        // Cek balasan yang belum dibaca
+        $unreadBalasan = $balasan->filter(function($item) {
+            return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
+        })->count();
+        
+        Log::info('Unread balasan count: ' . $unreadBalasan);
+        
+        // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
+        foreach ($pesan->balasan as $balasan) {
+            if ($balasan->tipe_pengirim == 'dosen') {
+                $dosenPengirim = Dosen::find($balasan->pengirim_id);
+                $balasan->pengirimData = $dosenPengirim;
+            } else {
+                $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
+                $balasan->pengirimData = $mahasiswaPengirim;
+            }
+        }
+        
+        // Kelompokkan balasan berdasarkan tanggal
+        $balasanByDate = [];
+        
+        // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
+        $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
+        $balasanByDate[$dateAwal][] = $pesan;
+        
+        // Tambahkan semua balasan ke grup berdasarkan tanggal
+        foreach ($pesan->balasan as $balasan) {
+            $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
+            if (!isset($balasanByDate[$date])) {
+                $balasanByDate[$date] = [];
+            }
+            $balasanByDate[$date][] = $balasan;
+        }
+        
+        // Urutkan tanggal (dari paling lama)
+        ksort($balasanByDate);
+        
+        // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
+        if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
+            $pesan->dibaca = true;
+            $pesan->save();
+            
+            Log::info('Marked message as read: ' . $pesan->id);
+        }
+        
+        // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
+        // Gunakan direct query untuk update balasan yang belum dibaca
+        $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
+            ->where('tipe_pengirim', 'mahasiswa')
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+            
+        Log::info('Updated ' . $updatedCount . ' unread replies to read');
+        
+        // Tambahkan informasi apakah pesan dan balasan sudah disematkan
+        $pesan->is_pinned = PesanSematan::where('jenis_pesan', 'pesan')
+            ->where('pesan_id', $pesan->id)
+            ->where('aktif', true)
+            ->exists();
+        
+        foreach ($pesan->balasan as $balasan) {
+            $balasan->is_pinned = PesanSematan::where('jenis_pesan', 'balasan')
+                ->where('balasan_id', $balasan->id)
+                ->where('aktif', true)
+                ->exists();
+        }
+        
+        return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
+    } catch (\Exception $e) {
+        Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+        
+        return redirect()->route('dosen.dashboard.pesan')
+            ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
     }
+}
     
     /**
      * Mengirim balasan pesan
@@ -504,11 +520,12 @@ class PesanDosenController extends Controller
     {
         $dosen = Auth::user();
         
-        // Ambil sematan yang masih aktif
-        $sematan = PesanSematan::where('aktif', true)
-                            ->where('durasi_sematan', '>', now())
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+        // Ambil sematan yang masih aktif dengan eager loading relasi dosen
+        $sematan = PesanSematan::with('dosen')
+                        ->where('aktif', true)
+                        ->where('durasi_sematan', '>', now())
+                        ->orderBy('created_at', 'desc')
+                        ->get();
         
         // Kelompokkan sematan berdasarkan kategori
         $sematanByKategori = [
@@ -522,9 +539,15 @@ class PesanDosenController extends Controller
             $sematanByKategori[$item->kategori][] = $item;
         }
         
+        // Ekstrak daftar dosen dari sematan dan hilangkan duplikat
+        $dosenList = $sematan->map(function($item) {
+            return $item->dosen;
+        })->unique('nip')->sortBy('nama')->values();
+        
         return view('pesan.dosen.faq_dosen', [
             'sematan' => $sematan,
-            'sematanByKategori' => $sematanByKategori
+            'sematanByKategori' => $sematanByKategori,
+            'dosenList' => $dosenList
         ]);
     }
     

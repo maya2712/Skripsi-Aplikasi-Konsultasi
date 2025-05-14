@@ -236,10 +236,10 @@
                                 @endphp
                                 
                                 @if($userGrups && $userGrups->count() > 0)
-                                    @foreach($userGrups as $grupItem)
+                                   @foreach($userGrups as $grupItem)
                                     <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
                                         {{ $grupItem->nama_grup }}
-                                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
+                                        @if(($unreadCount = $grupItem->unreadMessages) && $unreadCount > 0)
                                         <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
                                         @endif
                                     </a>

@@ -351,10 +351,7 @@
 
                 <!-- Message List - PERBAIKAN -->
                 <div class="message-list" id="messageList">
-                    <!-- Tambahkan elemen untuk menampilkan pesan "tidak ada hasil" -->
-                    <div id="no-results" style="display: none;" class="text-center py-4">
-                        <p class="text-muted">Tidak ada pesan yang sesuai dengan filter</p>
-                    </div>
+                    <!-- Tambahkan elemen untuk menampilkan pesan "tidak ada hasil" -->        
                     
                     @if($pesan->count() > 0)
                         @foreach($pesan as $item)

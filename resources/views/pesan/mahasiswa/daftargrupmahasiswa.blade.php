@@ -172,8 +172,8 @@
                                     @foreach($grups as $grupItem)
                                     <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
                                         {{ $grupItem->nama_grup }}
-                                        @if(isset($grupItem->unreadMessages) && $grupItem->unreadMessages > 0)
-                                        <span class="badge bg-danger rounded-pill">{{ $grupItem->unreadMessages }}</span>
+                                        @if(isset($grupItem->unreadCount) && $grupItem->unreadCount > 0)
+                                        <span class="badge bg-danger rounded-pill">{{ $grupItem->unreadCount }}</span>
                                         @endif
                                     </a>
                                     @endforeach

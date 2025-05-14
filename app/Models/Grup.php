@@ -38,7 +38,7 @@ class Grup extends Model
     }
     
     // Accessor untuk menghitung jumlah pesan belum dibaca
-    public function getUnreadMessagesAttribute()
+  public function getUnreadMessagesAttribute()
     {
         if (!Auth::check()) {
             return 0;

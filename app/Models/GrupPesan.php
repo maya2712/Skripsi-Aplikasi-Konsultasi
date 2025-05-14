@@ -58,4 +58,14 @@ class GrupPesan extends Model
             return $this->pengirimMahasiswa;
         }
     }
+    
+    // Tambahkan method ini di model GrupPesan.php
+    public function pengirim()
+    {
+        if ($this->tipe_pengirim == 'dosen') {
+            return $this->belongsTo(Dosen::class, 'pengirim_id', 'nip');
+        } else {
+            return $this->belongsTo(Mahasiswa::class, 'pengirim_id', 'nim');
+        }
+    }
 }
