@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB; // Ditambahkan import DB
 use App\Models\Pesan;
 use App\Models\BalasanPesan;
+use App\Models\PesanSematan;
 use App\Models\Dosen;
 use App\Models\Mahasiswa;
 use Carbon\Carbon;
@@ -454,7 +455,28 @@ class PesanMahasiswaController extends Controller
     // Halaman FAQ
     public function faq()
     {
-        return view('pesan.mahasiswa.faq_mahasiswa');
+        // Ambil sematan yang masih aktif dari semua dosen
+        $sematan = PesanSematan::where('aktif', true)
+                            ->where('durasi_sematan', '>', now())
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+        
+        // Kelompokkan sematan berdasarkan kategori
+        $sematanByKategori = [
+            'krs' => [],
+            'kp' => [],
+            'skripsi' => [],
+            'mbkm' => []
+        ];
+        
+        foreach ($sematan as $item) {
+            $sematanByKategori[$item->kategori][] = $item;
+        }
+        
+        return view('pesan.mahasiswa.faq_mahasiswa', [
+            'sematan' => $sematan,
+            'sematanByKategori' => $sematanByKategori
+        ]);
     }
     
     /**

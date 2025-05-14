@@ -219,6 +219,18 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         // Pencarian pesan
         Route::get('/caripesandosen', 'search')
             ->name('dosen.pesan.search');
+        
+        // FAQ Dosen
+        Route::get('/faqdosen', 'faq')
+            ->name('dosen.faq');
+            
+        // Tambahkan route untuk fitur sematan
+        Route::post('/sematkan-pesan/{id}', 'sematkan')
+            ->name('dosen.pesan.sematkan');
+        Route::delete('/batalkan-sematan/{id}', 'batalkanSematan')
+            ->name('dosen.pesan.batalkan-sematan');
+        Route::get('/daftar-sematan', 'getSematan')
+            ->name('dosen.pesan.daftar-sematan');
     });
 
     Route::controller(MasukkanJadwalController::class)->prefix('masukkanjadwal')->group(function () {

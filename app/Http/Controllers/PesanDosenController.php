@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB; // Ditambahkan import DB
+use Illuminate\Support\Facades\DB;
 use App\Models\Pesan;
 use App\Models\BalasanPesan;
+use App\Models\PesanSematan;
 use App\Models\Mahasiswa;
 use App\Models\Dosen;
 use Carbon\Carbon;
@@ -148,87 +149,87 @@ class PesanDosenController extends Controller
     /**
      * Menampilkan detail pesan
      */
-   public function show($id)
-{
-    try {
-        $pesan = Pesan::findOrFail($id);
-        $dosen = Auth::user();
-        
-        // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
-        if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+    public function show($id)
+    {
+        try {
+            $pesan = Pesan::findOrFail($id);
+            $dosen = Auth::user();
+            
+            // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
+            if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+                return redirect()->route('dosen.dashboard.pesan')
+                    ->with('error', 'Anda tidak memiliki akses ke pesan ini');
+            }
+            
+            // Load relasi balasan secara manual
+            $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+            $pesan->setRelation('balasan', $balasan);
+            
+            // Log jumlah balasan untuk debug
+            Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
+            
+            // Cek balasan yang belum dibaca
+            $unreadBalasan = $balasan->filter(function($item) {
+                return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
+            })->count();
+            
+            Log::info('Unread balasan count: ' . $unreadBalasan);
+            
+            // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
+            foreach ($pesan->balasan as $balasan) {
+                if ($balasan->tipe_pengirim == 'dosen') {
+                    $dosenPengirim = Dosen::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $dosenPengirim;
+                } else {
+                    $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $mahasiswaPengirim;
+                }
+            }
+            
+            // Kelompokkan balasan berdasarkan tanggal
+            $balasanByDate = [];
+            
+            // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
+            $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
+            $balasanByDate[$dateAwal][] = $pesan;
+            
+            // Tambahkan semua balasan ke grup berdasarkan tanggal
+            foreach ($pesan->balasan as $balasan) {
+                $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
+                if (!isset($balasanByDate[$date])) {
+                    $balasanByDate[$date] = [];
+                }
+                $balasanByDate[$date][] = $balasan;
+            }
+            
+            // Urutkan tanggal (dari paling lama)
+            ksort($balasanByDate);
+            
+            // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
+            if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
+                $pesan->dibaca = true;
+                $pesan->save();
+                
+                Log::info('Marked message as read: ' . $pesan->id);
+            }
+            
+            // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
+            // Gunakan direct query untuk update balasan yang belum dibaca
+            $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
+                ->where('tipe_pengirim', 'mahasiswa')
+                ->where('dibaca', false)
+                ->update(['dibaca' => true]);
+                
+            Log::info('Updated ' . $updatedCount . ' unread replies to read');
+            
+            return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
+        } catch (\Exception $e) {
+            Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            
             return redirect()->route('dosen.dashboard.pesan')
-                ->with('error', 'Anda tidak memiliki akses ke pesan ini');
+                ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
         }
-        
-        // Load relasi balasan secara manual
-        $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
-        $pesan->setRelation('balasan', $balasan);
-        
-        // Log jumlah balasan untuk debug
-        Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
-        
-        // Cek balasan yang belum dibaca
-        $unreadBalasan = $balasan->filter(function($item) {
-            return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
-        })->count();
-        
-        Log::info('Unread balasan count: ' . $unreadBalasan);
-        
-        // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
-        foreach ($pesan->balasan as $balasan) {
-            if ($balasan->tipe_pengirim == 'dosen') {
-                $dosenPengirim = Dosen::find($balasan->pengirim_id);
-                $balasan->pengirimData = $dosenPengirim;
-            } else {
-                $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
-                $balasan->pengirimData = $mahasiswaPengirim;
-            }
-        }
-        
-        // Kelompokkan balasan berdasarkan tanggal
-        $balasanByDate = [];
-        
-        // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
-        $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
-        $balasanByDate[$dateAwal][] = $pesan;
-        
-        // Tambahkan semua balasan ke grup berdasarkan tanggal
-        foreach ($pesan->balasan as $balasan) {
-            $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
-            if (!isset($balasanByDate[$date])) {
-                $balasanByDate[$date] = [];
-            }
-            $balasanByDate[$date][] = $balasan;
-        }
-        
-        // Urutkan tanggal (dari paling lama)
-        ksort($balasanByDate);
-        
-        // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
-        if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
-            $pesan->dibaca = true;
-            $pesan->save();
-            
-            Log::info('Marked message as read: ' . $pesan->id);
-        }
-        
-        // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
-        // Gunakan direct query untuk update balasan yang belum dibaca
-        $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
-            ->where('tipe_pengirim', 'mahasiswa')
-            ->where('dibaca', false)
-            ->update(['dibaca' => true]);
-            
-        Log::info('Updated ' . $updatedCount . ' unread replies to read');
-        
-        return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
-    } catch (\Exception $e) {
-        Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-        
-        return redirect()->route('dosen.dashboard.pesan')
-            ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
     }
-}
     
     /**
      * Mengirim balasan pesan
@@ -501,7 +502,194 @@ class PesanDosenController extends Controller
      */
     public function faq()
     {
-        return view('pesan.dosen.faq_dosen');
+        $dosen = Auth::user();
+        
+        // Ambil sematan yang masih aktif
+        $sematan = PesanSematan::where('aktif', true)
+                            ->where('durasi_sematan', '>', now())
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+        
+        // Kelompokkan sematan berdasarkan kategori
+        $sematanByKategori = [
+            'krs' => [],
+            'kp' => [],
+            'skripsi' => [],
+            'mbkm' => []
+        ];
+        
+        foreach ($sematan as $item) {
+            $sematanByKategori[$item->kategori][] = $item;
+        }
+        
+        return view('pesan.dosen.faq_dosen', [
+            'sematan' => $sematan,
+            'sematanByKategori' => $sematanByKategori
+        ]);
+    }
+    
+    /**
+     * Menyematkan pesan atau balasan ke FAQ
+     */
+    public function sematkan(Request $request, $id)
+    {
+        try {
+            $dosen = Auth::user();
+            $pesan = Pesan::findOrFail($id);
+            
+            // Validasi data request
+            $request->validate([
+                'message_ids' => 'required|array',
+                'message_ids.*' => 'required|string',
+                'kategori' => 'required|in:krs,kp,skripsi,mbkm',
+                'judul' => 'required|string|max:255',
+                'durasi' => 'required|integer|min:1|max:1000' // dalam jam
+            ]);
+            
+           // Pastikan konversi ke integer sebelum digunakan
+            $durasi = (int) $request->durasi;
+            $durasiSematan = Carbon::now()->addHours($request->durasi);
+            
+            // Array untuk menyimpan ID sematan yang dibuat
+            $sematanIds = [];
+            
+            // Proses sematan untuk setiap pesan
+            foreach ($request->message_ids as $messageId) {
+                // Format message_id: 'message-123' atau 'reply-456'
+                $parts = explode('-', $messageId);
+                $type = $parts[0]; // 'message' atau 'reply'
+                $id = $parts[1]; // ID pesan atau balasan
+                
+                if ($type === 'message') {
+                    // Sematan untuk pesan utama
+                    $pesanToPin = Pesan::findOrFail($id);
+                    
+                    // Pastikan pesan ini terkait dengan dosen
+                    if ($pesanToPin->nip_pengirim != $dosen->nip && $pesanToPin->nip_penerima != $dosen->nip) {
+                        continue; // Skip jika bukan pesan dosen
+                    }
+                    
+                    // Buat sematan
+                    $sematan = PesanSematan::create([
+                        'nip_dosen' => $dosen->nip,
+                        'jenis_pesan' => 'pesan',
+                        'pesan_id' => $id,
+                        'balasan_id' => null,
+                        'isi_sematan' => $pesanToPin->isi_pesan,
+                        'kategori' => $request->kategori,
+                        'judul' => $request->judul,
+                        'aktif' => true,
+                        'durasi_sematan' => $durasiSematan
+                    ]);
+                    
+                    $sematanIds[] = $sematan->id;
+                } else if ($type === 'reply') {
+                    // Sematan untuk balasan
+                    $balasanToPin = BalasanPesan::findOrFail($id);
+                    
+                    // Pastikan balasan ini terkait dengan dosen
+                    if ($balasanToPin->tipe_pengirim === 'dosen' && $balasanToPin->pengirim_id != $dosen->nip) {
+                        continue; // Skip jika bukan balasan dari dosen ini
+                    }
+                    
+                    // Buat sematan
+                    $sematan = PesanSematan::create([
+                        'nip_dosen' => $dosen->nip,
+                        'jenis_pesan' => 'balasan',
+                        'pesan_id' => null,
+                        'balasan_id' => $id,
+                        'isi_sematan' => $balasanToPin->isi_balasan,
+                        'kategori' => $request->kategori,
+                        'judul' => $request->judul,
+                        'aktif' => true,
+                        'durasi_sematan' => $durasiSematan
+                    ]);
+                    
+                    $sematanIds[] = $sematan->id;
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => count($sematanIds) . ' pesan berhasil disematkan',
+                'sematan_ids' => $sematanIds
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error saat menyematkan pesan: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyematkan pesan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Batalkan sematan pesan
+     */
+    public function batalkanSematan($id)
+    {
+        try {
+            $dosen = Auth::user();
+            $sematan = PesanSematan::where('id', $id)
+                                   ->where('nip_dosen', $dosen->nip)
+                                   ->firstOrFail();
+            
+            // Nonaktifkan sematan
+            $sematan->aktif = false;
+            $sematan->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Sematan berhasil dibatalkan'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error saat membatalkan sematan: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membatalkan sematan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mendapatkan daftar sematan untuk FAQ
+     */
+    public function getSematan(Request $request)
+    {
+        try {
+            $dosen = Auth::user();
+            
+            // Filter berdasarkan kategori jika ada
+            $kategori = $request->input('kategori');
+            
+            $query = PesanSematan::where('nip_dosen', $dosen->nip)
+                                ->where('aktif', true)
+                                ->where('durasi_sematan', '>', now());
+            
+            if ($kategori && $kategori !== 'all') {
+                $query->where('kategori', $kategori);
+            }
+            
+            $sematan = $query->orderBy('created_at', 'desc')
+                             ->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $sematan
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error saat mengambil sematan: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil sematan: ' . $e->getMessage()
+            ], 500);
+        }
     }
     
     /**

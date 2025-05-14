@@ -332,93 +332,42 @@
 
                     <!-- FAQ Items -->
                     <div class="faq-list mt-4">
-                        <!-- FAQ Item 1 -->
-                        <div class="faq-item" data-category="krs" data-dosen="Irsan Taufik Ali" style="background-color: #F5F7FA;">
-                            <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem1" aria-expanded="false">
-                                <i class="fas fa-thumbtack pin-icon"></i>
-                                <div class="flex-grow-1">
-                                    <h5 class="faq-title mb-2">Bimbingan KRS dilakukan mulai tanggal 25-30 Januari 2025</h5>
-                                    <div class="d-flex align-items-center">
-                                        <span class="faq-badge me-3">Bimbingan KRS</span>
-                                        <div class="faq-meta">
-                                            Di-Pin oleh: Dr. Irsan Taufik Ali, S.T., M.T. - 09.30, 20 Januari 2025
+                        @forelse($sematan as $item)
+                            <div class="faq-item" data-category="{{ $item->kategori }}" data-dosen="{{ $item->dosen->nama ?? 'Dosen' }}" style="background-color: #F5F7FA;">
+                                <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem{{ $item->id }}" aria-expanded="false">
+                                    <i class="fas fa-thumbtack pin-icon"></i>
+                                    <div class="flex-grow-1">
+                                        <h5 class="faq-title mb-2">{{ $item->judul }}</h5>
+                                        <div class="d-flex align-items-center">
+                                            <span class="faq-badge me-3">
+                                                @if($item->kategori == 'krs')
+                                                    Bimbingan KRS
+                                                @elseif($item->kategori == 'kp')
+                                                    Bimbingan KP
+                                                @elseif($item->kategori == 'skripsi')
+                                                    Bimbingan Skripsi
+                                                @elseif($item->kategori == 'mbkm')
+                                                    Bimbingan MBKM
+                                                @endif
+                                            </span>
+                                            <div class="faq-meta">
+                                                Di-Pin oleh: {{ $item->dosen->nama ?? 'Dosen' }} - {{ $item->created_at->format('H:i, d F Y') }}
+                                            </div>
                                         </div>
                                     </div>
+                                    <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
                                 </div>
-                                <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
-                            </div>
-                            <div class="collapse" id="faqItem1">
-                                <div class="p-3">
-                                    <p>Untuk semua mahasiswa bimbingan saya, mohon bisa melakukan pembimbingan KRS di tanggal yang telah ditentukan yaitu 25-30 Januari 2025. Saya akan berada di ruang dosen sepanjang jam kantor (08.00-16.00). Harap membawa KHS semester sebelumnya dan rencana matakuliah yang akan diambil.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- FAQ Item 2 -->
-                        <div class="faq-item" data-category="kp" data-dosen="Dian Ramadhani" style="background-color: #F5F7FA;">
-                            <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem2" aria-expanded="false">
-                                <i class="fas fa-thumbtack pin-icon"></i>
-                                <div class="flex-grow-1">
-                                    <h5 class="faq-title mb-2">Silahkan datang ke Prodi</h5>
-                                    <div class="d-flex align-items-center">
-                                        <span class="faq-badge me-3">Bimbingan KP</span>
-                                        <div class="faq-meta">
-                                            Di-Pin oleh: Dian Ramadhani, S.T., M.T. - 09.30, 18 Januari 2025
-                                        </div>
+                                <div class="collapse" id="faqItem{{ $item->id }}">
+                                    <div class="p-3">
+                                        <p>{{ $item->isi_sematan }}</p>
                                     </div>
                                 </div>
-                                <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
                             </div>
-                            <div class="collapse" id="faqItem2">
-                                <div class="p-3">
-                                    <p>Untuk mahasiswa yang ingin berkonsultasi mengenai Kerja Praktek, silakan datang ke ruang prodi pada hari Senin-Jumat jam 10.00-15.00. Mohon untuk membawa berkas-berkas yang diperlukan dan pastikan sudah memenuhi persyaratan minimal untuk mengambil KP.</p>
-                                </div>
+                        @empty
+                            <div class="text-center p-4">
+                                <p class="text-muted">Belum ada FAQ yang disematkan</p>
                             </div>
-                        </div>
-
-                        <!-- FAQ Item 3 -->
-                        <div class="faq-item" data-category="skripsi" data-dosen="Edi Susilo" style="background-color: #F5F7FA;">
-                            <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem3" aria-expanded="false">
-                                <i class="fas fa-thumbtack pin-icon"></i>
-                                <div class="flex-grow-1">
-                                    <h5 class="faq-title mb-2">Saya Ada di kampus sekitar jam 9 pagi</h5>
-                                    <div class="d-flex align-items-center">
-                                        <span class="faq-badge me-3">Bimbingan Skripsi</span>
-                                        <div class="faq-meta">
-                                            Di-Pin oleh: Edi Susilo, Spd., M.Kom.,M.Eng - 09.30, 15 Januari 2025
-                                        </div>
-                                    </div>
-                                </div>
-                                <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
-                            </div>
-                            <div class="collapse" id="faqItem3">
-                                <div class="p-3">
-                                    <p>Untuk mahasiswa bimbingan skripsi, saya akan ada di kampus setiap hari Selasa dan Kamis mulai jam 9 pagi. Silakan untuk membuat janji terlebih dahulu melalui sistem pesan di SEPTI agar jadwal tidak bertabrakan dengan mahasiswa lain. Harap membawa progres terbaru dari skripsi Anda.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- FAQ Item 4 -->
-                        <div class="faq-item" data-category="mbkm" data-dosen="Feri Candra" style="background-color: #F5F7FA;">
-                            <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem4" aria-expanded="false">
-                                <i class="fas fa-thumbtack pin-icon"></i>
-                                <div class="flex-grow-1">
-                                    <h5 class="faq-title mb-2">Saya Ada di kampus sekitar jam 9 pagi</h5>
-                                    <div class="d-flex align-items-center">
-                                        <span class="faq-badge me-3">Bimbingan MBKM</span>
-                                        <div class="faq-meta">
-                                            Di-Pin oleh: Dr. Feri Candra, S.T., M.T - 09.30, 15 Januari 2025
-                                        </div>
-                                    </div>
-                                </div>
-                                <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
-                            </div>
-                            <div class="collapse" id="faqItem4">
-                                <div class="p-3">
-                                    <p>Informasi untuk mahasiswa yang mengikuti program MBKM, saya akan ada di kampus sekitar jam 9 pagi setiap Rabu dan Jumat. Untuk konsultasi mengenai konversi SKS dan laporan kegiatan MBKM, harap membawa dokumen pendukung yang lengkap dan laporan progres terbaru.</p>
-                                </div>
-                            </div>
-                        </div>
+                        @endforelse
 
                         <!-- No FAQ Found Message -->
                         <div id="noFaqFound" class="text-center p-4 mt-3" style="display: none; background-color: #F8F9FA; border-radius: 10px;">

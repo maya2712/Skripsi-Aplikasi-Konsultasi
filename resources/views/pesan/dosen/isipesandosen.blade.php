@@ -573,79 +573,6 @@
             box-shadow: 0 5px 15px rgba(0, 85, 179, 0.2);
         }
         
-        /* Modal untuk pengaturan waktu sematkan */
-        .sematkan-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        
-        .sematkan-modal.show {
-            display: block;
-        }
-        
-        .sematkan-modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            width: 350px;
-            max-width: 90%;
-            padding: 20px;
-        }
-        
-        .sematkan-modal-content h5 {
-            font-size: 16px;
-            margin-top: 0;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .sematkan-modal-content p {
-            font-size: 13px;
-            color: #6c757d;
-            margin-bottom: 15px;
-        }
-        
-        .sematkan-modal-content .form-check {
-            margin-bottom: 10px;
-        }
-        
-        .sematkan-modal-content .btn-group {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .sematkan-modal-content .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .sematkan-modal-content .btn-secondary {
-            background-color: #f1f3f5;
-            color: #6c757d;
-            border: none;
-        }
-        
-        .sematkan-modal-content .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-        }
-        
         /* System message for chat ended */
         .system-message {
             text-align: center;
@@ -917,34 +844,55 @@
     </div>
 </div>
 
-<!-- Modal untuk pengaturan waktu sematkan -->
-<div class="sematkan-modal" id="sematkanModal">
-<div class="sematkan-modal-content">
-        <h5>Pilih berapa lama Sematan Berlangsung</h5>
-        <p>Anda bisa melepas sematan kapan saja</p>
-        
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi24jam" value="24" checked>
-            <label class="form-check-label" for="durasi24jam">
-                24 Jam
-            </label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi7hari" value="168">
-            <label class="form-check-label" for="durasi7hari">
-                7 Hari
-            </label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi30hari" value="720">
-            <label class="form-check-label" for="durasi30hari">
-                30 Hari
-            </label>
-        </div>
-        
-        <div class="btn-group">
-            <button type="button" class="btn btn-secondary" id="batalSematkan">Batal</button>
-            <button type="button" class="btn btn-primary" id="simpanSematkan">Simpan</button>
+<!-- Modal untuk pengaturan sematan -->
+<div class="modal fade" id="sematkanModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sematkan Pesan ke FAQ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="sematkanJudul" class="form-label">Judul untuk FAQ</label>
+                    <input type="text" class="form-control" id="sematkanJudul" placeholder="Masukkan judul singkat">
+                </div>
+                <div class="mb-3">
+                    <label for="sematkanKategori" class="form-label">Kategori</label>
+                    <select class="form-select" id="sematkanKategori">
+                        <option value="krs">Bimbingan KRS</option>
+                        <option value="kp">Bimbingan KP</option>
+                        <option value="skripsi">Bimbingan Skripsi</option>
+                        <option value="mbkm">Bimbingan MBKM</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Berapa lama sematan berlangsung</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi24jam" value="24" checked>
+                        <label class="form-check-label" for="durasi24jam">
+                            24 Jam
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi7hari" value="168">
+                        <label class="form-check-label" for="durasi7hari">
+                            7 Hari
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="sematkanDurasi" id="durasi30hari" value="720">
+                        <label class="form-check-label" for="durasi30hari">
+                            30 Hari
+                        </label>
+                    </div>
+                </div>
+                <p class="text-muted small">Pesan yang disematkan akan ditampilkan di halaman FAQ selama durasi yang dipilih.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="batalSematkan">Batal</button>
+                <button type="button" class="btn btn-primary" id="simpanSematkan">Simpan</button>
+            </div>
         </div>
     </div>
 </div>
@@ -961,6 +909,8 @@
         const sematkanModal = document.querySelector('#sematkanModal');
         const batalSematkanBtn = document.querySelector('#batalSematkan');
         const simpanSematkanBtn = document.querySelector('#simpanSematkan');
+        const sematkanJudul = document.getElementById('sematkanJudul');
+        const sematkanKategori = document.getElementById('sematkanKategori');
         const chatContainer = document.getElementById('chatContainer');
         const messageInput = document.querySelector('.message-input');
         const sendButton = document.querySelector('.send-button');
@@ -1025,8 +975,9 @@
         // Tombol simpan untuk menampilkan modal
         if (simpanButton) {
             simpanButton.addEventListener('click', function() {
-                // Tampilkan modal sematkan
-                sematkanModal.classList.add('show');
+                // Tampilkan modal sematkan menggunakan Bootstrap modal
+                const bsModal = new bootstrap.Modal(sematkanModal);
+                bsModal.show();
                 
                 // Nonaktifkan mode bookmark
                 isBookmarkMode = false;
@@ -1051,8 +1002,8 @@
                     messageElem.classList.remove('bookmarked');
                 });
                 
-                // Sembunyikan modal
-                sematkanModal.classList.remove('show');
+                // Reset field judul
+                sematkanJudul.value = '';
                 
                 // Sembunyikan tombol simpan
                 simpanButton.style.display = 'none';
@@ -1062,7 +1013,13 @@
         // Simpan sematkan
         if (simpanSematkanBtn) {
             simpanSematkanBtn.addEventListener('click', function() {
-                // Simpan pesan yang dibookmark
+                // Validasi judul
+                if (!sematkanJudul.value.trim()) {
+                    showNotification('Judul harus diisi', 'warning');
+                    return;
+                }
+                
+                // Dapatkan pesan yang dibookmark
                 const bookmarkedMessages = [];
                 checkboxInputs.forEach(checkbox => {
                     if (checkbox.checked) {
@@ -1071,16 +1028,19 @@
                         
                         bookmarkedMessages.push(messageId);
                         
-                        // Tandai pesan sebagai bookmarked untuk menampilkan ikon
+                        // Tandai pesan sebagai bookmarked untuk UI
                         messageElem.classList.add('bookmarked');
                     }
                 });
                 
+                // Dapatkan kategori yang dipilih
+                const kategori = sematkanKategori.value;
+                
                 // Dapatkan durasi yang dipilih
                 const durasiValue = document.querySelector('input[name="sematkanDurasi"]:checked').value;
                 
-                // Kirim data bookmark ke server
-                fetch('{{ route("dosen.pesan.bookmark", $pesan->id) }}', {
+                // Kirim data sematan ke server
+                fetch('{{ route("dosen.pesan.sematkan", $pesan->id) }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1088,14 +1048,17 @@
                     },
                     body: JSON.stringify({
                         message_ids: bookmarkedMessages,
-                        durasi: durasiValue
+                        kategori: kategori,
+                        judul: sematkanJudul.value,
+                        durasi: parseInt(durasiValue, 10)
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         // Sembunyikan modal
-                        sematkanModal.classList.remove('show');
+                        const bsModal = bootstrap.Modal.getInstance(sematkanModal);
+                        bsModal.hide();
                         
                         // Hapus centang pada checkbox
                         checkboxInputs.forEach(checkbox => {
@@ -1105,7 +1068,10 @@
                         // Sembunyikan tombol simpan
                         simpanButton.style.display = 'none';
                         
-                        showNotification('Pesan berhasil disematkan', 'success');
+                        // Reset fields
+                        sematkanJudul.value = '';
+                        
+                        showNotification('Pesan berhasil disematkan ke FAQ', 'success');
                     } else {
                         showNotification(data.message, 'warning');
                     }
@@ -1123,14 +1089,38 @@
                 const cancelBtn = e.target.closest('.bookmark-cancel');
                 const messageElem = cancelBtn.closest('.chat-message');
                 
-                // Hapus kelas bookmarked dari pesan
-                messageElem.classList.remove('bookmarked');
-                
-                // Simpan perubahan ke "backend" (simulasi)
-                const messageId = messageElem.getAttribute('data-id');
-                console.log('Pembatalan sematan pesan:', messageId);
-                
-                showNotification('Sematan berhasil dibatalkan');
+                // Konfirmasi pembatalan sematan
+                if (confirm('Apakah Anda yakin ingin membatalkan sematan?')) {
+                    // Hapus kelas bookmarked dari pesan
+                    messageElem.classList.remove('bookmarked');
+                    
+                    // Dapatkan ID sematan untuk dibatalkan (dari atribut data-sematan-id jika ada)
+                    const sematanId = messageElem.getAttribute('data-sematan-id');
+                    
+                    if (sematanId) {
+                        // Kirim permintaan untuk membatalkan sematan ke server
+                        fetch('{{ url("/batalkan-sematan") }}/' + sematanId, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showNotification('Sematan berhasil dibatalkan', 'success');
+                            } else {
+                                showNotification(data.message, 'warning');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification('Terjadi kesalahan saat membatalkan sematan', 'warning');
+                        });
+                    } else {
+                        showNotification('Sematan berhasil dibatalkan');
+                    }
+                }
             }
         });
         
