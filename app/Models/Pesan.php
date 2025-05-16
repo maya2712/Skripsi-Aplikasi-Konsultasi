@@ -15,6 +15,7 @@ class Pesan extends Model
         'nip_pengirim',  
         'nip_penerima',
         'nim_penerima',
+        'penerima_role', // Tambahkan ini
         'isi_pesan',
         'prioritas',
         'status',

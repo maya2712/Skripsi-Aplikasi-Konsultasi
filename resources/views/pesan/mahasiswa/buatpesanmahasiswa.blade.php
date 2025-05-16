@@ -240,6 +240,34 @@
             display: inline-block;
             margin-bottom: 5px;
         }
+        
+        /* Tambahkan styling untuk dropdown header */
+        .dropdown-header {
+            padding: 8px 12px;
+            background-color: #f3f4f6;
+            font-weight: 600;
+            color: #495057;
+            font-size: var(--form-font-size) !important;
+        }
+        
+        /* Badge untuk menampilkan role penerima */
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .role-badge-kaprodi {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .role-badge-dosen {
+            background-color: #6c757d;
+            color: white;
+        }
     </style>
 @endpush
 
@@ -291,10 +319,11 @@
                             </div>
                         </div>
                         
-                        <!-- Field tersembunyi untuk menyimpan ID dosen terpilih -->
+                        <!-- Hidden fields -->
                         <input type="hidden" id="selectedDosenId" name="dosenId">
                         <input type="hidden" id="selectedDosenNama" name="dosenNama">
                         <input type="hidden" id="selectedDosenJabatan" name="dosenJabatan">
+                        <input type="hidden" id="selectedDosenRole" name="penerima_role">
                     </div>
                     
                     <div class="mb-4">
@@ -332,20 +361,24 @@
 
 @push('scripts')
 <script>
+    // Perbaikan JavaScript untuk menampilkan daftar dosen
     document.addEventListener('DOMContentLoaded', function() {
         // Mengambil data dosen dari database
         let dataDosen = [];
         
-         // Menggunakan Blade untuk mengisi data dosen dari database
-        dataDosen = [
-            @foreach($dosen as $d)
-                { 
-                    id: '{{ $d->nip }}', 
-                    nama: '{{ $d->nama }}', 
-                    jabatan: '{{ $d->jabatan_fungsional ?? "Dosen" }}' 
-                },
-            @endforeach
-        ];
+        // Menggunakan Blade untuk mengisi data dosen dengan peran yang benar
+        @foreach($dosen as $d)
+            dataDosen.push({ 
+                id: '{{ $d['nip'] }}', 
+                nama: '{{ $d['nama'] }}',
+                role: '{{ $d['role'] }}',
+                displayName: '{{ $d['nama'] }}{{ $d['role'] == "kaprodi" ? " (Sebagai Kaprodi)" : "" }}',
+                jabatan: '{{ $d['jabatan_fungsional'] ?? "Dosen" }}'
+            });
+        @endforeach
+        
+        // Log untuk debugging
+        console.log('Data dosen:', dataDosen);
         
         // Variabel untuk menyimpan data dosen yang dipilih
         let selectedDosen = null;
@@ -365,59 +398,73 @@
                 dosenDropdownMenu.style.display = 'block';
                 dosenSearchInput.focus();
                 
-                // Load semua dosen saat dropdown dibuka
-                if (dosenSearchInput.value.trim() === '') {
-                    renderDosenList(dataDosen);
-                }
+                // Bersihkan dropdown items dulu
+                dosenDropdownItems.innerHTML = '';
+                
+                // Tampilkan kolom search, tapi tidak langsung tampilkan dosen
+                dosenSearchInput.value = '';
+                noResults.style.display = 'none';
             }
         });
         
-        // Search functionality
-        dosenSearchInput.addEventListener('input', function() {
-            const keyword = this.value.toLowerCase().trim();
-            
-            if (keyword === '') {
-                renderDosenList(dataDosen);
-                return;
-            }
-            
-            // Filter dosen berdasarkan keyword
-            const filteredDosen = dataDosen.filter(dosen => {
-                return dosen.nama.toLowerCase().includes(keyword) || 
-                      dosen.jabatan.toLowerCase().includes(keyword);
-            });
-            
-            renderDosenList(filteredDosen);
-        });
-        
-        // Render dosen list
+        // Render dosen list dengan info jabatan yang ditambahkan
         function renderDosenList(dosenList) {
             dosenDropdownItems.innerHTML = '';
             
             if (dosenList.length > 0) {
                 noResults.style.display = 'none';
                 
-                dosenList.forEach(dosen => {
-                    const item = document.createElement('div');
-                    item.className = 'dosen-dropdown-item';
-                    item.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div>${dosen.nama}</div>
-                                <div class="dosen-jabatan">${dosen.jabatan}</div>
-                            </div>
-                        </div>
-                    `;
+                // Group dosen vs kaprodi
+                const dosenRegular = dosenList.filter(d => d.role === 'dosen');
+                const dosenKaprodi = dosenList.filter(d => d.role === 'kaprodi');
+                
+                // Tambahkan header untuk dosen
+                if (dosenRegular.length > 0) {
+                    const header = document.createElement('div');
+                    header.className = 'dropdown-header';
+                    header.textContent = 'Dosen';
+                    dosenDropdownItems.appendChild(header);
                     
-                    item.addEventListener('click', function() {
-                        pilihDosen(dosen);
+                    dosenRegular.forEach(dosen => {
+                        appendDosenItem(dosen);
                     });
+                }
+                
+                // Tambahkan header untuk kaprodi
+                if (dosenKaprodi.length > 0) {
+                    const header = document.createElement('div');
+                    header.className = 'dropdown-header';
+                    header.textContent = 'Kaprodi';
+                    dosenDropdownItems.appendChild(header);
                     
-                    dosenDropdownItems.appendChild(item);
-                });
+                    dosenKaprodi.forEach(dosen => {
+                        appendDosenItem(dosen);
+                    });
+                }
             } else {
                 noResults.style.display = 'block';
             }
+        }
+        
+        function appendDosenItem(dosen) {
+            const item = document.createElement('div');
+            item.className = 'dosen-dropdown-item';
+            item.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div>${dosen.nama}</div>
+                    </div>
+                    <span class="role-badge ${dosen.role === 'kaprodi' ? 'role-badge-kaprodi' : 'role-badge-dosen'}">
+                        ${dosen.role === 'kaprodi' ? 'Kaprodi' : 'Dosen'}
+                    </span>
+                </div>
+            `;
+            
+            item.addEventListener('click', function() {
+                pilihDosen(dosen);
+            });
+            
+            dosenDropdownItems.appendChild(item);
         }
         
         // Fungsi untuk memilih dosen
@@ -428,6 +475,7 @@
             document.getElementById('selectedDosenId').value = dosen.id;
             document.getElementById('selectedDosenNama').value = dosen.nama;
             document.getElementById('selectedDosenJabatan').value = dosen.jabatan;
+            document.getElementById('selectedDosenRole').value = dosen.role;
             
             // Update dropdown toggle text
             dosenDropdownToggle.innerHTML = `
@@ -435,7 +483,10 @@
                     <div class="selected-dosen-avatar">
                         <i class="fas fa-user" style="font-size: 8px;"></i>
                     </div>
-                    <span>${dosen.nama}</span>
+                    <span>${dosen.nama}${dosen.role === 'kaprodi' ? ' (Sebagai Kaprodi)' : ''}</span>
+                    <span class="role-badge ${dosen.role === 'kaprodi' ? 'role-badge-kaprodi' : 'role-badge-dosen'}">
+                        ${dosen.role === 'kaprodi' ? 'Kaprodi' : 'Dosen'}
+                    </span>
                 </div>
                 <i class="fas fa-chevron-down"></i>
             `;
@@ -443,6 +494,26 @@
             // Hide dropdown
             dosenDropdownMenu.style.display = 'none';
         }
+        
+        // Search functionality
+        dosenSearchInput.addEventListener('input', function() {
+            const keyword = this.value.toLowerCase().trim();
+            
+            if (keyword === '') {
+                // Jika search dikosongkan, hilangkan semua hasil
+                dosenDropdownItems.innerHTML = '';
+                noResults.style.display = 'none';
+                return;
+            }
+            
+            // Filter dosen berdasarkan keyword
+            const filteredDosen = dataDosen.filter(dosen => {
+                return dosen.nama.toLowerCase().includes(keyword) || 
+                    dosen.jabatan.toLowerCase().includes(keyword);
+            });
+            
+            renderDosenList(filteredDosen);
+        });
         
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
@@ -471,7 +542,12 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     alert('Pesan berhasil dikirim!');
@@ -482,6 +558,7 @@
                     document.getElementById('selectedDosenId').value = '';
                     document.getElementById('selectedDosenNama').value = '';
                     document.getElementById('selectedDosenJabatan').value = '';
+                    document.getElementById('selectedDosenRole').value = '';
                     dosenDropdownToggle.innerHTML = `
                         <span class="dosen-dropdown-placeholder">Pilih dosen</span>
                         <i class="fas fa-chevron-down"></i>
@@ -490,7 +567,7 @@
                     // Redirect ke dashboard pesan
                     window.location.href = '{{ route("mahasiswa.dashboard.pesan") }}';
                 } else {
-                    alert('Gagal mengirim pesan: ' + data.message);
+                    alert('Gagal mengirim pesan: ' + (data.message || 'Terjadi kesalahan'));
                 }
             })
             .catch(error => {

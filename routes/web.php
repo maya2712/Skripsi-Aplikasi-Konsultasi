@@ -187,6 +187,10 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         return view('bimbingan.dosen.editusulan');
     });
 
+    // Tambahkan route untuk switch role
+    Route::post('/switch-role', [App\Http\Controllers\RoleSwitchController::class, 'switchRole'])
+        ->name('dosen.switch-role');
+
     // Routes untuk fitur pesan dosen
     Route::controller(App\Http\Controllers\PesanDosenController::class)->group(function () {
         // Dashboard pesan

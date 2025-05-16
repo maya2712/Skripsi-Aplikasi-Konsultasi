@@ -25,12 +25,12 @@ class AuthController extends Controller
             'username' => 'required',
             'password' => 'required',
         ]);
-
+        
         $identifier = $request->username;
         $password = $request->password;
-
+        
         Log::info('Mencoba login dengan: ' . $identifier);
-
+        
         // Cek admin dengan tabel admins yang baru
         $admin = Admin::where('email', $identifier)->first();
         if ($admin) {
@@ -67,8 +67,29 @@ class AuthController extends Controller
         if ($dosen && Hash::check($password, $dosen->password)) {
             Auth::guard('dosen')->login($dosen);
             $request->session()->put('role', 'dosen');
+            
+            // Cek secara eksplisit kolom jabatan_fungsional
+            $isKaprodi = false;
+            if (!empty($dosen->jabatan_fungsional)) {
+                $jabatan = strtolower($dosen->jabatan_fungsional);
+                if (strpos($jabatan, 'kaprodi') !== false || 
+                    strpos($jabatan, 'ketua') !== false || 
+                    strpos($jabatan, 'kepala program') !== false) {
+                    $isKaprodi = true;
+                }
+            }
+            
+            // Simpan ke session
+            $request->session()->put('is_kaprodi', $isKaprodi);
+            $request->session()->put('active_role', 'dosen'); // Default role
             $request->session()->save();
-            Log::info('Login berhasil untuk dosen: ' . $dosen->nip);
+            
+            Log::info('Login berhasil untuk dosen, status kaprodi: ' . ($isKaprodi ? 'Ya' : 'Tidak'), [
+                'nip' => $dosen->nip,
+                'nama' => $dosen->nama,
+                'jabatan_fungsional' => $dosen->jabatan_fungsional
+            ]);
+            
             return redirect('/dashboardpesandosen');
         }
 

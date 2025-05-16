@@ -62,31 +62,98 @@ class PesanMahasiswaController extends Controller
     }
     
     // Menampilkan form untuk membuat pesan baru
-    public function create()
-    {
-        // Dapatkan daftar dosen untuk dropdown
-        $dosen = Dosen::orderBy('nama')->get();
+    // Di method create pada PesanMahasiswaController
+public function create()
+{
+    // Dapatkan daftar dosen dengan informasi jabatan
+    $dosen = Dosen::select('nip', 'nama', 'jabatan_fungsional')
+        ->orderBy('nama')
+        ->get();
+    
+    // Duplikasi dosen yang memiliki peran kaprodi
+    $dosenWithRoles = [];
+    
+    foreach ($dosen as $d) {
+        // Tambahkan sebagai dosen reguler terlebih dahulu
+        $dosenWithRoles[] = [
+            'nip' => $d->nip,
+            'nama' => $d->nama,
+            'jabatan_fungsional' => $d->jabatan_fungsional,
+            'role' => 'dosen'
+        ];
         
-        return view('pesan.mahasiswa.buatpesanmahasiswa', compact('dosen'));
+        // Jika dosen adalah kaprodi, tambahkan sekali lagi dengan peran kaprodi
+        if (stripos($d->jabatan_fungsional, 'kaprodi') !== false || 
+            stripos($d->jabatan_fungsional, 'ketua program') !== false || 
+            stripos($d->jabatan_fungsional, 'kepala program') !== false) {
+            
+            $dosenWithRoles[] = [
+                'nip' => $d->nip,
+                'nama' => $d->nama,
+                'jabatan_fungsional' => $d->jabatan_fungsional,
+                'role' => 'kaprodi'
+            ];
+        }
     }
     
+    // Log jumlah dosen yang diambil untuk debugging
+    Log::info('Mengambil daftar dosen untuk form pesan baru: ' . count($dosenWithRoles) . ' dosen ditemukan (termasuk duplikasi untuk kaprodi)');
+    
+    return view('pesan.mahasiswa.buatpesanmahasiswa', ['dosen' => $dosenWithRoles]);
+}
+    
     // Menyimpan pesan baru
-    public function store(Request $request)
+     public function store(Request $request)
     {
+        // Log semua request data untuk debugging
+        Log::info('Request data untuk pesan baru:', $request->all());
+        
         // Validasi input
-        $request->validate([
+        $validatedData = $request->validate([
             'subjek' => 'required',
             'dosenId' => 'required',
             'prioritas' => 'required',
-            'pesanText' => 'required'
+            'pesanText' => 'required',
+            'penerima_role' => 'required|in:dosen,kaprodi'
         ]);
         
+        Log::info('Validasi berhasil dengan data:', $validatedData);
+        
         try {
+            // Get mahasiswa aktif
+            $mahasiswa = Auth::user();
+            Log::info('Mahasiswa pengirim:', [
+                'nim' => $mahasiswa->nim,
+                'nama' => $mahasiswa->nama
+            ]);
+            
+            // Cek dosen yang akan menerima pesan
+            $dosen = Dosen::find($request->dosenId);
+            if (!$dosen) {
+                Log::warning('Dosen dengan NIP ' . $request->dosenId . ' tidak ditemukan');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dosen penerima tidak ditemukan'
+                ], 404);
+            }
+            
+            Log::info('Dosen penerima ditemukan:', [
+                'nip' => $dosen->nip,
+                'nama' => $dosen->nama,
+                'jabatan' => $dosen->jabatan_fungsional
+            ]);
+            
             // Buat pesan baru
             $pesan = new Pesan();
             $pesan->subjek = $request->subjek;
-            $pesan->nim_pengirim = Auth::user()->nim;
+            $pesan->nim_pengirim = $mahasiswa->nim;
             $pesan->nip_penerima = $request->dosenId;
+            
+            // Tentukan penerima_role dari input form
+            $pesan->penerima_role = $request->penerima_role;
+            
+            Log::info('Penerima role yang diset: ' . $pesan->penerima_role);
+            
             $pesan->isi_pesan = $request->pesanText;
             $pesan->prioritas = $request->prioritas;
             $pesan->lampiran = $request->lampiran; // Opsional
@@ -98,21 +165,45 @@ class PesanMahasiswaController extends Controller
             $pesan->created_at = Carbon::now('Asia/Jakarta');
             $pesan->updated_at = Carbon::now('Asia/Jakarta');
             
+            // Log sebelum save
+            Log::info('Data pesan sebelum disimpan:', [
+                'subjek' => $pesan->subjek,
+                'nim_pengirim' => $pesan->nim_pengirim,
+                'nip_penerima' => $pesan->nip_penerima,
+                'penerima_role' => $pesan->penerima_role ?? 'null',
+                'isi_pesan' => substr($pesan->isi_pesan, 0, 100), // Hanya tampilkan 100 karakter pertama
+                'prioritas' => $pesan->prioritas,
+                'lampiran' => $pesan->lampiran,
+                'created_at' => $pesan->created_at->format('Y-m-d H:i:s')
+            ]);
+            
+            // Cek database connection sebelum save
+            try {
+                DB::connection()->getPdo();
+                Log::info('Database connection OK');
+            } catch (\Exception $e) {
+                Log::error('Database connection error: ' . $e->getMessage());
+                throw new \Exception('Tidak dapat terhubung ke database: ' . $e->getMessage());
+            }
+            
+            // Simpan pesan
             $pesan->save();
             
-            // Log informasi untuk debugging
-            Log::info('Pesan mahasiswa berhasil dibuat', [
-                'id' => $pesan->id,
-                'pengirim' => $pesan->nim_pengirim,
-                'penerima' => $pesan->nip_penerima
-            ]);
+            // Log sukses
+            Log::info('Pesan berhasil disimpan dengan ID: ' . $pesan->id);
             
             return response()->json([
                 'success' => true,
-                'message' => 'Pesan berhasil dikirim'
+                'message' => 'Pesan berhasil dikirim',
+                'pesan_id' => $pesan->id
             ]);
         } catch (\Exception $e) {
-            Log::error('Error saat mengirim pesan: ' . $e->getMessage());
+            // Log error dengan detail
+            Log::error('Error saat mengirim pesan:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
             
             return response()->json([
                 'success' => false,

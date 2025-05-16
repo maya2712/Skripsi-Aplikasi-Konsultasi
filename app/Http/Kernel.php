@@ -62,5 +62,6 @@ class Kernel extends HttpKernel
         'checkRole' => \App\Http\Middleware\CheckRole::class,
         'prevent-back' => \App\Http\Middleware\PreventBackHistory::class,
         'timezone' => \App\Http\Middleware\TimezoneMiddleware::class, // Tambahkan juga alias untuk middleware
+        'check.active.role' => \App\Http\Middleware\CheckActiveRoleMiddleware::class, // Tambahkan middleware check.active.role
     ];
 }

@@ -18,49 +18,90 @@ class PesanDosenController extends Controller
     /**
      * Menampilkan dashboard pesan dosen
      */
-    public function index()
+    public function index(Request $request)
     {
         $dosen = Auth::user();
+        
+        // Cek langsung dari data user
+        $isKaprodi = (stripos($dosen->jabatan_fungsional, 'kaprodi') !== false || 
+                     stripos($dosen->jabatan_fungsional, 'ketua program') !== false ||
+                     stripos($dosen->jabatan_fungsional, 'kepala program') !== false);
+        
+        // Tentukan role aktif berdasarkan session dengan fallback ke 'dosen'
+        $activeRole = session('active_role', 'dosen');
+        
+        // Validasi role - jika meminta role 'kaprodi' tapi bukan kaprodi, kembalikan ke 'dosen'
+        if ($activeRole === 'kaprodi' && !$isKaprodi) {
+            $activeRole = 'dosen';
+            session(['active_role' => 'dosen']);
+        }
+        
+        // Simpan ke session untuk konsistensi
+        session(['is_kaprodi' => $isKaprodi]);
+        
+        // Log untuk debugging
+        Log::info('Dashboard loaded with role:', [
+            'nama' => $dosen->nama,
+            'jabatan' => $dosen->jabatan_fungsional,
+            'is_kaprodi' => $isKaprodi,
+            'active_role' => $activeRole
+        ]);
         
         // Membuat subquery untuk mendapatkan waktu balasan terakhir
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
         
-        // Mengambil semua pesan yang diterima ATAU dikirim oleh dosen
-        // hanya yang statusnya masih 'Aktif'
-        $pesan = Pesan::where(function($query) use ($dosen) {
-                $query->where('nip_penerima', $dosen->nip)
-                    ->orWhere('nip_pengirim', $dosen->nip);
+        // Mengambil pesan berdasarkan peran aktif
+        $query = Pesan::where(function($query) use ($dosen, $activeRole) {
+            // Sebagai penerima dengan peran yang aktif
+            $query->where(function($q) use ($dosen, $activeRole) {
+                $q->where('nip_penerima', $dosen->nip)
+                  ->where('penerima_role', $activeRole);
             })
-            ->where('status', 'Aktif') // Hanya tampilkan pesan aktif di dashboard
-            ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+            ->orWhere(function($q) use ($dosen) {
+                // Sebagai pengirim (dapat melihat semua pesan yang dikirim, tanpa filter role)
+                $q->where('nip_pengirim', $dosen->nip);
+            });
+        })
+        ->where('status', 'Aktif'); // Hanya tampilkan pesan aktif di dashboard
+        
+        // Gabungkan dengan subquery balasan terakhir    
+        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
                 $join->on('pesan.id', '=', 'latest_replies.id_pesan');
             })
             ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
             ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
             ->get();
                       
-        // Menghitung jumlah pesan belum dibaca (hanya yang diterima)
+        // Menghitung jumlah pesan belum dibaca (hanya yang diterima dengan role yang sesuai)
         $belumDibaca = Pesan::where('nip_penerima', $dosen->nip)
+                        ->where('penerima_role', $activeRole)
                         ->where('dibaca', false)
                         ->count();
         
-        // Menghitung jumlah pesan aktif (baik yang diterima maupun dikirim)
-        $pesanAktif = Pesan::where(function($query) use ($dosen) {
-                         $query->where('nip_penerima', $dosen->nip)
-                               ->orWhere('nip_pengirim', $dosen->nip);
-                       })
-                       ->where('status', 'Aktif')
-                       ->count();
+        // Menghitung jumlah pesan aktif (baik yang diterima dengan role sesuai maupun dikirim)
+        $pesanAktif = Pesan::where(function($query) use ($dosen, $activeRole) {
+                         $query->where(function($q) use ($dosen, $activeRole) {
+                             $q->where('nip_penerima', $dosen->nip)
+                               ->where('penerima_role', $activeRole);
+                         })
+                         ->orWhere('nip_pengirim', $dosen->nip);
+                     })
+                     ->where('status', 'Aktif')
+                     ->count();
         
-        // Menghitung total pesan (termasuk aktif dan berakhir)
-        $totalPesan = Pesan::where(function($query) use ($dosen) {
-                         $query->where('nip_penerima', $dosen->nip)
-                               ->orWhere('nip_pengirim', $dosen->nip);
+        // Menghitung total pesan (termasuk aktif dan berakhir, dengan role yang sesuai)
+        $totalPesan = Pesan::where(function($query) use ($dosen, $activeRole) {
+                         $query->where(function($q) use ($dosen, $activeRole) {
+                             $q->where('nip_penerima', $dosen->nip)
+                               ->where('penerima_role', $activeRole);
+                         })
+                         ->orWhere('nip_pengirim', $dosen->nip);
                      })
                      ->count();
         
-        return view('pesan.dosen.dashboardpesandosen', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan'));
+        // Saat rendering view, tambahkan informasi peran aktif dan status kaprodi
+        return view('pesan.dosen.dashboardpesandosen', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan', 'activeRole', 'isKaprodi'));
     }
     
     /**
@@ -149,103 +190,104 @@ class PesanDosenController extends Controller
     /**
      * Menampilkan detail pesan
      */
-    /**
- * Menampilkan detail pesan
- */
-public function show($id)
-{
-    try {
-        $pesan = Pesan::findOrFail($id);
-        $dosen = Auth::user();
-        
-        // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
-        if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
-            return redirect()->route('dosen.dashboard.pesan')
-                ->with('error', 'Anda tidak memiliki akses ke pesan ini');
-        }
-        
-        // Load relasi balasan secara manual
-        $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
-        $pesan->setRelation('balasan', $balasan);
-        
-        // Log jumlah balasan untuk debug
-        Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
-        
-        // Cek balasan yang belum dibaca
-        $unreadBalasan = $balasan->filter(function($item) {
-            return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
-        })->count();
-        
-        Log::info('Unread balasan count: ' . $unreadBalasan);
-        
-        // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
-        foreach ($pesan->balasan as $balasan) {
-            if ($balasan->tipe_pengirim == 'dosen') {
-                $dosenPengirim = Dosen::find($balasan->pengirim_id);
-                $balasan->pengirimData = $dosenPengirim;
+    public function show($id)
+    {
+        try {
+            $pesan = Pesan::findOrFail($id);
+            $dosen = Auth::user();
+            $activeRole = session('active_role', 'dosen');
+            
+            // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
+            // Dan jika sebagai penerima, hanya dapat melihat pesan untuk role yang aktif
+            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
+                // Lanjutkan ke proses berikutnya
             } else {
-                $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
-                $balasan->pengirimData = $mahasiswaPengirim;
+                return redirect()->route('dosen.dashboard.pesan')
+                    ->with('error', 'Anda tidak memiliki akses ke pesan ini');
             }
-        }
-        
-        // Kelompokkan balasan berdasarkan tanggal
-        $balasanByDate = [];
-        
-        // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
-        $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
-        $balasanByDate[$dateAwal][] = $pesan;
-        
-        // Tambahkan semua balasan ke grup berdasarkan tanggal
-        foreach ($pesan->balasan as $balasan) {
-            $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
-            if (!isset($balasanByDate[$date])) {
-                $balasanByDate[$date] = [];
+            
+            // Load relasi balasan secara manual
+            $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+            $pesan->setRelation('balasan', $balasan);
+            
+            // Log jumlah balasan untuk debug
+            Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
+            
+            // Cek balasan yang belum dibaca
+            $unreadBalasan = $balasan->filter(function($item) {
+                return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
+            })->count();
+            
+            Log::info('Unread balasan count: ' . $unreadBalasan);
+            
+            // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
+            foreach ($pesan->balasan as $balasan) {
+                if ($balasan->tipe_pengirim == 'dosen') {
+                    $dosenPengirim = Dosen::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $dosenPengirim;
+                } else {
+                    $mahasiswaPengirim = Mahasiswa::find($balasan->pengirim_id);
+                    $balasan->pengirimData = $mahasiswaPengirim;
+                }
             }
-            $balasanByDate[$date][] = $balasan;
-        }
-        
-        // Urutkan tanggal (dari paling lama)
-        ksort($balasanByDate);
-        
-        // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
-        if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
-            $pesan->dibaca = true;
-            $pesan->save();
             
-            Log::info('Marked message as read: ' . $pesan->id);
-        }
-        
-        // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
-        // Gunakan direct query untuk update balasan yang belum dibaca
-        $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
-            ->where('tipe_pengirim', 'mahasiswa')
-            ->where('dibaca', false)
-            ->update(['dibaca' => true]);
+            // Kelompokkan balasan berdasarkan tanggal
+            $balasanByDate = [];
             
-        Log::info('Updated ' . $updatedCount . ' unread replies to read');
-        
-        // Tambahkan informasi apakah pesan dan balasan sudah disematkan
-        $pesan->is_pinned = PesanSematan::where('jenis_pesan', 'pesan')
-            ->where('pesan_id', $pesan->id)
-            ->where('aktif', true)
-            ->exists();
-        
-        foreach ($pesan->balasan as $balasan) {
-            $balasan->is_pinned = PesanSematan::where('jenis_pesan', 'balasan')
-                ->where('balasan_id', $balasan->id)
+            // Tambahkan pesan awal ke grup balasan berdasarkan tanggal
+            $dateAwal = Carbon::parse($pesan->created_at)->format('Y-m-d');
+            $balasanByDate[$dateAwal][] = $pesan;
+            
+            // Tambahkan semua balasan ke grup berdasarkan tanggal
+            foreach ($pesan->balasan as $balasan) {
+                $date = Carbon::parse($balasan->created_at)->format('Y-m-d');
+                if (!isset($balasanByDate[$date])) {
+                    $balasanByDate[$date] = [];
+                }
+                $balasanByDate[$date][] = $balasan;
+            }
+            
+            // Urutkan tanggal (dari paling lama)
+            ksort($balasanByDate);
+            
+            // Update status menjadi dibaca jika belum dibaca dan dosen adalah penerima
+            if (!$pesan->dibaca && $pesan->nip_penerima == $dosen->nip) {
+                $pesan->dibaca = true;
+                $pesan->save();
+                
+                Log::info('Marked message as read: ' . $pesan->id);
+            }
+            
+            // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
+            // Gunakan direct query untuk update balasan yang belum dibaca
+            $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
+                ->where('tipe_pengirim', 'mahasiswa')
+                ->where('dibaca', false)
+                ->update(['dibaca' => true]);
+                
+            Log::info('Updated ' . $updatedCount . ' unread replies to read');
+            
+            // Tambahkan informasi apakah pesan dan balasan sudah disematkan
+            $pesan->is_pinned = PesanSematan::where('jenis_pesan', 'pesan')
+                ->where('pesan_id', $pesan->id)
                 ->where('aktif', true)
                 ->exists();
+            
+            foreach ($pesan->balasan as $balasan) {
+                $balasan->is_pinned = PesanSematan::where('jenis_pesan', 'balasan')
+                    ->where('balasan_id', $balasan->id)
+                    ->where('aktif', true)
+                    ->exists();
+            }
+            
+            return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
+        } catch (\Exception $e) {
+            Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            
+            return redirect()->route('dosen.dashboard.pesan')
+                ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
         }
-        
-        return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
-    } catch (\Exception $e) {
-        Log::error('Error menampilkan detail pesan: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-        
-        return redirect()->route('dosen.dashboard.pesan')
-            ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
     }
-}
     
     /**
      * Mengirim balasan pesan
@@ -258,9 +300,13 @@ public function show($id)
         
         $pesan = Pesan::findOrFail($id);
         $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen');
         
         // Pastikan dosen yang membalas adalah penerima ATAU pengirim pesan
-        if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+        // Dan jika sebagai penerima, hanya dapat membalas pesan untuk role yang aktif
+        if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
+            // Lanjutkan proses
+        } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda tidak memiliki akses ke pesan ini'
@@ -325,9 +371,13 @@ public function show($id)
         try {
             $pesan = Pesan::findOrFail($id);
             $dosen = Auth::user();
+            $activeRole = session('active_role', 'dosen');
             
             // Pastikan dosen yang mengakhiri adalah pengirim ATAU penerima pesan
-            if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+            // Dan jika sebagai penerima, hanya dapat mengakhiri pesan untuk role yang aktif
+            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
+                // Lanjutkan proses
+            } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda tidak memiliki akses ke pesan ini'
@@ -374,9 +424,13 @@ public function show($id)
         try {
             $pesan = Pesan::findOrFail($id);
             $dosen = Auth::user();
+            $activeRole = session('active_role', 'dosen');
             
             // Pastikan dosen yang membookmark adalah penerima ATAU pengirim pesan
-            if ($pesan->nip_penerima != $dosen->nip && $pesan->nip_pengirim != $dosen->nip) {
+            // Dan jika sebagai penerima, hanya dapat membookmark pesan untuk role yang aktif
+            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
+                // Lanjutkan proses
+            } else {
                 return redirect()->back()->with('error', 'Anda tidak memiliki akses ke pesan ini');
             }
             
@@ -400,15 +454,19 @@ public function show($id)
     public function history()
     {
         $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen');
         
         // Membuat subquery untuk mendapatkan waktu balasan terakhir
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
         
         // Mengambil semua pesan dengan status 'Berakhir' yang diterima ATAU dikirim oleh dosen
-        $riwayatPesan = Pesan::where(function($query) use ($dosen) {
-                           $query->where('nip_penerima', $dosen->nip)
-                                 ->orWhere('nip_pengirim', $dosen->nip);
+        $riwayatPesan = Pesan::where(function($query) use ($dosen, $activeRole) {
+                          $query->where(function($q) use ($dosen, $activeRole) {
+                              $q->where('nip_penerima', $dosen->nip)
+                                ->where('penerima_role', $activeRole);
+                          })
+                          ->orWhere('nip_pengirim', $dosen->nip);
                        })
                        ->where('status', 'Berakhir')
                        ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
@@ -428,14 +486,18 @@ public function show($id)
     {
         $dosen = Auth::user();
         $filter = $request->filter;
+        $activeRole = session('active_role', 'dosen');
         
         // Membuat subquery untuk mendapatkan waktu balasan terakhir
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
         
-        $query = Pesan::where(function($query) use ($dosen) {
-                    $query->where('nip_penerima', $dosen->nip)
-                          ->orWhere('nip_pengirim', $dosen->nip);
+        $query = Pesan::where(function($query) use ($dosen, $activeRole) {
+                    $query->where(function($q) use ($dosen, $activeRole) {
+                        $q->where('nip_penerima', $dosen->nip)
+                          ->where('penerima_role', $activeRole);
+                    })
+                    ->orWhere('nip_pengirim', $dosen->nip);
                 });
         
         // Filter berdasarkan prioritas
@@ -471,14 +533,18 @@ public function show($id)
     {
         $dosen = Auth::user();
         $keyword = $request->keyword;
+        $activeRole = session('active_role', 'dosen');
         
         // Membuat subquery untuk mendapatkan waktu balasan terakhir
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
         
-        $query = Pesan::where(function($query) use ($dosen) {
-                    $query->where('nip_penerima', $dosen->nip)
-                          ->orWhere('nip_pengirim', $dosen->nip);
+        $query = Pesan::where(function($query) use ($dosen, $activeRole) {
+                    $query->where(function($q) use ($dosen, $activeRole) {
+                        $q->where('nip_penerima', $dosen->nip)
+                          ->where('penerima_role', $activeRole);
+                    })
+                    ->orWhere('nip_pengirim', $dosen->nip);
                 })
                 ->where(function($query) use ($keyword) {
                     $query->where('subjek', 'like', "%{$keyword}%")
@@ -559,6 +625,17 @@ public function show($id)
         try {
             $dosen = Auth::user();
             $pesan = Pesan::findOrFail($id);
+            $activeRole = session('active_role', 'dosen');
+            
+            // Pastikan dosen memiliki akses ke pesan ini dengan role yang aktif
+            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
+                // Lanjutkan proses
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses ke pesan ini'
+                ], 403);
+            }
             
             // Validasi data request
             $request->validate([
@@ -587,9 +664,11 @@ public function show($id)
                     // Sematan untuk pesan utama
                     $pesanToPin = Pesan::findOrFail($id);
                     
-                    // Pastikan pesan ini terkait dengan dosen
-                    if ($pesanToPin->nip_pengirim != $dosen->nip && $pesanToPin->nip_penerima != $dosen->nip) {
-                        continue; // Skip jika bukan pesan dosen
+                    // Pastikan pesan ini terkait dengan dosen dengan role yang aktif
+                    if (($pesanToPin->nip_penerima == $dosen->nip && $pesanToPin->penerima_role == $activeRole) || $pesanToPin->nip_pengirim == $dosen->nip) {
+                        // Lanjutkan
+                    } else {
+                        continue; // Skip jika bukan pesan dosen dengan role yang sesuai
                     }
                     
                     // Buat sematan
@@ -610,7 +689,13 @@ public function show($id)
                     // Sematan untuk balasan
                     $balasanToPin = BalasanPesan::findOrFail($id);
                     
-                    // Pastikan balasan ini terkait dengan dosen
+                    // Pastikan balasan ini terkait dengan pesan yang dosen punya akses
+                    $relatedPesan = Pesan::find($balasanToPin->id_pesan);
+                    if (!$relatedPesan || (($relatedPesan->nip_penerima != $dosen->nip || $relatedPesan->penerima_role != $activeRole) && $relatedPesan->nip_pengirim != $dosen->nip)) {
+                        continue; // Skip jika tidak terkait dengan pesan yang dosen punya akses
+                    }
+                    
+                    // Pastikan balasan ini terkait dengan dosen jika pengirimnya dosen
                     if ($balasanToPin->tipe_pengirim === 'dosen' && $balasanToPin->pengirim_id != $dosen->nip) {
                         continue; // Skip jika bukan balasan dari dosen ini
                     }
@@ -728,6 +813,7 @@ public function show($id)
             'Pesan' => $pesan->toArray(),
             'Balasan' => $balasan->toArray(),
             'Penerima Exists' => $pesan->penerima ? true : false,
+            'Penerima Role' => $pesan->penerima_role,
             'Balasan Count' => $balasan->count()
         ]);
     }
