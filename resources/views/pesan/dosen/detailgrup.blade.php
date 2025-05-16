@@ -10,6 +10,7 @@
         --bs-success: #27AE60;
         --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
         --primary-hover: linear-gradient(to right, #003c8a, #4bc4c9);
+        --text-color: #546E7A; /* Warna teks menu utama */
     }
     
     body {
@@ -65,6 +66,8 @@
         transition: all 0.3s ease;
         cursor: pointer;
         position: relative;
+        width: 100%;
+        text-align: left;
     }
     
     .sidebar-menu .nav-link.active {
@@ -76,22 +79,29 @@
         background: #f8f9fa;
     }
 
-    .komunikasi-submenu .nav-link.active {
+    .komunikasi-submenu .nav-link.active,
+    .pengaturan-submenu .nav-link.active {
         background: #E3F2FD;
         color: var(--bs-primary);
     }
 
-    .komunikasi-submenu .nav-link:hover:not(.active) {
+    .komunikasi-submenu .nav-link:hover:not(.active),
+    .pengaturan-submenu .nav-link:hover:not(.active) {
         background: #f8f9fa;
     }
 
-    .komunikasi-submenu {
+    .komunikasi-submenu,
+    .pengaturan-submenu {
         margin-left: 15px;
+        width: 100%;
     }
 
-    .komunikasi-submenu .nav-link {
+    .komunikasi-submenu .nav-link,
+    .pengaturan-submenu .nav-link {
         padding: 8px 15px;
         font-size: 13px;
+        width: 100%;
+        color: #546E7A; /* Warna teks menu yang konsisten */
     }
     
     .profile-image-placeholder {
@@ -278,6 +288,27 @@
         position: relative;
         z-index: 2;
     }
+    
+    /* Style untuk submenu mode peran */
+    .pengaturan-submenu .btn-link {
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        border: none;
+        background: none;
+        font-size: 13px;
+        width: 100%;
+        text-align: left;
+        margin: 0;
+        border-radius: 0.5rem;
+        color: #546E7A; /* Warna teks abu-abu yang konsisten */
+    }
+    
+    .pengaturan-submenu .btn-link:hover {
+        background-color: #f8f9fa;
+        color: #546E7A; /* Warna teks saat hover - tetap konsisten */
+    }
 </style>
 @endpush
 
@@ -340,6 +371,27 @@
                             <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
                                 <i class="fas fa-question-circle me-2"></i>FAQ
                             </a>
+                            
+                            <!-- Menu Pengaturan dengan Dropdown -->
+                            @if(!empty(Auth::guard('dosen')->user()->jabatan_fungsional) && 
+                                (stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'kaprodi') !== false || 
+                                 stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'ketua') !== false))
+                                <a href="#" class="nav-link menu-item" id="pengaturanDropdownToggle">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-cog me-2"></i>Pengelola</span>
+                                        <i class="fas fa-chevron-down" id="pengaturanDropdownIcon"></i>
+                                    </div>
+                                </a>
+                                <div class="collapse pengaturan-submenu" id="pengaturanSubmenu">
+                                    <form action="{{ route('dosen.switch-role') }}" method="POST" id="switchRoleForm" style="width: 100%;">
+                                        @csrf
+                                        <button type="submit" class="btn-link nav-link">
+                                            <i class="fas {{ session('active_role') === 'kaprodi' ? 'fa-chalkboard-teacher' : 'fa-user-tie' }} me-2"></i>
+                                            Mode {{ session('active_role') === 'kaprodi' ? 'Dosen' : 'Kaprodi' }}
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -376,11 +428,18 @@
                                 <span data-date="{{ $date }}">{{ \Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
                             </div>
                             
-                            @foreach($pesanList as $pesan)
+                           @foreach($pesanList as $pesan)
                                 <div class="chat-message {{ $pesan->tipe_pengirim }}">
                                     <div class="message-bubble">
                                         @if($pesan->tipe_pengirim == 'mahasiswa')
                                             <div class="sender-name">{{ $pesan->pengirim->nama ?? 'Mahasiswa' }}</div>
+                                        @elseif($pesan->tipe_pengirim == 'dosen')
+                                            <div class="sender-name">
+                                                {{ $pesan->pengirim->nama ?? 'Dosen' }} 
+                                                @if(isset($pesan->sender_role) && $pesan->sender_role == 'kaprodi')
+                                                    <span class="badge bg-info">Kaprodi</span>
+                                                @endif
+                                            </div>
                                         @endif
                                         <p>{{ $pesan->isi_pesan }}</p>
                                         <div class="message-time">
@@ -579,6 +638,24 @@ document.addEventListener('DOMContentLoaded', function() {
         grupDropdownIcon.classList.toggle('fa-chevron-down');
     });
     
+    // Initialize the pengaturan dropdown manually
+    const pengaturanDropdownToggle = document.getElementById('pengaturanDropdownToggle');
+    const pengaturanSubmenu = document.getElementById('pengaturanSubmenu');
+    const pengaturanDropdownIcon = document.getElementById('pengaturanDropdownIcon');
+    
+    if (pengaturanDropdownToggle && pengaturanSubmenu && pengaturanDropdownIcon) {
+        pengaturanDropdownToggle.addEventListener('click', function() {
+            // Toggle the collapse
+            const bsCollapse = new bootstrap.Collapse(pengaturanSubmenu, {
+                toggle: true
+            });
+            
+            // Toggle the icon
+            pengaturanDropdownIcon.classList.toggle('fa-chevron-up');
+            pengaturanDropdownIcon.classList.toggle('fa-chevron-down');
+        });
+    }
+    
     // Kode pencarian anggota yang sudah ada
     const searchInput = document.getElementById('searchMahasiswa');
     if (searchInput) {
@@ -643,7 +720,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         dividerDiv.innerHTML = `<span data-date="${dateStr}">${dateDisplay}</span>`;
                         messageContainer.appendChild(dividerDiv);
                     }
-                    
                     // Tambah pesan baru
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'chat-message dosen';
@@ -687,6 +763,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (attachmentBtn && lampiran) {
         attachmentBtn.addEventListener('click', function() {
             lampiran.click();
+        });
+    }
+    
+    // Tambahkan pengendali peristiwa ke form perpindahan peran
+    const switchRoleForm = document.getElementById('switchRoleForm');
+    if (switchRoleForm) {
+        switchRoleForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Submit form langsung
+            this.submit();
         });
     }
 });

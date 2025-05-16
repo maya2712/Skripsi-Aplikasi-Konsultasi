@@ -6,6 +6,7 @@
             --bs-primary: #1a73e8;
             --bs-danger: #FF5252;
             --bs-success: #27AE60;
+            --text-color: #546E7A; /* Warna teks menu utama */
         }
         
         body {
@@ -67,6 +68,8 @@
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
+            width: 100%;
+            text-align: left;
         }
         
         .sidebar-menu .nav-link.active {
@@ -78,12 +81,14 @@
             background: #f8f9fa;
         }
 
-        .komunikasi-submenu .nav-link.active {
+        .komunikasi-submenu .nav-link.active,
+        .pengaturan-submenu .nav-link.active {
             background: #E3F2FD;
             color: var(--bs-primary);
         }
 
-        .komunikasi-submenu .nav-link:hover:not(.active) {
+        .komunikasi-submenu .nav-link:hover:not(.active),
+        .pengaturan-submenu .nav-link:hover:not(.active) {
             background: #f8f9fa;
         }
 
@@ -151,13 +156,18 @@
             margin-bottom: 15px;
         }
 
-        .komunikasi-submenu {
+        .komunikasi-submenu,
+        .pengaturan-submenu {
             margin-left: 15px;
+            width: 100%;
         }
 
-        .komunikasi-submenu .nav-link {
+        .komunikasi-submenu .nav-link,
+        .pengaturan-submenu .nav-link {
             padding: 8px 15px;
             font-size: 13px;
+            width: 100%;
+            color: #546E7A; /* Warna teks menu yang konsisten */
         }
 
         .profile-image {
@@ -275,6 +285,27 @@
             color: white;
             border-color: #1a73e8;
         }
+        
+        /* Style untuk submenu mode peran */
+        .pengaturan-submenu .btn-link {
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            border: none;
+            background: none;
+            font-size: 13px;
+            width: 100%;
+            text-align: left;
+            margin: 0;
+            border-radius: 0.5rem;
+            color: #546E7A; /* Warna teks abu-abu yang konsisten */
+        }
+        
+        .pengaturan-submenu .btn-link:hover {
+            background-color: #f8f9fa;
+            color: #546E7A; /* Warna teks saat hover - tetap konsisten */
+        }
     </style>
 @endpush
 
@@ -285,14 +316,14 @@
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesandosen') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                        <a href="{{ route('dosen.pesan.create') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
                     </div>                                                    
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesandosen') }}" class="nav-link">
+                            <a href="{{ route('dosen.dashboard.pesan') }}" class="nav-link">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
                             <a href="#" class="nav-link menu-item" id="grupDropdownToggle">
@@ -302,17 +333,20 @@
                                 </div>
                             </a>
                             <div class="collapse komunikasi-submenu" id="komunikasiSubmenu">
-                                <a href="{{ url('/buatgrupdosen') }}" class="nav-link menu-item d-flex align-items-center" style="color: #546E7A;">
+                                <a href="{{ route('dosen.grup.create') }}" class="nav-link menu-item d-flex align-items-center">
                                     <i class="fas fa-plus me-2"></i>Grup Baru
                                 </a>
                                 
                                 @php
-                                    $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)->get();
+                                    $activeRole = session('active_role', 'dosen');
+                                    $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)
+                                                            ->where('dosen_role', $activeRole)
+                                                            ->get();
                                 @endphp
                                 
                                 @if($grups && $grups->count() > 0)
                                     @foreach($grups as $grupItem)
-                                    <a href="{{ url('/detailgrup/' . $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                                    <a href="{{ route('dosen.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
                                         {{ $grupItem->nama_grup }}
                                         @if($unreadCount = $grupItem->unreadMessages ?? 0)
                                         <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
@@ -326,12 +360,33 @@
                                 @endif
                             </div>
                             
-                            <a href="{{ url('/riwayatpesandosen') }}" class="nav-link active">
+                            <a href="{{ route('dosen.pesan.history') }}" class="nav-link active">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
                                 <i class="fas fa-question-circle me-2"></i>FAQ
                             </a>
+                            
+                            <!-- Menu Pengaturan dengan Dropdown -->
+                            @if(!empty(Auth::guard('dosen')->user()->jabatan_fungsional) && 
+                                (stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'kaprodi') !== false || 
+                                 stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'ketua') !== false))
+                                <a href="#" class="nav-link menu-item" id="pengaturanDropdownToggle">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-cog me-2"></i>Pengelola</span>
+                                        <i class="fas fa-chevron-down" id="pengaturanDropdownIcon"></i>
+                                    </div>
+                                </a>
+                                <div class="collapse pengaturan-submenu" id="pengaturanSubmenu">
+                                    <form action="{{ route('dosen.switch-role') }}" method="POST" id="switchRoleForm" style="width: 100%;">
+                                        @csrf
+                                        <button type="submit" class="btn-link nav-link">
+                                            <i class="fas {{ session('active_role') === 'kaprodi' ? 'fa-chalkboard-teacher' : 'fa-user-tie' }} me-2"></i>
+                                            Mode {{ session('active_role') === 'kaprodi' ? 'Dosen' : 'Kaprodi' }}
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -366,7 +421,7 @@
                         <div class="card mb-2 message-card {{ strtolower($pesan->prioritas) }}" data-kategori="{{ strtolower($pesan->prioritas) }}" 
                              data-pengirim="{{ $pesan->nip_pengirim == Auth::user()->nip ? ($pesan->mahasiswaPenerima->nama ?? 'Mahasiswa') : ($pesan->mahasiswaPengirim->nama ?? 'Pengirim') }}" 
                              data-judul="{{ $pesan->subjek }}" 
-                             onclick="window.location.href='{{ url('/isipesandosen/' . $pesan->id) }}'">
+                             onclick="window.location.href='{{ route('dosen.pesan.show', $pesan->id) }}'">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 d-flex align-items-center">
@@ -414,14 +469,14 @@
                                         </small>
                                         
                                         <div class="d-flex justify-content-end align-items-center action-buttons" onclick="event.stopPropagation();">
-                                            <form action="{{ url('/bookmarkpesandosen/' . $pesan->id) }}" method="POST" class="d-inline me-2">
+                                            <form action="{{ route('dosen.pesan.bookmark', $pesan->id) }}" method="POST" class="d-inline me-2">
                                                 @csrf
                                                 <button type="submit" class="btn btn-link p-0" title="{{ $pesan->bookmarked ? 'Hapus Bookmark' : 'Bookmark Pesan' }}">
                                                     <i class="fas fa-bookmark bookmark-icon {{ $pesan->bookmarked ? 'active' : '' }}"></i>
                                                 </button>
                                             </form>
                                             
-                                            <a href="{{ url('/isipesandosen/' . $pesan->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
+                                            <a href="{{ route('dosen.pesan.show', $pesan->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
                                                 <i class="fas fa-eye me-1"></i>Lihat
                                             </a>
                                         </div>
@@ -458,7 +513,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize the dropdown manually
+        // Initialize the grup dropdown manually
         const grupDropdownToggle = document.getElementById('grupDropdownToggle');
         const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
         const grupDropdownIcon = document.getElementById('grupDropdownIcon');
@@ -477,6 +532,24 @@
                 // Toggle the icon
                 grupDropdownIcon.classList.toggle('fa-chevron-up');
                 grupDropdownIcon.classList.toggle('fa-chevron-down');
+            });
+        }
+        
+        // Initialize the pengaturan dropdown manually
+        const pengaturanDropdownToggle = document.getElementById('pengaturanDropdownToggle');
+        const pengaturanSubmenu = document.getElementById('pengaturanSubmenu');
+        const pengaturanDropdownIcon = document.getElementById('pengaturanDropdownIcon');
+        
+        if (pengaturanDropdownToggle && pengaturanSubmenu && pengaturanDropdownIcon) {
+            pengaturanDropdownToggle.addEventListener('click', function() {
+                // Toggle the collapse
+                const bsCollapse = new bootstrap.Collapse(pengaturanSubmenu, {
+                    toggle: true
+                });
+                
+                // Toggle the icon
+                pengaturanDropdownIcon.classList.toggle('fa-chevron-up');
+                pengaturanDropdownIcon.classList.toggle('fa-chevron-down');
             });
         }
         
@@ -556,6 +629,17 @@
                 applyFilterAndSearch();
             });
         });
+        
+        // Tambahkan pengendali peristiwa ke form perpindahan peran untuk menampilkan toast
+        const switchRoleForm = document.getElementById('switchRoleForm');
+        if (switchRoleForm) {
+            switchRoleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Kirim form langsung tanpa animasi
+                this.submit();
+            });
+        }
     });
 </script>
 @endpush

@@ -13,6 +13,7 @@ class PesanSematan extends Model
     
     protected $fillable = [
         'nip_dosen',
+        'dosen_role',
         'jenis_pesan',
         'pesan_id',
         'balasan_id',

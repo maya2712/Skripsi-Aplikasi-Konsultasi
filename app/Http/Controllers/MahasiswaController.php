@@ -346,6 +346,7 @@ class MahasiswaController extends Controller
             $pesan->grup_id = $id;
             $pesan->pengirim_id = $mahasiswa->nim;
             $pesan->tipe_pengirim = 'mahasiswa';
+             $pesan->sender_role = 'mahasiswa';
             $pesan->isi_pesan = $request->isi_pesan;
             
             // Jika ada lampiran

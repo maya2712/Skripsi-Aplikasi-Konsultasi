@@ -585,6 +585,9 @@ class PesanDosenController extends Controller
     public function faq()
     {
         $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen');
+        
+        Log::info('Dosen role in faq: ' . $activeRole);
         
         // Ambil sematan yang masih aktif dengan eager loading relasi dosen
         $sematan = PesanSematan::with('dosen')
@@ -592,6 +595,11 @@ class PesanDosenController extends Controller
                         ->where('durasi_sematan', '>', now())
                         ->orderBy('created_at', 'desc')
                         ->get();
+        
+        // Debug info
+        foreach ($sematan as $item) {
+            Log::info('Sematan ID: ' . $item->id . ', NIP: ' . $item->nip_dosen . ', Role: ' . $item->dosen_role);
+        }
         
         // Kelompokkan sematan berdasarkan kategori
         $sematanByKategori = [
@@ -603,6 +611,12 @@ class PesanDosenController extends Controller
         
         foreach ($sematan as $item) {
             $sematanByKategori[$item->kategori][] = $item;
+            
+            // Set flag dapat dibatalkan hanya jika dosen sama dan role aktif sama
+            $canCancel = ($item->nip_dosen == $dosen->nip && $item->dosen_role == $activeRole);
+            $item->can_cancel = $canCancel;
+            
+            Log::info('Sematan ID: ' . $item->id . ', can_cancel: ' . ($canCancel ? 'true' : 'false'));
         }
         
         // Ekstrak daftar dosen dari sematan dan hilangkan duplikat
@@ -624,8 +638,8 @@ class PesanDosenController extends Controller
     {
         try {
             $dosen = Auth::user();
+            $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dosen
             $pesan = Pesan::findOrFail($id);
-            $activeRole = session('active_role', 'dosen');
             
             // Pastikan dosen memiliki akses ke pesan ini dengan role yang aktif
             if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
@@ -643,10 +657,10 @@ class PesanDosenController extends Controller
                 'message_ids.*' => 'required|string',
                 'kategori' => 'required|in:krs,kp,skripsi,mbkm',
                 'judul' => 'required|string|max:255',
-                'durasi' => 'required|integer|min:1|max:1000' // dalam jam
+                'durasi' => 'required|integer|min:1|max:1000'
             ]);
             
-           // Pastikan konversi ke integer sebelum digunakan
+            // Pastikan konversi ke integer sebelum digunakan
             $durasi = (int) $request->durasi;
             $durasiSematan = Carbon::now()->addHours($request->durasi);
             
@@ -671,9 +685,10 @@ class PesanDosenController extends Controller
                         continue; // Skip jika bukan pesan dosen dengan role yang sesuai
                     }
                     
-                    // Buat sematan
+                    // Buat sematan dengan role dosen aktif
                     $sematan = PesanSematan::create([
                         'nip_dosen' => $dosen->nip,
+                        'dosen_role' => $activeRole, // Simpan role dosen saat membuat sematan
                         'jenis_pesan' => 'pesan',
                         'pesan_id' => $id,
                         'balasan_id' => null,
@@ -700,9 +715,10 @@ class PesanDosenController extends Controller
                         continue; // Skip jika bukan balasan dari dosen ini
                     }
                     
-                    // Buat sematan
+                    // Buat sematan dengan role dosen aktif
                     $sematan = PesanSematan::create([
                         'nip_dosen' => $dosen->nip,
+                        'dosen_role' => $activeRole, // Simpan role dosen saat membuat sematan
                         'jenis_pesan' => 'balasan',
                         'pesan_id' => null,
                         'balasan_id' => $id,
@@ -737,31 +753,60 @@ class PesanDosenController extends Controller
      * Batalkan sematan pesan
      */
     public function batalkanSematan($id)
-    {
-        try {
-            $dosen = Auth::user();
-            $sematan = PesanSematan::where('id', $id)
-                                   ->where('nip_dosen', $dosen->nip)
-                                   ->firstOrFail();
-            
-            // Nonaktifkan sematan
-            $sematan->aktif = false;
-            $sematan->save();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Sematan berhasil dibatalkan'
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error saat membatalkan sematan: ' . $e->getMessage());
+{
+    try {
+        $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen');
+        
+        Log::info('Mencoba membatalkan sematan dengan ID: ' . $id);
+        Log::info('Role aktif dosen: ' . $activeRole);
+        
+        // Cari sematan berdasarkan ID untuk debugging
+        $sematanDebug = PesanSematan::find($id);
+        if ($sematanDebug) {
+            Log::info('Sematan ditemukan | ID: ' . $sematanDebug->id . 
+                     ', NIP Dosen: ' . $sematanDebug->nip_dosen . 
+                     ', Dosen Role: ' . $sematanDebug->dosen_role);
+        } else {
+            Log::error('Sematan dengan ID ' . $id . ' tidak ditemukan');
+        }
+        
+        // Cari sematan yang sesuai dengan kondisi
+        $sematan = PesanSematan::where('id', $id)
+                               ->where('nip_dosen', $dosen->nip)
+                               ->where('dosen_role', $activeRole)
+                               ->first();
+        
+        if (!$sematan) {
+            Log::error('Tidak ada hasil query untuk sematan dengan ID: ' . $id . 
+                      ', NIP: ' . $dosen->nip . ', Role: ' . $activeRole);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membatalkan sematan: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Anda tidak dapat membatalkan sematan ini dengan peran yang aktif saat ini'
+            ], 403);
         }
+        
+        // Nonaktifkan sematan
+        $sematan->aktif = false;
+        $sematan->save();
+        
+        Log::info('Sematan berhasil dinonaktifkan: ' . $id);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Sematan berhasil dibatalkan'
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error saat membatalkan sematan: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal membatalkan sematan: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Mendapatkan daftar sematan untuk FAQ

@@ -16,6 +16,7 @@ class GrupPesan extends Model
         'grup_id',
         'pengirim_id',
         'tipe_pengirim',
+        'sender_role',
         'isi_pesan',
         'lampiran'
     ];

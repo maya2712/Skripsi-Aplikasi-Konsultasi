@@ -70,6 +70,9 @@
             padding: 10px 15px;
             transition: all 0.3s ease;
             cursor: pointer;
+            position: relative;
+            width: 100%;
+            text-align: left;
         }
         
         .sidebar-menu .nav-link.active {
@@ -81,22 +84,29 @@
             background: #f8f9fa;
         }
 
-        .komunikasi-submenu .nav-link.active {
+        .komunikasi-submenu .nav-link.active,
+        .pengaturan-submenu .nav-link.active {
             background: #E3F2FD;
             color: var(--bs-primary);
         }
 
-        .komunikasi-submenu .nav-link:hover:not(.active) {
+        .komunikasi-submenu .nav-link:hover:not(.active),
+        .pengaturan-submenu .nav-link:hover:not(.active) {
             background: #f8f9fa;
         }
 
-        .komunikasi-submenu {
+        .komunikasi-submenu,
+        .pengaturan-submenu {
             margin-left: 15px;
+            width: 100%;
         }
 
-        .komunikasi-submenu .nav-link {
+        .komunikasi-submenu .nav-link,
+        .pengaturan-submenu .nav-link {
             padding: 8px 15px;
             font-size: 13px;
+            width: 100%;
+            color: #546E7A; /* Warna teks menu yang konsisten */
         }
 
         .custom-container {
@@ -239,6 +249,27 @@
             background-color: #E3F2FD;
             color: #1a73e8;
         }
+        
+        /* Style untuk submenu mode peran */
+        .pengaturan-submenu .btn-link {
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            border: none;
+            background: none;
+            font-size: 13px;
+            width: 100%;
+            text-align: left;
+            margin: 0;
+            border-radius: 0.5rem;
+            color: #546E7A; /* Warna teks abu-abu yang konsisten */
+        }
+        
+        .pengaturan-submenu .btn-link:hover {
+            background-color: #f8f9fa;
+            color: #546E7A; /* Warna teks saat hover - tetap konsisten */
+        }
     </style>
 @endpush
 @section('content')
@@ -249,29 +280,33 @@
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesandosen') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                        <a href="{{ route('dosen.pesan.create') }}" class="btn" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
                     </div>
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesandosen') }}" class="nav-link">
+                            <a href="{{ route('dosen.dashboard.pesan') }}" class="nav-link">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
-                            <a href="#" class="nav-link menu-item" id="grupDropdownToggle" data-bs-toggle="collapse" data-bs-target="#komunikasiSubmenu">
+
+                            <a href="#" class="nav-link menu-item" id="grupDropdownToggle">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
                                     <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
                                 </div>
                             </a>
                             <div class="collapse komunikasi-submenu" id="komunikasiSubmenu">
-                                <a href="{{ route('dosen.grup.create') }}" class="nav-link menu-item d-flex align-items-center" style="color: #546E7A;">
+                                <a href="{{ route('dosen.grup.create') }}" class="nav-link menu-item d-flex align-items-center">
                                     <i class="fas fa-plus me-2"></i>Grup Baru
                                 </a>
                                 
                                 @php
-                                    $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)->get();
+                                    $activeRole = session('active_role', 'dosen');
+                                    $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)
+                                                            ->where('dosen_role', $activeRole)
+                                                            ->get();
                                 @endphp
                                 
                                 @if($grups && $grups->count() > 0)
@@ -289,12 +324,35 @@
                                     </div>
                                 @endif
                             </div>
-                            <a href="{{ url('/riwayatpesandosen') }}" class="nav-link menu-item">
+                            
+                            <a href="{{ route('dosen.pesan.history') }}" class="nav-link menu-item">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
-                            <a href="{{ url('/faq') }}" class="nav-link menu-item active">
+                            
+                            <a href="{{ url('/faqdosen') }}" class="nav-link menu-item active">
                                 <i class="fas fa-question-circle me-2"></i>FAQ
                             </a>
+                            
+                            <!-- Menu Pengaturan dengan Dropdown -->
+                            @if(!empty(Auth::guard('dosen')->user()->jabatan_fungsional) && 
+                                (stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'kaprodi') !== false || 
+                                 stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'ketua') !== false))
+                                <a href="#" class="nav-link menu-item" id="pengaturanDropdownToggle">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-cog me-2"></i>Pengelola</span>
+                                        <i class="fas fa-chevron-down" id="pengaturanDropdownIcon"></i>
+                                    </div>
+                                </a>
+                                <div class="collapse pengaturan-submenu" id="pengaturanSubmenu">
+                                    <form action="{{ route('dosen.switch-role') }}" method="POST" id="switchRoleForm" style="width: 100%;">
+                                        @csrf
+                                        <button type="submit" class="btn-link nav-link">
+                                            <i class="fas {{ session('active_role') === 'kaprodi' ? 'fa-chalkboard-teacher' : 'fa-user-tie' }} me-2"></i>
+                                            Mode {{ session('active_role') === 'kaprodi' ? 'Dosen' : 'Kaprodi' }}
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -365,7 +423,8 @@
                                     <div class="p-3">
                                         <p>{{ $item->isi_sematan }}</p>
                                         
-                                        @if($item->nip_dosen == Auth::user()->nip)
+                                       <!-- Ganti bagian tombol batalkan -->
+                                        @if(isset($item->can_cancel) && $item->can_cancel)
                                             <div class="mt-3 text-end">
                                                 <button class="btn btn-sm btn-danger batalkan-sematan" data-id="{{ $item->id }}">
                                                     <i class="fas fa-times"></i> Batalkan Sematan
@@ -424,6 +483,24 @@
             komunikasiSubmenu.addEventListener('hidden.bs.collapse', function() {
                 grupDropdownIcon.classList.remove('fa-chevron-up');
                 grupDropdownIcon.classList.add('fa-chevron-down');
+            });
+        }
+        
+        // Initialize the pengaturan dropdown manually
+        const pengaturanDropdownToggle = document.getElementById('pengaturanDropdownToggle');
+        const pengaturanSubmenu = document.getElementById('pengaturanSubmenu');
+        const pengaturanDropdownIcon = document.getElementById('pengaturanDropdownIcon');
+        
+        if (pengaturanDropdownToggle && pengaturanSubmenu && pengaturanDropdownIcon) {
+            pengaturanDropdownToggle.addEventListener('click', function() {
+                // Toggle the collapse
+                const bsCollapse = new bootstrap.Collapse(pengaturanSubmenu, {
+                    toggle: true
+                });
+                
+                // Toggle the icon
+                pengaturanDropdownIcon.classList.toggle('fa-chevron-up');
+                pengaturanDropdownIcon.classList.toggle('fa-chevron-down');
             });
         }
         
@@ -597,6 +674,17 @@
                 }
             });
         });
+        
+        // Tambahkan pengendali peristiwa ke form perpindahan peran untuk menampilkan toast
+        const switchRoleForm = document.getElementById('switchRoleForm');
+        if (switchRoleForm) {
+            switchRoleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Kirim form langsung tanpa animasi
+                this.submit();
+            });
+        }
     });
 </script>
 @endpush
