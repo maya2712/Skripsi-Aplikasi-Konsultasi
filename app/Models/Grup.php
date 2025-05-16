@@ -15,7 +15,8 @@ class Grup extends Model
     
     protected $fillable = [
         'nama_grup',
-        'dosen_id'
+        'dosen_id',
+        'dosen_role'  // Tambahkan ini
     ];
     
     // Relasi dengan dosen (pembuat grup)

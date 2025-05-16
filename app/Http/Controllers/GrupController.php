@@ -37,7 +37,12 @@ class GrupController extends Controller
     public function index()
     {
         $dosen = Auth::user();
-        $grups = Grup::where('dosen_id', $dosen->nip)->get();
+        $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dari session
+        
+        // Ambil grup sesuai dengan peran aktif dosen
+        $grups = Grup::where('dosen_id', $dosen->nip)
+                    ->where('dosen_role', $activeRole)
+                    ->get();
         
         // Tambahkan unread count untuk setiap grup
         foreach ($grups as $grup) {
@@ -47,6 +52,7 @@ class GrupController extends Controller
         
         return view('pesan.dosen.daftargrup', compact('grups'));
     }
+    
     // Tampilkan form buat grup baru
     public function create()
     {
@@ -65,10 +71,14 @@ class GrupController extends Controller
             'anggota.*' => 'exists:mahasiswas,nim'
         ]);
         
-        // Buat grup baru dengan NIP dosen yang login
+        $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dari session
+        
+        // Buat grup baru dengan NIP dosen yang login dan peran aktif
         $grup = Grup::create([
             'nama_grup' => $request->nama_grup,
-            'dosen_id' => Auth::user()->nip  // Gunakan NIP sebagai foreign key
+            'dosen_id' => $dosen->nip,
+            'dosen_role' => $activeRole // Simpan peran dosen saat membuat grup
         ]);
         
         // Tambahkan anggota ke grup
@@ -83,10 +93,11 @@ class GrupController extends Controller
     {
         $grup = Grup::with('mahasiswa')->findOrFail($id);
         $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dari session
         
-        // Pastikan dosen yang melihat adalah pemilik grup
-        if ($grup->dosen_id != $dosen->nip) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini');
+        // Pastikan dosen yang melihat adalah pemilik grup dan dengan peran yang sesuai
+        if ($grup->dosen_id != $dosen->nip || $grup->dosen_role != $activeRole) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke grup ini dengan peran saat ini');
         }
         
         // Ambil semua pesan grup
@@ -122,10 +133,12 @@ class GrupController extends Controller
     public function destroy($id)
     {
         $grup = Grup::findOrFail($id);
+        $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dari session
         
-        // Pastikan dosen yang menghapus adalah pemilik grup
-        if ($grup->dosen_id != Auth::user()->nip) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus grup ini');
+        // Pastikan dosen yang menghapus adalah pemilik grup dan dengan peran yang sesuai
+        if ($grup->dosen_id != $dosen->nip || $grup->dosen_role != $activeRole) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus grup ini dengan peran saat ini');
         }
         
         $grup->delete();
@@ -143,10 +156,12 @@ class GrupController extends Controller
         ]);
         
         $grup = Grup::findOrFail($id);
+        $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dari session
         
-        // Pastikan dosen yang menambahkan adalah pemilik grup
-        if ($grup->dosen_id != Auth::user()->nip) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit grup ini');
+        // Pastikan dosen yang menambahkan adalah pemilik grup dan dengan peran yang sesuai
+        if ($grup->dosen_id != $dosen->nip || $grup->dosen_role != $activeRole) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit grup ini dengan peran saat ini');
         }
         
         // Tambahkan anggota baru ke grup
@@ -160,6 +175,14 @@ class GrupController extends Controller
     public function hapusAnggota($id, $mahasiswa_id)
     {
         $grup = Grup::findOrFail($id);
+        $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dari session
+        
+        // Pastikan dosen yang menghapus anggota adalah pemilik grup dan dengan peran yang sesuai
+        if ($grup->dosen_id != $dosen->nip || $grup->dosen_role != $activeRole) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus anggota dari grup ini dengan peran saat ini');
+        }
+        
         $grup->mahasiswa()->detach($mahasiswa_id);
         
         return redirect()->back()->with('success', 'Anggota berhasil dihapus dari grup');
@@ -173,21 +196,23 @@ class GrupController extends Controller
         ]);
         
         $grup = Grup::findOrFail($id);
-        $user = Auth::user();
+        $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dari session
         
-        // Cek apakah pengirim adalah dosen pemilik grup
-        if ($user->nip != $grup->dosen_id) {
+        // Cek apakah pengirim adalah dosen pemilik grup dan dengan peran yang sesuai
+        if ($dosen->nip != $grup->dosen_id || $grup->dosen_role != $activeRole) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak memiliki akses untuk mengirim pesan di grup ini'
+                'message' => 'Anda tidak memiliki akses untuk mengirim pesan di grup ini dengan peran saat ini'
             ], 403);
         }
         
         // Buat pesan baru
         $pesan = new GrupPesan();
         $pesan->grup_id = $id;
-        $pesan->pengirim_id = $user->nip;
+        $pesan->pengirim_id = $dosen->nip;
         $pesan->tipe_pengirim = 'dosen';
+        $pesan->sender_role = $activeRole; // Tambahkan peran pengirim
         $pesan->isi_pesan = $request->isi_pesan;
         
         // Jika ada lampiran
@@ -234,9 +259,10 @@ class GrupController extends Controller
             'message' => 'Pesan berhasil dikirim',
             'data' => [
                 'id' => $pesan->id,
-                'pengirim' => $user->nama,
+                'pengirim' => $dosen->nama,
                 'isi_pesan' => $pesan->isi_pesan,
-                'created_at' => $pesan->created_at->format('H:i')
+                'created_at' => $pesan->created_at->format('H:i'),
+                'sender_role' => $pesan->sender_role // Tambahkan informasi peran pengirim
             ]
         ]);
     }

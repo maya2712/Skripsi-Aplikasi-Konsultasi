@@ -312,7 +312,10 @@
                                 </a>
                                 
                                 @php
-                                    $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)->get();
+                                    $activeRole = session('active_role', 'dosen');
+                                    $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)
+                                                            ->where('dosen_role', $activeRole)
+                                                            ->get();
                                 @endphp
                                 
                                 @if($grups && $grups->count() > 0)

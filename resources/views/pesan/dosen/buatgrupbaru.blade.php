@@ -111,6 +111,15 @@
             color: #6c757d;
             margin-top: 5px;
         }
+        
+        /* Style untuk role badge */
+        .role-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
     </style>
 @endpush
 
@@ -131,6 +140,13 @@
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
+    </div>
+    @endif
+
+    @if(session()->has('active_role'))
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Grup ini akan dibuat sebagai grup {{ session('active_role') === 'kaprodi' ? 'Kaprodi' : 'Dosen' }}. Anda hanya dapat melihat dan mengelola grup ini saat berada dalam peran {{ session('active_role') === 'kaprodi' ? 'Kaprodi' : 'Dosen' }}.
     </div>
     @endif
 
