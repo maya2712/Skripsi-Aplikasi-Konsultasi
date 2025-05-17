@@ -235,56 +235,133 @@
         margin-bottom: 10px;
     }
     
-    /* Custom toast/alert styling */
-    .custom-toast {
+    /* Custom modal/pop-up styling */
+    .role-modal-backdrop {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        max-width: 350px;
-        z-index: 1060;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         opacity: 0;
-        transform: translateY(-15px);
+        visibility: hidden;
         transition: all 0.3s ease;
     }
     
-    .custom-toast.show {
+    .role-modal-backdrop.show {
         opacity: 1;
-        transform: translateY(0);
+        visibility: visible;
     }
     
-    .custom-toast-header {
+    .role-modal {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 400px;
+        transform: scale(0.8);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+        text-align: center;
+    }
+    
+    .role-modal-backdrop.show .role-modal {
+        transform: scale(1);
+    }
+    
+    .role-modal-header {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        position: relative;
+    }
+    
+    .role-modal-body {
+        padding: 20px;
+    }
+    
+    .role-modal-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 10px 15px;
-        border-bottom: 1px solid #e9ecef;
-        background-color: #f8f9fa;
+        justify-content: center;
+        font-size: 30px;
     }
     
-    .custom-toast-body {
-        padding: 15px;
+    .role-modal-success .role-modal-header {
+        background-color: #E3F2FD;
+        color: var(--bs-primary);
     }
     
-    /* Success toast styling */
-    .custom-toast-success {
-        border-left: 4px solid var(--bs-success);
+    .role-modal-success .role-modal-icon {
+        background-color: #E3F2FD;
+        color: var(--bs-primary);
     }
     
-    .custom-toast-success .custom-toast-header {
-        color: var(--bs-success);
-    }
-    
-    /* Error toast styling */
-    .custom-toast-error {
-        border-left: 4px solid var(--bs-danger);
-    }
-    
-    .custom-toast-error .custom-toast-header {
+    .role-modal-error .role-modal-header {
+        background-color: #FFEBEE;
         color: var(--bs-danger);
+    }
+    
+    .role-modal-error .role-modal-icon {
+        background-color: #FFEBEE;
+        color: var(--bs-danger);
+    }
+    
+    .role-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .role-modal-message {
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+    
+    .role-modal-footer {
+        padding: 10px 20px 20px;
+    }
+    
+    .btn-role-modal {
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-weight: 500;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-role-modal-primary {
+        background: linear-gradient(to right, #1a73e8, #3f9cff);
+        color: white;
+    }
+    
+    .btn-role-modal-primary:hover {
+        background: linear-gradient(to right, #1557b0, #1a73e8);
+        box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
+        color: white;
+    }
+    
+    /* Animasi loading spinner */
+    .role-loading-spinner {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 15px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: var(--bs-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
     
     /* Style untuk submenu mode peran */
@@ -582,14 +659,24 @@
     </div>
 </div>
 
-<!-- Custom Toast untuk notifikasi pindah peran -->
-<div class="custom-toast custom-toast-success" id="roleToast">
-    <div class="custom-toast-header">
-        <strong><i class="fas fa-check-circle me-2"></i> Berhasil</strong>
-        <button type="button" class="btn-close" onclick="closeToast()"></button>
-    </div>
-    <div class="custom-toast-body">
-        Mode berhasil diubah menjadi <strong id="roleText">Dosen</strong>
+<!-- Modal Role Switcher -->
+<div class="role-modal-backdrop" id="roleModalBackdrop">
+    <div class="role-modal role-modal-success">
+        <div class="role-modal-header">
+            <h5 class="role-modal-title">Perpindahan Mode</h5>
+        </div>
+        <div class="role-modal-body">
+            <div class="role-loading-spinner" id="roleLoadingSpinner"></div>
+            <div class="role-modal-icon" id="roleSuccessIcon" style="display: none;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p class="role-modal-message" id="roleModalMessage">Sedang mengubah mode...</p>
+        </div>
+        <div class="role-modal-footer">
+            <button type="button" class="btn btn-role-modal btn-role-modal-primary" id="roleModalClose" style="display: none;">
+                Lanjutkan
+            </button>
+        </div>
     </div>
 </div>
 @endsection
@@ -692,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Kombinasikan filter pencarian dengan filter prioritas
             const matchesSearch = messageText.includes(searchTerm);
-            const matchesFilter = activeFilter === 'semua' || 
+                            const matchesFilter = activeFilter === 'semua' || 
                                  (activeFilter === 'penting' && isPenting) || 
                                  (activeFilter === 'umum' && isUmum);
             
@@ -762,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Tambahkan pengendali peristiwa ke form perpindahan peran untuk menampilkan toast
+    // Tambahkan pengendali peristiwa ke form perpindahan peran untuk menampilkan modal
     const switchRoleForm = document.getElementById('switchRoleForm');
     if (switchRoleForm) {
         switchRoleForm.addEventListener('submit', function(e) {
@@ -772,16 +859,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentRole = "{{ session('active_role') }}";
             const newRole = currentRole === 'kaprodi' ? 'Dosen' : 'Kaprodi';
             
-            // Perbarui teks peran di toast
-            document.getElementById('roleText').textContent = newRole;
+            // Tampilkan modal dengan animasi loading
+            showRoleModal('Sedang mengubah mode ke ' + newRole + '...');
             
-            // Tampilkan toast
-            showToast();
-            
-            // Kirim form setelah sedikit penundaan agar toast terlihat
+            // Kirim form setelah penundaan untuk animasi loading
             setTimeout(() => {
-                this.submit();
-            }, 1000);
+                // Ganti pesan dan tampilkan ikon sukses
+                document.getElementById('roleLoadingSpinner').style.display = 'none';
+                document.getElementById('roleSuccessIcon').style.display = 'flex';
+                document.getElementById('roleModalMessage').textContent = 'Mode berhasil diubah menjadi ' + newRole;
+                document.getElementById('roleModalClose').style.display = 'inline-block';
+                
+                // Submit form saat tombol "Lanjutkan" ditekan
+                document.getElementById('roleModalClose').addEventListener('click', () => {
+                    closeRoleModal();
+                    this.submit();
+                });
+                
+            }, 1500); // Delay 1.5 detik untuk efek loading
         });
     }
     
@@ -795,21 +890,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Fungsi untuk menampilkan toast
-function showToast() {
-    const toast = document.getElementById('roleToast');
-    toast.classList.add('show');
-    
-    // Sembunyikan toast secara otomatis setelah 5 detik
-    setTimeout(() => {
-        closeToast();
-    }, 5000);
+// Fungsi untuk menampilkan modal perpindahan peran
+function showRoleModal(message) {
+    const modal = document.getElementById('roleModalBackdrop');
+    if (modal) {
+        // Perbarui pesan jika ada
+        if (message) {
+            document.getElementById('roleModalMessage').textContent = message;
+        }
+        
+        // Pastikan semua elemen dalam keadaan default
+        document.getElementById('roleLoadingSpinner').style.display = 'block';
+        document.getElementById('roleSuccessIcon').style.display = 'none';
+        document.getElementById('roleModalClose').style.display = 'none';
+        
+        // Tampilkan modal
+        modal.classList.add('show');
+    }
 }
 
-// Fungsi untuk menutup toast
-function closeToast() {
-    const toast = document.getElementById('roleToast');
-    toast.classList.remove('show');
+// Fungsi untuk menutup modal perpindahan peran
+function closeRoleModal() {
+    const modal = document.getElementById('roleModalBackdrop');
+    if (modal) {
+        modal.classList.remove('show');
+    }
 }
 </script>
 @endpush
