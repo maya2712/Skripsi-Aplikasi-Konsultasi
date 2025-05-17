@@ -29,6 +29,10 @@ class RoleSwitchController extends Controller
         
         Log::info('Role switched to: ' . $newRole);
         
-        return redirect()->back()->with('success', 'Berhasil beralih ke mode ' . ucfirst($newRole));
+        // PERUBAHAN: Hapus notifikasi success
+        return redirect()->back();
+        
+        // Baris sebelumnya yang menyebabkan notifikasi muncul:
+        // return redirect()->back()->with('success', 'Berhasil beralih ke mode ' . ucfirst($newRole));
     }
 }

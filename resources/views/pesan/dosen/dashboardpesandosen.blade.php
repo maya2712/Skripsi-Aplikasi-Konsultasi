@@ -593,25 +593,36 @@
     </div>
 </div>
 @endsection
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Inisialisasi dropdown Bootstrap secara manual dan benar
+    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+    dropdownElementList.forEach(function(dropdownToggleEl) {
+        new bootstrap.Dropdown(dropdownToggleEl);
+    });
+    
     // Initialize the grup dropdown manually
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
     const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
     const grupDropdownIcon = document.getElementById('grupDropdownIcon');
     
-    grupDropdownToggle.addEventListener('click', function() {
-        // Toggle the collapse
-        const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
-            toggle: true
+    if (grupDropdownToggle && komunikasiSubmenu && grupDropdownIcon) {
+        grupDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Toggle the collapse
+            if (komunikasiSubmenu.classList.contains('show')) {
+                komunikasiSubmenu.classList.remove('show');
+                grupDropdownIcon.classList.remove('fa-chevron-up');
+                grupDropdownIcon.classList.add('fa-chevron-down');
+            } else {
+                komunikasiSubmenu.classList.add('show');
+                grupDropdownIcon.classList.remove('fa-chevron-down');
+                grupDropdownIcon.classList.add('fa-chevron-up');
+            }
         });
-        
-        // Toggle the icon
-        grupDropdownIcon.classList.toggle('fa-chevron-up');
-        grupDropdownIcon.classList.toggle('fa-chevron-down');
-    });
+    }
     
     // Initialize the pengaturan dropdown manually
     const pengaturanDropdownToggle = document.getElementById('pengaturanDropdownToggle');
@@ -619,15 +630,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const pengaturanDropdownIcon = document.getElementById('pengaturanDropdownIcon');
     
     if (pengaturanDropdownToggle && pengaturanSubmenu && pengaturanDropdownIcon) {
-        pengaturanDropdownToggle.addEventListener('click', function() {
-            // Toggle the collapse
-            const bsCollapse = new bootstrap.Collapse(pengaturanSubmenu, {
-                toggle: true
-            });
+        pengaturanDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Toggle the icon
-            pengaturanDropdownIcon.classList.toggle('fa-chevron-up');
-            pengaturanDropdownIcon.classList.toggle('fa-chevron-down');
+            // Toggle the collapse
+            if (pengaturanSubmenu.classList.contains('show')) {
+                pengaturanSubmenu.classList.remove('show');
+                pengaturanDropdownIcon.classList.remove('fa-chevron-up');
+                pengaturanDropdownIcon.classList.add('fa-chevron-down');
+            } else {
+                pengaturanSubmenu.classList.add('show');
+                pengaturanDropdownIcon.classList.remove('fa-chevron-down');
+                pengaturanDropdownIcon.classList.add('fa-chevron-up');
+            }
         });
     }
     

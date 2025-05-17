@@ -362,7 +362,7 @@
             <div class="col-md-9">
                 <div class="bg-white p-4 rounded-3 shadow-sm">
                     <h2 class="mb-1 text-center" style="font-weight: bold;">FAQ KONSULTASI AKADEMIK</h2>
-                    <p class="text-muted mb-4 text-center">Kumpulan pertanyaan yang telah di Arsipkan oleh Dosen</p>
+                    <p class="text-muted mb-4 text-center">Kumpulan pesan yang telah di Arsipkan oleh Dosen</p>
 
                     <!-- Search Box -->
                     <div class="position-relative mb-4">
