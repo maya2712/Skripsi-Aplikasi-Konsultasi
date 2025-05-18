@@ -71,16 +71,11 @@
                 <label for="prodi_id" class="form-label">Program Studi *</label>
                 <select class="form-select @error('prodi_id') is-invalid @enderror" id="prodi_id" name="prodi_id" required>
                     <option value="">Pilih Program Studi</option>
-                    @if(isset($prodis) && count($prodis) > 0)
-                        @foreach($prodis as $prodi)
-                            <option value="{{ $prodi['id'] }}" {{ old('prodi_id') == $prodi['id'] ? 'selected' : '' }}>
-                                {{ $prodi['nama_prodi'] }}
-                            </option>
-                        @endforeach
-                    @else
-                        <option value="1">Teknik Informatika</option>
-                        <option value="2">Teknik Elektro</option>
-                    @endif
+                    @foreach($prodis as $prodi)
+                        <option value="{{ $prodi->id }}" {{ old('prodi_id') == $prodi->id ? 'selected' : '' }}>
+                            {{ $prodi->nama_prodi }}
+                        </option>
+                    @endforeach
                 </select>
                 @error('prodi_id')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -91,17 +86,11 @@
                 <label for="konsentrasi_id" class="form-label">Konsentrasi</label>
                 <select class="form-select @error('konsentrasi_id') is-invalid @enderror" id="konsentrasi_id" name="konsentrasi_id">
                     <option value="">Pilih Konsentrasi</option>
-                    @if(isset($konsentrasis) && count($konsentrasis) > 0)
-                        @foreach($konsentrasis as $konsentrasi)
-                            <option value="{{ $konsentrasi['id'] }}" {{ old('konsentrasi_id') == $konsentrasi['id'] ? 'selected' : '' }}>
-                                {{ $konsentrasi['nama_konsentrasi'] }}
-                            </option>
-                        @endforeach
-                    @else
-                        <option value="1">Rekayasa Perangkat Lunak</option>
-                        <option value="2">Komputasi Cerdas dan Visi</option>
-                        <option value="3">Komputasi Berbasis Jaringan</option>
-                    @endif
+                    @foreach($konsentrasis as $konsentrasi)
+                        <option value="{{ $konsentrasi->id }}" {{ old('konsentrasi_id') == $konsentrasi->id ? 'selected' : '' }}>
+                            {{ $konsentrasi->nama_konsentrasi }}
+                        </option>
+                    @endforeach
                 </select>
                 @error('konsentrasi_id')
                     <div class="invalid-feedback">{{ $message }}</div>

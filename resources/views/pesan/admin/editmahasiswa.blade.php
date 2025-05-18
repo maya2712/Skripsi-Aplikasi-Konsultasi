@@ -71,8 +71,8 @@
                 <select class="form-select @error('prodi_id') is-invalid @enderror" id="prodi_id" name="prodi_id" required>
                     <option value="">Pilih Program Studi</option>
                     @foreach($prodis as $prodi)
-                        <option value="{{ $prodi['id'] }}" {{ old('prodi_id', $mahasiswa->prodi_id) == $prodi['id'] ? 'selected' : '' }}>
-                            {{ $prodi['nama_prodi'] }}
+                        <option value="{{ $prodi->id }}" {{ old('prodi_id', $mahasiswa->prodi_id) == $prodi->id ? 'selected' : '' }}>
+                            {{ $prodi->nama_prodi }}
                         </option>
                     @endforeach
                 </select>
@@ -81,13 +81,13 @@
                 @enderror
             </div>
             
-            <div class="col-md-6 mb-3">
+           <div class="col-md-6 mb-3">
                 <label for="konsentrasi_id" class="form-label">Konsentrasi</label>
                 <select class="form-select @error('konsentrasi_id') is-invalid @enderror" id="konsentrasi_id" name="konsentrasi_id">
                     <option value="">Pilih Konsentrasi</option>
                     @foreach($konsentrasis as $konsentrasi)
-                        <option value="{{ $konsentrasi['id'] }}" {{ old('konsentrasi_id', $mahasiswa->konsentrasi_id) == $konsentrasi['id'] ? 'selected' : '' }}>
-                            {{ $konsentrasi['nama_konsentrasi'] }}
+                        <option value="{{ $konsentrasi->id }}" {{ old('konsentrasi_id', $mahasiswa->konsentrasi_id) == $konsentrasi->id ? 'selected' : '' }}>
+                            {{ $konsentrasi->nama_konsentrasi }}
                         </option>
                     @endforeach
                 </select>

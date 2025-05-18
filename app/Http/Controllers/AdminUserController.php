@@ -8,6 +8,7 @@ use App\Models\Mahasiswa;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB; // Ditambahkan import untuk DB
 
 class AdminUserController extends Controller
 {
@@ -18,11 +19,8 @@ class AdminUserController extends Controller
             // Ambil semua data dosen
             $dosens = Dosen::all();
             
-            // Buat array prodi sesuai dengan isi database
-            $prodiMap = [
-                1 => 'Teknik Elektro',
-                2 => 'Teknik Informatika'
-            ];
+            // Ambil data prodi langsung dari database
+            $prodiMap = DB::table('prodi')->pluck('nama_prodi', 'id')->toArray();
             
             return view('pesan.admin.managementuser_dosen', compact('dosens', 'prodiMap'));
         } catch (\Exception $e) {
@@ -38,17 +36,9 @@ class AdminUserController extends Controller
             // Ambil semua data mahasiswa
             $mahasiswas = Mahasiswa::all();
             
-            // Buat array prodi dan konsentrasi sesuai database
-            $prodiMap = [
-                1 => 'Teknik Elektro',
-                2 => 'Teknik Informatika'
-            ];
-            
-            $konsentrasiMap = [
-                1 => 'Web Development',
-                2 => 'Mobile Development',
-                3 => 'Data Science'
-            ];
+            // Ambil data prodi dan konsentrasi langsung dari database
+            $prodiMap = DB::table('prodi')->pluck('nama_prodi', 'id')->toArray();
+            $konsentrasiMap = DB::table('konsentrasi')->pluck('nama_konsentrasi', 'id')->toArray();
             
             return view('pesan.admin.managementuser_mahasiswa', compact('mahasiswas', 'prodiMap', 'konsentrasiMap'));
         } catch (\Exception $e) {
@@ -61,11 +51,8 @@ class AdminUserController extends Controller
     public function tambahDosen()
     {
         try {
-            // Sesuaikan dengan data yang sebenarnya ada di database
-            $prodis = [
-                ['id' => 1, 'nama_prodi' => 'Teknik Elektro'],
-                ['id' => 2, 'nama_prodi' => 'Teknik Informatika']
-            ];
+            // Ambil data prodi langsung dari database
+            $prodis = DB::table('prodi')->select('id', 'nama_prodi')->get();
             
             return view('pesan.admin.tambahdosen', compact('prodis'));
         } catch (\Exception $e) {
@@ -78,17 +65,11 @@ class AdminUserController extends Controller
     public function tambahMahasiswa()
     {
         try {
-            // Data statis untuk prodi dan konsentrasi
-            $prodis = [
-                ['id' => 1, 'nama_prodi' => 'Teknik Informatika'],
-                ['id' => 2, 'nama_prodi' => 'Teknik Elektro'],
-            ];
+            // Ambil data prodi dari database
+            $prodis = DB::table('prodi')->select('id', 'nama_prodi')->get();
             
-            $konsentrasis = [
-                ['id' => 1, 'nama_konsentrasi' => 'Rekayasa Perangkat Lunak'],
-                ['id' => 2, 'nama_konsentrasi' => 'Komputasi Cerdas dan Visi'],
-                ['id' => 3, 'nama_konsentrasi' => 'Komputasi Berbasis Jaringan']
-            ];
+            // Ambil data konsentrasi dari database
+            $konsentrasis = DB::table('konsentrasi')->select('id', 'nama_konsentrasi')->get();
             
             return view('pesan.admin.tambahmahasiswa', compact('prodis', 'konsentrasis'));
         } catch (\Exception $e) {
@@ -248,11 +229,8 @@ class AdminUserController extends Controller
             // Cari dosen berdasarkan NIP
             $dosen = Dosen::where('nip', $nip)->firstOrFail();
             
-            // Sesuaikan dengan data yang sebenarnya ada di database
-            $prodis = [
-                ['id' => 1, 'nama_prodi' => 'Teknik Elektro'],
-                ['id' => 2, 'nama_prodi' => 'Teknik Informatika']
-            ];
+            // Ambil data prodi langsung dari database
+            $prodis = DB::table('prodi')->select('id', 'nama_prodi')->get();
             
             return view('pesan.admin.editdosen', compact('dosen', 'prodis'));
         } catch (\Exception $e) {
@@ -339,17 +317,11 @@ class AdminUserController extends Controller
             // Cari mahasiswa berdasarkan NIM
             $mahasiswa = Mahasiswa::where('nim', $nim)->firstOrFail();
             
-            // Data statis untuk prodi dan konsentrasi
-            $prodis = [
-                ['id' => 1, 'nama_prodi' => 'Teknik Elektro'],
-                ['id' => 2, 'nama_prodi' => 'Teknik Informatika']
-            ];
+            // Ambil data prodi dari database
+            $prodis = DB::table('prodi')->select('id', 'nama_prodi')->get();
             
-            $konsentrasis = [
-                ['id' => 1, 'nama_konsentrasi' => 'Web Development'],
-                ['id' => 2, 'nama_konsentrasi' => 'Mobile Development'],
-                ['id' => 3, 'nama_konsentrasi' => 'Data Science']
-            ];
+            // Ambil data konsentrasi dari database
+            $konsentrasis = DB::table('konsentrasi')->select('id', 'nama_konsentrasi')->get();
             
             return view('pesan.admin.editmahasiswa', compact('mahasiswa', 'prodis', 'konsentrasis'));
         } catch (\Exception $e) {
