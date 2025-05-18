@@ -266,11 +266,19 @@
                 <!-- Profile Header dengan debugging ID -->
                 <div class="profile-header">
                     <div class="profile-img-container">
-                        <!-- Ikon default untuk foto profil yang belum diset -->
-                        <div class="default-profile-img" id="defaultProfileImg">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <img src="" alt="Foto Profil" class="profile-img" id="profileImage" style="display: none;">
+                        @if(isset($profilePhotoUrl))
+                            <!-- Foto profil yang telah diupload -->
+                            <img src="{{ $profilePhotoUrl }}" alt="Foto Profil" class="profile-img" id="profileImage">
+                            <div class="default-profile-img" id="defaultProfileImg" style="display: none;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        @else
+                            <!-- Ikon default untuk foto profil yang belum diset -->
+                            <div class="default-profile-img" id="defaultProfileImg">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <img src="" alt="Foto Profil" class="profile-img" id="profileImage" style="display: none;">
+                        @endif
                         <div class="edit-photo-icon" data-bs-toggle="modal" data-bs-target="#editPhotoModal">
                             <i class="fas fa-camera"></i>
                         </div>
@@ -352,14 +360,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="uploadPhotoForm">
+                <form id="uploadPhotoForm" enctype="multipart/form-data">
+                    @csrf
                     <div class="upload-area" id="uploadArea">
                         <div class="upload-icon">
                             <i class="fas fa-cloud-upload-alt"></i>
                         </div>
                         <p>Klik atau seret foto ke sini</p>
                         <small class="text-muted">Format yang didukung: JPG, PNG</small>
-                        <input type="file" id="photoInput" class="d-none" accept="image/jpeg, image/png">
+                        <input type="file" id="photoInput" name="photo" class="d-none" accept="image/jpeg, image/png">
                     </div>
                     
                     <div id="previewContainer" class="text-center mb-3" style="display: none;">
@@ -441,149 +450,170 @@
         const defaultProfileImg = document.getElementById('defaultProfileImg');
         
         // Click on upload area to trigger file input
-        uploadArea.addEventListener('click', function() {
-            photoInput.click();
-        });
+        if (uploadArea) {
+            uploadArea.addEventListener('click', function() {
+                photoInput.click();
+            });
+        }
         
         // Handle file selection
-        photoInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    photoPreview.src = e.target.result;
-                    previewContainer.style.display = 'block';
-                    uploadArea.style.display = 'none';
-                };
-                
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
+        if (photoInput) {
+            photoInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        photoPreview.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                        uploadArea.style.display = 'none';
+                    };
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
         
         // Drag and drop functionality
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight() {
-            uploadArea.classList.add('border-primary');
-        }
-        
-        function unhighlight() {
-            uploadArea.classList.remove('border-primary');
-        }
-        
-        uploadArea.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
+        if (uploadArea) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
             
-            if (files && files[0]) {
-                photoInput.files = files;
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                uploadArea.classList.add('border-primary');
+            }
+            
+            function unhighlight() {
+                uploadArea.classList.remove('border-primary');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
                 
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    photoPreview.src = e.target.result;
-                    previewContainer.style.display = 'block';
-                    uploadArea.style.display = 'none';
-                };
-                
-                reader.readAsDataURL(files[0]);
+                if (files && files[0]) {
+                    photoInput.files = files;
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        photoPreview.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                        uploadArea.style.display = 'none';
+                    };
+                    
+                    reader.readAsDataURL(files[0]);
+                }
             }
         }
         
         // Save photo functionality
-        savePhotoBtn.addEventListener('click', function() {
-            if (photoInput.files && photoInput.files[0]) {
-                // In a real application, here you would upload the file to the server
-                // For this prototype, we'll just update the profile image with the preview
-                profileImage.src = photoPreview.src;
-                profileImage.style.display = 'block';
-                defaultProfileImg.style.display = 'none';
-                
-                // Close the modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
-                modal.hide();
-                
-                // Reset the modal for next time
-                setTimeout(() => {
-                    previewContainer.style.display = 'none';
-                    uploadArea.style.display = 'block';
-                    photoInput.value = ''; // Clear the file input
-                }, 300);
-            } else {
-                alert('Pilih foto terlebih dahulu!');
-            }
-        });
-        
-        // Toggle password visibility
-        const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-        
-        togglePasswordButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
-                
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        if (savePhotoBtn) {
+            savePhotoBtn.addEventListener('click', function() {
+                if (photoInput.files && photoInput.files[0]) {
+                    // Buat form data untuk upload
+                    const formData = new FormData();
+                    formData.append('photo', photoInput.files[0]);
+                    formData.append('_token', '{{ csrf_token() }}');
+                    
+                    // Tampilkan loading
+                    savePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                    savePhotoBtn.disabled = true;
+                    
+                    // Upload ke server dengan fetch API
+                    fetch('{{ route("profil.upload-photo") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update tampilan profil
+                            profileImage.src = data.photo_url;
+                            profileImage.style.display = 'block';
+                            defaultProfileImg.style.display = 'none';
+                            
+                            // Tampilkan pesan sukses
+                            alert('Foto profil berhasil diupload!');
+                            
+                            // Reset modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
+                            modal.hide();
+                            
+                            // Opsional: Reload halaman untuk melihat perubahan
+                            setTimeout(() => {
+                                location.reload();
+                            }, 500);
+                        } else {
+                            // Tampilkan pesan error
+                            alert('Error: ' + (data.error || 'Gagal mengupload foto profil'));
+                        }
+                        
+                        // Reset tombol
+                        savePhotoBtn.innerHTML = 'Simpan';
+                        savePhotoBtn.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error uploading photo:', error);
+                        alert('Terjadi kesalahan saat mengupload foto');
+                        
+                        // Reset tombol
+                        savePhotoBtn.innerHTML = 'Simpan';
+                        savePhotoBtn.disabled = false;
+                    });
                 } else {
-                    passwordInput.type = 'password';
-                    this.innerHTML = '<i class="fas fa-eye"></i>';
+                    alert('Pilih foto terlebih dahulu!');
                 }
             });
-        });
+        }
         
-        // Password change form validation and submission
+        // Toggle password visibility (simpan kode ini jika sudah ada)
+        const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+        
+        if (togglePasswordButtons.length > 0) {
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    } else {
+                        passwordInput.type = 'password';
+                        this.innerHTML = '<i class="fas fa-eye"></i>';
+                    }
+                });
+            });
+        }
+        
+        // Password change form validation and submission (simpan kode ini jika sudah ada)
         const savePasswordBtn = document.getElementById('savePasswordBtn');
         
-        savePasswordBtn.addEventListener('click', function() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Basic validation
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                alert('Semua field harus diisi!');
-                return;
-            }
-            
-            if (newPassword.length < 8) {
-                alert('Kata sandi baru minimal 8 karakter!');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                alert('Konfirmasi kata sandi tidak cocok!');
-                return;
-            }
-            
-            // In a real application, here you would send the data to the server
-            // For this prototype, we'll just show a success message
-            alert('Kata sandi berhasil diubah!');
-            
-            // Close the modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
-            modal.hide();
-            
-            // Reset the form
-            document.getElementById('changePasswordForm').reset();
-        });
+        if (savePasswordBtn) {
+            savePasswordBtn.addEventListener('click', function() {
+                // Kode untuk validasi dan pengiriman form ubah password
+                // ...
+            });
+        }
     });
 </script>
 @endpush

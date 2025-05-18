@@ -24,6 +24,7 @@ class Mahasiswa extends Authenticatable
         'prodi_id',
         'konsentrasi_id',
         'role_id',
+        'profile_photo',
         'google_access_token',
         'google_refresh_token',
         'google_token_expires_in',

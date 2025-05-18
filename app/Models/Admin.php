@@ -16,6 +16,7 @@ class Admin extends Authenticatable
         'name',
         'email',
         'password',
+        'profile_photo',
         'nim',
         'nip',
         'remember_token',

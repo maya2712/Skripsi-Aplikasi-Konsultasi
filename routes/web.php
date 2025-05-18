@@ -30,6 +30,9 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
     // Route profil umum (tetap dipertahankan untuk backward compatibility)
     Route::get('/profil', [ProfileController::class, 'index'])->name('profil');
     
+    // Route untuk upload foto profil
+    Route::post('/upload-profile-photo', [ProfileController::class, 'uploadPhoto'])->name('profil.upload-photo');
+    
     // Route back - sudah diperbaiki untuk mendukung semua role
     Route::get('/back', function () {
         $routeStack = session()->get('routeStack', []);
@@ -62,22 +65,22 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
 
 });
 
-// Route lainnya
-Route::get('/profilmahasiswa', function () {
-    return view('bimbingan.mahasiswa.profilmahasiswa');
-});
+    // Route lainnya
+    Route::get('/profilmahasiswa', function () {
+        return view('bimbingan.mahasiswa.profilmahasiswa');
+    });
 
-Route::get('/gantipassword', function () {
-    return view('bimbingan.mahasiswa.gantipassword');
-});
+    Route::get('/gantipassword', function () {
+        return view('bimbingan.mahasiswa.gantipassword');
+    });
 
-Route::get('/contohdashboard', function () {
-    return view('pesan.contohdashboard');
-});
+    Route::get('/contohdashboard', function () {
+        return view('pesan.contohdashboard');
+    });
 
-Route::get('/datausulanbimbingan', function () {
-    return view('bimbingan.admin.datausulanbimbingan');
-});
+    Route::get('/datausulanbimbingan', function () {
+        return view('bimbingan.admin.datausulanbimbingan');
+    });
 
 // Route untuk mahasiswa
 Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () {

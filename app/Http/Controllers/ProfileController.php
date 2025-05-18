@@ -81,10 +81,74 @@ class ProfileController extends Controller
             }
         }
         
+        // Cek dan siapkan URL foto profil
+        $profilePhotoUrl = null;
+        if ($user && !empty($user->profile_photo)) {
+            $profilePhotoUrl = asset('storage/profile_photos/' . $user->profile_photo);
+        }
+        
         // Log untuk debugging
         Log::info('Profil diakses oleh ' . $guard . ': ' . $user->email);
         
         // Return view dengan data yang dibutuhkan
-        return view('components.profil', compact('guard', 'user', 'prodiMap', 'konsentrasiMap'));
+        return view('components.profil', compact('guard', 'user', 'prodiMap', 'konsentrasiMap', 'profilePhotoUrl'));
+    }
+
+    /**
+     * Upload foto profil
+     */
+    public function uploadPhoto(Request $request)
+    {
+        // Validasi file
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // Tentukan guard yang aktif
+        $guard = session('role');
+        $user = null;
+
+        if ($guard === 'mahasiswa' && Auth::guard('mahasiswa')->check()) {
+            $user = Auth::guard('mahasiswa')->user();
+            $id_field = 'nim';
+            $id_value = $user->nim;
+            $model = 'App\\Models\\Mahasiswa';
+        } elseif ($guard === 'dosen' && Auth::guard('dosen')->check()) {
+            $user = Auth::guard('dosen')->user();
+            $id_field = 'nip';
+            $id_value = $user->nip;
+            $model = 'App\\Models\\Dosen';
+        } elseif ($guard === 'admin' && Auth::guard('admin')->check()) {
+            $user = Auth::guard('admin')->user();
+            $id_field = 'id';
+            $id_value = $user->id;
+            $model = 'App\\Models\\Admin';
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        try {
+            // Hapus foto lama jika ada
+            if ($user->profile_photo && file_exists(public_path('storage/profile_photos/' . $user->profile_photo))) {
+                @unlink(public_path('storage/profile_photos/' . $user->profile_photo));
+            }
+
+            // Simpan file baru
+            $fileName = $guard . '_' . $id_value . '_' . time() . '.' . $request->photo->extension();
+            $request->photo->move(public_path('storage/profile_photos'), $fileName);
+
+            // Update database
+            $modelClass = $model;
+            $modelClass::where($id_field, $id_value)->update(['profile_photo' => $fileName]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto profil berhasil diupload',
+                'photo_url' => asset('storage/profile_photos/' . $fileName)
+            ]);
+       } catch (\Exception $e) {
+            Log::error('Error uploading profile photo: ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal mengupload foto: ' . $e->getMessage()], 500);
+        }
     }
 }
