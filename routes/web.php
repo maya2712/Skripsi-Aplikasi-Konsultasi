@@ -33,6 +33,9 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
     // Route untuk upload foto profil
     Route::post('/upload-profile-photo', [ProfileController::class, 'uploadPhoto'])->name('profil.upload-photo');
     
+    // Route untuk perubahan password
+    Route::post('/ubah-password', [ProfileController::class, 'changePassword'])->name('profil.change-password');
+    
     // Route back - sudah diperbaiki untuk mendukung semua role
     Route::get('/back', function () {
         $routeStack = session()->get('routeStack', []);

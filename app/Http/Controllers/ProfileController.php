@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -149,6 +150,67 @@ class ProfileController extends Controller
        } catch (\Exception $e) {
             Log::error('Error uploading profile photo: ' . $e->getMessage());
             return response()->json(['error' => 'Gagal mengupload foto: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Proses perubahan password
+     */
+    public function changePassword(Request $request)
+    {
+        // Validasi form
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+            'new_password_confirmation' => 'required'
+        ]);
+        // Tentukan guard yang aktif
+        $guard = session('role');
+        $user = null;
+        
+        if ($guard === 'mahasiswa' && Auth::guard('mahasiswa')->check()) {
+            $user = Auth::guard('mahasiswa')->user();
+            $model = 'App\\Models\\Mahasiswa';
+            $id_field = 'nim';
+            $id_value = $user->nim;
+        } elseif ($guard === 'dosen' && Auth::guard('dosen')->check()) {
+            $user = Auth::guard('dosen')->user();
+            $model = 'App\\Models\\Dosen';
+            $id_field = 'nip';
+            $id_value = $user->nip;
+        } elseif ($guard === 'admin' && Auth::guard('admin')->check()) {
+            $user = Auth::guard('admin')->user();
+            $model = 'App\\Models\\Admin';
+            $id_field = 'id';
+            $id_value = $user->id;
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        // Verifikasi password lama
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password saat ini salah'
+            ]);
+        }
+        try {
+            // Update password
+            $modelClass = $model;
+            $modelClass::where($id_field, $id_value)->update([
+                'password' => Hash::make($request->new_password)
+            ]);
+            // Log perubahan password
+            Log::info('Password changed for user: ' . $user->email);
+            return response()->json([
+                'success' => true,
+                'message' => 'Password berhasil diubah'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error changing password: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah password: ' . $e->getMessage()
+            ]);
         }
     }
 }

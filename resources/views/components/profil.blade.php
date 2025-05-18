@@ -239,6 +239,39 @@
             font-size: 45px;
         }
     }
+    
+    /* Loading spinner styles */
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 3rem;
+        height: 3rem;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #5DE0E6;
+        border-left-color: #004AAD;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    
+    .loading-text {
+        margin-top: 15px;
+        font-size: 16px;
+        font-weight: 500;
+        background: linear-gradient(to right, #004AAD, #5DE0E6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 </style>
 @endpush
 
@@ -394,37 +427,41 @@
             </div>
             <div class="modal-body">
                 <form id="changePasswordForm">
+                    @csrf
                     <div class="mb-3">
-                        <label for="currentPassword" class="form-label">Kata Sandi Saat Ini</label>
+                        <label for="current_password" class="form-label">Kata Sandi Saat Ini</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" id="currentPassword" required>
-                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="currentPassword">
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+                        <div class="invalid-feedback" id="current_password_error"></div>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="newPassword" class="form-label">Kata Sandi Baru</label>
+                        <label for="new_password" class="form-label">Kata Sandi Baru</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" id="newPassword" required>
-                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="newPassword">
+                            <input type="password" class="form-control" id="new_password" name="new_password" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
                         <div class="form-text">
                             Kata sandi minimal 6 karakter
                         </div>
+                        <div class="invalid-feedback" id="new_password_error"></div>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Konfirmasi Kata Sandi Baru</label>
+                        <label for="new_password_confirmation" class="form-label">Konfirmasi Kata Sandi Baru</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" id="confirmPassword" required>
-                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirmPassword">
+                            <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password_confirmation">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+                        <div class="invalid-feedback" id="new_password_confirmation_error"></div>
                     </div>
                 </form>
             </div>
@@ -436,6 +473,7 @@
     </div>
 </div>
 @endsection
+
 
 @push('scripts')
 <script>
@@ -585,7 +623,7 @@
             });
         }
         
-        // Toggle password visibility (simpan kode ini jika sudah ada)
+        // Toggle password visibility
         const togglePasswordButtons = document.querySelectorAll('.toggle-password');
         
         if (togglePasswordButtons.length > 0) {
@@ -605,14 +643,229 @@
             });
         }
         
-        // Password change form validation and submission (simpan kode ini jika sudah ada)
+        // Password change form validation and submission - KODE YANG DIPERBARUI
         const savePasswordBtn = document.getElementById('savePasswordBtn');
-        
-        if (savePasswordBtn) {
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        const modalBody = document.querySelector('#changePasswordModal .modal-body');
+        const modalFooter = document.querySelector('#changePasswordModal .modal-footer');
+
+        if (savePasswordBtn && changePasswordForm) {
             savePasswordBtn.addEventListener('click', function() {
-                // Kode untuk validasi dan pengiriman form ubah password
-                // ...
+                // Reset semua error sebelumnya
+                document.querySelectorAll('.invalid-feedback').forEach(el => {
+                    el.textContent = '';
+                });
+                document.querySelectorAll('.form-control').forEach(el => {
+                    el.classList.remove('is-invalid');
+                });
+                
+                // Ambil data form
+                const currentPassword = document.getElementById('current_password').value;
+                const newPassword = document.getElementById('new_password').value;
+                const confirmPassword = document.getElementById('new_password_confirmation').value;
+                
+                // Validasi client-side sederhana
+                let isValid = true;
+                
+                if (!currentPassword) {
+                    document.getElementById('current_password').classList.add('is-invalid');
+                    document.getElementById('current_password_error').textContent = 'Password saat ini harus diisi';
+                    isValid = false;
+                }
+                
+                if (!newPassword) {
+                    document.getElementById('new_password').classList.add('is-invalid');
+                    document.getElementById('new_password_error').textContent = 'Password baru harus diisi';
+                    isValid = false;
+                } else if (newPassword.length < 6) {
+                    document.getElementById('new_password').classList.add('is-invalid');
+                    document.getElementById('new_password_error').textContent = 'Password baru minimal 6 karakter';
+                    isValid = false;
+                }
+                
+                if (!confirmPassword) {
+                    document.getElementById('new_password_confirmation').classList.add('is-invalid');
+                    document.getElementById('new_password_confirmation_error').textContent = 'Konfirmasi password harus diisi';
+                    isValid = false;
+                } else if (newPassword !== confirmPassword) {
+                    document.getElementById('new_password_confirmation').classList.add('is-invalid');
+                    document.getElementById('new_password_confirmation_error').textContent = 'Konfirmasi password tidak cocok';
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                // Simpan konten form untuk dikembalikan jika terjadi error
+                const originalFormHTML = modalBody.innerHTML;
+                const originalFooterHTML = modalFooter.innerHTML;
+                
+                // Tampilkan loading di tengah modal
+                modalBody.innerHTML = `
+                    <div class="loading-container text-center py-4">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text mt-3">Sedang mengubah password...</div>
+                    </div>
+                `;
+                
+                // Sembunyikan tombol-tombol di footer
+                modalFooter.style.display = 'none';
+                
+                // Kirim data dengan fetch API
+                const formData = new FormData(changePasswordForm);
+                
+                fetch('{{ route("profil.change-password") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Tunggu sebentar untuk efek loading (1,5 detik)
+                    setTimeout(() => {
+                        // Kembalikan tombol footer
+                        modalFooter.style.display = '';
+                        
+                        if (data.success) {
+                            // Tampilkan pesan sukses di modal
+                            modalBody.innerHTML = `
+                                <div class="text-center py-4">
+                                    <div class="mb-3">
+                                        <i class="fas fa-check-circle fa-4x" style="color: #27AE60;"></i>
+                                    </div>
+                                    <h5 class="mb-3" style="font-weight: 600;">Password Berhasil Diubah!</h5>
+                                    <p class="text-muted">Password Anda telah berhasil diperbarui.</p>
+                                </div>
+                            `;
+                            
+                            // Ganti tombol footer dengan "Tutup" saja
+                            modalFooter.innerHTML = `
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tutup</button>
+                            `;
+                            
+                            // Reset form
+                            changePasswordForm.reset();
+                            
+                            // Tutup modal setelah beberapa detik
+                            setTimeout(() => {
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                                modal.hide();
+                                
+                                // Opsional: Reload halaman untuk memastikan semua perubahan tampil
+                                // location.reload();
+                            }, 2000);
+                        } else {
+                            if (data.message === 'Password saat ini salah') {
+                                // Kembalikan form asli
+                                modalBody.innerHTML = originalFormHTML;
+                                modalFooter.innerHTML = originalFooterHTML;
+                                
+                                // Set ulang event listener untuk toggle password
+                                initTogglePassword();
+                                
+                                // Tambahkan pesan error pada field password saat ini
+                                document.getElementById('current_password').classList.add('is-invalid');
+                                document.getElementById('current_password_error').textContent = data.message;
+                            } else {
+                                // Tampilkan pesan error
+                                modalBody.innerHTML = `
+                                    <div class="text-center py-4">
+                                        <div class="mb-3">
+                                            <i class="fas fa-times-circle fa-4x" style="color: #FF5252;"></i>
+                                        </div>
+                                        <h5 class="mb-3" style="font-weight: 600;">Gagal Mengubah Password</h5>
+                                        <p class="text-muted">${data.message}</p>
+                                    </div>
+                                `;
+                                
+                                // Ganti tombol footer dengan "Coba Lagi" dan "Tutup"
+                                modalFooter.innerHTML = `
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                    <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
+                                `;
+                                
+                               // Tambahkan event listener untuk "Coba Lagi"
+                                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                                    // Kembalikan form asli
+                                    modalBody.innerHTML = originalFormHTML;
+                                    modalFooter.innerHTML = originalFooterHTML;
+                                    
+                                    // Inisialisasi kembali toggle password
+                                    initTogglePassword();
+                                    
+                                    // Re-attach event handler untuk tombol simpan
+                                    document.getElementById('savePasswordBtn').addEventListener('click', savePasswordBtnHandler);
+                                });
+                            }
+                        }
+                    }, 1500); // Tunggu 1.5 detik untuk efek loading
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    // Tunggu sebentar, lalu tampilkan pesan error
+                    setTimeout(() => {
+                        modalBody.innerHTML = `
+                            <div class="text-center py-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-exclamation-triangle fa-4x" style="color: #FFC107;"></i>
+                                </div>
+                                <h5 class="mb-3" style="font-weight: 600;">Terjadi Kesalahan</h5>
+                                <p class="text-muted">Terjadi kesalahan saat mengganti password. Silakan coba lagi.</p>
+                            </div>
+                        `;
+                        
+                        // Kembalikan tombol footer
+                        modalFooter.style.display = '';
+                        modalFooter.innerHTML = `
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
+                        `;
+                        
+                        // Tambahkan event listener untuk "Coba Lagi"
+                        document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                            // Kembalikan form asli
+                            modalBody.innerHTML = originalFormHTML;
+                            modalFooter.innerHTML = originalFooterHTML;
+                            
+                            // Inisialisasi kembali toggle password
+                            initTogglePassword();
+                            
+                            // Re-attach event handler untuk tombol simpan
+                            document.getElementById('savePasswordBtn').addEventListener('click', savePasswordBtnHandler);
+                        });
+                    }, 1500);
+                });
             });
+            
+            // Simpan fungsi handler untuk digunakan kembali
+            const savePasswordBtnHandler = savePasswordBtn.onclick;
+        }
+        
+        // Fungsi untuk menginisialisasi kembali toggle password setelah mengembalikan form asli
+        function initTogglePassword() {
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            
+            if (toggleButtons.length > 0) {
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-target');
+                        const passwordInput = document.getElementById(targetId);
+                        
+                        if (passwordInput.type === 'password') {
+                            passwordInput.type = 'text';
+                            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                        } else {
+                            passwordInput.type = 'password';
+                            this.innerHTML = '<i class="fas fa-eye"></i>';
+                        }
+                    });
+                });
+            }
         }
     });
 </script>
