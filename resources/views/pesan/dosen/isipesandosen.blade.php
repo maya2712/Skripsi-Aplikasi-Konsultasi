@@ -665,9 +665,35 @@
                     
                     <!-- Bagian Profil -->
                     <div class="profile-section">
-                        <div class="profile-image-placeholder">
-                            <i class="fas fa-user"></i>
-                        </div>
+                        @if($pesan->nip_pengirim == Auth::user()->nip)
+                            <!-- Menampilkan foto mahasiswa penerima -->
+                            @php
+                                $profilePhoto = $pesan->mahasiswaPenerima && $pesan->mahasiswaPenerima->profile_photo 
+                                    ? asset('storage/profile_photos/'.$pesan->mahasiswaPenerima->profile_photo) 
+                                    : null;
+                            @endphp
+                            @if($profilePhoto)
+                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image">
+                            @else
+                                <div class="profile-image-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            @endif
+                        @else
+                            <!-- Menampilkan foto mahasiswa pengirim -->
+                            @php
+                                $profilePhoto = $pesan->mahasiswaPengirim && $pesan->mahasiswaPengirim->profile_photo 
+                                    ? asset('storage/profile_photos/'.$pesan->mahasiswaPengirim->profile_photo) 
+                                    : null;
+                            @endphp
+                            @if($profilePhoto)
+                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image">
+                            @else
+                                <div class="profile-image-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            @endif
+                        @endif
                     </div>
                     
                    <!-- Bagian Informasi Pesan -->
@@ -680,7 +706,7 @@
                         @if($pesan->nip_pengirim == Auth::user()->nip)
                             <tr>
                                 <td>Dikirim ke</td>
-                                <td>{{ optional($pesan->penerima)->nama ?? 'Mahasiswa' }}</td>
+                                <td>{{ $pesan->mahasiswaPenerima ? $pesan->mahasiswaPenerima->nama : 'Mahasiswa' }}</td>
                             </tr>
                             <tr>
                                 <td>NIM</td>
@@ -689,7 +715,7 @@
                         @else
                             <tr>
                                 <td>Pengirim</td>
-                                <td>{{ optional($pesan->pengirim)->nama ?? 'Pengirim' }}</td>
+                                <td>{{ $pesan->mahasiswaPengirim ? $pesan->mahasiswaPengirim->nama : 'Pengirim' }}</td>
                             </tr>
                             <tr>
                                 <td>NIM</td>
@@ -722,9 +748,9 @@
                     <h4>
                         <span class="status-dot"></span>
                         @if($pesan->nip_pengirim == Auth::user()->nip)
-                            {{ optional($pesan->penerima)->nama ?? 'Mahasiswa' }} - {{ $pesan->nim_penerima }}
+                            {{ $pesan->mahasiswaPenerima ? $pesan->mahasiswaPenerima->nama : 'Mahasiswa' }} - {{ $pesan->nim_penerima }}
                         @else
-                            {{ optional($pesan->pengirim)->nama ?? 'Pengirim' }} - {{ $pesan->nim_pengirim }}
+                            {{ $pesan->mahasiswaPengirim ? $pesan->mahasiswaPengirim->nama : 'Pengirim' }} - {{ $pesan->nim_pengirim }}
                         @endif
                     </h4>
                     <div class="action-buttons">

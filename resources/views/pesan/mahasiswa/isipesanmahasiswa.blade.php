@@ -657,78 +657,91 @@
                     
                     <!-- Bagian Profil -->
                     <div class="profile-section">
-                        <div class="profile-image-placeholder">
-                            <i class="fas fa-user"></i>
-                        </div>
-
                         @if($pesan->nim_pengirim == Auth::user()->nim)
                             <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
-                            <h5 class="info-title">{{ $pesan->penerima->nama ?? 'Dosen' }}</h5>
+                            @php
+                                $profilePhoto = $pesan->dosenPenerima && $pesan->dosenPenerima->profile_photo 
+                                    ? asset('storage/profile_photos/'.$pesan->dosenPenerima->profile_photo) 
+                                    : null;
+                            @endphp
+                            @if($profilePhoto)
+                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image">
+                            @else
+                                <div class="profile-image-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            @endif
+                            <h5 class="info-title">{{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}</h5>
                             <p class="text-muted mb-0 text-center">Dosen (Penerima)</p>
                         @else
                             <!-- Jika dosen adalah pengirim, tampilkan informasi dosen pengirim -->
                             @php
-                                $dosenPengirim = App\Models\Dosen::where('nip', $pesan->nip_pengirim)->first();
-                                $namaDosen = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
+                                $profilePhoto = $pesan->dosenPengirim && $pesan->dosenPengirim->profile_photo 
+                                    ? asset('storage/profile_photos/'.$pesan->dosenPengirim->profile_photo) 
+                                    : null;
                             @endphp
-                            <h5 class="info-title">{{ $namaDosen }}</h5>
+                            @if($profilePhoto)
+                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image">
+                            @else
+                                <div class="profile-image-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            @endif
+                            <h5 class="info-title">{{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}</h5>
                             <p class="text-muted mb-0 text-center">Dosen (Pengirim)</p>
                         @endif
                     </div>
                     
                     
                     <!-- Bagian Informasi Pesan -->
-<div class="info-title mt-4">Informasi Pesan</div>
-<table class="info-table">
-    <tr>
-        <td>Subjek</td>
-        <td>{{ $pesan->subjek }}</td>
-    </tr>
-    
-    @if($pesan->nim_pengirim == Auth::user()->nim)
-        <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
-        <tr>
-            <td>Penerima</td>
-            <td>{{ $pesan->penerima->nama ?? 'Dosen' }}</td>
-        </tr>
-        <tr>
-            <td>NIDN</td>
-            <td>{{ $pesan->nip_penerima }}</td>
-        </tr>
-    @else
-        <!-- Jika dosen adalah pengirim, tampilkan informasi dosen pengirim -->
-        @php
-            $dosenPengirim = App\Models\Dosen::where('nip', $pesan->nip_pengirim)->first();
-            $namaPengirim = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
-        @endphp
-        <tr>
-            <td>Pengirim</td>
-            <td>{{ $namaPengirim }}</td>
-        </tr>
-        <tr>
-            <td>NIDN</td>
-            <td>{{ $pesan->nip_pengirim }}</td>
-        </tr>
-    @endif
-    
-    <tr>
-        <td>Prioritas</td>
-        <td>
-            <span class="badge-priority {{ $pesan->prioritas == 'Umum' ? 'Umum' : '' }}">
-                {{ $pesan->prioritas }}
-            </span>
-        </td>
-    </tr>
-    <tr>
-        <td>Status</td>
-        <td>
-            <span id="pesanStatus" 
-                class="badge-priority {{ $pesan->status == 'Aktif' ? 'Umum' : '' }}">
-                {{ $pesan->status }}
-            </span>
-        </td>
-    </tr>
-</table>
+                    <div class="info-title mt-4">Informasi Pesan</div>
+                    <table class="info-table">
+                        <tr>
+                            <td>Subjek</td>
+                            <td>{{ $pesan->subjek }}</td>
+                        </tr>
+                        
+                        @if($pesan->nim_pengirim == Auth::user()->nim)
+                            <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
+                            <tr>
+                                <td>Penerima</td>
+                                <td>{{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}</td>
+                            </tr>
+                            <tr>
+                                <td>NIDN</td>
+                                <td>{{ $pesan->nip_penerima }}</td>
+                            </tr>
+                        @else
+                            <!-- Jika dosen adalah pengirim, tampilkan informasi dosen pengirim -->
+                            <tr>
+                                <td>Pengirim</td>
+                                <td>{{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}</td>
+                            </tr>
+                            <tr>
+                                <td>NIDN</td>
+                                <td>{{ $pesan->nip_pengirim }}</td>
+                            </tr>
+                        @endif
+                        
+                        <tr>
+                            <td>Prioritas</td>
+                            <td>
+                                <span class="badge-priority {{ $pesan->prioritas == 'Umum' ? 'Umum' : '' }}">
+                                    {{ $pesan->prioritas }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>
+                                <span id="pesanStatus" 
+                                    class="badge-priority {{ $pesan->status == 'Aktif' ? 'Umum' : '' }}">
+                                    {{ $pesan->status }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+
                                             
                     
                     <!-- Tombol Akhiri Pesan -->
@@ -746,27 +759,23 @@
             
             <div class="col-md-8 col-lg-9">
                <!-- Bagian Header Pesan -->
-<div class="message-header">
-    <h4>
-        <span class="status-dot"></span>
-        @if($pesan->nim_pengirim == Auth::user()->nim)
-            <!-- Jika mahasiswa adalah pengirim, tampilkan nama dosen penerima -->
-            {{ $pesan->penerima->nama ?? 'Dosen' }}
-        @else
-            <!-- Jika dosen adalah pengirim, tampilkan nama dosen pengirim -->
-            @php
-                $dosenPengirim = App\Models\Dosen::where('nip', $pesan->nip_pengirim)->first();
-                $namaDosen = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
-            @endphp
-            {{ $namaDosen }}
-        @endif
-    </h4>
-    <div class="action-buttons">
-        <button class="action-button" title="Opsi Lainnya">
-            <i class="fas fa-ellipsis-v"></i>
-        </button>
-    </div>
-</div>
+                <div class="message-header">
+                    <h4>
+                        <span class="status-dot"></span>
+                        @if($pesan->nim_pengirim == Auth::user()->nim)
+                            <!-- Jika mahasiswa adalah pengirim, tampilkan nama dosen penerima -->
+                            {{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}
+                        @else
+                            <!-- Jika dosen adalah pengirim, tampilkan nama dosen pengirim -->
+                            {{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}
+                        @endif
+                    </h4>
+                    <div class="action-buttons">
+                        <button class="action-button" title="Opsi Lainnya">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
                 
                 
                 <!-- Container Pesan -->
