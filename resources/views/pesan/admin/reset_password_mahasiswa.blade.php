@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Reset Password Dosen')
+@section('title', 'Reset Password Mahasiswa')
 @section('content')
 <div class="container">
-    <h3 class="mt-3 mb-1" style="font-weight: 600; background: linear-gradient(to right, #004AAD, #5DE0E6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">Reset Password Dosen</h3>
+    <h3 class="mt-3 mb-1" style="font-weight: 600; background: linear-gradient(to right, #004AAD, #5DE0E6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">Reset Password Mahasiswa</h3>
     <hr class="mb-4">
     
-    <a href="{{ route('admin.managementuser_dosen') }}" class="btn btn-sm mb-4" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white;">
+    <a href="{{ route('admin.managementuser_mahasiswa') }}" class="btn btn-sm mb-4" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white;">
         <i class="fas fa-arrow-left"></i> Kembali
     </a>
     
@@ -31,15 +31,15 @@
         <div class="card-body">
             <div class="alert alert-warning">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Perhatian!</strong> Anda akan mereset password untuk dosen berikut:
+                <strong>Perhatian!</strong> Anda akan mereset password untuk mahasiswa berikut:
             </div>
             
             <div class="row mb-4">
                 <div class="col-md-3">
-                    <p class="mb-0 text-muted">NIP:</p>
+                    <p class="mb-0 text-muted">NIM:</p>
                 </div>
                 <div class="col-md-9">
-                    <p class="mb-0 fw-bold">{{ $dosen->nip }}</p>
+                    <p class="mb-0 fw-bold">{{ $mahasiswa->nim }}</p>
                 </div>
             </div>
             
@@ -48,7 +48,7 @@
                     <p class="mb-0 text-muted">Nama:</p>
                 </div>
                 <div class="col-md-9">
-                    <p class="mb-0 fw-bold">{{ $dosen->nama }}</p>
+                    <p class="mb-0 fw-bold">{{ $mahasiswa->nama }}</p>
                 </div>
             </div>
             
@@ -57,11 +57,11 @@
                     <p class="mb-0 text-muted">Email:</p>
                 </div>
                 <div class="col-md-9">
-                    <p class="mb-0">{{ $dosen->email }}</p>
+                    <p class="mb-0">{{ $mahasiswa->email }}</p>
                 </div>
             </div>
             
-            <form action="{{ route('admin.reset-password-dosen.post', $dosen->nip) }}" method="POST">
+            <form action="{{ route('admin.reset-password-mahasiswa.post', $mahasiswa->nim) }}" method="POST">
                 @csrf
                 
                 <div class="row mb-3">
@@ -91,7 +91,7 @@
                 </div>
                 
                 <div class="d-flex justify-content-end mt-4">
-                    <button type="button" class="btn btn-secondary me-2" onclick="window.location='{{ route('admin.managementuser_dosen') }}'">Batal</button>
+                    <button type="button" class="btn btn-secondary me-2" onclick="window.location='{{ route('admin.managementuser_mahasiswa') }}'">Batal</button>
                     <button type="submit" class="btn btn-danger">Save Password</button>
                 </div>
             </form>

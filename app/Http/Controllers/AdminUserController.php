@@ -520,4 +520,54 @@ class AdminUserController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat mereset password: ' . $e->getMessage());
         }
     }
+    
+    /**
+     * Menampilkan form konfirmasi reset password mahasiswa
+     */
+    public function showResetPasswordMahasiswa($nim)
+    {
+        try {
+            // Cari mahasiswa berdasarkan NIM
+            $mahasiswa = Mahasiswa::where('nim', $nim)->firstOrFail();
+            return view('pesan.admin.reset_password_mahasiswa', compact('mahasiswa'));
+        } catch (\Exception $e) {
+            Log::error('Error di showResetPasswordMahasiswa: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat data mahasiswa: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Melakukan reset password mahasiswa
+     */
+    public function resetPasswordMahasiswa(Request $request, $nim)
+    {
+        try {
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'new_password' => 'required|min:6|confirmed',
+            ]);
+            
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            
+            // Cari mahasiswa berdasarkan NIM
+            $mahasiswa = Mahasiswa::where('nim', $nim)->firstOrFail();
+            
+            // Update password
+            $mahasiswa->password = Hash::make($request->new_password);
+            $mahasiswa->save();
+            
+            Log::info('Password untuk mahasiswa ' . $mahasiswa->nama . ' (NIM: ' . $mahasiswa->nim . ') berhasil direset');
+            
+            // Redirect kembali ke halaman manajemen mahasiswa dengan pesan sukses
+            return redirect()->route('admin.managementuser_mahasiswa')
+                ->with('success', 'Password untuk ' . $mahasiswa->nama . ' berhasil direset!');
+        } catch (\Exception $e) {
+            Log::error('Error di resetPasswordMahasiswa: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat mereset password: ' . $e->getMessage());
+        }
+    }
 }

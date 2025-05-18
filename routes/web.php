@@ -292,6 +292,10 @@ Route::middleware(['auth:admin', \App\Http\Middleware\PreventBackHistory::class]
 
     Route::get('/reset-password-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'showResetPassword'])->name('admin.reset-password-dosen');
     Route::post('/reset-password-dosen/{nip}', [App\Http\Controllers\AdminUserController::class, 'resetPassword'])->name('admin.reset-password-dosen.post');
+    
+    // Route untuk reset password mahasiswa
+    Route::get('/reset-password-mahasiswa/{nim}', [App\Http\Controllers\AdminUserController::class, 'showResetPasswordMahasiswa'])->name('admin.reset-password-mahasiswa');
+    Route::post('/reset-password-mahasiswa/{nim}', [App\Http\Controllers\AdminUserController::class, 'resetPasswordMahasiswa'])->name('admin.reset-password-mahasiswa.post');
 });
 
 // Logout route

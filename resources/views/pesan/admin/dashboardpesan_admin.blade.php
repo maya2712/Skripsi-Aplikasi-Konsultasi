@@ -124,107 +124,49 @@
         font-size: 24px;
     }
     
-    .notification-card {
-        border-left: 4px solid var(--bs-warning);
-        transition: all 0.2s ease;
-        margin-bottom: 12px;
+    .chart-container {
+        position: relative;
+        height: 280px;
+        margin-top: 15px;
     }
     
-    .notification-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    .chart-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
     }
     
-    .notification-card .card-body {
-        padding: 15px;
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 15px 20px;
     }
     
-    .notification-card.dosen {
-        border-left-color: var(--bs-info);
-        background-color: rgba(0, 188, 212, 0.05);
-    }
-    
-    .notification-card.mahasiswa {
-        border-left-color: var(--bs-success);
-        background-color: rgba(39, 174, 96, 0.05);
-    }
-    
-    .notif-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 10px;
-        border-left: 4px solid #1a73e8;
-    }
-    
-    .notif-header h5 {
+    .card-header h5 {
         margin-bottom: 0;
         font-size: 16px;
         font-weight: 600;
     }
     
-    .notifications-container {
-        max-height: 500px;
-        overflow-y: auto;
+    .legends {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
     }
     
-    .notifications-container::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    .notifications-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    
-    .notifications-container::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 10px;
-    }
-    
-    .notifications-container::-webkit-scrollbar-thumb:hover {
-        background: #aaa;
-    }
-    
-    .empty-notif {
-        padding: 40px 20px;
-        text-align: center;
-        background: #f8f9fa;
-        border-radius: 10px;
-    }
-    
-    .empty-notif i {
-        font-size: 40px;
-        color: #ccc;
-        margin-bottom: 15px;
-    }
-    
-    .empty-notif p {
-        color: #777;
-        margin-bottom: 0;
-    }
-    
-    .profile-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
+    .legend-item {
         display: flex;
         align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 20px;
         margin-right: 15px;
     }
     
-    .profile-icon.dosen {
-        background-color: var(--bs-info);
-    }
-    
-    .profile-icon.mahasiswa {
-        background-color: var(--bs-success);
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        margin-right: 5px;
     }
 </style>
 @endpush
@@ -257,33 +199,13 @@
                                     </a>
                                 </div>
                             </div>
-                            <a href="#" class="nav-link" id="grupDropdownToggle">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-user-tag me-2"></i>Daftar Grup</span>
-                                    <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
-                                </div>
-                            </a>
-                            <div class="collapse" id="komunikasiSubmenu">
-                                <div class="ps-3">
-                                    <a href="{{ url('/creategroup_admin') }}" class="nav-link">
-                                        <i class="fas fa-plus me-2"></i>Buat Grup Baru
-                                    </a>
-                                    <a href="{{ url('/groupmanagement_admin') }}" class="nav-link">
-                                        <i class="fas fa-list me-2"></i>Lihat Semua Grup
-                                    </a>
-                                </div>
-                            </div>
-                           
-                            <a href="{{ url('/logs_admin') }}" class="nav-link">
-                                <i class="fas fa-history me-2"></i>Riwayat
-                            </a>
-                           
+
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Content - Redesigned sesuai fungsi admin -->
+            <!-- Main Content - Redesigned dengan grafik -->
             <div class="col-md-9">
                 <!-- Notifikasi sukses dengan desain modern -->
                 @if(session('success'))
@@ -299,16 +221,17 @@
                 <!-- Welcome Banner yang lebih besar dan menarik (tanpa tombol) -->
                 <div class="welcome-banner">
                     <h4>Selamat Datang, Admin!</h4>
+                    <p class="mb-0">Berikut statistik pengguna di sistem Anda saat ini</p>
                 </div>
                 
-                <!-- Stats Cards - Fokus pada jumlah user (hanya Total Dosen, Total Mahasiswa, Reset Password) -->
+                <!-- Stats Cards - Total Dosen, Total Mahasiswa -->
                 <div class="stats-cards row g-3 mb-4">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted mb-1">Total Dosen</h6>
-                                    <h3 class="mb-0 fs-4">56</h3>
+                                    <h3 class="mb-0 fs-4">{{ $totalDosen }}</h3>
                                 </div>
                                 <div class="bg-primary bg-opacity-10 p-3 rounded">
                                     <i class="fas fa-chalkboard-teacher text-primary"></i>
@@ -316,12 +239,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="text-muted mb-1">Total Mahasiswa</h6>
-                                    <h3 class="mb-0 fs-4">238</h3>
+                                    <h3 class="mb-0 fs-4">{{ $totalMahasiswa }}</h3>
                                 </div>
                                 <div class="bg-success bg-opacity-10 p-3 rounded">
                                     <i class="fas fa-user-graduate text-success"></i>
@@ -329,132 +252,41 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card h-100 stats-card">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="text-muted mb-1">Reset Password</h6>
-                                    <h3 class="mb-0 fs-4">12</h3>
+                </div>
+                
+                <!-- Grafik Section - Hanya 2 grafik berdasarkan angkatan -->
+                <div class="row g-3">
+                    <!-- Grafik Distribusi Mahasiswa per Angkatan (PIE CHART) -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-pie me-2 text-primary"></i> Distribusi Mahasiswa per Angkatan</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="mahasiswaDistribusiChart"></canvas>
                                 </div>
-                                <div class="bg-warning bg-opacity-10 p-3 rounded">
-                                    <i class="fas fa-key text-warning"></i>
+                                <div class="legends" id="pieChartLegends">
+                                    <!-- Legends will be generated dynamically by JavaScript -->
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Notifications Section (Disederhanakan tanpa "Lihat Semua") -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="notif-header">
-                            <h5><i class="fas fa-bell me-2"></i> Permintaan Reset Password</h5>
-                        </div>
-                        
-                        <div class="notifications-container">
-                            <!-- Permintaan Reset dari Dosen -->
-                            <div class="notification-card dosen">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="profile-icon dosen">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">Dr. Ahmad Fauzi</h6>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="badge bg-info me-2">Dosen</span>
-                                                <small class="text-muted">NIP: D003</small>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3 d-flex flex-column align-items-end">
-                                            <span class="badge bg-danger mb-2">15 menit lalu</span>
-                                            <button class="btn btn-primary btn-sm">
-                                                <i class="fas fa-check me-1"></i>Proses
-                                            </button>
-                                        </div>
-                                    </div>
+                    
+                    <!-- Grafik Distribusi Mahasiswa per Angkatan -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-bar me-2 text-success"></i> Mahasiswa per Angkatan</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="mahasiswaAngkatanChart"></canvas>
+                                </div>
+                                <div class="legends" id="barChartLegends">
+                                    <!-- Legends will be generated dynamically by JavaScript -->
                                 </div>
                             </div>
-                            
-                            <!-- Permintaan Reset dari Mahasiswa -->
-                            <div class="notification-card mahasiswa">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="profile-icon mahasiswa">
-                                            <i class="fas fa-user-graduate"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">Ahmad Rizaldi</h6>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="badge bg-success me-2">Mahasiswa</span>
-                                                <small class="text-muted">NIM: 2023005</small>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3 d-flex flex-column align-items-end">
-                                            <span class="badge bg-danger mb-2">45 menit lalu</span>
-                                            <button class="btn btn-primary btn-sm">
-                                                <i class="fas fa-check me-1"></i>Proses
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Permintaan Reset dari Dosen -->
-                            <div class="notification-card dosen">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="profile-icon dosen">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">Dr. Siti Rahayu</h6>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="badge bg-info me-2">Dosen</span>
-                                                <small class="text-muted">NIP: D005</small>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3 d-flex flex-column align-items-end">
-                                            <span class="badge bg-secondary mb-2">3 jam lalu</span>
-                                            <button class="btn btn-primary btn-sm">
-                                                <i class="fas fa-check me-1"></i>Proses
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Permintaan Reset dari Mahasiswa -->
-                            <div class="notification-card mahasiswa">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="profile-icon mahasiswa">
-                                            <i class="fas fa-user-graduate"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">Dinda Pratiwi</h6>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="badge bg-success me-2">Mahasiswa</span>
-                                                <small class="text-muted">NIM: 2022007</small>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3 d-flex flex-column align-items-end">
-                                            <span class="badge bg-secondary mb-2">5 jam lalu</span>
-                                            <button class="btn btn-primary btn-sm">
-                                                <i class="fas fa-check me-1"></i>Proses
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Jika Tidak Ada Notifikasi -->
-                            <!--
-                            <div class="empty-notif">
-                                <i class="fas fa-bell-slash d-block"></i>
-                                <p>Tidak ada permintaan reset password saat ini</p>
-                            </div>
-                            -->
                         </div>
                     </div>
                 </div>
@@ -465,6 +297,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Auto dismiss alerts after 5 seconds
@@ -475,24 +308,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             }, 5000); // Menghilang setelah 5 detik
-        });
-    }
-    
-    // Toggle dropdown for grup
-    const grupDropdownToggle = document.getElementById('grupDropdownToggle');
-    const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
-    const grupDropdownIcon = document.getElementById('grupDropdownIcon');
-    
-    if (grupDropdownToggle && komunikasiSubmenu && grupDropdownIcon) {
-        grupDropdownToggle.addEventListener('click', function() {
-            // Toggle the collapse
-            const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
-                toggle: true
-            });
-            
-            // Toggle the icon
-            grupDropdownIcon.classList.toggle('fa-chevron-up');
-            grupDropdownIcon.classList.toggle('fa-chevron-down');
         });
     }
     
@@ -512,6 +327,132 @@ document.addEventListener('DOMContentLoaded', function() {
             userManagementIcon.classList.toggle('fa-chevron-up');
             userManagementIcon.classList.toggle('fa-chevron-down');
         });
+    }
+    
+    // Inisialisasi Chart.js menggunakan data dari controller
+    const angkatanLabels = @json($angkatanLabels);
+    const angkatanData = @json($angkatanData);
+    const angkatanBackgroundColors = @json($angkatanBackgroundColors);
+    const barBackgroundColors = @json($barBackgroundColors);
+    
+    // Pie Chart untuk Distribusi Mahasiswa per Angkatan
+    const mahasiswaDistribusiCtx = document.getElementById('mahasiswaDistribusiChart');
+    if (mahasiswaDistribusiCtx) {
+        const pieChart = new Chart(mahasiswaDistribusiCtx, {
+            type: 'pie',
+            data: {
+                labels: angkatanLabels,
+                datasets: [{
+                    label: 'Jumlah Mahasiswa',
+                    data: angkatanData,
+                    backgroundColor: angkatanBackgroundColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.formattedValue;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((context.raw / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Generate legends for pie chart
+        const pieChartLegends = document.getElementById('pieChartLegends');
+        if (pieChartLegends) {
+            angkatanLabels.forEach((label, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const legendColor = document.createElement('div');
+                legendColor.className = 'legend-color';
+                legendColor.style.backgroundColor = angkatanBackgroundColors[index];
+                
+                const legendText = document.createElement('span');
+                legendText.textContent = label;
+                
+                legendItem.appendChild(legendColor);
+                legendItem.appendChild(legendText);
+                pieChartLegends.appendChild(legendItem);
+            });
+        }
+    }
+    
+    // Bar Chart untuk Mahasiswa per Angkatan
+    const mahasiswaAngkatanCtx = document.getElementById('mahasiswaAngkatanChart');
+    if (mahasiswaAngkatanCtx) {
+        const barChart = new Chart(mahasiswaAngkatanCtx, {
+            type: 'bar',
+            data: {
+                labels: angkatanLabels,
+                datasets: [{
+                    label: 'Jumlah Mahasiswa',
+                    data: angkatanData,
+                    backgroundColor: barBackgroundColors.slice(0, angkatanLabels.length),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Generate legends for bar chart
+        const barChartLegends = document.getElementById('barChartLegends');
+        if (barChartLegends) {
+            angkatanLabels.forEach((label, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const legendColor = document.createElement('div');
+                legendColor.className = 'legend-color';
+                legendColor.style.backgroundColor = barBackgroundColors[index];
+                
+                const legendText = document.createElement('span');
+                legendText.textContent = label;
+                
+                legendItem.appendChild(legendColor);
+                legendItem.appendChild(legendText);
+                barChartLegends.appendChild(legendItem);
+            });
+        }
     }
 });
 </script>

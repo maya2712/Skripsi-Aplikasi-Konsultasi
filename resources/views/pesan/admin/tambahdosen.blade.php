@@ -68,7 +68,7 @@
         
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="jabatan_fungsional" class="form-label">Jabatan Fungsional</label>
+                <label for="jabatan_fungsional" class="form-label">Keterangan</label>
                 <input type="text" class="form-control @error('jabatan_fungsional') is-invalid @enderror" id="jabatan_fungsional" name="jabatan_fungsional" value="{{ old('jabatan_fungsional') }}">
                 @error('jabatan_fungsional')
                     <div class="invalid-feedback">{{ $message }}</div>

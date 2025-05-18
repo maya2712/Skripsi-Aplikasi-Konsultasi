@@ -10,6 +10,7 @@
         --bs-success: #27AE60;
         --bs-warning: #FFC107;
         --bs-info: #00BCD4;
+        --gradient-primary: linear-gradient(to right, #004AAD, #5DE0E6);
     }
     
     body {
@@ -200,6 +201,75 @@
         margin: 0 auto;
         padding: 0 15px;
     }
+    
+    /* Gaya untuk modal reset password - DIPERBARUI dengan gradasi */
+    .modal-reset-password .modal-header {
+        background: linear-gradient(to right, #004AAD, #5DE0E6);
+        color: white;
+        border-bottom: none;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    
+    .modal-reset-password .modal-content {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .modal-reset-password .modal-footer {
+        border-top: none;
+        padding: 1rem;
+    }
+    
+    .modal-reset-password .btn-reset {
+        background: linear-gradient(to right, #004AAD, #5DE0E6);
+        color: white;
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .modal-reset-password .btn-reset:hover {
+        opacity: 0.9;
+        box-shadow: 0 2px 8px rgba(0, 74, 173, 0.3);
+    }
+    
+    .modal-reset-password .modal-body {
+        padding: 1.5rem;
+    }
+    
+    /* Animasi loading */
+    .loading-spinner {
+        display: inline-block;
+        width: 2rem;
+        height: 2rem;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #5DE0E6;
+        border-left-color: #004AAD;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    
+    .loading-text {
+        margin-top: 15px;
+        font-size: 14px;
+        font-weight: 500;
+        background: linear-gradient(to right, #004AAD, #5DE0E6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 </style>
 @endpush
 
@@ -237,26 +307,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <a href="#" class="nav-link parent-menu" id="grupDropdownToggle">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-user-tag me-2"></i>Daftar Grup</span>
-                                    <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
-                                </div>
-                            </a>
-                            <div class="collapse" id="komunikasiSubmenu">
-                                <div class="ps-3">
-                                    <a href="{{ url('/creategroup_admin') }}" class="nav-link">
-                                        <i class="fas fa-plus me-2"></i>Buat Grup Baru
-                                    </a>
-                                    <a href="{{ url('/groupmanagement_admin') }}" class="nav-link">
-                                        <i class="fas fa-list me-2"></i>Lihat Semua Grup
-                                    </a>
-                                </div>
-                            </div>
                            
-                            <a href="{{ url('/logs_admin') }}" class="nav-link">
-                                <i class="fas fa-history me-2"></i>Riwayat
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -374,7 +425,7 @@
                                                     </a>
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li><a class="dropdown-item" href="{{ route('admin.edit-mahasiswa', $mahasiswa->nim) }}"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
+                                                        <li><a class="dropdown-item reset-password-btn" href="javascript:void(0)" data-nim="{{ $mahasiswa->nim }}" data-nama="{{ $mahasiswa->nama }}"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li>
                                                             <form action="{{ route('admin.delete-mahasiswa', $mahasiswa->nim) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus mahasiswa ini?');">
@@ -427,6 +478,36 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset Password - DIPERBARUI dengan desain yang lebih modern -->
+<div class="modal fade modal-reset-password" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordModalLabel"><i class="fas fa-key me-2"></i>Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="resetPasswordModalBody">
+                <div class="text-center mb-3">
+                    <i class="fas fa-user-graduate fa-3x mb-3" style="background: linear-gradient(to right, #004AAD, #5DE0E6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                </div>
+                <p class="text-center">Anda akan mereset password untuk mahasiswa</p>
+                <h5 class="text-center mb-3" id="mahasiswaNama" style="font-weight: 600;"></h5>
+                <p class="text-center text-muted">NIM: <span id="mahasiswaNIM"></span></p>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Password akan direset ke nilai default. Mahasiswa akan perlu mengubah passwordnya setelah login.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-reset" id="confirmResetBtn">
+                    <i class="fas fa-key me-2"></i>Reset Password
+                </button>
             </div>
         </div>
     </div>
@@ -657,6 +738,50 @@ document.addEventListener('DOMContentLoaded', function() {
     if (prodiFilter) prodiFilter.addEventListener('change', filterTable);
     if (angkatanFilter) angkatanFilter.addEventListener('change', filterTable);
     if (searchInput) searchInput.addEventListener('keyup', filterTable);
+    
+    // Script untuk reset password dengan modal dan loading - DIPERBARUI
+    const resetPasswordModal = document.getElementById('resetPasswordModal');
+    const resetPasswordModalBody = document.getElementById('resetPasswordModalBody');
+    const mahasiswaNama = document.getElementById('mahasiswaNama');
+    const mahasiswaNIM = document.getElementById('mahasiswaNIM');
+    const confirmResetBtn = document.getElementById('confirmResetBtn');
+    
+    // Inisialisasi modal Bootstrap
+    const resetModal = new bootstrap.Modal(resetPasswordModal);
+    
+    // Handler untuk tombol reset password
+    document.querySelectorAll('.reset-password-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const nim = this.getAttribute('data-nim');
+            const nama = this.getAttribute('data-nama');
+            
+            // Set nilai di modal
+            mahasiswaNama.textContent = nama;
+            mahasiswaNIM.textContent = nim;
+            
+            // Tampilkan modal
+            resetModal.show();
+        });
+    });
+    
+    // Handler untuk tombol konfirmasi di dalam modal
+    confirmResetBtn.addEventListener('click', function() {
+        const nim = mahasiswaNIM.textContent;
+        
+        // Tampilkan loading
+        resetPasswordModalBody.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Sedang mereset password...</div>
+            </div>
+        `;
+        confirmResetBtn.style.display = 'none';
+        
+        // Redirect ke halaman reset password dengan timeout untuk efek loading
+        setTimeout(function() {
+            window.location.href = `/admin/reset-password-mahasiswa/${nim}`;
+        }, 1500); // Tunggu 1.5 detik untuk efek loading
+    });
 });
 </script>
 @endpush
