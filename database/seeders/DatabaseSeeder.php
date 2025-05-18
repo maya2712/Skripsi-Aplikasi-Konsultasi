@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         
         // Truncate semua table untuk memastikan data bersih
+        \DB::table('admins')->truncate(); // Tambahkan ini
         \DB::table('mahasiswas')->truncate();
         \DB::table('dosens')->truncate();
         \DB::table('konsentrasi')->truncate();
@@ -31,6 +32,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,      // Jalankan pertama karena dibutuhkan oleh user
             ProdiSeeder::class,     // Jalankan kedua karena dibutuhkan oleh user
             KonsentrasiSeeder::class, // Jalankan ketiga karena dibutuhkan oleh mahasiswa
+            AdminSeeder::class,     // Tambahkan ini
             DosenSeeder::class,     // Opsional: Jika ingin menambahkan data dosen default
             MahasiswaSeeder::class  // Opsional: Jika ingin menambahkan data mahasiswa default
         ]);

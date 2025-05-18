@@ -14,6 +14,10 @@ class CheckRole
         Log::info('CheckRole middleware called with role: ' . $role);
         Log::info('Session role: ' . session('role'));
         
+        // PERBAIKAN: Gunakan URL sebagai string, bukan objek Route
+        Log::info('Current URL: ' . $request->url());
+        Log::info('Request method: ' . $request->method());
+        
         // Admin check
         if ($role === 'admin') {
             Log::info('Admin guard check: ' . (Auth::guard('admin')->check() ? 'true' : 'false'));
@@ -28,6 +32,10 @@ class CheckRole
             Log::info('Dosen guard check: ' . (Auth::guard('dosen')->check() ? 'true' : 'false'));
             if (Auth::guard('dosen')->check()) {
                 Log::info('Dosen authenticated via guard check');
+                // Jangan gunakan json_encode langsung pada objek User
+                // Gunakan hanya atribut tertentu yang Anda butuhkan
+                $dosen = Auth::guard('dosen')->user();
+                Log::info('Dosen data: NIP=' . $dosen->nip . ', Nama=' . $dosen->nama);
                 return $next($request);
             }
         }

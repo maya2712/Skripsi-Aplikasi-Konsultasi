@@ -1,10 +1,26 @@
 @extends('layouts.app')
 
+@if(config('app.debug'))
+<div class="container mt-2 mb-2" style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; color: #333; display: none;">
+    <small>
+        <strong>Debug Info:</strong> 
+        Guard: {{ $guard }} | 
+        @if($guard === 'mahasiswa')
+            NIM: {{ $user->nim }}
+        @elseif($guard === 'dosen')
+            NIP: {{ $user->nip }}
+        @elseif($guard === 'admin')
+            ID: {{ $user->id }}
+        @endif
+        | Email: {{ $user->email }}
+    </small>
+</div>
+@endif
+
 @section('title', 'Profil Pengguna')
 
 @push('styles')
 <style>
-    /* CSS styles tetap sama seperti sebelumnya */
     body {
         background-color: #F5F7FA;
     }
@@ -72,7 +88,7 @@
         border-radius: 50%;
         border: 4px solid rgba(255, 255, 255, 0.3);
         object-fit: cover;
-        background-color: #f1f1f1; /* Background untuk foto default */
+        background-color: #f1f1f1;
     }
     
     .default-profile-img {
@@ -141,17 +157,27 @@
         font-weight: 500;
     }
     
-    .btn-forgot-password {
+    .btn-password {
         color: #004AAD;
         text-decoration: none;
         font-weight: 500;
         font-size: 14px;
-        display: inline-block;
+        padding: 10px 18px;
+        border-radius: 5px;
+        background-color: #E3F2FD;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
         margin-top: 10px;
     }
     
-    .btn-forgot-password:hover {
-        text-decoration: underline;
+    .btn-password:hover {
+        background-color: #BBDEFB;
+        color: #003380;
+    }
+    
+    .btn-password i {
+        margin-right: 8px;
     }
     
     /* Modal styling */
@@ -221,6 +247,7 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="profile-wrapper">
+                
                 <!-- Tombol Kembali sesuai dengan role user -->
                 @if($guard === 'mahasiswa')
                 <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="back-button">
@@ -236,7 +263,7 @@
                 </a>
                 @endif
                 
-                <!-- Profile Header -->
+                <!-- Profile Header dengan debugging ID -->
                 <div class="profile-header">
                     <div class="profile-img-container">
                         <!-- Ikon default untuk foto profil yang belum diset -->
@@ -249,9 +276,17 @@
                         </div>
                     </div>
                     
-                    <!-- Nama dan role dinamis -->
+                    <!-- Nama dan role dinamis dengan ID pengguna -->
                     <h3>{{ $user->nama }}</h3>
-                    <p>{{ ucfirst($guard) }}</p>
+                    <p>{{ ucfirst($guard) }} 
+                        @if($guard === 'mahasiswa')
+                            ({{ $user->nim }})
+                        @elseif($guard === 'dosen')
+                            ({{ $user->nip }})
+                        @elseif($guard === 'admin')
+                            ({{ $user->id }})
+                        @endif
+                    </p>
                 </div>
                 
                 <!-- Profile Content -->
@@ -274,44 +309,18 @@
                             </div>
                         </div>
                         
-                        <!-- Program Studi hanya untuk mahasiswa dan dosen -->
-                        @if($guard === 'mahasiswa' || $guard === 'dosen')
+                        <!-- Angkatan untuk mahasiswa, atau kolom kosong untuk dosen/admin -->
                         <div class="col-md-6">
                             <div class="info-group">
-                                <div class="info-label">Program Studi</div>
-                                <div class="info-value">
-                                    {{ isset($prodiMap[$user->prodi_id]) ? $prodiMap[$user->prodi_id] : 'N/A' }}
-                                </div>
-                            </div>
-                        </div>
-                        @endif
-                        
-                        <div class="col-md-6">
-                            <div class="info-group">
-                                <div class="info-label">Fakultas</div>
-                                <div class="info-value">Teknik</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Angkatan hanya untuk mahasiswa -->
-                        @if($guard === 'mahasiswa')
-                        <div class="col-md-6">
-                            <div class="info-group">
+                                @if($guard === 'mahasiswa')
                                 <div class="info-label">Angkatan</div>
                                 <div class="info-value">{{ $user->angkatan }}</div>
-                            </div>
-                        </div>
-                        @endif
-                        
-                        <!-- Jabatan hanya untuk dosen -->
-                        @if($guard === 'dosen')
-                        <div class="col-md-6">
-                            <div class="info-group">
+                                @else
                                 <div class="info-label">Jabatan</div>
-                                <div class="info-value">{{ $user->jabatan_fungsional ?? 'N/A' }}</div>
+                                <div class="info-value">{{ $guard === 'dosen' ? ($user->jabatan_fungsional ?? 'N/A') : 'Administrator' }}</div>
+                                @endif
                             </div>
                         </div>
-                        @endif
                         
                         <div class="col-md-6">
                             <div class="info-group">
@@ -319,28 +328,14 @@
                                 <div class="info-value">{{ $user->email }}</div>
                             </div>
                         </div>
-                        
-                        <!-- Konsentrasi hanya untuk mahasiswa -->
-                        @if($guard === 'mahasiswa' && isset($user->konsentrasi_id))
-                        <div class="col-md-6">
-                            <div class="info-group">
-                                <div class="info-label">Konsentrasi</div>
-                                <div class="info-value">
-                                    {{ isset($konsentrasiMap[$user->konsentrasi_id]) ? $konsentrasiMap[$user->konsentrasi_id] : 'N/A' }}
-                                </div>
-                            </div>
-                        </div>
-                        @endif
                     </div>
                     
                     <h4 class="section-title mt-4">Pengaturan Akun</h4>
                     
-                    <div class="row">
-                        <div class="col-md-12">
-                            <a href="#" class="btn-forgot-password" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
-                                <i class="fas fa-lock me-1"></i> Lupa Kata Sandi?
-                            </a>
-                        </div>
+                    <div>
+                        <a href="#" class="btn-password" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="fas fa-key"></i> Ubah Kata Sandi
+                        </a>
                     </div>
                 </div>
             </div>
@@ -380,32 +375,53 @@
     </div>
 </div>
 
-<!-- Modal Lupa Kata Sandi -->
-<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+<!-- Modal Ubah Kata Sandi -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="forgotPasswordModalLabel">Lupa Kata Sandi?</h5>
+                <h5 class="modal-title" id="changePasswordModalLabel">Ubah Kata Sandi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="text-center mb-4">
-                    <i class="fas fa-exclamation-circle text-warning" style="font-size: 48px;"></i>
-                    <h5 class="mt-3">Anda tidak dapat mengubah kata sandi secara mandiri</h5>
-                    <p class="text-muted">
-                        Untuk mengubah kata sandi, silakan hubungi administrator sistem.
-                    </p>
-                </div>
-                
-                <div class="alert alert-info">
-                    <h6><i class="fas fa-info-circle me-2"></i> Informasi Administrator:</h6>
-                    <p class="mb-1">Email: admin@unri.ac.id</p>
-                    <p class="mb-1">Telepon: (0761) 123456</p>
-                    <p class="mb-0">Lokasi: Gedung Rektorat Lt. 2, Ruang TIK</p>
-                </div>
+                <form id="changePasswordForm">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Kata Sandi Saat Ini</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="currentPassword" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="currentPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Kata Sandi Baru</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="newPassword" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="newPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Kata sandi minimal 6 karakter
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Konfirmasi Kata Sandi Baru</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirmPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="savePasswordBtn">Simpan</button>
             </div>
         </div>
     </div>
@@ -415,7 +431,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Script tetap sama seperti sebelumnya
+        // Upload foto profile
         const uploadArea = document.getElementById('uploadArea');
         const photoInput = document.getElementById('photoInput');
         const photoPreview = document.getElementById('photoPreview');
@@ -513,6 +529,60 @@
             } else {
                 alert('Pilih foto terlebih dahulu!');
             }
+        });
+        
+        // Toggle password visibility
+        const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+        
+        togglePasswordButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                } else {
+                    passwordInput.type = 'password';
+                    this.innerHTML = '<i class="fas fa-eye"></i>';
+                }
+            });
+        });
+        
+        // Password change form validation and submission
+        const savePasswordBtn = document.getElementById('savePasswordBtn');
+        
+        savePasswordBtn.addEventListener('click', function() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Basic validation
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Semua field harus diisi!');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                alert('Kata sandi baru minimal 8 karakter!');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('Konfirmasi kata sandi tidak cocok!');
+                return;
+            }
+            
+            // In a real application, here you would send the data to the server
+            // For this prototype, we'll just show a success message
+            alert('Kata sandi berhasil diubah!');
+            
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+            modal.hide();
+            
+            // Reset the form
+            document.getElementById('changePasswordForm').reset();
         });
     });
 </script>

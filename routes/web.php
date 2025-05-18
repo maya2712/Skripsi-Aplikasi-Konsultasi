@@ -27,15 +27,12 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
         return view('pesan.dashboardpesan');
     });
     
-    // Route profil - sudah diperbarui untuk menggunakan controller
+    // Route profil umum (tetap dipertahankan untuk backward compatibility)
     Route::get('/profil', [ProfileController::class, 'index'])->name('profil');
     
-    // Route back
+    // Route back - sudah diperbaiki untuk mendukung semua role
     Route::get('/back', function () {
         $routeStack = session()->get('routeStack', []);
-        
-        // Debug: Lihat isi stack
-        // dd($routeStack);
         
         if (count($routeStack) >= 2) {
             // Hapus URL terakhir (URL saat ini) dari stack
@@ -53,11 +50,13 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
             }
         }
         
-        // Fallback jika tidak ada history
-        if (auth()->guard('dosen')->check()) {
-            return redirect('/dashboardpesandosen');
+        // Fallback jika tidak ada history - perbaikan untuk semua guard
+        if (auth()->guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        } elseif (auth()->guard('dosen')->check()) {
+            return redirect()->route('dosen.dashboard.pesan');
         } else {
-            return redirect('/dashboardpesanmahasiswa');
+            return redirect()->route('mahasiswa.dashboard.pesan');
         }
     })->name('back');
 
@@ -82,6 +81,9 @@ Route::get('/datausulanbimbingan', function () {
 
 // Route untuk mahasiswa
 Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () {
+    // Route profil khusus untuk mahasiswa
+    Route::get('/profil-mahasiswa', [ProfileController::class, 'index'])->name('profil.mahasiswa');
+    
     Route::get('/riwayatmahasiswa', function () {
         return view('bimbingan.riwayatmahasiswa');
     });
@@ -167,6 +169,9 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
 
 // Route untuk dosen
 Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
+    // Route profil khusus untuk dosen
+    Route::get('/profil-dosen', [ProfileController::class, 'index'])->name('profil.dosen');
+    
     Route::get('/persetujuan', function () {
         return view('bimbingan.dosen.persetujuan');
     });
@@ -266,7 +271,10 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
 });
 
 // Pastikan routes sudah ada di web.php dalam grup admin
-Route::middleware(['auth:admin', \App\Http\Middleware\PreventBackHistory::class])->prefix('admin')->group(function () {
+Route::middleware(['web', 'auth:admin', \App\Http\Middleware\PreventBackHistory::class])->prefix('admin')->group(function () {
+    // Route profil khusus untuk admin
+    Route::get('/profil-admin', [ProfileController::class, 'index'])->name('profil.admin');
+    
     // Route yang sudah ada
     Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
     

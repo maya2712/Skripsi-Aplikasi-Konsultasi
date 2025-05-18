@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Closure;
 
 class Authenticate extends Middleware
@@ -20,9 +21,15 @@ class Authenticate extends Middleware
         if (empty($guards)) {
             $guards = [null];
         }
-
+        
+        // Log untuk debugging
+        Log::info('Authenticate middleware called with guards: ' . implode(', ', $guards));
+        Log::info('Admin guard check: ' . (Auth::guard('admin')->check() ? 'true' : 'false'));
+        Log::info('Session role: ' . session('role'));
+        
         // Cek secara eksplisit untuk setiap guard
         if (in_array('admin', $guards) && Auth::guard('admin')->check()) {
+            Log::info('Admin authenticated via middleware check');
             return $next($request);
         } elseif (in_array('mahasiswa', $guards) && Auth::guard('mahasiswa')->check()) {
             return $next($request);
@@ -36,6 +43,7 @@ class Authenticate extends Middleware
             }
         }
 
+        Log::warning('Authentication failed in middleware');
         return redirect()->route('login');
     }
 }

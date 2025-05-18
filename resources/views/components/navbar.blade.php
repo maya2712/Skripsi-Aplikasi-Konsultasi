@@ -27,7 +27,17 @@
                         AKUN
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="{{ route('profil') }}"><i class="bi bi-person-circle me-2"></i>Profil</a></li>
+                        <li>
+                            @if(Auth::guard('mahasiswa')->check())
+                                <a class="dropdown-item" href="{{ route('profil.mahasiswa') }}"><i class="bi bi-person-circle me-2"></i>Profil</a>
+                            @elseif(Auth::guard('dosen')->check())
+                                <a class="dropdown-item" href="{{ route('profil.dosen') }}"><i class="bi bi-person-circle me-2"></i>Profil</a>
+                            @elseif(Auth::guard('admin')->check())
+                                <a class="dropdown-item" href="{{ route('profil.admin') }}"><i class="bi bi-person-circle me-2"></i>Profil</a>
+                            @else
+                                <a class="dropdown-item" href="{{ route('profil') }}"><i class="bi bi-person-circle me-2"></i>Profil</a>
+                            @endif
+                        </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item text-danger" href="{{ route('logout') }}" 

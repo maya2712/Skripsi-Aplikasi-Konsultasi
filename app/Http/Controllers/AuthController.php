@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cookie;
 use App\Models\Mahasiswa;
 use App\Models\Dosen;
 use App\Models\User;
@@ -30,20 +31,28 @@ class AuthController extends Controller
         $password = $request->password;
         
         Log::info('Mencoba login dengan: ' . $identifier);
-        
+    
         // Cek admin dengan tabel admins yang baru
         $admin = Admin::where('email', $identifier)->first();
         if ($admin) {
-            Log::info('Admin ditemukan: ' . $admin->email);
+            Log::info('Admin ditemukan: ' . $admin->email . ' dengan ID: ' . $admin->id);
             
             if (Hash::check($password, $admin->password)) {
                 Log::info('Password benar untuk admin: ' . $admin->email);
                 
+                // Login dengan Auth::guard
                 Auth::guard('admin')->login($admin);
-                $request->session()->put('role', 'admin'); // Menggunakan session dari request
+                
+                // Set session role
+                $request->session()->put('role', 'admin');
+                $request->session()->regenerate(); // Regenerasi ID session untuk keamanan
                 $request->session()->save(); // Pastikan session disimpan
                 
-                Log::info('Login sebagai admin berhasil, redirect ke /admin/dashboard');
+                // Log status auth setelah login
+                Log::info('Login sebagai admin berhasil, Auth check: ' . (Auth::guard('admin')->check() ? 'true' : 'false'));
+                Log::info('Session role: ' . session('role'));
+                
+                // Redirect ke dashboard admin
                 return redirect('/admin/dashboard');
             } else {
                 Log::warning('Password salah untuk admin: ' . $admin->email);
@@ -57,6 +66,7 @@ class AuthController extends Controller
         if ($mahasiswa && Hash::check($password, $mahasiswa->password)) {
             Auth::guard('mahasiswa')->login($mahasiswa);
             $request->session()->put('role', 'mahasiswa');
+            $request->session()->regenerate();
             $request->session()->save();
             Log::info('Login berhasil untuk mahasiswa: ' . $mahasiswa->nim);
             return redirect('/dashboardpesanmahasiswa');
@@ -82,6 +92,7 @@ class AuthController extends Controller
             // Simpan ke session
             $request->session()->put('is_kaprodi', $isKaprodi);
             $request->session()->put('active_role', 'dosen'); // Default role
+            $request->session()->regenerate();
             $request->session()->save();
             
             Log::info('Login berhasil untuk dosen, status kaprodi: ' . ($isKaprodi ? 'Ya' : 'Tidak'), [
@@ -104,17 +115,28 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        if (Auth::guard('mahasiswa')->check()) {
-            Auth::guard('mahasiswa')->logout();
-        } else if (Auth::guard('dosen')->check()) {
-            Auth::guard('dosen')->logout();
-        } else if (Auth::guard('admin')->check()) {
-            Auth::guard('admin')->logout();
-        }
+        // Log informasi sebelum logout
+        $guard = session('role');
+        Log::info('Logout dimulai untuk guard: ' . $guard);
         
-        // Invalidate session
+        // Logout dari semua guard secara eksplisit
+        Auth::guard('mahasiswa')->logout();
+        Auth::guard('dosen')->logout();
+        Auth::guard('admin')->logout();
+        
+        // Hapus session secara menyeluruh
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
+        // Hapus semua cookie autentikasi
+        $cookies = $request->cookie();
+        foreach ($cookies as $name => $value) {
+            if (strpos($name, 'laravel_session') !== false || strpos($name, 'remember_') !== false) {
+                Cookie::queue(Cookie::forget($name));
+            }
+        }
+        
+        Log::info('Logout berhasil');
         
         // Redirect dengan header khusus untuk mencegah caching
         return redirect()->route('login')
