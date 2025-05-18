@@ -559,10 +559,35 @@
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 d-flex align-items-center">
-                                        <div class="profile-image-placeholder me-3">
-                                            <i class="fas fa-user"></i>
-                                        </div>
+                                        @if($item->nip_pengirim == Auth::user()->nip)
+                                            <!-- Menampilkan foto mahasiswa penerima -->
+                                            @php
+                                                $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_penerima)->first();
+                                                $profilePhoto = $mahasiswa && $mahasiswa->profile_photo ? asset('storage/profile_photos/'.$mahasiswa->profile_photo) : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @else
+                                            <!-- Menampilkan foto mahasiswa pengirim -->
+                                            @php
+                                                $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_pengirim)->first();
+                                                $profilePhoto = $mahasiswa && $mahasiswa->profile_photo ? asset('storage/profile_photos/'.$mahasiswa->profile_photo) : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @endif
                                         <div>
+                                            
                                             <span class="badge bg-primary mb-1">{{ $item->subjek }}</span>
                                             
                                             @if($item->nip_pengirim == Auth::user()->nip)

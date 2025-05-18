@@ -333,9 +333,35 @@
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 d-flex align-items-center">
-                                        <div class="profile-image-placeholder me-3">
-                                            <i class="fas fa-user"></i>
-                                        </div>
+                                        @if($p->nim_pengirim == Auth::user()->nim)
+                                            <!-- Menampilkan foto dosen penerima -->
+                                            @php
+                                                $profilePhoto = $p->dosenPenerima && $p->dosenPenerima->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$p->dosenPenerima->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @else
+                                            <!-- Menampilkan foto dosen pengirim -->
+                                            @php
+                                                $profilePhoto = $p->dosenPengirim && $p->dosenPengirim->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$p->dosenPengirim->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @endif
                                         <div>
                                             <span class="badge bg-primary mb-1">{{ $p->subjek }}</span>
                                             
@@ -343,40 +369,56 @@
                                                 <!-- Jika mahasiswa adalah pengirim, tampilkan nama dosen penerima -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
-                                                    @php
-                                                        // Ambil langsung data dosen penerima
-                                                        $dosen = App\Models\Dosen::where('nip', $p->nip_penerima)->first();
-                                                        $nama_penerima = $dosen ? $dosen->nama : 'Dosen';
-                                                    @endphp
-                                                    {{ $nama_penerima }}
+                                                    {{ $p->dosenPenerima ? $p->dosenPenerima->nama : 'Dosen' }}
                                                 </h6>
-                                                <small class="text-muted">{{ $p->nip_penerima }}</small>
+                                                <small class="text-muted">NIP: {{ $p->nip_penerima }}</small><br>
+                                                <small class="text-muted">{{ $p->dosenPenerima ? $p->dosenPenerima->jabatan : 'Dosen' }}</small>
                                             @else
                                                 <!-- Jika mahasiswa adalah penerima, tampilkan nama dosen pengirim -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
-                                                    @php
-                                                        // Ambil langsung data dosen pengirim
-                                                        $dosen = App\Models\Dosen::where('nip', $p->nip_pengirim)->first();
-                                                        $nama_pengirim = $dosen ? $dosen->nama : 'Dosen';
-                                                    @endphp
-                                                    {{ $nama_pengirim }}
+                                                    {{ $p->dosenPengirim ? $p->dosenPengirim->nama : 'Dosen' }}
                                                 </h6>
-                                                <small class="text-muted">{{ $p->nip_pengirim }}</small>
+                                                <small class="text-muted">NIP: {{ $p->nip_pengirim }}</small><br>
+                                                <small class="text-muted">{{ $p->dosenPengirim ? $p->dosenPengirim->jabatan : 'Dosen' }}</small>
                                             @endif
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                        <span class="badge {{ $p->dibaca ? 'bg-success' : 'bg-danger' }} me-1">
-                                            {{ $p->dibaca ? 'Sudah dibaca' : 'Belum dibaca' }}
+                                        @php
+                                            // Hitung jumlah balasan yang belum dibaca
+                                            $unreadReplies = App\Models\BalasanPesan::where('id_pesan', $p->id)
+                                                ->where('dibaca', false)
+                                                ->where('tipe_pengirim', 'dosen') // Untuk mahasiswa, kita hanya menghitung balasan dari dosen
+                                                ->count();
+                                            
+                                            // Tentukan status badge
+                                            $badgeClass = 'bg-success';
+                                            $badgeText = 'Sudah dibaca';
+                                            
+                                            if (!$p->dibaca && $p->nim_penerima == Auth::user()->nim) {
+                                                // Pesan utama belum dibaca
+                                                $badgeClass = 'bg-danger';
+                                                $badgeText = 'Belum dibaca';
+                                            } else if ($unreadReplies > 0) {
+                                                // Ada balasan baru yang belum dibaca
+                                                $badgeClass = 'bg-danger';
+                                                $badgeText = $unreadReplies . ' balasan baru';
+                                            }
+                                        @endphp
+                                        
+                                        <span class="badge {{ $badgeClass }} me-1">
+                                            {{ $badgeText }}
                                         </span>
+                                        
                                         <span class="badge {{ $p->prioritas == 'Penting' ? 'bg-danger' : 'bg-success' }}">
                                             {{ $p->prioritas }}
                                         </span>
+                                        
                                         <small class="d-block text-muted my-1">
-                                           {{ \Carbon\Carbon::parse($p->created_at)->timezone('Asia/Jakarta')->diffForHumans() }}
+                                            {{ \Carbon\Carbon::parse($p->created_at)->timezone('Asia/Jakarta')->diffForHumans() }}
                                         </small>
-
+                                        
                                         <div class="action-buttons" onclick="event.stopPropagation();">
                                             <a href="{{ route('mahasiswa.pesan.show', $p->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
                                                 <i class="fas fa-eye me-1"></i>Lihat

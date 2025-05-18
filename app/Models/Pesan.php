@@ -15,7 +15,7 @@ class Pesan extends Model
         'nip_pengirim',  
         'nip_penerima',
         'nim_penerima',
-        'penerima_role', // Tambahkan ini
+        'penerima_role', 
         'isi_pesan',
         'prioritas',
         'status',
@@ -61,6 +61,28 @@ class Pesan extends Model
             'nama' => 'Tidak Ditemukan',
             'jabatan' => 'Tidak Tersedia'
         ]);
+    }
+    
+    // Relationship khusus untuk mahasiswa pengirim dan penerima
+    public function mahasiswaPengirim()
+    {
+        return $this->belongsTo(Mahasiswa::class, 'nim_pengirim', 'nim');
+    }
+    
+    public function mahasiswaPenerima()
+    {
+        return $this->belongsTo(Mahasiswa::class, 'nim_penerima', 'nim');
+    }
+    
+    // Relationship khusus untuk dosen pengirim dan penerima
+    public function dosenPengirim()
+    {
+        return $this->belongsTo(Dosen::class, 'nip_pengirim', 'nip');
+    }
+    
+    public function dosenPenerima()
+    {
+        return $this->belongsTo(Dosen::class, 'nip_penerima', 'nip');
     }
     
     // Relasi untuk balasan pesan

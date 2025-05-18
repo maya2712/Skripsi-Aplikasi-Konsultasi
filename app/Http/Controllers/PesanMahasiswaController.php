@@ -24,34 +24,32 @@ class PesanMahasiswaController extends Controller
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
         
-        // Mengambil semua pesan yang diterima ATAU dikirim oleh mahasiswa
-        // dengan status 'Aktif' (pesan yang berakhir masuk ke riwayat)
-        $pesan = Pesan::where(function($query) use ($mahasiswa) {
+        // Mengambil pesan dengan eager loading untuk dosen
+        $pesan = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+            ->where(function($query) use ($mahasiswa) {
                 $query->where('nim_penerima', $mahasiswa->nim)
                     ->orWhere('nim_pengirim', $mahasiswa->nim);
             })
-            ->where('status', 'Aktif') // Hanya tampilkan pesan aktif
+            ->where('status', 'Aktif')
             ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
                 $join->on('pesan.id', '=', 'latest_replies.id_pesan');
             })
             ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
-            ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+            ->orderBy('last_activity', 'desc')
             ->get();
-                    
-        // Menghitung jumlah pesan belum dibaca (hanya yang diterima)
+        
+        // Hitung statistik pesan
         $belumDibaca = Pesan::where('nim_penerima', $mahasiswa->nim)
                         ->where('dibaca', false)
                         ->count();
-        
-        // Menghitung jumlah pesan aktif (baik yang diterima maupun dikirim)
+                        
         $pesanAktif = Pesan::where(function($query) use ($mahasiswa) {
                         $query->where('nim_penerima', $mahasiswa->nim)
                             ->orWhere('nim_pengirim', $mahasiswa->nim);
                     })
                     ->where('status', 'Aktif')
                     ->count();
-        
-        // Menghitung total pesan (termasuk yang aktif dan berakhir)
+                    
         $totalPesan = Pesan::where(function($query) use ($mahasiswa) {
                         $query->where('nim_penerima', $mahasiswa->nim)
                             ->orWhere('nim_pengirim', $mahasiswa->nim);
@@ -440,18 +438,20 @@ public function create()
             ->groupBy('id_pesan');
         
         // Mengambil semua pesan dengan status 'Berakhir' (dikirim ATAU diterima)
-        $riwayatPesan = Pesan::where(function($query) use ($mahasiswa) {
+        // Tambahkan eager loading untuk dosenPengirim dan dosenPenerima
+        $riwayatPesan = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+                        ->where(function($query) use ($mahasiswa) {
                             $query->where('nim_pengirim', $mahasiswa->nim)
-                                  ->orWhere('nim_penerima', $mahasiswa->nim);
-                         })
-                         ->where('status', 'Berakhir')
-                         ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                                ->orWhere('nim_penerima', $mahasiswa->nim);
+                        })
+                        ->where('status', 'Berakhir')
+                        ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
                             $join->on('pesan.id', '=', 'latest_replies.id_pesan');
-                         })
-                         ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.updated_at) as last_activity'))
-                         ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
-                         ->get();
-                           
+                        })
+                        ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.updated_at) as last_activity'))
+                        ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                        ->get();
+                        
         return view('pesan.mahasiswa.riwayatpesanmahasiswa', compact('riwayatPesan'));
     }
     

@@ -333,39 +333,55 @@
                     @if($riwayatPesan->count() > 0)
                         @foreach($riwayatPesan as $pesan)
                         <div class="card mb-2 message-card {{ strtolower($pesan->prioritas) }}" data-kategori="{{ strtolower($pesan->prioritas) }}" 
-                             data-pengirim="{{ $pesan->nim_pengirim == Auth::user()->nim ? ($pesan->penerima->nama ?? 'Dosen') : ($pesan->pengirim->nama ?? 'Pengirim') }}" 
-                             data-judul="{{ $pesan->subjek }}" 
-                             onclick="window.location.href='{{ url('/isipesanmahasiswa/' . $pesan->id) }}'">
+                            data-pengirim="{{ $pesan->nim_pengirim == Auth::user()->nim ? ($pesan->dosenPenerima->nama ?? 'Dosen') : ($pesan->dosenPengirim->nama ?? 'Pengirim') }}" 
+                            data-judul="{{ $pesan->subjek }}" 
+                            onclick="window.location.href='{{ url('/isipesanmahasiswa/' . $pesan->id) }}'">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 d-flex align-items-center">
-                                        <div class="profile-image-placeholder me-3">
-                                            <i class="fas fa-user"></i>
-                                        </div>
+                                        @if($pesan->nim_pengirim == Auth::user()->nim)
+                                            <!-- Menampilkan foto dosen penerima -->
+                                            @php
+                                                $profilePhoto = $pesan->dosenPenerima && $pesan->dosenPenerima->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$pesan->dosenPenerima->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @else
+                                            <!-- Menampilkan foto dosen pengirim -->
+                                            @php
+                                                $profilePhoto = $pesan->dosenPengirim && $pesan->dosenPengirim->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$pesan->dosenPengirim->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @endif
                                         <div>
                                             <span class="badge bg-primary mb-1">{{ $pesan->subjek }}</span>
                                             @if($pesan->nim_pengirim == Auth::user()->nim)
                                                 <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
-                                                    @php
-                                                        $dosenPenerima = App\Models\Dosen::where('nip', $pesan->nip_penerima)->first();
-                                                        $namaPenerima = $dosenPenerima ? $dosenPenerima->nama : 'Dosen';
-                                                        $jabatanPenerima = $dosenPenerima ? $dosenPenerima->jabatan ?? 'Dosen' : 'Dosen';
-                                                    @endphp
-                                                    {{ $namaPenerima }}
+                                                    {{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}
                                                 </h6>
-                                                <small class="text-muted">{{ $jabatanPenerima }}</small>
+                                                <small class="text-muted">{{ $pesan->dosenPenerima ? ($pesan->dosenPenerima->jabatan ?? 'Dosen') : 'Dosen' }}</small>
                                             @else
                                                 <!-- Jika mahasiswa adalah penerima, tampilkan informasi dosen pengirim -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
-                                                    @php
-                                                        $dosenPengirim = App\Models\Dosen::where('nip', $pesan->nip_pengirim)->first();
-                                                        $namaPengirim = $dosenPengirim ? $dosenPengirim->nama : 'Dosen';
-                                                        $jabatanPengirim = $dosenPengirim ? $dosenPengirim->jabatan ?? 'Dosen' : 'Dosen';
-                                                    @endphp
-                                                    {{ $namaPengirim }}
+                                                    {{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}
                                                 </h6>
-                                                <small class="text-muted">{{ $jabatanPengirim }}</small>
+                                                <small class="text-muted">{{ $pesan->dosenPengirim ? ($pesan->dosenPengirim->jabatan ?? 'Dosen') : 'Dosen' }}</small>
                                             @endif
                                         </div>
                                     </div>

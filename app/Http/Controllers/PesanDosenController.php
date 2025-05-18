@@ -24,8 +24,8 @@ class PesanDosenController extends Controller
         
         // Cek langsung dari data user
         $isKaprodi = (stripos($dosen->jabatan_fungsional, 'kaprodi') !== false || 
-                     stripos($dosen->jabatan_fungsional, 'ketua program') !== false ||
-                     stripos($dosen->jabatan_fungsional, 'kepala program') !== false);
+                    stripos($dosen->jabatan_fungsional, 'ketua program') !== false ||
+                    stripos($dosen->jabatan_fungsional, 'kepala program') !== false);
         
         // Tentukan role aktif berdasarkan session dengan fallback ke 'dosen'
         $activeRole = session('active_role', 'dosen');
@@ -51,19 +51,20 @@ class PesanDosenController extends Controller
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
         
-        // Mengambil pesan berdasarkan peran aktif
-        $query = Pesan::where(function($query) use ($dosen, $activeRole) {
-            // Sebagai penerima dengan peran yang aktif
-            $query->where(function($q) use ($dosen, $activeRole) {
-                $q->where('nip_penerima', $dosen->nip)
-                  ->where('penerima_role', $activeRole);
+        // Mengambil pesan berdasarkan peran aktif dengan eager loading untuk mahasiswa
+        $query = Pesan::with(['mahasiswaPengirim', 'mahasiswaPenerima'])
+            ->where(function($query) use ($dosen, $activeRole) {
+                // Sebagai penerima dengan peran yang aktif
+                $query->where(function($q) use ($dosen, $activeRole) {
+                    $q->where('nip_penerima', $dosen->nip)
+                    ->where('penerima_role', $activeRole);
+                })
+                ->orWhere(function($q) use ($dosen) {
+                    // Sebagai pengirim (dapat melihat semua pesan yang dikirim, tanpa filter role)
+                    $q->where('nip_pengirim', $dosen->nip);
+                });
             })
-            ->orWhere(function($q) use ($dosen) {
-                // Sebagai pengirim (dapat melihat semua pesan yang dikirim, tanpa filter role)
-                $q->where('nip_pengirim', $dosen->nip);
-            });
-        })
-        ->where('status', 'Aktif'); // Hanya tampilkan pesan aktif di dashboard
+            ->where('status', 'Aktif'); // Hanya tampilkan pesan aktif di dashboard
         
         // Gabungkan dengan subquery balasan terakhir    
         $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
@@ -72,7 +73,7 @@ class PesanDosenController extends Controller
             ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
             ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
             ->get();
-                      
+                    
         // Menghitung jumlah pesan belum dibaca (hanya yang diterima dengan role yang sesuai)
         $belumDibaca = Pesan::where('nip_penerima', $dosen->nip)
                         ->where('penerima_role', $activeRole)
@@ -81,24 +82,24 @@ class PesanDosenController extends Controller
         
         // Menghitung jumlah pesan aktif (baik yang diterima dengan role sesuai maupun dikirim)
         $pesanAktif = Pesan::where(function($query) use ($dosen, $activeRole) {
-                         $query->where(function($q) use ($dosen, $activeRole) {
-                             $q->where('nip_penerima', $dosen->nip)
-                               ->where('penerima_role', $activeRole);
-                         })
-                         ->orWhere('nip_pengirim', $dosen->nip);
-                     })
-                     ->where('status', 'Aktif')
-                     ->count();
+                        $query->where(function($q) use ($dosen, $activeRole) {
+                            $q->where('nip_penerima', $dosen->nip)
+                            ->where('penerima_role', $activeRole);
+                        })
+                        ->orWhere('nip_pengirim', $dosen->nip);
+                    })
+                    ->where('status', 'Aktif')
+                    ->count();
         
         // Menghitung total pesan (termasuk aktif dan berakhir, dengan role yang sesuai)
         $totalPesan = Pesan::where(function($query) use ($dosen, $activeRole) {
-                         $query->where(function($q) use ($dosen, $activeRole) {
-                             $q->where('nip_penerima', $dosen->nip)
-                               ->where('penerima_role', $activeRole);
-                         })
-                         ->orWhere('nip_pengirim', $dosen->nip);
-                     })
-                     ->count();
+                        $query->where(function($q) use ($dosen, $activeRole) {
+                            $q->where('nip_penerima', $dosen->nip)
+                            ->where('penerima_role', $activeRole);
+                        })
+                        ->orWhere('nip_pengirim', $dosen->nip);
+                    })
+                    ->count();
         
         // Saat rendering view, tambahkan informasi peran aktif dan status kaprodi
         return view('pesan.dosen.dashboardpesandosen', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan', 'activeRole', 'isKaprodi'));
@@ -461,24 +462,25 @@ class PesanDosenController extends Controller
             ->groupBy('id_pesan');
         
         // Mengambil semua pesan dengan status 'Berakhir' yang diterima ATAU dikirim oleh dosen
-        $riwayatPesan = Pesan::where(function($query) use ($dosen, $activeRole) {
-                          $query->where(function($q) use ($dosen, $activeRole) {
-                              $q->where('nip_penerima', $dosen->nip)
-                                ->where('penerima_role', $activeRole);
-                          })
-                          ->orWhere('nip_pengirim', $dosen->nip);
-                       })
-                       ->where('status', 'Berakhir')
-                       ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
-                            $join->on('pesan.id', '=', 'latest_replies.id_pesan');
-                       })
-                       ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.updated_at) as last_activity'))
-                       ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
-                       ->get();
-                         
+        // Tambahkan eager loading untuk mahasiswaPengirim dan mahasiswaPenerima
+        $riwayatPesan = Pesan::with(['mahasiswaPengirim', 'mahasiswaPenerima'])
+                        ->where(function($query) use ($dosen, $activeRole) {
+                            $query->where(function($q) use ($dosen, $activeRole) {
+                                $q->where('nip_penerima', $dosen->nip)
+                                    ->where('penerima_role', $activeRole);
+                            })
+                            ->orWhere('nip_pengirim', $dosen->nip);
+                        })
+                        ->where('status', 'Berakhir')
+                        ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                                $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                        })
+                        ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.updated_at) as last_activity'))
+                        ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                        ->get();
+                            
         return view('pesan.dosen.riwayatpesandosen', compact('riwayatPesan'));
     }
-    
     /**
      * Filter pesan berdasarkan prioritas
      */

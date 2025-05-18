@@ -419,15 +419,41 @@
                     @if($riwayatPesan->count() > 0)
                         @foreach($riwayatPesan as $pesan)
                         <div class="card mb-2 message-card {{ strtolower($pesan->prioritas) }}" data-kategori="{{ strtolower($pesan->prioritas) }}" 
-                             data-pengirim="{{ $pesan->nip_pengirim == Auth::user()->nip ? ($pesan->mahasiswaPenerima->nama ?? 'Mahasiswa') : ($pesan->mahasiswaPengirim->nama ?? 'Pengirim') }}" 
-                             data-judul="{{ $pesan->subjek }}" 
-                             onclick="window.location.href='{{ route('dosen.pesan.show', $pesan->id) }}'">
-                            <div class="card-body">
+                            data-pengirim="{{ $pesan->nip_pengirim == Auth::user()->nip ? ($pesan->mahasiswaPenerima->nama ?? 'Mahasiswa') : ($pesan->mahasiswaPengirim->nama ?? 'Pengirim') }}" 
+                            data-judul="{{ $pesan->subjek }}" 
+                            onclick="window.location.href='{{ route('dosen.pesan.show', $pesan->id) }}'">
+                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 d-flex align-items-center">
-                                        <div class="profile-image-placeholder me-3">
-                                            <i class="fas fa-user"></i>
-                                        </div>
+                                        @if($pesan->nip_pengirim == Auth::user()->nip)
+                                            <!-- Menampilkan foto mahasiswa penerima -->
+                                            @php
+                                                $profilePhoto = $pesan->mahasiswaPenerima && $pesan->mahasiswaPenerima->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$pesan->mahasiswaPenerima->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @else
+                                            <!-- Menampilkan foto mahasiswa pengirim -->
+                                            @php
+                                                $profilePhoto = $pesan->mahasiswaPengirim && $pesan->mahasiswaPengirim->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$pesan->mahasiswaPengirim->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @endif
                                         <div>
                                             <span class="badge bg-primary mb-1">{{ $pesan->subjek }}</span>
                                             
@@ -435,24 +461,14 @@
                                                 <!-- Jika dosen adalah pengirim, tampilkan nama mahasiswa penerima -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
-                                                    @php
-                                                        // Ambil langsung data mahasiswa penerima
-                                                        $mahasiswa = App\Models\Mahasiswa::where('nim', $pesan->nim_penerima)->first();
-                                                        $nama_penerima = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
-                                                    @endphp
-                                                    {{ $nama_penerima }}
+                                                    {{ $pesan->mahasiswaPenerima ? $pesan->mahasiswaPenerima->nama : 'Mahasiswa' }}
                                                 </h6>
                                                 <small class="text-muted">{{ $pesan->nim_penerima }}</small>
                                             @else
                                                 <!-- Jika dosen adalah penerima, tampilkan nama mahasiswa pengirim -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
-                                                    @php
-                                                        // Ambil langsung data mahasiswa pengirim
-                                                        $mahasiswa = App\Models\Mahasiswa::where('nim', $pesan->nim_pengirim)->first();
-                                                        $nama_pengirim = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
-                                                    @endphp
-                                                    {{ $nama_pengirim }}
+                                                    {{ $pesan->mahasiswaPengirim ? $pesan->mahasiswaPengirim->nama : 'Mahasiswa' }}
                                                 </h6>
                                                 <small class="text-muted">{{ $pesan->nim_pengirim }}</small>
                                             @endif

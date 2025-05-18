@@ -3,9 +3,35 @@
     <div class="card-body">
         <div class="row align-items-center">
             <div class="col-md-8 d-flex align-items-center">
-                <div class="profile-image-placeholder me-3">
-                    <i class="fas fa-user"></i>
-                </div>
+                @if($p->nip_pengirim == Auth::user()->nip)
+                    <!-- Menampilkan foto mahasiswa penerima -->
+                    @php
+                        $profilePhoto = $p->mahasiswaPenerima && $p->mahasiswaPenerima->profile_photo 
+                            ? asset('storage/profile_photos/'.$p->mahasiswaPenerima->profile_photo) 
+                            : null;
+                    @endphp
+                    @if($profilePhoto)
+                        <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                    @else
+                        <div class="profile-image-placeholder me-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    @endif
+                @else
+                    <!-- Menampilkan foto mahasiswa pengirim -->
+                    @php
+                        $profilePhoto = $p->mahasiswaPengirim && $p->mahasiswaPengirim->profile_photo 
+                            ? asset('storage/profile_photos/'.$p->mahasiswaPengirim->profile_photo) 
+                            : null;
+                    @endphp
+                    @if($profilePhoto)
+                        <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                    @else
+                        <div class="profile-image-placeholder me-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    @endif
+                @endif
                 <div>
                     <span class="badge bg-primary mb-1">{{ $p->subjek }}</span>
                     
@@ -13,29 +39,20 @@
                         <!-- Jika dosen adalah pengirim, tampilkan nama mahasiswa penerima -->
                         <h6 class="mb-1" style="font-size: 14px;">
                             <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
-                            @php
-                                // Ambil langsung data mahasiswa
-                                $mahasiswa = App\Models\Mahasiswa::where('nim', $p->nim_penerima)->first();
-                                $nama_penerima = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
-                            @endphp
-                            {{ $nama_penerima }}
+                            {{ $p->mahasiswaPenerima ? $p->mahasiswaPenerima->nama : 'Mahasiswa' }}
                         </h6>
                         <small class="text-muted">{{ $p->nim_penerima }}</small>
                     @else
                         <!-- Jika dosen adalah penerima, tampilkan nama mahasiswa pengirim -->
                         <h6 class="mb-1" style="font-size: 14px;">
                             <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
-                            @php
-                                // Ambil langsung data mahasiswa
-                                $mahasiswa = App\Models\Mahasiswa::where('nim', $p->nim_pengirim)->first();
-                                $nama_pengirim = $mahasiswa ? $mahasiswa->nama : 'Pengirim';
-                            @endphp
-                            {{ $nama_pengirim }}
+                            {{ $p->mahasiswaPengirim ? $p->mahasiswaPengirim->nama : 'Pengirim' }}
                         </h6>
                         <small class="text-muted">{{ $p->nim_pengirim }}</small>
                     @endif
                 </div>
             </div>
+            <!-- Bagian kode lainnya tetap sama -->
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 @php
                     // Hitung jumlah balasan yang belum dibaca dengan Query Builder yang benar
