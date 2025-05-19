@@ -43,7 +43,7 @@ class CheckRole
         // Mahasiswa check
         if ($role === 'mahasiswa') {
             Log::info('Mahasiswa guard check: ' . (Auth::guard('mahasiswa')->check() ? 'true' : 'false'));
-            if (Auth::guard('mahasiswa')->check()) {
+           if (Auth::guard('mahasiswa')->check()) {
                 Log::info('Mahasiswa authenticated via guard check');
                 return $next($request);
             }

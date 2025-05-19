@@ -204,7 +204,7 @@
     str_contains(Route::current()->uri ?? '', 'dashboard')
 ))
     @php
-        $isLoggedIn = Auth::guard('mahasiswa')->check() || Auth::guard('dosen')->check();
+        $isLoggedIn = Auth::guard('mahasiswa')->check() || Auth::guard('dosen')->check() || Auth::guard('admin')->check();
     @endphp
 
     @if(!$isLoggedIn)

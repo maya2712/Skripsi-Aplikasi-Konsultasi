@@ -17,47 +17,51 @@ class PesanMahasiswaController extends Controller
 {
     // Menampilkan dashboard pesan mahasiswa
     public function index()
-    {
-        $mahasiswa = Auth::user();
-        
-        // Membuat subquery untuk mendapatkan waktu balasan terakhir
-        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
-            ->groupBy('id_pesan');
-        
-        // Mengambil pesan dengan eager loading untuk dosen
-        $pesan = Pesan::with(['dosenPengirim', 'dosenPenerima'])
-            ->where(function($query) use ($mahasiswa) {
-                $query->where('nim_penerima', $mahasiswa->nim)
-                    ->orWhere('nim_pengirim', $mahasiswa->nim);
-            })
-            ->where('status', 'Aktif')
-            ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
-                $join->on('pesan.id', '=', 'latest_replies.id_pesan');
-            })
-            ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
-            ->orderBy('last_activity', 'desc')
-            ->get();
-        
-        // Hitung statistik pesan
-        $belumDibaca = Pesan::where('nim_penerima', $mahasiswa->nim)
-                        ->where('dibaca', false)
-                        ->count();
-                        
-        $pesanAktif = Pesan::where(function($query) use ($mahasiswa) {
-                        $query->where('nim_penerima', $mahasiswa->nim)
-                            ->orWhere('nim_pengirim', $mahasiswa->nim);
-                    })
-                    ->where('status', 'Aktif')
+{
+    $mahasiswa = Auth::user();
+    
+    // Membuat subquery untuk mendapatkan waktu balasan terakhir
+    $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+        ->groupBy('id_pesan');
+    
+    // Mengambil pesan dengan eager loading untuk dosen
+    $pesan = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+        ->where(function($query) use ($mahasiswa) {
+            $query->where('nim_penerima', $mahasiswa->nim)
+                ->orWhere('nim_pengirim', $mahasiswa->nim);
+        })
+        ->where('status', 'Aktif')
+        ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+            $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+        })
+        // Pastikan semua kolom termasuk dosen_role diambil
+        ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+        ->orderBy('last_activity', 'desc')
+        ->get();
+    
+    // Untuk debugging, cek apakah dosen_role ada dalam hasil query
+    Log::info('Pesan dengan dosen_role: ' . $pesan->whereNotNull('dosen_role')->count());
+    
+    // Hitung statistik pesan
+    $belumDibaca = Pesan::where('nim_penerima', $mahasiswa->nim)
+                    ->where('dibaca', false)
                     ->count();
                     
-        $totalPesan = Pesan::where(function($query) use ($mahasiswa) {
-                        $query->where('nim_penerima', $mahasiswa->nim)
-                            ->orWhere('nim_pengirim', $mahasiswa->nim);
-                    })
-                    ->count();
-        
-        return view('pesan.mahasiswa.dashboardpesanmahasiswa', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan'));
-    }
+    $pesanAktif = Pesan::where(function($query) use ($mahasiswa) {
+                    $query->where('nim_penerima', $mahasiswa->nim)
+                        ->orWhere('nim_pengirim', $mahasiswa->nim);
+                })
+                ->where('status', 'Aktif')
+                ->count();
+                
+    $totalPesan = Pesan::where(function($query) use ($mahasiswa) {
+                    $query->where('nim_penerima', $mahasiswa->nim)
+                        ->orWhere('nim_pengirim', $mahasiswa->nim);
+                })
+                ->count();
+    
+    return view('pesan.mahasiswa.dashboardpesanmahasiswa', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan'));
+}
     
     // Menampilkan form untuk membuat pesan baru
     // Di method create pada PesanMahasiswaController
@@ -112,7 +116,7 @@ public function create()
             'dosenId' => 'required',
             'prioritas' => 'required',
             'pesanText' => 'required',
-            'penerima_role' => 'required|in:dosen,kaprodi'
+            'penerima_role' => 'required|in:dosen,kaprodi'  // Memastikan role divalidasi
         ]);
         
         Log::info('Validasi berhasil dengan data:', $validatedData);
@@ -150,11 +154,12 @@ public function create()
             // Tentukan penerima_role dari input form
             $pesan->penerima_role = $request->penerima_role;
             
-            Log::info('Penerima role yang diset: ' . $pesan->penerima_role);
+            // Log role yang digunakan
+            Log::info('Pesan dibuat dengan penerima role: ' . $pesan->penerima_role);
             
             $pesan->isi_pesan = $request->pesanText;
             $pesan->prioritas = $request->prioritas;
-            $pesan->lampiran = $request->lampiran; // Opsional
+            $pesan->lampiran = $request->lampiran ?? null; // Opsional, gunakan null jika tidak ada
             $pesan->status = 'Aktif';
             $pesan->dibaca = false;
             $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
@@ -465,10 +470,11 @@ public function create()
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
         
-        $query = Pesan::where(function($query) use ($mahasiswa) {
-            $query->where('nim_pengirim', $mahasiswa->nim)
-                  ->orWhere('nim_penerima', $mahasiswa->nim);
-        });
+        $query = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+            ->where(function($query) use ($mahasiswa) {
+                $query->where('nim_pengirim', $mahasiswa->nim)
+                    ->orWhere('nim_penerima', $mahasiswa->nim);
+            });
         
         // Filter berdasarkan prioritas
         if ($filter == 'penting') {
@@ -498,15 +504,16 @@ public function create()
     
     // Pencarian pesan
     public function search(Request $request)
-    {
-        $mahasiswa = Auth::user();
-        $keyword = $request->keyword;
-        
-        // Membuat subquery untuk mendapatkan waktu balasan terakhir
-        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
-            ->groupBy('id_pesan');
-        
-        $query = Pesan::where(function($query) use ($mahasiswa) {
+{
+    $mahasiswa = Auth::user();
+    $keyword = $request->keyword;
+    
+    // Membuat subquery untuk mendapatkan waktu balasan terakhir
+    $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+        ->groupBy('id_pesan');
+    
+    $query = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+                ->where(function($query) use ($mahasiswa) {
                     $query->where('nim_pengirim', $mahasiswa->nim)
                           ->orWhere('nim_penerima', $mahasiswa->nim);
                  })
@@ -521,27 +528,27 @@ public function create()
                           });
                  });
                  
-        // Filter berdasarkan status jika parameter diberikan 
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        } else {
-            // Default hanya tampilkan pesan aktif
-            $query->where('status', 'Aktif');
-        }
-        
-        // Gabungkan dengan subquery balasan terakhir
-        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
-                    $join->on('pesan.id', '=', 'latest_replies.id_pesan');
-                })
-                ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
-                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
-                ->get();
-        
-        return response()->json([
-            'success' => true,
-            'html' => view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render()
-        ]);
+    // Filter berdasarkan status jika parameter diberikan 
+    if ($request->has('status')) {
+        $query->where('status', $request->status);
+    } else {
+        // Default hanya tampilkan pesan aktif
+        $query->where('status', 'Aktif');
     }
+    
+    // Gabungkan dengan subquery balasan terakhir
+    $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+            })
+            ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+            ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+            ->get();
+    
+    return response()->json([
+        'success' => true,
+        'html' => view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render()
+    ]);
+}
     
     // Halaman FAQ
     /**
