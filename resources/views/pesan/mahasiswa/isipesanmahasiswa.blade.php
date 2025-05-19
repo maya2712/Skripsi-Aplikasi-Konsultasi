@@ -154,18 +154,24 @@
         }
         
         .info-table td:first-child {
-            width: 90px;
+            min-width: 100px; 
+            width: 25%;
             color: var(--gray-text);
             background-color: #f0f4f8;
             font-weight: 500;
             border-bottom: 1px solid #eaedf1;
+            /* Membuat teks tidak terpotong */
+            white-space: normal;
+            word-break: break-word;
         }
         
         .info-table td:last-child {
+            width: 75%;
             border-bottom: 1px solid #eaedf1;
             padding-right: 20px;
-            word-break: normal;
+            word-break: break-all;
             white-space: normal;
+            overflow: visible;
         }
         
         .info-table tr:last-child td {
@@ -708,7 +714,7 @@
                                 <td>{{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}</td>
                             </tr>
                             <tr>
-                                <td>NIDN</td>
+                                <td>NIP</td>
                                 <td>{{ $pesan->nip_penerima }}</td>
                             </tr>
                         @else
@@ -794,7 +800,7 @@
                                         <div class="message-bubble">
                                             <p>{{ $message->isi_pesan }}</p>
                                             <div class="message-time">
-                                               {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
+                                              {{ $message->formattedCreatedAt() }}
                                             </div>
                                         </div>
                                     </div>
@@ -805,7 +811,7 @@
                                             <!-- Hapus container nama pengirim yang ada di dalam bubble chat -->
                                             <p>{{ $message->isi_pesan }}</p>
                                             <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
+                                               {{ $message->formattedCreatedAt() }}
                                             </div>
                                         </div>
                                     </div>
@@ -817,7 +823,7 @@
                                         <div class="message-bubble">
                                             <p>{{ $message->isi_balasan }}</p>
                                             <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
+                                               {{ $message->formattedCreatedAt() }}
                                             </div>
                                         </div>
                                     </div>
@@ -828,7 +834,7 @@
                                             <!-- Hapus container nama pengirim yang ada di dalam bubble chat -->
                                             <p>{{ $message->isi_balasan }}</p>
                                             <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
+                                                {{ $message->formattedCreatedAt() }}
                                             </div>
                                         </div>
                                     </div>

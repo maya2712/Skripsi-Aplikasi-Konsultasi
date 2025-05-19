@@ -157,9 +157,7 @@ class PesanDosenController extends Controller
                 $pesan->dibaca = false;
                 $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
                 
-                // Force timezone untuk timestamp
-                $pesan->created_at = Carbon::now('Asia/Jakarta');
-                $pesan->updated_at = Carbon::now('Asia/Jakarta');
+
                 
                 $pesan->save();
                 
@@ -330,10 +328,7 @@ class PesanDosenController extends Controller
             $balasan->tipe_pengirim = 'dosen';
             $balasan->isi_balasan = $request->balasan;
             $balasan->dibaca = false; // PERBAIKAN: Gunakan false (boolean) untuk konsistensi
-            
-            // Force timezone untuk timestamp
-            $balasan->created_at = Carbon::now('Asia/Jakarta');
-            $balasan->updated_at = Carbon::now('Asia/Jakarta');
+    
             
             $balasan->save();
             
@@ -351,7 +346,7 @@ class PesanDosenController extends Controller
                 'data' => [
                     'id' => $balasan->id,
                     'isi_balasan' => $balasan->isi_balasan,
-                    'created_at' => Carbon::parse($balasan->created_at)->timezone('Asia/Jakarta')->format('H:i')
+                    'created_at' => $balasan->formattedCreatedAt() // Gunakan method dari model
                 ]
             ]);
         } catch (\Exception $e) {

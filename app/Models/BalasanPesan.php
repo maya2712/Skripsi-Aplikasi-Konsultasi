@@ -62,26 +62,13 @@ class BalasanPesan extends Model
         $this->attributes['dibaca'] = (bool) $value;
     }
     
-    // Sebelum menyimpan ke database, konversi ke UTC
-    public function setCreatedAtAttribute($value)
+    /**
+     * Format tanggal untuk tampilan
+     */
+    public function formattedCreatedAt($format = 'H:i')
     {
-        $this->attributes['created_at'] = Carbon::parse($value)->setTimezone('UTC');
-    }
-    
-    // Saat mengambil dari database, konversi ke waktu lokal
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->setTimezone('Asia/Jakarta');
-    }
-    
-    // Juga untuk updated_at
-    public function setUpdatedAtAttribute($value)
-    {
-        $this->attributes['updated_at'] = Carbon::parse($value)->setTimezone('UTC');
-    }
-    
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->setTimezone('Asia/Jakarta');
+        return \Carbon\Carbon::parse($this->created_at)
+        ->timezone('Asia/Jakarta')
+        ->format($format);
     }
 }

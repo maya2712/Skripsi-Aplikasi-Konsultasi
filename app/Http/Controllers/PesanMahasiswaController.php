@@ -164,9 +164,6 @@ public function create()
             $pesan->dibaca = false;
             $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
             
-            // Force timezone untuk timestamp
-            $pesan->created_at = Carbon::now('Asia/Jakarta');
-            $pesan->updated_at = Carbon::now('Asia/Jakarta');
             
             // Log sebelum save
             Log::info('Data pesan sebelum disimpan:', [
@@ -326,9 +323,7 @@ public function create()
             $balasan->isi_balasan = $request->balasan;
             $balasan->dibaca = false; // Gunakan false untuk konsistensi dengan accessor/mutator
             
-            // Force timezone untuk timestamp
-            $balasan->created_at = Carbon::now('Asia/Jakarta');
-            $balasan->updated_at = Carbon::now('Asia/Jakarta');
+    
             
             $balasan->save();
             
@@ -341,13 +336,13 @@ public function create()
                 'dibaca' => $balasan->dibaca
             ]);
             
-            return response()->json([
+           return response()->json([
                 'success' => true,
                 'message' => 'Balasan berhasil dikirim',
                 'data' => [
                     'id' => $balasan->id,
                     'isi_balasan' => $balasan->isi_balasan,
-                    'created_at' => Carbon::parse($balasan->created_at)->timezone('Asia/Jakarta')->format('H:i'),
+                    'created_at' => $balasan->formattedCreatedAt() // Gunakan method dari model
                 ]
             ]);
         } catch (\Exception $e) {

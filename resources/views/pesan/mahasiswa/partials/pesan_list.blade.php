@@ -99,8 +99,8 @@
                         {{ $p->prioritas }}
                     </span>
                     
-                    <small class="d-block text-muted my-1">
-                        {{ \Carbon\Carbon::parse($p->created_at)->timezone('Asia/Jakarta')->diffForHumans() }}
+                   <small class="d-block text-muted my-1">
+                        {{ \Carbon\Carbon::parse($p->created_at)->diffForHumans() }}
                     </small>
                     
                     <div class="action-buttons" onclick="event.stopPropagation();">

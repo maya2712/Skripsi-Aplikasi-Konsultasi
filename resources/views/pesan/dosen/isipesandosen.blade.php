@@ -785,7 +785,7 @@
                                             </div>
                                             <p>{{ $message->isi_pesan }}</p>
                                             <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
+                                                {{ $message->formattedCreatedAt() }}
                                                 @if($message->is_pinned)
                                                     <span class="bookmark-icon" style="display: inline-block;">
                                                         <i class="fas fa-thumbtack text-warning"></i>
@@ -808,7 +808,7 @@
                                             </div>
                                             <p>{{ $message->isi_pesan }}</p>
                                             <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
+                                               {{ $message->formattedCreatedAt() }}
                                                 @if($message->is_pinned)
                                                     <span class="bookmark-icon" style="display: inline-block;">
                                                         <i class="fas fa-thumbtack text-warning"></i>
@@ -833,8 +833,8 @@
                                             </div>
                                             <p>{{ $message->isi_balasan }}</p>
                                             <div class="message-time">
-                                               {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
-                                                @if($message->is_pinned)
+                                              {{ $message->formattedCreatedAt() }}
+                                               @if($message->is_pinned)
                                                     <span class="bookmark-icon" style="display: inline-block;">
                                                         <i class="fas fa-thumbtack text-warning"></i>
                                                     </span>
@@ -856,7 +856,7 @@
                                             </div>
                                             <p>{{ $message->isi_balasan }}</p>
                                             <div class="message-time">
-                                                {{ Carbon\Carbon::parse($message->created_at)->timezone('Asia/Jakarta')->format('H:i') }}
+                                               {{ $message->formattedCreatedAt() }}
                                                 @if($message->is_pinned)
                                                     <span class="bookmark-icon" style="display: inline-block;">
                                                         <i class="fas fa-thumbtack text-warning"></i>
@@ -970,367 +970,398 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Elemen yang diperlukan
-        const bookmarkButton = document.querySelector('#bookmarkButton');
-        const simpanButton = document.querySelector('#simpanButton');
-        const bookmarkCheckboxes = document.querySelectorAll('.bookmark-checkbox');
-        const checkboxInputs = document.querySelectorAll('.bookmark-checkbox input');
-        const sematkanModal = document.querySelector('#sematkanModal');
-        const batalSematkanBtn = document.querySelector('#batalSematkan');
-        const simpanSematkanBtn = document.querySelector('#simpanSematkan');
-        const sematkanJudul = document.getElementById('sematkanJudul');
-        const sematkanKategori = document.getElementById('sematkanKategori');
-        const chatContainer = document.getElementById('chatContainer');
-        const messageInput = document.querySelector('.message-input');
-        const sendButton = document.querySelector('.send-button');
-        
-        let isBookmarkMode = false;
-        
-        // Sembunyikan tombol simpan secara default
-        simpanButton.style.display = 'none';
-        
-        // Auto-scroll ke bawah chat container
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        
-        // Toggle mode bookmark
-        if (bookmarkButton) {
-            bookmarkButton.addEventListener('click', function() {
-                const icon = this.querySelector('i');
-                isBookmarkMode = !isBookmarkMode;
+    // PERBAIKAN JAVASCRIPT UNTUK FILE ISIPESANDOSEN.BLADE.PHP
+document.addEventListener('DOMContentLoaded', function() {
+    // Elemen yang diperlukan
+    const bookmarkButton = document.querySelector('#bookmarkButton');
+    const simpanButton = document.querySelector('#simpanButton');
+    const bookmarkCheckboxes = document.querySelectorAll('.bookmark-checkbox');
+    const checkboxInputs = document.querySelectorAll('.bookmark-checkbox input');
+    const sematkanModal = document.querySelector('#sematkanModal');
+    const batalSematkanBtn = document.querySelector('#batalSematkan');
+    const simpanSematkanBtn = document.querySelector('#simpanSematkan');
+    const sematkanJudul = document.getElementById('sematkanJudul');
+    const sematkanKategori = document.getElementById('sematkanKategori');
+    const chatContainer = document.getElementById('chatContainer');
+    const messageInput = document.querySelector('.message-input');
+    const sendButton = document.querySelector('.send-button');
+    
+    let isBookmarkMode = false;
+    
+    // Sembunyikan tombol simpan secara default
+    simpanButton.style.display = 'none';
+    
+    // Auto-scroll ke bawah chat container
+    if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Toggle mode bookmark
+    if (bookmarkButton) {
+        bookmarkButton.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            isBookmarkMode = !isBookmarkMode;
+            
+            if (isBookmarkMode) {
+                // Aktifkan mode bookmark
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                showNotification('Pilih pesan untuk ditandai');
                 
-                if (isBookmarkMode) {
-                    // Aktifkan mode bookmark
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    showNotification('Pilih pesan untuk ditandai');
+                // Tampilkan semua checkbox bookmark KECUALI pesan yang sudah disematkan
+                document.querySelectorAll('.chat-message:not(.pinned) .bookmark-checkbox').forEach(checkbox => {
+                    checkbox.style.display = 'block';
+                });
+            } else {
+                // Nonaktifkan mode bookmark
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                
+                // Sembunyikan semua checkbox bookmark
+                bookmarkCheckboxes.forEach(checkbox => {
+                    checkbox.style.display = 'none';
+                });
+                
+                // Sembunyikan tombol simpan
+                simpanButton.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event untuk checkbox bookmark (untuk menampilkan tombol simpan)
+    checkboxInputs.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // Cek apakah ada checkbox yang dicentang
+            const anyChecked = Array.from(checkboxInputs).some(input => input.checked);
+            
+            // Tampilkan atau sembunyikan tombol simpan berdasarkan status checkbox
+            if (anyChecked) {
+                simpanButton.style.display = 'inline-flex';
+            } else {
+                simpanButton.style.display = 'none';
+            }
+        });
+    });
+    
+    // Tombol simpan untuk menampilkan modal
+    if (simpanButton) {
+        simpanButton.addEventListener('click', function() {
+            // Tampilkan modal sematkan menggunakan Bootstrap modal
+            const bsModal = new bootstrap.Modal(sematkanModal);
+            bsModal.show();
+            
+            // Nonaktifkan mode bookmark
+            isBookmarkMode = false;
+            const bookmarkIcon = bookmarkButton.querySelector('i');
+            bookmarkIcon.classList.remove('fas');
+            bookmarkIcon.classList.add('far');
+            
+            // Sembunyikan checkbox
+            bookmarkCheckboxes.forEach(checkbox => {
+                checkbox.style.display = 'none';
+            });
+        });
+    }
+    
+    // Batal sematkan
+    if (batalSematkanBtn) {
+        batalSematkanBtn.addEventListener('click', function() {
+            // Hapus semua centang
+            checkboxInputs.forEach(checkbox => {
+                checkbox.checked = false;
+                const messageElem = checkbox.closest('.chat-message');
+                messageElem.classList.remove('bookmarked');
+            });
+            
+            // Reset field judul
+            sematkanJudul.value = '';
+            
+            // Sembunyikan tombol simpan
+            simpanButton.style.display = 'none';
+        });
+    }
+    
+    // Simpan sematkan
+    if (simpanSematkanBtn) {
+        simpanSematkanBtn.addEventListener('click', function() {
+            // Validasi judul
+            if (!sematkanJudul.value.trim()) {
+                showNotification('Judul harus diisi', 'warning');
+                return;
+            }
+            
+            // Dapatkan pesan yang dibookmark
+            const bookmarkedMessages = [];
+            checkboxInputs.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const messageElem = checkbox.closest('.chat-message');
+                    const messageId = messageElem.getAttribute('data-id');
                     
-                    // Tampilkan semua checkbox bookmark KECUALI pesan yang sudah disematkan
-                    document.querySelectorAll('.chat-message:not(.pinned) .bookmark-checkbox').forEach(checkbox => {
-                        checkbox.style.display = 'block';
-                    });
-                } else {
-                    // Nonaktifkan mode bookmark
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
+                    bookmarkedMessages.push(messageId);
                     
-                    // Sembunyikan semua checkbox bookmark
-                    bookmarkCheckboxes.forEach(checkbox => {
-                        checkbox.style.display = 'none';
+                    // Tandai pesan sebagai bookmarked untuk UI
+                    messageElem.classList.add('bookmarked');
+                }
+            });
+            
+            // Dapatkan kategori yang dipilih
+            const kategori = sematkanKategori.value;
+            
+            // Dapatkan durasi yang dipilih
+            const durasiValue = document.querySelector('input[name="sematkanDurasi"]:checked').value;
+            
+            // Kirim data sematan ke server
+            fetch('{{ route("dosen.pesan.sematkan", $pesan->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    message_ids: bookmarkedMessages,
+                    kategori: kategori,
+                    judul: sematkanJudul.value,
+                    durasi: parseInt(durasiValue, 10)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Sembunyikan modal
+                    const bsModal = bootstrap.Modal.getInstance(sematkanModal);
+                    bsModal.hide();
+                    
+                    // Tandai pesan yang dipilih sebagai disematkan di UI
+                    checkboxInputs.forEach(checkbox => {
+                        if (checkbox.checked) {
+                            const messageElem = checkbox.closest('.chat-message');
+                            
+                            // Tambahkan kelas untuk styling
+                            messageElem.classList.add('pinned');
+                            messageElem.classList.remove('bookmarked');
+                            
+                            // Tampilkan ikon pin
+                            const bookmarkIcon = messageElem.querySelector('.bookmark-icon');
+                            if (bookmarkIcon) {
+                                bookmarkIcon.innerHTML = '<i class="fas fa-thumbtack text-warning"></i>';
+                                bookmarkIcon.style.display = 'inline-block';
+                            }
+                            
+                            // Sembunyikan checkbox
+                            const checkboxContainer = messageElem.querySelector('.bookmark-checkbox');
+                            if (checkboxContainer) {
+                                checkboxContainer.style.display = 'none';
+                            }
+                            
+                            // Disable checkbox
+                            checkbox.disabled = true;
+                            checkbox.checked = false;
+                        }
                     });
                     
                     // Sembunyikan tombol simpan
                     simpanButton.style.display = 'none';
-                }
-            });
-        }
-        
-        // Event untuk checkbox bookmark (untuk menampilkan tombol simpan)
-        checkboxInputs.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                // Cek apakah ada checkbox yang dicentang
-                const anyChecked = Array.from(checkboxInputs).some(input => input.checked);
-                
-                // Tampilkan atau sembunyikan tombol simpan berdasarkan status checkbox
-                if (anyChecked) {
-                    simpanButton.style.display = 'inline-flex';
+                    
+                    // Reset fields
+                    sematkanJudul.value = '';
+                    
+                    showNotification('Pesan berhasil disematkan ke FAQ', 'success');
                 } else {
-                    simpanButton.style.display = 'none';
+                    showNotification(data.message, 'warning');
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan saat menyematkan pesan', 'warning');
             });
         });
-        
-        // Tombol simpan untuk menampilkan modal
-        if (simpanButton) {
-            simpanButton.addEventListener('click', function() {
-                // Tampilkan modal sematkan menggunakan Bootstrap modal
-                const bsModal = new bootstrap.Modal(sematkanModal);
-                bsModal.show();
-                
-                // Nonaktifkan mode bookmark
-                isBookmarkMode = false;
-                const bookmarkIcon = bookmarkButton.querySelector('i');
-                bookmarkIcon.classList.remove('fas');
-                bookmarkIcon.classList.add('far');
-                
-                // Sembunyikan checkbox
-                bookmarkCheckboxes.forEach(checkbox => {
-                    checkbox.style.display = 'none';
-                });
-            });
-        }
-        
-        // Batal sematkan
-        if (batalSematkanBtn) {
-            batalSematkanBtn.addEventListener('click', function() {
-                // Hapus semua centang
-                checkboxInputs.forEach(checkbox => {
-                    checkbox.checked = false;
-                    const messageElem = checkbox.closest('.chat-message');
-                    messageElem.classList.remove('bookmarked');
-                });
-                
-                // Reset field judul
-                sematkanJudul.value = '';
-                
-                // Sembunyikan tombol simpan
-                simpanButton.style.display = 'none';
-            });
-        }
-        
-        // Simpan sematkan
-        if (simpanSematkanBtn) {
-            simpanSematkanBtn.addEventListener('click', function() {
-                // Validasi judul
-                if (!sematkanJudul.value.trim()) {
-                    showNotification('Judul harus diisi', 'warning');
-                    return;
-                }
-                
-                // Dapatkan pesan yang dibookmark
-                const bookmarkedMessages = [];
-                checkboxInputs.forEach(checkbox => {
-                    if (checkbox.checked) {
-                        const messageElem = checkbox.closest('.chat-message');
-                        const messageId = messageElem.getAttribute('data-id');
-                        
-                        bookmarkedMessages.push(messageId);
-                        
-                        // Tandai pesan sebagai bookmarked untuk UI
-                        messageElem.classList.add('bookmarked');
-                    }
-                });
-                
-                // Dapatkan kategori yang dipilih
-                const kategori = sematkanKategori.value;
-                
-                // Dapatkan durasi yang dipilih
-                const durasiValue = document.querySelector('input[name="sematkanDurasi"]:checked').value;
-                
-                // Kirim data sematan ke server
-                fetch('{{ route("dosen.pesan.sematkan", $pesan->id) }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        message_ids: bookmarkedMessages,
-                        kategori: kategori,
-                        judul: sematkanJudul.value,
-                        durasi: parseInt(durasiValue, 10)
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Sembunyikan modal
-                        const bsModal = bootstrap.Modal.getInstance(sematkanModal);
-                        bsModal.hide();
-                        
-                        // Tandai pesan yang dipilih sebagai disematkan di UI
-                        checkboxInputs.forEach(checkbox => {
-                            if (checkbox.checked) {
-                                const messageElem = checkbox.closest('.chat-message');
-                                
-                                // Tambahkan kelas untuk styling
-                                messageElem.classList.add('pinned');
-                                messageElem.classList.remove('bookmarked');
-                                
-                                // Tampilkan ikon pin
-                                const bookmarkIcon = messageElem.querySelector('.bookmark-icon');
-                                if (bookmarkIcon) {
-                                    bookmarkIcon.innerHTML = '<i class="fas fa-thumbtack text-warning"></i>';
-                                    bookmarkIcon.style.display = 'inline-block';
-                                }
-                                
-                                // Sembunyikan checkbox
-                                const checkboxContainer = messageElem.querySelector('.bookmark-checkbox');
-                                if (checkboxContainer) {
-                                    checkboxContainer.style.display = 'none';
-                                }
-                                
-                                // Disable checkbox
-                                checkbox.disabled = true;
-                                checkbox.checked = false;
-                            }
-                        });
-                        
-                        // Sembunyikan tombol simpan
-                        simpanButton.style.display = 'none';
-                        
-                        // Reset fields
-                        sematkanJudul.value = '';
-                        
-                        showNotification('Pesan berhasil disematkan ke FAQ', 'success');
-                    } else {
-                        showNotification(data.message, 'warning');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Terjadi kesalahan saat menyematkan pesan', 'warning');
-                });
-            });
-        }
-        
-        // Membatalkan sematan pada pesan yang sudah dibookmark
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.bookmark-cancel')) {
-                const cancelBtn = e.target.closest('.bookmark-cancel');
-                const messageElem = cancelBtn.closest('.chat-message');
-                
-                // Konfirmasi pembatalan sematan
-                if (confirm('Apakah Anda yakin ingin membatalkan sematan?')) {
-                    // Hapus kelas bookmarked dari pesan
-                    messageElem.classList.remove('bookmarked');
-                    messageElem.classList.remove('pinned');
-                    
-                    // Dapatkan ID sematan untuk dibatalkan (dari atribut data-sematan-id jika ada)
-                    const sematanId = messageElem.getAttribute('data-sematan-id');
-                    
-                    if (sematanId) {
-                        // Kirim permintaan untuk membatalkan sematan ke server
-                        fetch('{{ url("/batalkan-sematan") }}/' + sematanId, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Reset tampilan pesan
-                                const bookmarkIcon = messageElem.querySelector('.bookmark-icon');
-                                if (bookmarkIcon) {
-                                    bookmarkIcon.innerHTML = '<i class="fas fa-bookmark"></i>';
-                                    bookmarkIcon.style.display = 'none';
-                                }
-                                
-                                // Tampilkan checkbox kembali
-                                const checkboxContainer = messageElem.querySelector('.bookmark-checkbox');
-                                if (checkboxContainer) {
-                                    checkboxContainer.style.display = 'none'; // Tetap disembunyikan sampai mode bookmark aktif
-                                }
-                                
-                                // Enable checkbox
-                                const checkbox = messageElem.querySelector('.bookmark-checkbox input');
-                                if (checkbox) {
-                                    checkbox.disabled = false;
-                                }
-                                
-                                showNotification('Sematan berhasil dibatalkan', 'success');
-                            } else {
-                                showNotification(data.message, 'warning');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showNotification('Terjadi kesalahan saat membatalkan sematan', 'warning');
-                        });
-                    } else {
-                        // Jika tidak ada ID sematan (hanya UI lokal)
-                        // Reset tampilan pesan
-                        const bookmarkIcon = messageElem.querySelector('.bookmark-icon');
-                        if (bookmarkIcon) {
-                            bookmarkIcon.innerHTML = '<i class="fas fa-bookmark"></i>';
-                            bookmarkIcon.style.display = 'none';
-                        }
-                        
-                        showNotification('Sematan berhasil dibatalkan');
-                    }
-                }
-            }
-        });
-        
-        // Menangani pengiriman pesan saat menekan Enter di input
-        if (messageInput && sendButton) {
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    sendButton.click();
-                }
-            });
+    }
+    
+    // Membatalkan sematan pada pesan yang sudah dibookmark
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.bookmark-cancel')) {
+            const cancelBtn = e.target.closest('.bookmark-cancel');
+            const messageElem = cancelBtn.closest('.chat-message');
             
-            sendButton.addEventListener('click', function() {
-                const message = messageInput.value.trim();
-                if (message) {
-                    // Kirim pesan ke server
-                    fetch('{{ route("dosen.pesan.reply", $pesan->id) }}', {
-                        method: 'POST',
+            // Konfirmasi pembatalan sematan
+            if (confirm('Apakah Anda yakin ingin membatalkan sematan?')) {
+                // Hapus kelas bookmarked dari pesan
+                messageElem.classList.remove('bookmarked');
+                messageElem.classList.remove('pinned');
+                
+                // Dapatkan ID sematan untuk dibatalkan (dari atribut data-sematan-id jika ada)
+                const sematanId = messageElem.getAttribute('data-sematan-id');
+                
+                if (sematanId) {
+                    // Kirim permintaan untuk membatalkan sematan ke server
+                    fetch('{{ url("/batalkan-sematan") }}/' + sematanId, {
+                        method: 'DELETE',
                         headers: {
-                            'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            balasan: message
-                        })
+                        }
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Tambahkan pesan baru ke chat container
-                            const newMessage = document.createElement('div');
-                            newMessage.className = 'chat-message message-reply';
-                            newMessage.setAttribute('data-id', 'reply-' + data.data.id);
+                            // Reset tampilan pesan
+                            const bookmarkIcon = messageElem.querySelector('.bookmark-icon');
+                            if (bookmarkIcon) {
+                                bookmarkIcon.innerHTML = '<i class="fas fa-bookmark"></i>';
+                                bookmarkIcon.style.display = 'none';
+                            }
                             
-                            newMessage.innerHTML = `
-                                <div class="message-bubble">
-                                    <div class="bookmark-checkbox">
-                                        <input class="form-check-input" type="checkbox" value="" id="bookmark-${data.data.id}">
-                                    </div>
-                                    <p>${data.data.isi_balasan}</p>
-                                    <div class="message-time">
-                                        ${data.data.created_at}
-                                        <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                        <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                                    </div>
-                                </div>
-                            `;
+                            // Tampilkan checkbox kembali
+                            const checkboxContainer = messageElem.querySelector('.bookmark-checkbox');
+                            if (checkboxContainer) {
+                                checkboxContainer.style.display = 'none'; // Tetap disembunyikan sampai mode bookmark aktif
+                            }
                             
-                            chatContainer.appendChild(newMessage);
+                            // Enable checkbox
+                            const checkbox = messageElem.querySelector('.bookmark-checkbox input');
+                            if (checkbox) {
+                                checkbox.disabled = false;
+                            }
                             
-                            // Bersihkan input pesan
-                            messageInput.value = '';
-                            
-                            // Scroll ke bawah untuk menampilkan pesan baru
-                            chatContainer.scrollTop = chatContainer.scrollHeight;
-                            
-                            showNotification('Pesan berhasil dikirim', 'success');
+                            showNotification('Sematan berhasil dibatalkan', 'success');
                         } else {
                             showNotification(data.message, 'warning');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
+                        showNotification('Terjadi kesalahan saat membatalkan sematan', 'warning');
                     });
+                } else {
+                    // Jika tidak ada ID sematan (hanya UI lokal)
+                    // Reset tampilan pesan
+                    const bookmarkIcon = messageElem.querySelector('.bookmark-icon');
+                    if (bookmarkIcon) {
+                        bookmarkIcon.innerHTML = '<i class="fas fa-bookmark"></i>';
+                        bookmarkIcon.style.display = 'none';
+                    }
+                    
+                    showNotification('Sematan berhasil dibatalkan');
                 }
-            });
-        }
-        
-        // Fungsi untuk menampilkan notifikasi
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type} alert-dismissible fade show`;
-            notification.style.position = 'fixed';
-            notification.style.top = '20px';
-            notification.style.right = '20px';
-            notification.style.zIndex = '9999';
-            notification.style.borderRadius = '8px';
-            notification.style.boxShadow = '0 3px 10px rgba(0,0,0,0.1)';
-            notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            }
         }
     });
+    
+    // ===== PERBAIKAN: Fungsi untuk format waktu =====
+    function formatTimeToJakarta(dateString) {
+        // Pastikan kita memiliki tanggal yang valid
+        if (!dateString) return '';
+        
+        // Jika sudah dalam format jam:menit (H:i), langsung kembalikan
+        if (/^\d{1,2}:\d{2}$/.test(dateString)) {
+            return dateString;
+        }
+        
+        // Buat objek tanggal
+        const date = new Date(dateString);
+        
+        // Pastikan tanggal valid
+        if (isNaN(date.getTime())) return dateString;
+        
+        // Opsi untuk format waktu Indonesia
+        const options = {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Asia/Jakarta'
+        };
+        
+        // Format waktu sesuai dengan locale Indonesia dan timezone Jakarta
+        return date.toLocaleTimeString('id-ID', options);
+    }
+    
+    // ===== PERBAIKAN: Menangani pengiriman pesan dengan format waktu yang benar =====
+    if (messageInput && sendButton) {
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendButton.click();
+            }
+        });
+        
+        sendButton.addEventListener('click', function() {
+            const message = messageInput.value.trim();
+            if (message) {
+                // Kirim pesan ke server
+                fetch('{{ route("dosen.pesan.reply", $pesan->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        balasan: message
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Format waktu pesan dengan benar
+                        const formattedTime = formatTimeToJakarta(data.data.created_at);
+                        
+                        // Tambahkan pesan baru ke chat container
+                        const newMessage = document.createElement('div');
+                        newMessage.className = 'chat-message message-reply';
+                        newMessage.setAttribute('data-id', 'reply-' + data.data.id);
+                        
+                        newMessage.innerHTML = `
+                            <div class="message-bubble">
+                                <div class="bookmark-checkbox">
+                                    <input class="form-check-input" type="checkbox" value="" id="bookmark-${data.data.id}">
+                                </div>
+                                <p>${data.data.isi_balasan}</p>
+                                <div class="message-time">
+                                    ${formattedTime}
+                                    <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                    <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                                </div>
+                            </div>
+                        `;
+                        
+                        chatContainer.appendChild(newMessage);
+                        
+                        // Bersihkan input pesan
+                        messageInput.value = '';
+                        
+                        // Scroll ke bawah untuk menampilkan pesan baru
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        
+                        showNotification('Pesan berhasil dikirim', 'success');
+                    } else {
+                        showNotification(data.message, 'warning');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
+                });
+            }
+        });
+    }
+    
+    // Fungsi untuk menampilkan notifikasi
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.borderRadius = '8px';
+        notification.style.boxShadow = '0 3px 10px rgba(0,0,0,0.1)';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+});
 </script>
 @endpush
