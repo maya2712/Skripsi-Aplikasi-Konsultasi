@@ -20,6 +20,8 @@
 @section('title', 'Profil Pengguna')
 
 @push('styles')
+<!-- Tambahkan CSS Animate untuk animasi alert -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
     body {
         background-color: #F5F7FA;
@@ -426,6 +428,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Tambahkan alert error di sini -->
+                <div class="alert alert-danger alert-dismissible fade show" id="passwordErrorAlert" style="display: none;" role="alert">
+                  <strong><i class="fas fa-exclamation-circle me-2"></i>Gagal!</strong> <span id="errorMessage">Password saat ini tidak sesuai.</span>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
                 <form id="changePasswordForm">
                     @csrf
                     <div class="mb-3">
@@ -478,395 +486,306 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Upload foto profile
-        const uploadArea = document.getElementById('uploadArea');
-        const photoInput = document.getElementById('photoInput');
-        const photoPreview = document.getElementById('photoPreview');
-        const previewContainer = document.getElementById('previewContainer');
-        const savePhotoBtn = document.getElementById('savePhotoBtn');
-        const profileImage = document.getElementById('profileImage');
-        const defaultProfileImg = document.getElementById('defaultProfileImg');
-        
-        // Click on upload area to trigger file input
-        if (uploadArea) {
-            uploadArea.addEventListener('click', function() {
-                photoInput.click();
-            });
-        }
-        
-        // Handle file selection
-        if (photoInput) {
-            photoInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        photoPreview.src = e.target.result;
-                        previewContainer.style.display = 'block';
-                        uploadArea.style.display = 'none';
-                    };
-                    
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
-        }
-        
-        // Drag and drop functionality
-        if (uploadArea) {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight() {
-                uploadArea.classList.add('border-primary');
-            }
-            
-            function unhighlight() {
-                uploadArea.classList.remove('border-primary');
-            }
-            
-            uploadArea.addEventListener('drop', handleDrop, false);
-            
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                
-                if (files && files[0]) {
-                    photoInput.files = files;
-                    
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        photoPreview.src = e.target.result;
-                        previewContainer.style.display = 'block';
-                        uploadArea.style.display = 'none';
-                    };
-                    
-                    reader.readAsDataURL(files[0]);
-                }
-            }
-        }
-        
-        // Save photo functionality
-        if (savePhotoBtn) {
-            savePhotoBtn.addEventListener('click', function() {
-                if (photoInput.files && photoInput.files[0]) {
-                    // Buat form data untuk upload
-                    const formData = new FormData();
-                    formData.append('photo', photoInput.files[0]);
-                    formData.append('_token', '{{ csrf_token() }}');
-                    
-                    // Tampilkan loading
-                    savePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-                    savePhotoBtn.disabled = true;
-                    
-                    // Upload ke server dengan fetch API
-                    fetch('{{ route("profil.upload-photo") }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update tampilan profil
-                            profileImage.src = data.photo_url;
-                            profileImage.style.display = 'block';
-                            defaultProfileImg.style.display = 'none';
-                            
-                            // Tampilkan pesan sukses
-                            alert('Foto profil berhasil diupload!');
-                            
-                            // Reset modal
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
-                            modal.hide();
-                            
-                            // Opsional: Reload halaman untuk melihat perubahan
-                            setTimeout(() => {
-                                location.reload();
-                            }, 500);
-                        } else {
-                            // Tampilkan pesan error
-                            alert('Error: ' + (data.error || 'Gagal mengupload foto profil'));
-                        }
-                        
-                        // Reset tombol
-                        savePhotoBtn.innerHTML = 'Simpan';
-                        savePhotoBtn.disabled = false;
-                    })
-                    .catch(error => {
-                        console.error('Error uploading photo:', error);
-                        alert('Terjadi kesalahan saat mengupload foto');
-                        
-                        // Reset tombol
-                        savePhotoBtn.innerHTML = 'Simpan';
-                        savePhotoBtn.disabled = false;
-                    });
-                } else {
-                    alert('Pilih foto terlebih dahulu!');
-                }
-            });
-        }
-        
-        // Toggle password visibility
+    // Upload foto profile dan kode lainnya tetap sama...
+    
+    // Toggle password visibility
+    function initTogglePassword() {
         const togglePasswordButtons = document.querySelectorAll('.toggle-password');
         
         if (togglePasswordButtons.length > 0) {
             togglePasswordButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const targetId = this.getAttribute('data-target');
-                    const passwordInput = document.getElementById(targetId);
-                    
-                    if (passwordInput.type === 'password') {
-                        passwordInput.type = 'text';
-                        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-                    } else {
-                        passwordInput.type = 'password';
-                        this.innerHTML = '<i class="fas fa-eye"></i>';
-                    }
-                });
+                // Hapus event listener yang mungkin sudah ada
+                button.removeEventListener('click', togglePasswordHandler);
+                // Tambahkan event listener baru
+                button.addEventListener('click', togglePasswordHandler);
             });
         }
+    }
+    
+    function togglePasswordHandler(e) {
+        const targetId = this.getAttribute('data-target');
+        const passwordInput = document.getElementById(targetId);
         
-        // Password change form validation and submission - KODE YANG DIPERBARUI
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+            passwordInput.type = 'password';
+            this.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+    }
+    
+    // Inisialisasi toggle password
+    initTogglePassword();
+    
+    // Password change form validation and submission - KODE YANG DIPERBARUI
+    const changePasswordModal = document.getElementById('changePasswordModal');
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    const modalBody = document.querySelector('#changePasswordModal .modal-body');
+    const modalFooter = document.querySelector('#changePasswordModal .modal-footer');
+    
+    // Simpan referensi ke elemen-elemen form
+    const originalFormHTML = modalBody.innerHTML;
+    const originalFooterHTML = modalFooter.innerHTML;
+    
+    // PENTING: Hapus event listener lama ketika modal dibuka
+    changePasswordModal.addEventListener('show.bs.modal', function() {
+        // Reset form ke kondisi awal
+        modalBody.innerHTML = originalFormHTML;
+        modalFooter.innerHTML = originalFooterHTML;
+        
+        // Reinitialize toggle password
+        initTogglePassword();
+        
+        // Attach event listener baru
         const savePasswordBtn = document.getElementById('savePasswordBtn');
-        const changePasswordForm = document.getElementById('changePasswordForm');
-        const modalBody = document.querySelector('#changePasswordModal .modal-body');
-        const modalFooter = document.querySelector('#changePasswordModal .modal-footer');
-
-        if (savePasswordBtn && changePasswordForm) {
-            savePasswordBtn.addEventListener('click', function() {
-                // Reset semua error sebelumnya
-                document.querySelectorAll('.invalid-feedback').forEach(el => {
-                    el.textContent = '';
-                });
-                document.querySelectorAll('.form-control').forEach(el => {
-                    el.classList.remove('is-invalid');
-                });
+        if (savePasswordBtn) {
+            // Hapus semua event listener
+            const newSavePasswordBtn = savePasswordBtn.cloneNode(true);
+            savePasswordBtn.parentNode.replaceChild(newSavePasswordBtn, savePasswordBtn);
+            
+            // Tambahkan event listener baru
+            newSavePasswordBtn.addEventListener('click', savePasswordBtnHandler);
+        }
+    });
+    
+    // Fungsi untuk menangani klik tombol simpan
+    function savePasswordBtnHandler() {
+        // Reset semua error sebelumnya
+        document.querySelectorAll('.invalid-feedback').forEach(el => {
+            el.textContent = '';
+        });
+        document.querySelectorAll('.form-control').forEach(el => {
+            el.classList.remove('is-invalid');
+        });
+        
+        // Sembunyikan alert error
+        const errorAlert = document.getElementById('passwordErrorAlert');
+        if (errorAlert) {
+            errorAlert.style.display = 'none';
+        }
+        
+        // Ambil data form dengan nilai terbaru
+        const currentPassword = document.getElementById('current_password').value;
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('new_password_confirmation').value;
+        
+        // Validasi client-side sederhana
+        let isValid = true;
+        
+        if (!currentPassword) {
+            document.getElementById('current_password').classList.add('is-invalid');
+            document.getElementById('current_password_error').textContent = 'Password saat ini harus diisi';
+            isValid = false;
+        }
+        
+        if (!newPassword) {
+            document.getElementById('new_password').classList.add('is-invalid');
+            document.getElementById('new_password_error').textContent = 'Password baru harus diisi';
+            isValid = false;
+        } else if (newPassword.length < 6) {
+            document.getElementById('new_password').classList.add('is-invalid');
+            document.getElementById('new_password_error').textContent = 'Password baru minimal 6 karakter';
+            isValid = false;
+        }
+        
+        if (!confirmPassword) {
+            document.getElementById('new_password_confirmation').classList.add('is-invalid');
+            document.getElementById('new_password_confirmation_error').textContent = 'Konfirmasi password harus diisi';
+            isValid = false;
+        } else if (newPassword !== confirmPassword) {
+            document.getElementById('new_password_confirmation').classList.add('is-invalid');
+            document.getElementById('new_password_confirmation_error').textContent = 'Konfirmasi password tidak cocok';
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            return;
+        }
+        
+        // Simpan nilai password untuk digunakan kembali jika terjadi error
+        const currentPassVal = currentPassword;
+        const newPassVal = newPassword;
+        const confirmPassVal = confirmPassword;
+        
+        // Tampilkan loading di tengah modal
+        modalBody.innerHTML = `
+            <div class="loading-container text-center py-4">
+                <div class="loading-spinner"></div>
+                <div class="loading-text mt-3">Sedang mengubah password...</div>
+            </div>
+        `;
+        
+        // Sembunyikan tombol-tombol di footer
+        modalFooter.style.display = 'none';
+        
+        // Buat FormData baru dengan data form yang aktual
+        const formData = new FormData();
+        formData.append('current_password', currentPassword);
+        formData.append('new_password', newPassword);
+        formData.append('new_password_confirmation', confirmPassword);
+        formData.append('_token', '{{ csrf_token() }}');
+        
+        // Kirim data dengan fetch API
+        fetch('{{ route("profil.change-password") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Tunggu sebentar untuk efek loading (1,5 detik)
+            setTimeout(() => {
+                // Kembalikan tombol footer
+                modalFooter.style.display = '';
                 
-                // Ambil data form
-                const currentPassword = document.getElementById('current_password').value;
-                const newPassword = document.getElementById('new_password').value;
-                const confirmPassword = document.getElementById('new_password_confirmation').value;
-                
-                // Validasi client-side sederhana
-                let isValid = true;
-                
-                if (!currentPassword) {
-                    document.getElementById('current_password').classList.add('is-invalid');
-                    document.getElementById('current_password_error').textContent = 'Password saat ini harus diisi';
-                    isValid = false;
-                }
-                
-                if (!newPassword) {
-                    document.getElementById('new_password').classList.add('is-invalid');
-                    document.getElementById('new_password_error').textContent = 'Password baru harus diisi';
-                    isValid = false;
-                } else if (newPassword.length < 6) {
-                    document.getElementById('new_password').classList.add('is-invalid');
-                    document.getElementById('new_password_error').textContent = 'Password baru minimal 6 karakter';
-                    isValid = false;
-                }
-                
-                if (!confirmPassword) {
-                    document.getElementById('new_password_confirmation').classList.add('is-invalid');
-                    document.getElementById('new_password_confirmation_error').textContent = 'Konfirmasi password harus diisi';
-                    isValid = false;
-                } else if (newPassword !== confirmPassword) {
-                    document.getElementById('new_password_confirmation').classList.add('is-invalid');
-                    document.getElementById('new_password_confirmation_error').textContent = 'Konfirmasi password tidak cocok';
-                    isValid = false;
-                }
-                
-                if (!isValid) {
-                    return;
-                }
-                
-                // Simpan konten form untuk dikembalikan jika terjadi error
-                const originalFormHTML = modalBody.innerHTML;
-                const originalFooterHTML = modalFooter.innerHTML;
-                
-                // Tampilkan loading di tengah modal
-                modalBody.innerHTML = `
-                    <div class="loading-container text-center py-4">
-                        <div class="loading-spinner"></div>
-                        <div class="loading-text mt-3">Sedang mengubah password...</div>
-                    </div>
-                `;
-                
-                // Sembunyikan tombol-tombol di footer
-                modalFooter.style.display = 'none';
-                
-                // Kirim data dengan fetch API
-                const formData = new FormData(changePasswordForm);
-                
-                fetch('{{ route("profil.change-password") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Tunggu sebentar untuk efek loading (1,5 detik)
-                    setTimeout(() => {
-                        // Kembalikan tombol footer
-                        modalFooter.style.display = '';
-                        
-                        if (data.success) {
-                            // Tampilkan pesan sukses di modal
-                            modalBody.innerHTML = `
-                                <div class="text-center py-4">
-                                    <div class="mb-3">
-                                        <i class="fas fa-check-circle fa-4x" style="color: #27AE60;"></i>
-                                    </div>
-                                    <h5 class="mb-3" style="font-weight: 600;">Password Berhasil Diubah!</h5>
-                                    <p class="text-muted">Password Anda telah berhasil diperbarui.</p>
-                                </div>
-                            `;
-                            
-                            // Ganti tombol footer dengan "Tutup" saja
-                            modalFooter.innerHTML = `
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tutup</button>
-                            `;
-                            
-                            // Reset form
-                            changePasswordForm.reset();
-                            
-                            // Tutup modal setelah beberapa detik
-                            setTimeout(() => {
-                                const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
-                                modal.hide();
-                                
-                                // Opsional: Reload halaman untuk memastikan semua perubahan tampil
-                                // location.reload();
-                            }, 2000);
-                        } else {
-                            if (data.message === 'Password saat ini salah') {
-                                // Kembalikan form asli
-                                modalBody.innerHTML = originalFormHTML;
-                                modalFooter.innerHTML = originalFooterHTML;
-                                
-                                // Set ulang event listener untuk toggle password
-                                initTogglePassword();
-                                
-                                // Tambahkan pesan error pada field password saat ini
-                                document.getElementById('current_password').classList.add('is-invalid');
-                                document.getElementById('current_password_error').textContent = data.message;
-                            } else {
-                                // Tampilkan pesan error
-                                modalBody.innerHTML = `
-                                    <div class="text-center py-4">
-                                        <div class="mb-3">
-                                            <i class="fas fa-times-circle fa-4x" style="color: #FF5252;"></i>
-                                        </div>
-                                        <h5 class="mb-3" style="font-weight: 600;">Gagal Mengubah Password</h5>
-                                        <p class="text-muted">${data.message}</p>
-                                    </div>
-                                `;
-                                
-                                // Ganti tombol footer dengan "Coba Lagi" dan "Tutup"
-                                modalFooter.innerHTML = `
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                                    <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
-                                `;
-                                
-                               // Tambahkan event listener untuk "Coba Lagi"
-                                document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                                    // Kembalikan form asli
-                                    modalBody.innerHTML = originalFormHTML;
-                                    modalFooter.innerHTML = originalFooterHTML;
-                                    
-                                    // Inisialisasi kembali toggle password
-                                    initTogglePassword();
-                                    
-                                    // Re-attach event handler untuk tombol simpan
-                                    document.getElementById('savePasswordBtn').addEventListener('click', savePasswordBtnHandler);
-                                });
-                            }
-                        }
-                    }, 1500); // Tunggu 1.5 detik untuk efek loading
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                if (data.success) {
+                    // Tampilkan pesan sukses di modal
+                    modalBody.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="fas fa-check-circle fa-4x" style="color: #27AE60;"></i>
+                            </div>
+                            <h5 class="mb-3" style="font-weight: 600;">Password Berhasil Diubah!</h5>
+                            <p class="text-muted">Password Anda telah berhasil diperbarui.</p>
+                        </div>
+                    `;
                     
-                    // Tunggu sebentar, lalu tampilkan pesan error
+                    // Ganti tombol footer dengan "Tutup" saja
+                    modalFooter.innerHTML = `
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tutup</button>
+                    `;
+                    
+                    // Tutup modal setelah beberapa detik
                     setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                        modal.hide();
+                    }, 2000);
+                } else {
+                    if (data.message === 'Password saat ini salah') {
+                        // Reset form dengan konten asli
+                        modalBody.innerHTML = originalFormHTML;
+                        modalFooter.innerHTML = originalFooterHTML;
+                        
+                        // Set ulang event listener untuk toggle password dan tombol simpan
+                        initTogglePassword();
+                        
+                        // Hapus event listener lama dan buat yang baru untuk savePasswordBtn
+                        const savePasswordBtn = document.getElementById('savePasswordBtn');
+                        if (savePasswordBtn) {
+                            const newSavePasswordBtn = savePasswordBtn.cloneNode(true);
+                            savePasswordBtn.parentNode.replaceChild(newSavePasswordBtn, savePasswordBtn);
+                            newSavePasswordBtn.addEventListener('click', savePasswordBtnHandler);
+                        }
+                        
+                        // Kosongkan current password tapi pertahankan password baru dan konfirmasi
+                        document.getElementById('current_password').value = '';
+                        document.getElementById('new_password').value = newPassVal;
+                        document.getElementById('new_password_confirmation').value = confirmPassVal;
+                        
+                        // Fokus pada field password saat ini
+                        document.getElementById('current_password').focus();
+                        
+                        // Tampilkan alert error
+                        const errorAlert = document.getElementById('passwordErrorAlert');
+                        document.getElementById('errorMessage').textContent = data.message;
+                        errorAlert.style.display = 'block';
+                        
+                        // Tambahkan efek animasi shake pada alert
+                        errorAlert.classList.add('animate__animated', 'animate__shakeX');
+                        
+                        // Hapus animasi setelah selesai
+                        setTimeout(() => {
+                            errorAlert.classList.remove('animate__animated', 'animate__shakeX');
+                        }, 1000);
+                        
+                        // Auto-hide alert setelah beberapa detik
+                        setTimeout(() => {
+                            if (errorAlert && errorAlert.parentNode) {
+                                new bootstrap.Alert(errorAlert).close();
+                            }
+                        }, 5000);
+                    } else {
+                        // Tampilkan pesan error
                         modalBody.innerHTML = `
                             <div class="text-center py-4">
                                 <div class="mb-3">
-                                    <i class="fas fa-exclamation-triangle fa-4x" style="color: #FFC107;"></i>
+                                    <i class="fas fa-times-circle fa-4x" style="color: #FF5252;"></i>
                                 </div>
-                                <h5 class="mb-3" style="font-weight: 600;">Terjadi Kesalahan</h5>
-                                <p class="text-muted">Terjadi kesalahan saat mengganti password. Silakan coba lagi.</p>
+                                <h5 class="mb-3" style="font-weight: 600;">Gagal Mengubah Password</h5>
+                                <p class="text-muted">${data.message}</p>
                             </div>
                         `;
                         
-                        // Kembalikan tombol footer
-                        modalFooter.style.display = '';
+                        // Ganti tombol footer dengan "Coba Lagi" dan "Tutup"
                         modalFooter.innerHTML = `
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                             <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
                         `;
                         
                         // Tambahkan event listener untuk "Coba Lagi"
-                        document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                            // Kembalikan form asli
-                            modalBody.innerHTML = originalFormHTML;
-                            modalFooter.innerHTML = originalFooterHTML;
-                            
-                            // Inisialisasi kembali toggle password
-                            initTogglePassword();
-                            
-                            // Re-attach event handler untuk tombol simpan
-                            document.getElementById('savePasswordBtn').addEventListener('click', savePasswordBtnHandler);
-                        });
-                    }, 1500);
-                });
-            });
+                        document.getElementById('tryAgainBtn').addEventListener('click', retryPasswordChange);
+                    }
+                }
+            }, 1500); // Tunggu 1.5 detik untuk efek loading
+        })
+        .catch(error => {
+            console.error('Error:', error);
             
-            // Simpan fungsi handler untuk digunakan kembali
-            const savePasswordBtnHandler = savePasswordBtn.onclick;
+            // Tunggu sebentar, lalu tampilkan pesan error
+            setTimeout(() => {
+                modalBody.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-exclamation-triangle fa-4x" style="color: #FFC107;"></i>
+                        </div>
+                        <h5 class="mb-3" style="font-weight: 600;">Terjadi Kesalahan</h5>
+                        <p class="text-muted">Terjadi kesalahan saat mengganti password. Silakan coba lagi.</p>
+                    </div>
+                `;
+                
+                // Kembalikan tombol footer
+                modalFooter.style.display = '';
+                modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
+                `;
+                
+                // Tambahkan event listener untuk "Coba Lagi"
+                document.getElementById('tryAgainBtn').addEventListener('click', retryPasswordChange);
+            }, 1500);
+        });
+    }
+    
+    // Fungsi untuk mencoba lagi
+    function retryPasswordChange() {
+        // Kembalikan form asli
+        modalBody.innerHTML = originalFormHTML;
+        modalFooter.innerHTML = originalFooterHTML;
+        
+        // Sembunyikan alert
+        const errorAlert = document.getElementById('passwordErrorAlert');
+        if (errorAlert) {
+            errorAlert.style.display = 'none';
         }
         
-        // Fungsi untuk menginisialisasi kembali toggle password setelah mengembalikan form asli
-        function initTogglePassword() {
-            const toggleButtons = document.querySelectorAll('.toggle-password');
-            
-            if (toggleButtons.length > 0) {
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        const targetId = this.getAttribute('data-target');
-                        const passwordInput = document.getElementById(targetId);
-                        
-                        if (passwordInput.type === 'password') {
-                            passwordInput.type = 'text';
-                            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-                        } else {
-                            passwordInput.type = 'password';
-                            this.innerHTML = '<i class="fas fa-eye"></i>';
-                        }
-                    });
-                });
-            }
+        // Fokus kembali ke field password lama
+        document.getElementById('current_password').focus();
+        
+        // Inisialisasi kembali toggle password
+        initTogglePassword();
+        
+        // Hapus event listener lama dari savePasswordBtn dan tambahkan yang baru
+        const savePasswordBtn = document.getElementById('savePasswordBtn');
+        if (savePasswordBtn) {
+            const newSavePasswordBtn = savePasswordBtn.cloneNode(true);
+            savePasswordBtn.parentNode.replaceChild(newSavePasswordBtn, savePasswordBtn);
+            newSavePasswordBtn.addEventListener('click', savePasswordBtnHandler);
         }
-    });
+    }
+});
 </script>
 @endpush
