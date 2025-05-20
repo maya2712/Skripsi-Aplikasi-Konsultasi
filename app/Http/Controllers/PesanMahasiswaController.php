@@ -105,7 +105,7 @@ public function create()
 }
     
     // Menyimpan pesan baru
-     public function store(Request $request)
+    public function store(Request $request)
     {
         // Log semua request data untuk debugging
         Log::info('Request data untuk pesan baru:', $request->all());
@@ -164,8 +164,7 @@ public function create()
             $pesan->dibaca = false;
             $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
             
-            
-            // Log sebelum save
+            // PERBAIKAN: Log sebelum save - Jangan akses created_at yang masih null
             Log::info('Data pesan sebelum disimpan:', [
                 'subjek' => $pesan->subjek,
                 'nim_pengirim' => $pesan->nim_pengirim,
@@ -173,8 +172,8 @@ public function create()
                 'penerima_role' => $pesan->penerima_role ?? 'null',
                 'isi_pesan' => substr($pesan->isi_pesan, 0, 100), // Hanya tampilkan 100 karakter pertama
                 'prioritas' => $pesan->prioritas,
-                'lampiran' => $pesan->lampiran,
-                'created_at' => $pesan->created_at->format('Y-m-d H:i:s')
+                'lampiran' => $pesan->lampiran
+                // Hapus atau jangan akses created_at yang masih null
             ]);
             
             // Cek database connection sebelum save
@@ -189,8 +188,9 @@ public function create()
             // Simpan pesan
             $pesan->save();
             
-            // Log sukses
-            Log::info('Pesan berhasil disimpan dengan ID: ' . $pesan->id);
+            // Log sukses SETELAH pesan disimpan (created_at sudah ada nilainya)
+            Log::info('Pesan berhasil disimpan dengan ID: ' . $pesan->id . ', pada waktu: ' . 
+                ($pesan->created_at ? $pesan->created_at->format('Y-m-d H:i:s') : 'N/A'));
             
             return response()->json([
                 'success' => true,

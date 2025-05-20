@@ -12,11 +12,11 @@ class Pesan extends Model
     protected $fillable = [
         'subjek',
         'nim_pengirim',
-        'nip_pengirim',  
+        'nip_pengirim',
+        'pengirim_role', // Tambahkan ini
         'nip_penerima',
         'nim_penerima',
         'penerima_role',
-        'dosen_role', 
         'isi_pesan',
         'prioritas',
         'status',

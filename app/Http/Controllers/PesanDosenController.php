@@ -59,9 +59,10 @@ class PesanDosenController extends Controller
                     $q->where('nip_penerima', $dosen->nip)
                     ->where('penerima_role', $activeRole);
                 })
-                ->orWhere(function($q) use ($dosen) {
-                    // Sebagai pengirim (dapat melihat semua pesan yang dikirim, tanpa filter role)
-                    $q->where('nip_pengirim', $dosen->nip);
+                ->orWhere(function($q) use ($dosen, $activeRole) {
+                    // PERUBAHAN: Sebagai pengirim, hanya tampilkan pesan dengan peran yang aktif
+                    $q->where('nip_pengirim', $dosen->nip)
+                    ->where('pengirim_role', $activeRole);
                 });
             })
             ->where('status', 'Aktif'); // Hanya tampilkan pesan aktif di dashboard
@@ -73,7 +74,7 @@ class PesanDosenController extends Controller
             ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
             ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
             ->get();
-                    
+                
         // Menghitung jumlah pesan belum dibaca (hanya yang diterima dengan role yang sesuai)
         $belumDibaca = Pesan::where('nip_penerima', $dosen->nip)
                         ->where('penerima_role', $activeRole)
@@ -133,11 +134,13 @@ class PesanDosenController extends Controller
         try {
             // Ambil dosen yang sedang login
             $dosen = Auth::user();
+            $activeRole = session('active_role', 'dosen'); // Ambil peran aktif
             
             // Tambahkan log untuk debugging
             Log::info('Mengirim pesan dari dosen', [
                 'nip_dosen' => $dosen->nip,
                 'nama_dosen' => $dosen->nama,
+                'peran_aktif' => $activeRole, // Log peran aktif
                 'jumlah_penerima' => count($request->anggota)
             ]);
             
@@ -149,6 +152,7 @@ class PesanDosenController extends Controller
                 $pesan = new Pesan();
                 $pesan->subjek = $request->subjek;
                 $pesan->nip_pengirim = $dosen->nip;
+                $pesan->pengirim_role = $activeRole; // Simpan peran pengirim
                 $pesan->nim_penerima = $nim;
                 $pesan->isi_pesan = $request->pesanText;
                 $pesan->prioritas = $request->prioritas;
@@ -157,14 +161,13 @@ class PesanDosenController extends Controller
                 $pesan->dibaca = false;
                 $pesan->bookmarked = false; // Pastikan nilai default untuk bookmark
                 
-
-                
                 $pesan->save();
                 
                 // Log pesan yang berhasil disimpan
                 Log::info('Pesan berhasil dibuat', [
                     'id' => $pesan->id,
                     'nip_pengirim' => $pesan->nip_pengirim,
+                    'pengirim_role' => $pesan->pengirim_role, // Log peran pengirim
                     'nim_penerima' => $pesan->nim_penerima
                 ]);
                 
@@ -329,7 +332,6 @@ class PesanDosenController extends Controller
             $balasan->isi_balasan = $request->balasan;
             $balasan->dibaca = false; // PERBAIKAN: Gunakan false (boolean) untuk konsistensi
     
-            
             $balasan->save();
             
             // Log informasi
@@ -457,14 +459,18 @@ class PesanDosenController extends Controller
             ->groupBy('id_pesan');
         
         // Mengambil semua pesan dengan status 'Berakhir' yang diterima ATAU dikirim oleh dosen
-        // Tambahkan eager loading untuk mahasiswaPengirim dan mahasiswaPenerima
+        // dengan peran yang aktif
         $riwayatPesan = Pesan::with(['mahasiswaPengirim', 'mahasiswaPenerima'])
                         ->where(function($query) use ($dosen, $activeRole) {
                             $query->where(function($q) use ($dosen, $activeRole) {
                                 $q->where('nip_penerima', $dosen->nip)
                                     ->where('penerima_role', $activeRole);
                             })
-                            ->orWhere('nip_pengirim', $dosen->nip);
+                            ->orWhere(function($q) use ($dosen, $activeRole) {
+                                // PERUBAHAN: Sebagai pengirim, hanya tampilkan pesan dengan peran yang aktif
+                                $q->where('nip_pengirim', $dosen->nip)
+                                ->where('pengirim_role', $activeRole);
+                            });
                         })
                         ->where('status', 'Berakhir')
                         ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
@@ -476,6 +482,7 @@ class PesanDosenController extends Controller
                             
         return view('pesan.dosen.riwayatpesandosen', compact('riwayatPesan'));
     }
+    
     /**
      * Filter pesan berdasarkan prioritas
      */
@@ -494,7 +501,11 @@ class PesanDosenController extends Controller
                         $q->where('nip_penerima', $dosen->nip)
                           ->where('penerima_role', $activeRole);
                     })
-                    ->orWhere('nip_pengirim', $dosen->nip);
+                    ->orWhere(function($q) use ($dosen, $activeRole) {
+                        // PERUBAHAN: Sebagai pengirim, hanya tampilkan pesan dengan peran yang aktif
+                        $q->where('nip_pengirim', $dosen->nip)
+                          ->where('pengirim_role', $activeRole);
+                    });
                 });
         
         // Filter berdasarkan prioritas
@@ -541,7 +552,11 @@ class PesanDosenController extends Controller
                         $q->where('nip_penerima', $dosen->nip)
                           ->where('penerima_role', $activeRole);
                     })
-                    ->orWhere('nip_pengirim', $dosen->nip);
+                    ->orWhere(function($q) use ($dosen, $activeRole) {
+                        // PERUBAHAN: Sebagai pengirim, hanya tampilkan pesan dengan peran yang aktif
+                        $q->where('nip_pengirim', $dosen->nip)
+                          ->where('pengirim_role', $activeRole);
+                    });
                 })
                 ->where(function($query) use ($keyword) {
                     $query->where('subjek', 'like', "%{$keyword}%")
@@ -750,60 +765,60 @@ class PesanDosenController extends Controller
      * Batalkan sematan pesan
      */
     public function batalkanSematan($id)
-{
-    try {
-        $dosen = Auth::user();
-        $activeRole = session('active_role', 'dosen');
-        
-        Log::info('Mencoba membatalkan sematan dengan ID: ' . $id);
-        Log::info('Role aktif dosen: ' . $activeRole);
-        
-        // Cari sematan berdasarkan ID untuk debugging
-        $sematanDebug = PesanSematan::find($id);
-        if ($sematanDebug) {
-            Log::info('Sematan ditemukan | ID: ' . $sematanDebug->id . 
-                     ', NIP Dosen: ' . $sematanDebug->nip_dosen . 
-                     ', Dosen Role: ' . $sematanDebug->dosen_role);
-        } else {
-            Log::error('Sematan dengan ID ' . $id . ' tidak ditemukan');
-        }
-        
-        // Cari sematan yang sesuai dengan kondisi
-        $sematan = PesanSematan::where('id', $id)
+    {
+        try {
+            $dosen = Auth::user();
+            $activeRole = session('active_role', 'dosen');
+            
+            Log::info('Mencoba membatalkan sematan dengan ID: ' . $id);
+            Log::info('Role aktif dosen: ' . $activeRole);
+            
+            // Cari sematan berdasarkan ID untuk debugging
+            $sematanDebug = PesanSematan::find($id);
+            if ($sematanDebug) {
+                Log::info('Sematan ditemukan | ID: ' . $sematanDebug->id . 
+                         ', NIP Dosen: ' . $sematanDebug->nip_dosen . 
+                         ', Dosen Role: ' . $sematanDebug->dosen_role);
+            } else {
+                Log::error('Sematan dengan ID ' . $id . ' tidak ditemukan');
+            }
+            
+            // Cari sematan yang sesuai dengan kondisi
+            $sematan = PesanSematan::where('id', $id)
                                ->where('nip_dosen', $dosen->nip)
                                ->where('dosen_role', $activeRole)
                                ->first();
-        
-        if (!$sematan) {
-            Log::error('Tidak ada hasil query untuk sematan dengan ID: ' . $id . 
-                      ', NIP: ' . $dosen->nip . ', Role: ' . $activeRole);
+            
+            if (!$sematan) {
+                Log::error('Tidak ada hasil query untuk sematan dengan ID: ' . $id . 
+                          ', NIP: ' . $dosen->nip . ', Role: ' . $activeRole);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak dapat membatalkan sematan ini dengan peran yang aktif saat ini'
+                ], 403);
+            }
+            
+            // Nonaktifkan sematan
+            $sematan->aktif = false;
+            $sematan->save();
+            
+            Log::info('Sematan berhasil dinonaktifkan: ' . $id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Sematan berhasil dibatalkan'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error saat membatalkan sematan: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak dapat membatalkan sematan ini dengan peran yang aktif saat ini'
-            ], 403);
+                'message' => 'Gagal membatalkan sematan: ' . $e->getMessage()
+            ], 500);
         }
-        
-        // Nonaktifkan sematan
-        $sematan->aktif = false;
-        $sematan->save();
-        
-        Log::info('Sematan berhasil dinonaktifkan: ' . $id);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Sematan berhasil dibatalkan'
-        ]);
-        
-    } catch (\Exception $e) {
-        Log::error('Error saat membatalkan sematan: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal membatalkan sematan: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     /**
      * Mendapatkan daftar sematan untuk FAQ

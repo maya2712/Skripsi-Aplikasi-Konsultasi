@@ -202,14 +202,12 @@
         background: #555;
     }
     
-    /* Style baru untuk chat bubble sesuai dengan halaman isi pesan */
+    /* Style untuk chat bubble */
     .message-time {
         color: rgba(255, 255, 255, 0.7);
         font-size: 12px;
         text-align: right;
-        margin-top: 5px;
-        width: 100%;
-        display: block;
+        margin-top: 4px;
     }
     
     .chat-message {
@@ -238,18 +236,18 @@
         margin-left: auto;
     }
     
+    /* PERBAIKAN: Bubble chat sebelah kanan (mahasiswa) */
     .chat-message.mahasiswa .message-bubble {
         background-color: #1a73e8;
         color: white;
         border-radius: 15px 15px 3px 15px;
         margin-left: auto;
-        min-width: 80px;
-        display: flex;
-        flex-direction: column;
+        min-width: 120px; /* Meningkatkan min-width agar lebih lebar */
+        display: block; /* Ubah dari flex ke block untuk menghindari tumpukan */
     }
     
     .chat-message.mahasiswa p {
-        margin-bottom: 0;
+        margin-bottom: 8px; /* Tambah margin bawah untuk memisahkan teks dan waktu */
         word-break: break-word;
     }
     
@@ -259,12 +257,11 @@
         color: white;
         border-radius: 15px 15px 15px 3px;
         min-width: 80px;
-        display: flex;
-        flex-direction: column;
+        display: block;
     }
     
     .chat-message.mahasiswa-lain p {
-        margin-bottom: 0;
+        margin-bottom: 8px;
         word-break: break-word;
     }
     
@@ -274,12 +271,11 @@
         color: white;
         border-radius: 15px 15px 15px 3px;
         min-width: 80px;
-        display: flex;
-        flex-direction: column;
+        display: block;
     }
     
     .chat-message.dosen p {
-        margin-bottom: 0;
+        margin-bottom: 8px;
         word-break: break-word;
     }
     
