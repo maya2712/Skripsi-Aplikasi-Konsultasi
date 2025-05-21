@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB; // Ditambahkan import DB
+use Illuminate\Support\Facades\DB; // Dipastikan import DB sudah ada
 use App\Models\Pesan;
 use App\Models\BalasanPesan;
 use App\Models\PesanSematan;
@@ -17,92 +17,105 @@ class PesanMahasiswaController extends Controller
 {
     // Menampilkan dashboard pesan mahasiswa
     public function index()
-{
-    $mahasiswa = Auth::user();
-    
-    // Membuat subquery untuk mendapatkan waktu balasan terakhir
-    $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
-        ->groupBy('id_pesan');
-    
-    // Mengambil pesan dengan eager loading untuk dosen
-    $pesan = Pesan::with(['dosenPengirim', 'dosenPenerima'])
-        ->where(function($query) use ($mahasiswa) {
-            $query->where('nim_penerima', $mahasiswa->nim)
-                ->orWhere('nim_pengirim', $mahasiswa->nim);
-        })
-        ->where('status', 'Aktif')
-        ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
-            $join->on('pesan.id', '=', 'latest_replies.id_pesan');
-        })
-        // Pastikan semua kolom termasuk dosen_role diambil
-        ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
-        ->orderBy('last_activity', 'desc')
-        ->get();
-    
-    // Untuk debugging, cek apakah dosen_role ada dalam hasil query
-    Log::info('Pesan dengan dosen_role: ' . $pesan->whereNotNull('dosen_role')->count());
-    
-    // Hitung statistik pesan
-    $belumDibaca = Pesan::where('nim_penerima', $mahasiswa->nim)
-                    ->where('dibaca', false)
+    {
+        $mahasiswa = Auth::user();
+        
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
+        
+        // Mengambil pesan dengan eager loading untuk dosen
+        $pesan = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+            ->where(function($query) use ($mahasiswa) {
+                $query->where('nim_penerima', $mahasiswa->nim)
+                    ->orWhere('nim_pengirim', $mahasiswa->nim);
+            })
+            ->where('status', 'Aktif')
+            ->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+            })
+            ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+            ->orderBy('last_activity', 'desc')
+            ->get();
+        
+        // Hitung pesan utama yang belum dibaca
+        $belumDibacaUtama = Pesan::where('nim_penerima', $mahasiswa->nim)
+                        ->where('dibaca', false)
+                        ->count();
+        
+        // Hitung balasan dari dosen yang belum dibaca
+        $belumDibacaBalasan = BalasanPesan::whereIn('id_pesan', function($query) use ($mahasiswa) {
+                            $query->select('id')
+                                  ->from('pesan')
+                                  ->where(function($q) use ($mahasiswa) {
+                                      $q->where('nim_penerima', $mahasiswa->nim)
+                                        ->orWhere('nim_pengirim', $mahasiswa->nim);
+                                  })
+                                  ->where('status', 'Aktif');
+                        })
+                        ->where('tipe_pengirim', 'dosen')
+                        ->where('dibaca', false)
+                        ->count();
+        
+        // Total pesan belum dibaca (pesan utama + balasan)
+        $belumDibaca = $belumDibacaUtama + $belumDibacaBalasan;
+        
+        // Code untuk pesanAktif dan totalPesan tetap sama
+        $pesanAktif = Pesan::where(function($query) use ($mahasiswa) {
+                        $query->where('nim_penerima', $mahasiswa->nim)
+                            ->orWhere('nim_pengirim', $mahasiswa->nim);
+                    })
+                    ->where('status', 'Aktif')
                     ->count();
                     
-    $pesanAktif = Pesan::where(function($query) use ($mahasiswa) {
-                    $query->where('nim_penerima', $mahasiswa->nim)
-                        ->orWhere('nim_pengirim', $mahasiswa->nim);
-                })
-                ->where('status', 'Aktif')
-                ->count();
-                
-    $totalPesan = Pesan::where(function($query) use ($mahasiswa) {
-                    $query->where('nim_penerima', $mahasiswa->nim)
-                        ->orWhere('nim_pengirim', $mahasiswa->nim);
-                })
-                ->count();
-    
-    return view('pesan.mahasiswa.dashboardpesanmahasiswa', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan'));
-}
+        $totalPesan = Pesan::where(function($query) use ($mahasiswa) {
+                        $query->where('nim_penerima', $mahasiswa->nim)
+                            ->orWhere('nim_pengirim', $mahasiswa->nim);
+                    })
+                    ->count();
+        
+        return view('pesan.mahasiswa.dashboardpesanmahasiswa', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan'));
+    }
     
     // Menampilkan form untuk membuat pesan baru
-    // Di method create pada PesanMahasiswaController
-public function create()
-{
-    // Dapatkan daftar dosen dengan informasi jabatan
-    $dosen = Dosen::select('nip', 'nama', 'jabatan_fungsional')
-        ->orderBy('nama')
-        ->get();
-    
-    // Duplikasi dosen yang memiliki peran kaprodi
-    $dosenWithRoles = [];
-    
-    foreach ($dosen as $d) {
-        // Tambahkan sebagai dosen reguler terlebih dahulu
-        $dosenWithRoles[] = [
-            'nip' => $d->nip,
-            'nama' => $d->nama,
-            'jabatan_fungsional' => $d->jabatan_fungsional,
-            'role' => 'dosen'
-        ];
+    public function create()
+    {
+        // Dapatkan daftar dosen dengan informasi jabatan
+        $dosen = Dosen::select('nip', 'nama', 'jabatan_fungsional')
+            ->orderBy('nama')
+            ->get();
         
-        // Jika dosen adalah kaprodi, tambahkan sekali lagi dengan peran kaprodi
-        if (stripos($d->jabatan_fungsional, 'kaprodi') !== false || 
-            stripos($d->jabatan_fungsional, 'ketua program') !== false || 
-            stripos($d->jabatan_fungsional, 'kepala program') !== false) {
-            
+        // Duplikasi dosen yang memiliki peran kaprodi
+        $dosenWithRoles = [];
+        
+        foreach ($dosen as $d) {
+            // Tambahkan sebagai dosen reguler terlebih dahulu
             $dosenWithRoles[] = [
                 'nip' => $d->nip,
                 'nama' => $d->nama,
                 'jabatan_fungsional' => $d->jabatan_fungsional,
-                'role' => 'kaprodi'
+                'role' => 'dosen'
             ];
+            
+            // Jika dosen adalah kaprodi, tambahkan sekali lagi dengan peran kaprodi
+            if (stripos($d->jabatan_fungsional, 'kaprodi') !== false || 
+                stripos($d->jabatan_fungsional, 'ketua program') !== false || 
+                stripos($d->jabatan_fungsional, 'kepala program') !== false) {
+                
+                $dosenWithRoles[] = [
+                    'nip' => $d->nip,
+                    'nama' => $d->nama,
+                    'jabatan_fungsional' => $d->jabatan_fungsional,
+                    'role' => 'kaprodi'
+                ];
+            }
         }
+        
+        // Log jumlah dosen yang diambil untuk debugging
+        Log::info('Mengambil daftar dosen untuk form pesan baru: ' . count($dosenWithRoles) . ' dosen ditemukan (termasuk duplikasi untuk kaprodi)');
+        
+        return view('pesan.mahasiswa.buatpesanmahasiswa', ['dosen' => $dosenWithRoles]);
     }
-    
-    // Log jumlah dosen yang diambil untuk debugging
-    Log::info('Mengambil daftar dosen untuk form pesan baru: ' . count($dosenWithRoles) . ' dosen ditemukan (termasuk duplikasi untuk kaprodi)');
-    
-    return view('pesan.mahasiswa.buatpesanmahasiswa', ['dosen' => $dosenWithRoles]);
-}
     
     // Menyimpan pesan baru
     public function store(Request $request)
@@ -173,7 +186,6 @@ public function create()
                 'isi_pesan' => substr($pesan->isi_pesan, 0, 100), // Hanya tampilkan 100 karakter pertama
                 'prioritas' => $pesan->prioritas,
                 'lampiran' => $pesan->lampiran
-                // Hapus atau jangan akses created_at yang masih null
             ]);
             
             // Cek database connection sebelum save
@@ -211,8 +223,7 @@ public function create()
             ], 500);
         }
     }
-   
-     
+    
     // Menampilkan detail pesan
     public function show($id)
     {
@@ -322,8 +333,6 @@ public function create()
             $balasan->tipe_pengirim = 'mahasiswa';
             $balasan->isi_balasan = $request->balasan;
             $balasan->dibaca = false; // Gunakan false untuk konsistensi dengan accessor/mutator
-            
-    
             
             $balasan->save();
             
@@ -499,97 +508,151 @@ public function create()
     
     // Pencarian pesan
     public function search(Request $request)
-{
-    $mahasiswa = Auth::user();
-    $keyword = $request->keyword;
-    
-    // Membuat subquery untuk mendapatkan waktu balasan terakhir
-    $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
-        ->groupBy('id_pesan');
-    
-    $query = Pesan::with(['dosenPengirim', 'dosenPenerima'])
-                ->where(function($query) use ($mahasiswa) {
-                    $query->where('nim_pengirim', $mahasiswa->nim)
-                          ->orWhere('nim_penerima', $mahasiswa->nim);
-                 })
-                 ->where(function($query) use ($keyword) {
-                    $query->where('subjek', 'like', "%{$keyword}%")
-                          ->orWhere('isi_pesan', 'like', "%{$keyword}%")
-                          ->orWhereHas('pengirim', function($q) use ($keyword) {
-                              $q->where('nama', 'like', "%{$keyword}%");
-                          })
-                          ->orWhereHas('penerima', function($q) use ($keyword) {
-                              $q->where('nama', 'like', "%{$keyword}%");
-                          });
-                 });
-                 
-    // Filter berdasarkan status jika parameter diberikan 
-    if ($request->has('status')) {
-        $query->where('status', $request->status);
-    } else {
-        // Default hanya tampilkan pesan aktif
-        $query->where('status', 'Aktif');
+    {
+        $mahasiswa = Auth::user();
+        $keyword = $request->keyword;
+        
+        // Membuat subquery untuk mendapatkan waktu balasan terakhir
+        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+            ->groupBy('id_pesan');
+        
+        $query = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+                    ->where(function($query) use ($mahasiswa) {
+                        $query->where('nim_pengirim', $mahasiswa->nim)
+                              ->orWhere('nim_penerima', $mahasiswa->nim);
+                     })
+                     ->where(function($query) use ($keyword) {
+                        $query->where('subjek', 'like', "%{$keyword}%")
+                              ->orWhere('isi_pesan', 'like', "%{$keyword}%")
+                              ->orWhereHas('pengirim', function($q) use ($keyword) {
+                                  $q->where('nama', 'like', "%{$keyword}%");
+                              })
+                              ->orWhereHas('penerima', function($q) use ($keyword) {
+                                  $q->where('nama', 'like', "%{$keyword}%");
+                              });
+                     });
+                     
+        // Filter berdasarkan status jika parameter diberikan 
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        } else {
+            // Default hanya tampilkan pesan aktif
+            $query->where('status', 'Aktif');
+        }
+        
+        // Gabungkan dengan subquery balasan terakhir
+        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                    $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                })
+                ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                ->get();
+        
+        return response()->json([
+            'success' => true,
+            'html' => view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render()
+        ]);
     }
-    
-    // Gabungkan dengan subquery balasan terakhir
-    $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
-                $join->on('pesan.id', '=', 'latest_replies.id_pesan');
-            })
-            ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
-            ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
-            ->get();
-    
-    return response()->json([
-        'success' => true,
-        'html' => view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render()
-    ]);
-}
     
     // Halaman FAQ
-    /**
- * Halaman FAQ
- */
-public function faq()
-{
-    // Ambil sematan yang masih aktif dari semua dosen
-    $sematan = PesanSematan::with('dosen')
-                        ->where('aktif', true)
-                        ->where('durasi_sematan', '>', now())
-                        ->orderBy('created_at', 'desc')
-                        ->get();
-    
-    // Kelompokkan sematan berdasarkan kategori
-    $sematanByKategori = [
-        'krs' => [],
-        'kp' => [],
-        'skripsi' => [],
-        'mbkm' => []
-    ];
-    
-    foreach ($sematan as $item) {
-        $sematanByKategori[$item->kategori][] = $item;
+    public function faq()
+    {
+        // Ambil sematan yang masih aktif dari semua dosen
+        $sematan = PesanSematan::with('dosen')
+                            ->where('aktif', true)
+                            ->where('durasi_sematan', '>', now())
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+        
+        // Kelompokkan sematan berdasarkan kategori
+        $sematanByKategori = [
+            'krs' => [],
+            'kp' => [],
+            'skripsi' => [],
+            'mbkm' => []
+        ];
+        
+        foreach ($sematan as $item) {
+            $sematanByKategori[$item->kategori][] = $item;
+        }
+        
+        // Jika tidak ada sematan, ambil daftar dosen langsung dari tabel dosen
+        if ($sematan->isEmpty()) {
+            $dosenList = Dosen::orderBy('nama')->get(['nip', 'nama']);
+        } else {
+            // Ekstrak daftar dosen dari sematan
+            $dosenList = $sematan->map(function($item) {
+                return $item->dosen;
+            })->unique('nip')->sortBy('nama')->values();
+        }
+        
+        return view('pesan.mahasiswa.faq_mahasiswa', [
+            'sematan' => $sematan,
+            'sematanByKategori' => $sematanByKategori,
+            'dosenList' => $dosenList
+        ]);
     }
     
-    // Jika tidak ada sematan, ambil daftar dosen langsung dari tabel dosen
-    if ($sematan->isEmpty()) {
-        $dosenList = Dosen::orderBy('nama')->get(['nip', 'nama']);
-    } else {
-        // Ekstrak daftar dosen dari sematan
-        $dosenList = $sematan->map(function($item) {
-            return $item->dosen;
-        })->unique('nip')->sortBy('nama')->values();
-    }
-    
-    return view('pesan.mahasiswa.faq_mahasiswa', [
-        'sematan' => $sematan,
-        'sematanByKategori' => $sematanByKategori,
-        'dosenList' => $dosenList
-    ]);
-}
-    
     /**
-     * Method untuk debugging
-     * Gunakan method ini jika masih terjadi error pada pesan
+     * Method untuk debugging penghitungan pesan yang belum dibaca
+     * Berguna untuk memecahkan masalah penghitungan notifikasi
+     */
+    public function debugUnreadCount()
+    {
+        $mahasiswa = Auth::user();
+        
+        // Hitung pesan utama yang belum dibaca
+        $belumDibacaUtama = Pesan::where('nim_penerima', $mahasiswa->nim)
+                        ->where('dibaca', false)
+                        ->count();
+        
+        // Ambil list pesan utama yang belum dibaca
+        $pesanUtamaBelumDibaca = Pesan::where('nim_penerima', $mahasiswa->nim)
+                        ->where('dibaca', false)
+                        ->get(['id', 'subjek', 'nim_pengirim', 'nip_pengirim', 'created_at']);
+        
+        // Hitung balasan dari dosen yang belum dibaca
+        $belumDibacaBalasan = BalasanPesan::whereIn('id_pesan', function($query) use ($mahasiswa) {
+                            $query->select('id')
+                                ->from('pesan')
+                                ->where(function($q) use ($mahasiswa) {
+                                    $q->where('nim_penerima', $mahasiswa->nim)
+                                        ->orWhere('nim_pengirim', $mahasiswa->nim);
+                                })
+                                ->where('status', 'Aktif');
+                        })
+                        ->where('tipe_pengirim', 'dosen')
+                        ->where('dibaca', false)
+                        ->count();
+        
+        // Ambil list balasan yang belum dibaca
+        $balasanBelumDibaca = BalasanPesan::whereIn('id_pesan', function($query) use ($mahasiswa) {
+                            $query->select('id')
+                                ->from('pesan')
+                                ->where(function($q) use ($mahasiswa) {
+                                    $q->where('nim_penerima', $mahasiswa->nim)
+                                        ->orWhere('nim_pengirim', $mahasiswa->nim);
+                                })
+                                ->where('status', 'Aktif');
+                        })
+                        ->where('tipe_pengirim', 'dosen')
+                        ->where('dibaca', false)
+                        ->get(['id', 'id_pesan', 'pengirim_id', 'created_at']);
+        
+        // Total pesan belum dibaca (pesan utama + balasan)
+        $belumDibaca = $belumDibacaUtama + $belumDibacaBalasan;
+        
+        return response()->json([
+            'total_belum_dibaca' => $belumDibaca,
+            'pesan_utama_belum_dibaca' => $belumDibacaUtama,
+            'list_pesan_utama' => $pesanUtamaBelumDibaca,
+            'balasan_belum_dibaca' => $belumDibacaBalasan,
+            'list_balasan' => $balasanBelumDibaca
+        ]);
+    }
+
+    /**
+     * Method untuk debugging detail pesan
      */
     public function debug($id)
     {
@@ -603,7 +666,7 @@ public function faq()
             'Balasan Count' => $balasan->count()
         ]);
     }
-    
+
     /**
      * Method untuk debugging seluruh pesan mahasiswa
      * Gunakan method ini untuk memeriksa data pesan mahasiswa

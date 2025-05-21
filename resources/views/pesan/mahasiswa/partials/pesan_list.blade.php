@@ -1,8 +1,10 @@
+<!-- File: views/pesan/mahasiswa/partials/pesan_list.blade.php -->
+
 @if($pesan->count() > 0)
     @foreach($pesan as $p)
-    <div class="card mb-2 message-card {{ strtolower($p->prioritas) }} {{ ($p->nim_pengirim == Auth::user()->nim && $p->penerima_role == 'kaprodi') || ($p->nip_pengirim && $p->dosen_role == 'kaprodi') ? 'kaprodi-card' : '' }}" 
-         onclick="window.location.href='{{ route('mahasiswa.pesan.show', $p->id) }}'"
-         data-role="{{ $p->nim_pengirim == Auth::user()->nim ? ($p->penerima_role ?? 'dosen') : ($p->dosen_role ?? 'dosen') }}">
+    <!-- Menghapus kelas kaprodi-card dan atribut data-role yang membuat tampilan berbeda -->
+    <div class="card mb-2 message-card {{ strtolower($p->prioritas) }}" 
+         onclick="window.location.href='{{ route('mahasiswa.pesan.show', $p->id) }}'">
         
         <div class="card-body">
             <div class="row align-items-center">
@@ -45,9 +47,9 @@
                                 <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
                                 {{ $p->dosenPenerima ? $p->dosenPenerima->nama : 'Dosen' }}
                                 
-                                <!-- Badge untuk Kaprodi -->
+                                <!-- Badge untuk Kaprodi - tetap mempertahankan badge -->
                                 @if($p->penerima_role == 'kaprodi')
-                                    <span class="badge bg-warning ms-1">KAPRODI</span>
+                                    <span class="badge badge-kaprodi ms-1">KAPRODI</span>
                                 @endif
                             </h6>
                             <small class="text-muted">NIP: {{ $p->nip_penerima }}</small><br>
@@ -58,9 +60,9 @@
                                 <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
                                 {{ $p->dosenPengirim ? $p->dosenPengirim->nama : 'Dosen' }}
                                 
-                                <!-- Badge untuk Kaprodi jika pesan berasal dari dosen sebagai Kaprodi -->
-                                @if($p->dosen_role == 'kaprodi')
-                                    <span class="badge bg-warning ms-1">KAPRODI</span>
+                                <!-- Badge untuk Kaprodi - tetap mempertahankan badge -->
+                                @if($p->pengirim_role == 'kaprodi')
+                                    <span class="badge badge-kaprodi ms-1">KAPRODI</span>
                                 @endif
                             </h6>
                             <small class="text-muted">NIP: {{ $p->nip_pengirim }}</small><br>
@@ -104,6 +106,15 @@
                     </small>
                     
                     <div class="action-buttons" onclick="event.stopPropagation();">
+                        @if(isset($p->bookmarked))
+                        <form action="{{ route('mahasiswa.pesan.bookmark', $p->id) }}" method="POST" class="d-inline me-2">
+                            @csrf
+                            <button type="submit" class="btn btn-link p-0 bookmark-btn" title="{{ $p->bookmarked ? 'Hapus Bookmark' : 'Bookmark Pesan' }}">
+                                <i class="fas fa-bookmark bookmark-icon {{ $p->bookmarked ? 'active' : '' }}"></i>
+                            </button>
+                        </form>
+                        @endif
+                        
                         <a href="{{ route('mahasiswa.pesan.show', $p->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
                             <i class="fas fa-eye me-1"></i>Lihat
                         </a>

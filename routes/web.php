@@ -9,6 +9,7 @@ use App\Http\Controllers\PilihJadwalController;
 use App\Http\Controllers\MasukkanJadwalController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\PesanMahasiswaController;
 
 // Route untuk guest (belum login)
 Route::middleware(['guest'])->group(function () {
@@ -137,6 +138,14 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
         // Route Debug Pesan - BARU
         Route::get('/debug-pesan', 'debugPesan')
             ->name('mahasiswa.debug.pesan');
+        
+        // Route untuk debugging penghitungan pesan belum dibaca - BARU
+        Route::get('/debug-unread-count', 'debugUnreadCount')
+            ->name('mahasiswa.debug.unread-count');
+        
+        // Route untuk debugging detail pesan - BARU
+        Route::get('/debug-pesan/{id}', 'debug')
+            ->name('mahasiswa.debug.detail');
     });
 
     // Route untuk Grup Mahasiswa - BARU

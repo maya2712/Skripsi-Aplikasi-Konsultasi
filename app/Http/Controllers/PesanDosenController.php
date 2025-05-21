@@ -39,14 +39,6 @@ class PesanDosenController extends Controller
         // Simpan ke session untuk konsistensi
         session(['is_kaprodi' => $isKaprodi]);
         
-        // Log untuk debugging
-        Log::info('Dashboard loaded with role:', [
-            'nama' => $dosen->nama,
-            'jabatan' => $dosen->jabatan_fungsional,
-            'is_kaprodi' => $isKaprodi,
-            'active_role' => $activeRole
-        ]);
-        
         // Membuat subquery untuk mendapatkan waktu balasan terakhir
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
             ->groupBy('id_pesan');
@@ -60,7 +52,7 @@ class PesanDosenController extends Controller
                     ->where('penerima_role', $activeRole);
                 })
                 ->orWhere(function($q) use ($dosen, $activeRole) {
-                    // PERUBAHAN: Sebagai pengirim, hanya tampilkan pesan dengan peran yang aktif
+                    // Sebagai pengirim dengan peran yang aktif
                     $q->where('nip_pengirim', $dosen->nip)
                     ->where('pengirim_role', $activeRole);
                 });
@@ -74,33 +66,62 @@ class PesanDosenController extends Controller
             ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
             ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
             ->get();
-                
-        // Menghitung jumlah pesan belum dibaca (hanya yang diterima dengan role yang sesuai)
-        $belumDibaca = Pesan::where('nip_penerima', $dosen->nip)
+        
+        // Hitung pesan utama yang belum dibaca
+        $belumDibacaUtama = Pesan::where('nip_penerima', $dosen->nip)
                         ->where('penerima_role', $activeRole)
                         ->where('dibaca', false)
                         ->count();
         
+        // Hitung balasan dari mahasiswa yang belum dibaca
+        $belumDibacaBalasan = BalasanPesan::whereIn('id_pesan', function($query) use ($dosen, $activeRole) {
+                        $query->select('id')
+                              ->from('pesan')
+                              ->where(function($q) use ($dosen, $activeRole) {
+                                  $q->where(function($innerQ) use ($dosen, $activeRole) {
+                                      $innerQ->where('nip_penerima', $dosen->nip)
+                                             ->where('penerima_role', $activeRole);
+                                  })
+                                  ->orWhere(function($innerQ) use ($dosen, $activeRole) {
+                                      $innerQ->where('nip_pengirim', $dosen->nip)
+                                             ->where('pengirim_role', $activeRole);
+                                  });
+                              })
+                              ->where('status', 'Aktif');
+                    })
+                    ->where('tipe_pengirim', 'mahasiswa') // Khusus balasan dari mahasiswa
+                    ->where('dibaca', false)
+                    ->count();
+        
+        // Total pesan belum dibaca (pesan utama + balasan)
+        $belumDibaca = $belumDibacaUtama + $belumDibacaBalasan;
+        
         // Menghitung jumlah pesan aktif (baik yang diterima dengan role sesuai maupun dikirim)
         $pesanAktif = Pesan::where(function($query) use ($dosen, $activeRole) {
-                        $query->where(function($q) use ($dosen, $activeRole) {
-                            $q->where('nip_penerima', $dosen->nip)
-                            ->where('penerima_role', $activeRole);
-                        })
-                        ->orWhere('nip_pengirim', $dosen->nip);
+                    $query->where(function($q) use ($dosen, $activeRole) {
+                        $q->where('nip_penerima', $dosen->nip)
+                        ->where('penerima_role', $activeRole);
                     })
-                    ->where('status', 'Aktif')
-                    ->count();
+                    ->orWhere(function($q) use ($dosen, $activeRole) {
+                        $q->where('nip_pengirim', $dosen->nip)
+                         ->where('pengirim_role', $activeRole);
+                    });
+                })
+                ->where('status', 'Aktif')
+                ->count();
         
         // Menghitung total pesan (termasuk aktif dan berakhir, dengan role yang sesuai)
         $totalPesan = Pesan::where(function($query) use ($dosen, $activeRole) {
-                        $query->where(function($q) use ($dosen, $activeRole) {
-                            $q->where('nip_penerima', $dosen->nip)
-                            ->where('penerima_role', $activeRole);
-                        })
-                        ->orWhere('nip_pengirim', $dosen->nip);
+                    $query->where(function($q) use ($dosen, $activeRole) {
+                        $q->where('nip_penerima', $dosen->nip)
+                        ->where('penerima_role', $activeRole);
                     })
-                    ->count();
+                    ->orWhere(function($q) use ($dosen, $activeRole) {
+                        $q->where('nip_pengirim', $dosen->nip)
+                         ->where('pengirim_role', $activeRole);
+                    });
+                })
+                ->count();
         
         // Saat rendering view, tambahkan informasi peran aktif dan status kaprodi
         return view('pesan.dosen.dashboardpesandosen', compact('pesan', 'belumDibaca', 'pesanAktif', 'totalPesan', 'activeRole', 'isKaprodi'));
@@ -872,6 +893,80 @@ class PesanDosenController extends Controller
             'Penerima Exists' => $pesan->penerima ? true : false,
             'Penerima Role' => $pesan->penerima_role,
             'Balasan Count' => $balasan->count()
+        ]);
+    }
+    
+    /**
+     * Method untuk debugging penghitungan pesan belum dibaca
+     * Berguna untuk memecahkan masalah penghitungan notifikasi
+     */
+    public function debugUnreadCount()
+    {
+        $dosen = Auth::user();
+        $activeRole = session('active_role', 'dosen');
+        
+        // Hitung pesan utama yang belum dibaca
+        $belumDibacaUtama = Pesan::where('nip_penerima', $dosen->nip)
+                        ->where('penerima_role', $activeRole)
+                        ->where('dibaca', false)
+                        ->count();
+        
+        // Ambil list pesan utama yang belum dibaca
+        $pesanUtamaBelumDibaca = Pesan::where('nip_penerima', $dosen->nip)
+                        ->where('penerima_role', $activeRole)
+                        ->where('dibaca', false)
+                        ->get(['id', 'subjek', 'nim_pengirim', 'nip_pengirim', 'created_at']);
+        
+        // Hitung balasan dari mahasiswa yang belum dibaca
+        $belumDibacaBalasan = BalasanPesan::whereIn('id_pesan', function($query) use ($dosen, $activeRole) {
+                        $query->select('id')
+                              ->from('pesan')
+                              ->where(function($q) use ($dosen, $activeRole) {
+                                  $q->where(function($innerQ) use ($dosen, $activeRole) {
+                                      $innerQ->where('nip_penerima', $dosen->nip)
+                                             ->where('penerima_role', $activeRole);
+                                  })
+                                  ->orWhere(function($innerQ) use ($dosen, $activeRole) {
+                                      $innerQ->where('nip_pengirim', $dosen->nip)
+                                             ->where('pengirim_role', $activeRole);
+                                  });
+                              })
+                              ->where('status', 'Aktif');
+                    })
+                    ->where('tipe_pengirim', 'mahasiswa') // Khusus balasan dari mahasiswa
+                    ->where('dibaca', false)
+                    ->count();
+        
+        // Ambil list balasan yang belum dibaca
+        $balasanBelumDibaca = BalasanPesan::whereIn('id_pesan', function($query) use ($dosen, $activeRole) {
+                        $query->select('id')
+                              ->from('pesan')
+                              ->where(function($q) use ($dosen, $activeRole) {
+                                  $q->where(function($innerQ) use ($dosen, $activeRole) {
+                                      $innerQ->where('nip_penerima', $dosen->nip)
+                                             ->where('penerima_role', $activeRole);
+                                  })
+                                  ->orWhere(function($innerQ) use ($dosen, $activeRole) {
+                                      $innerQ->where('nip_pengirim', $dosen->nip)
+                                             ->where('pengirim_role', $activeRole);
+                                  });
+                              })
+                              ->where('status', 'Aktif');
+                    })
+                    ->where('tipe_pengirim', 'mahasiswa') // Khusus balasan dari mahasiswa
+                    ->where('dibaca', false)
+                    ->get(['id', 'id_pesan', 'pengirim_id', 'created_at']);
+        
+        // Total pesan belum dibaca (pesan utama + balasan)
+        $belumDibaca = $belumDibacaUtama + $belumDibacaBalasan;
+        
+        return response()->json([
+            'active_role' => $activeRole,
+            'total_belum_dibaca' => $belumDibaca,
+            'pesan_utama_belum_dibaca' => $belumDibacaUtama,
+            'list_pesan_utama' => $pesanUtamaBelumDibaca,
+            'balasan_belum_dibaca' => $belumDibacaBalasan,
+            'list_balasan' => $balasanBelumDibaca
         ]);
     }
 }

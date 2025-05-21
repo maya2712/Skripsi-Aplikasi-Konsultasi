@@ -249,6 +249,13 @@
             margin-top: 20px;
             display: none;
         }
+
+        /* Badge untuk role kaprodi */
+        .badge-kaprodi {
+            background-color: #FF9800;
+            color: white;
+            font-size: 11px;
+        }
     </style>
 @endpush
 @section('content')
@@ -269,7 +276,7 @@
                             <a href="{{ url('/dashboardpesanmahasiswa') }}" class="nav-link">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
-                            <a href="#" class="nav-link menu-item" id="grupDropdownToggle">
+                        <a href="#" class="nav-link menu-item" id="grupDropdownToggle">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
                                     <i class="fas fa-chevron-down" id="grupDropdownIcon"></i>
@@ -281,10 +288,10 @@
                                 @endphp
                                 
                                 @if($userGrups && $userGrups->count() > 0)
-                                    @foreach($userGrups as $grupItem)
-                                    <a href="{{ url('/detailgrup/' . $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                                   @foreach($userGrups as $grupItem)
+                                    <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
                                         {{ $grupItem->nama_grup }}
-                                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
+                                        @if(($unreadCount = $grupItem->unreadMessages) && $unreadCount > 0)
                                         <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
                                         @endif
                                     </a>
@@ -308,8 +315,6 @@
             
             <!-- Main Content -->
             <div class="col-md-9">
-                <h4 class="mb-4">Riwayat Pesan</h4>
-                
                 <!-- Search and Filters -->
                 <div class="card mb-4 search-filter-card">
                     <div class="card-body">
@@ -374,12 +379,18 @@
                                                 <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     {{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}
+                                                    @if($pesan->penerima_role == 'kaprodi')
+                                                        <span class="badge badge-kaprodi">Kaprodi</span>
+                                                    @endif
                                                 </h6>
                                                 <small class="text-muted">{{ $pesan->dosenPenerima ? ($pesan->dosenPenerima->jabatan ?? 'Dosen') : 'Dosen' }}</small>
                                             @else
                                                 <!-- Jika mahasiswa adalah penerima, tampilkan informasi dosen pengirim -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     {{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}
+                                                    @if($pesan->pengirim_role == 'kaprodi')
+                                                        <span class="badge badge-kaprodi">Kaprodi</span>
+                                                    @endif
                                                 </h6>
                                                 <small class="text-muted">{{ $pesan->dosenPengirim ? ($pesan->dosenPengirim->jabatan ?? 'Dosen') : 'Dosen' }}</small>
                                             @endif

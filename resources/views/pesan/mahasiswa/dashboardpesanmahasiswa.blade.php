@@ -186,6 +186,7 @@
         cursor: pointer;
         transition: all 0.2s ease;
         position: relative;
+        background-color: #ffffff !important;
     }
     
     .message-card:hover {
@@ -206,33 +207,29 @@
         z-index: 5;
     }
     
-    /* Style khusus untuk Kaprodi */
-    .kaprodi-card {
-        border-left: 5px solid var(--bs-warning) !important;
-        background-color: #fff8e1 !important;
-        position: relative;
-    }
-    
-    .kaprodi-card:hover {
-        background-color: #ffecb3 !important;
-    }
-    
-    .badge.bg-warning {
-        background-color: #ff9800 !important;
-        color: #fff;
-        font-weight: bold;
+    /* Style untuk badge kaprodi */
+    .badge-kaprodi {
+        background-color: #FF9800;
+        color: white;
+        font-size: 10px;
         padding: 5px 8px;
-        font-size: 11px !important;
+        border-radius: 4px;
+        margin-left: 5px;
+        font-weight: bold;
+        vertical-align: middle;
     }
     
-    /* Tambahan style untuk memastikan card Kaprodi selalu terlihat berbeda */
-    .message-card[data-role="kaprodi"] {
-        border-left: 5px solid var(--bs-warning) !important;
-        background-color: #fff8e1 !important;
+    /* Style untuk filter button */
+    .filter-btn.active {
+        font-weight: 600;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
 
-    .message-card[data-role="kaprodi"]:hover {
-        background-color: #ffecb3 !important;
+    /* Styling untuk judul halaman */
+    .page-title {
+        color: #37474F;
+        font-weight: 600;
+        margin-bottom: 20px;
     }
 </style>
 @endpush
@@ -357,7 +354,126 @@
 
                 <!-- Message List -->
                 <div class="message-list" id="messageList">
-                    @include('pesan.mahasiswa.partials.pesan_list', ['pesan' => $pesan])
+                    @if($pesan->count() > 0)
+                        @foreach($pesan as $p)
+                        <!-- Menghapus kelas kaprodi-card dan atribut data-role yang membuat tampilan berbeda -->
+                        <div class="card mb-2 message-card {{ strtolower($p->prioritas) }}" 
+                             onclick="window.location.href='{{ route('mahasiswa.pesan.show', $p->id) }}'">
+                            
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8 d-flex align-items-center">
+                                        @if($p->nim_pengirim == Auth::user()->nim)
+                                            <!-- Menampilkan foto dosen penerima -->
+                                            @php
+                                                $profilePhoto = $p->dosenPenerima && $p->dosenPenerima->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$p->dosenPenerima->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @else
+                                            <!-- Menampilkan foto dosen pengirim -->
+                                            @php
+                                                $profilePhoto = $p->dosenPengirim && $p->dosenPengirim->profile_photo 
+                                                    ? asset('storage/profile_photos/'.$p->dosenPengirim->profile_photo) 
+                                                    : null;
+                                            @endphp
+                                            @if($profilePhoto)
+                                                <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image me-3">
+                                            @else
+                                                <div class="profile-image-placeholder me-3">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        @endif
+                                        <div>
+                                            <span class="badge bg-primary mb-1">{{ $p->subjek }}</span>
+                                            
+                                            @if($p->nim_pengirim == Auth::user()->nim)
+                                                <!-- Jika mahasiswa adalah pengirim, tampilkan nama dosen penerima -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
+                                                    {{ $p->dosenPenerima ? $p->dosenPenerima->nama : 'Dosen' }}
+                                                    
+                                                    <!-- Badge untuk Kaprodi - tetap mempertahankan badge -->
+                                                    @if($p->penerima_role == 'kaprodi')
+                                                        <span class="badge badge-kaprodi ms-1">KAPRODI</span>
+                                                    @endif
+                                                </h6>
+                                                <small class="text-muted">NIP: {{ $p->nip_penerima }}</small><br>
+                                                <small class="text-muted">{{ $p->dosenPenerima ? $p->dosenPenerima->jabatan : 'Dosen' }}</small>
+                                            @else
+                                                <!-- Jika mahasiswa adalah penerima, tampilkan nama dosen pengirim -->
+                                                <h6 class="mb-1" style="font-size: 14px;">
+                                                    <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
+                                                    {{ $p->dosenPengirim ? $p->dosenPengirim->nama : 'Dosen' }}
+                                                    
+                                                    <!-- Badge untuk Kaprodi - tetap mempertahankan badge -->
+                                                    @if($p->pengirim_role == 'kaprodi')
+                                                        <span class="badge badge-kaprodi ms-1">KAPRODI</span>
+                                                    @endif
+                                                </h6>
+                                                <small class="text-muted">NIP: {{ $p->nip_pengirim }}</small><br>
+                                                <small class="text-muted">{{ $p->dosenPengirim ? $p->dosenPengirim->jabatan : 'Dosen' }}</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                        @php
+                                            // Hitung jumlah balasan yang belum dibaca
+                                            $unreadReplies = App\Models\BalasanPesan::where('id_pesan', $p->id)
+                                                ->where('dibaca', false)
+                                                ->where('tipe_pengirim', 'dosen') // Untuk mahasiswa, kita hanya menghitung balasan dari dosen
+                                                ->count();
+                                            
+                                            // Tentukan status badge
+                                            $badgeClass = 'bg-success';
+                                            $badgeText = 'Sudah dibaca';
+                                            
+                                            if (!$p->dibaca && $p->nim_penerima == Auth::user()->nim) {
+                                                // Pesan utama belum dibaca
+                                                $badgeClass = 'bg-danger';
+                                                $badgeText = 'Belum dibaca';
+                                            } else if ($unreadReplies > 0) {
+                                                // Ada balasan baru yang belum dibaca
+                                                $badgeClass = 'bg-danger';
+                                                $badgeText = $unreadReplies . ' balasan baru';
+                                            }
+                                        @endphp
+                                        
+                                        <span class="badge {{ $badgeClass }} me-1">
+                                            {{ $badgeText }}
+                                        </span>
+                                        
+                                        <span class="badge {{ $p->prioritas == 'Penting' ? 'bg-danger' : 'bg-success' }}">
+                                            {{ $p->prioritas }}
+                                        </span>
+                                        
+                                       <small class="d-block text-muted my-1">
+                                            {{ \Carbon\Carbon::parse($p->created_at)->diffForHumans() }}
+                                        </small>
+                                        
+                                        <div class="action-buttons" onclick="event.stopPropagation();">
+                                            <a href="{{ route('mahasiswa.pesan.show', $p->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
+                                                <i class="fas fa-eye me-1"></i>Lihat
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <p class="text-muted">Belum ada pesan</p>
+                        </div>
+                    @endif
 
                     <!-- Pesan pencarian tidak tersedia -->
                     <div id="no-results" class="text-center py-4" style="display: none;">
@@ -389,24 +505,13 @@ document.addEventListener('DOMContentLoaded', function() {
         grupDropdownIcon.classList.toggle('fa-chevron-down');
     });
 
-    // Fungsi untuk menerapkan style kaprodi pada card
-    function applyKaprodiStyles() {
-        document.querySelectorAll('.message-card').forEach(card => {
-            // Temukan badge dengan teks "KAPRODI"
-            const kaprodiRole = card.querySelector('.badge.bg-warning');
-            if (kaprodiRole && kaprodiRole.textContent.trim() === 'KAPRODI') {
-                // Terapkan class kaprodi-card
-                card.classList.add('kaprodi-card');
-            } else {
-                // Periksa juga data-role attribute untuk validasi tambahan
-                const role = card.getAttribute('data-role');
-                if (role === 'kaprodi') {
-                    card.classList.add('kaprodi-card');
-                } else {
-                    // Hapus class jika tidak memiliki role Kaprodi
-                    card.classList.remove('kaprodi-card');
-                }
-            }
+    // Fungsi baru yang hanya menerapkan event listeners
+    function applyEventListeners() {
+        // Pastikan event listeners dari action buttons berfungsi
+        document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
         });
     }
 
@@ -415,9 +520,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fungsi filter pesan
     function filterMessages(filter) {
-        // Menampilkan indikator loading jika diperlukan
-        // document.getElementById('loadingIndicator').style.display = 'block';
-        
         fetch(`{{ route('mahasiswa.pesan.filter') }}?filter=${filter}`, {
             method: 'GET',
             headers: {
@@ -443,15 +545,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Ada hasil, perbarui konten
                     document.getElementById('messageList').innerHTML = data.html;
                     
-                    // Tambahkan event listener pada tombol action
-                    document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
-                        element.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                        });
-                    });
-                    
-                    // Tambahkan class kaprodi-card pada card pesan yang memiliki role kaprodi
-                    applyKaprodiStyles();
+                    // Pastikan event listener pada tombol action diterapkan
+                    applyEventListeners();
                 }
                 
                 // Tampilkan/sembunyikan pesan "tidak tersedia" berdasarkan hasil
@@ -462,13 +557,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Filter response indicates failure:', data);
                 fallbackFilterMessages(filter);
             }
-            // document.getElementById('loadingIndicator').style.display = 'none';
         })
         .catch(error => {
             console.error('Error during filter operation:', error);
             // Fallback ke filter lokal jika AJAX gagal
             fallbackFilterMessages(filter);
-            // document.getElementById('loadingIndicator').style.display = 'none';
         });
     }
 
@@ -501,8 +594,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Sembunyikan elemen no-results karena kita sudah menangani pesan kosong
         document.getElementById('no-results').style.display = 'none';
         
-        // Pastikan style Kaprodi tetap diterapkan setelah filter
-        applyKaprodiStyles();
+        // Terapkan event listeners
+        applyEventListeners();
     }
 
     // Tambahkan event listener untuk setiap tombol filter
@@ -589,15 +682,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Ada hasil, perbarui konten
                     document.getElementById('messageList').innerHTML = data.html;
                     
-                    // Tambahkan event listener pada tombol action
-                    document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
-                        element.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                        });
-                    });
-                    
-                    // Terapkan style kaprodi pada hasil pencarian
-                    applyKaprodiStyles();
+                    // Terapkan event listeners
+                    applyEventListeners();
                 }
                 
                 // Tampilkan/sembunyikan pesan "tidak tersedia" berdasarkan hasil
@@ -627,7 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let visibleCount = 0;
         
         messageCards.forEach(card => {
-            const messageText = card.textContent.toLowerCase();
+           const messageText = card.textContent.toLowerCase();
             const isPenting = card.classList.contains('penting');
             const isUmum = card.classList.contains('umum');
             
@@ -654,8 +740,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Sembunyikan elemen no-results karena kita sudah menangani pesan kosong
         document.getElementById('no-results').style.display = 'none';
         
-        // Pastikan style Kaprodi tetap diterapkan
-        applyKaprodiStyles();
+        // Terapkan event listeners
+        applyEventListeners();
     }
     
     // Set default filter ke "semua" saat halaman dimuat
@@ -682,8 +768,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Terapkan style kaprodi pada saat halaman dimuat
-        applyKaprodiStyles();
+        // Terapkan event listeners saat halaman dimuat
+        applyEventListeners();
     });
 });
 </script>
