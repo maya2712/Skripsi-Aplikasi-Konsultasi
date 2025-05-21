@@ -433,13 +433,6 @@
                                     <div class="message-bubble">
                                         @if($pesan->tipe_pengirim == 'mahasiswa')
                                             <div class="sender-name">{{ $pesan->pengirim->nama ?? 'Mahasiswa' }}</div>
-                                        @elseif($pesan->tipe_pengirim == 'dosen')
-                                            <div class="sender-name">
-                                                {{ $pesan->pengirim->nama ?? 'Dosen' }} 
-                                                @if(isset($pesan->sender_role) && $pesan->sender_role == 'kaprodi')
-                                                    <span class="badge bg-info">Kaprodi</span>
-                                                @endif
-                                            </div>
                                         @endif
                                         <p>{{ $pesan->isi_pesan }}</p>
                                         <div class="message-time">
@@ -720,6 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         dividerDiv.innerHTML = `<span data-date="${dateStr}">${dateDisplay}</span>`;
                         messageContainer.appendChild(dividerDiv);
                     }
+                    
                     // Tambah pesan baru
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'chat-message dosen';
@@ -778,4 +772,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-@endpush

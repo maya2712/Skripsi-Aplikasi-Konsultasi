@@ -81,8 +81,8 @@
                     <option value="">Pilih Program Studi</option>
                     @if(isset($prodis) && count($prodis) > 0)
                         @foreach($prodis as $prodi)
-                            <option value="{{ $prodi['id'] }}" {{ old('prodi_id') == $prodi['id'] ? 'selected' : '' }}>
-                                {{ $prodi['nama_prodi'] }}
+                            <option value="{{ $prodi->id }}" {{ old('prodi_id') == $prodi->id ? 'selected' : '' }}>
+                                {{ $prodi->nama_prodi }}
                             </option>
                         @endforeach
                     @else

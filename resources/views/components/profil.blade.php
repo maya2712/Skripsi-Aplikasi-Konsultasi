@@ -485,8 +485,238 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Upload foto profile dan kode lainnya tetap sama...
+   document.addEventListener('DOMContentLoaded', function() {
+    // Upload foto profile - Elemen-elemen DOM
+    const uploadArea = document.getElementById('uploadArea');
+    const photoInput = document.getElementById('photoInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const photoPreview = document.getElementById('photoPreview');
+    const savePhotoBtn = document.getElementById('savePhotoBtn');
+    const profileImage = document.getElementById('profileImage');
+    const defaultProfileImg = document.getElementById('defaultProfileImg');
+    const editPhotoModal = document.getElementById('editPhotoModal');
+    let fileToUpload = null;
+    
+    // Klik area upload untuk memicu input file
+    if (uploadArea) {
+        uploadArea.addEventListener('click', function() {
+            photoInput.click();
+        });
+    }
+    
+    // Menangani drag and drop
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#004AAD';
+            uploadArea.style.backgroundColor = 'rgba(0, 74, 173, 0.05)';
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = '';
+            
+            if (e.dataTransfer.files.length) {
+                photoInput.files = e.dataTransfer.files;
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+    }
+    
+    // Menangani pemilihan file
+    if (photoInput) {
+        photoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                handleFileSelect(this.files[0]);
+            }
+        });
+    }
+    
+    // Reset modal saat ditutup
+    if (editPhotoModal) {
+        editPhotoModal.addEventListener('hidden.bs.modal', function() {
+            uploadArea.style.display = 'block';
+            previewContainer.style.display = 'none';
+            photoInput.value = '';
+            fileToUpload = null;
+        });
+    }
+    
+    // Menangani klik tombol simpan
+    if (savePhotoBtn) {
+        savePhotoBtn.addEventListener('click', function() {
+            if (!fileToUpload) {
+                alert('Pilih foto terlebih dahulu');
+                return;
+            }
+            
+            // Tampilkan loading
+            const modalBody = document.querySelector('#editPhotoModal .modal-body');
+            const modalFooter = document.querySelector('#editPhotoModal .modal-footer');
+            const originalModalBody = modalBody.innerHTML;
+            const originalModalFooter = modalFooter.innerHTML;
+            
+            modalBody.innerHTML = `
+                <div class="loading-container text-center py-4">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text mt-3">Sedang mengupload foto...</div>
+                </div>
+            `;
+            modalFooter.style.display = 'none';
+            
+            // Buat FormData untuk upload
+            const formData = new FormData();
+            formData.append('photo', fileToUpload);
+            formData.append('_token', '{{ csrf_token() }}');
+            
+            // Kirim ke server
+            fetch('{{ route("profil.upload-photo") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tunggu sebentar untuk efek loading
+                setTimeout(() => {
+                    if (data.success) {
+                        // Tampilkan pesan sukses
+                        modalBody.innerHTML = `
+                            <div class="text-center py-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-check-circle fa-4x" style="color: #27AE60;"></i>
+                                </div>
+                                <h5 class="mb-3" style="font-weight: 600;">Foto Berhasil Diupload!</h5>
+                                <p class="text-muted">Foto profil Anda telah berhasil diperbarui.</p>
+                            </div>
+                        `;
+                        
+                        // Update foto profil dengan versi baru (tambahkan timestamp untuk mencegah cache)
+                        const timestamp = new Date().getTime();
+                        const photoUrl = data.photoUrl + '?t=' + timestamp;
+                        
+                        // Update elemen foto profil
+                        if (profileImage && defaultProfileImg) {
+                            profileImage.src = photoUrl;
+                            profileImage.style.display = 'block';
+                            defaultProfileImg.style.display = 'none';
+                        }
+                        
+                        // Ganti tombol footer dengan "Tutup" saja
+                        modalFooter.style.display = '';
+                        modalFooter.innerHTML = `
+                            <button type="button" class="btn btn-primary" id="closeModalBtn">Tutup</button>
+                        `;
+                        
+                        // Tambahkan event listener untuk tombol "Tutup" yang akan menyebabkan refresh halaman
+                        document.getElementById('closeModalBtn').addEventListener('click', function() {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
+                            if (modal) modal.hide();
+                            // Refresh halaman setelah modal tertutup
+                            window.location.reload();
+                        });
+                        
+                        // Tutup modal setelah beberapa detik dan refresh halaman
+                        setTimeout(() => {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
+                            if (modal) modal.hide();
+                            // Refresh halaman setelah modal tertutup
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        // Tampilkan pesan error
+                        modalBody.innerHTML = `
+                            <div class="text-center py-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-times-circle fa-4x" style="color: #FF5252;"></i>
+                                </div>
+                                <h5 class="mb-3" style="font-weight: 600;">Gagal Mengupload Foto</h5>
+                                <p class="text-muted">${data.message || 'Terjadi kesalahan saat mengupload foto.'}</p>
+                            </div>
+                        `;
+                        
+                        // Ganti tombol footer dengan "Coba Lagi" dan "Tutup"
+                        modalFooter.style.display = '';
+                        modalFooter.innerHTML = `
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
+                        `;
+                        
+                        // Tambahkan event listener untuk "Coba Lagi"
+                        document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                            modalBody.innerHTML = originalModalBody;
+                            modalFooter.innerHTML = originalModalFooter;
+                        });
+                    }
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Tunggu sebentar, lalu tampilkan pesan error
+                setTimeout(() => {
+                    modalBody.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="fas fa-exclamation-triangle fa-4x" style="color: #FFC107;"></i>
+                            </div>
+                            <h5 class="mb-3" style="font-weight: 600;">Terjadi Kesalahan</h5>
+                            <p class="text-muted">Terjadi kesalahan saat mengupload foto. Silakan coba lagi.</p>
+                        </div>
+                    `;
+                    
+                    // Kembalikan tombol footer
+                    modalFooter.style.display = '';
+                    modalFooter.innerHTML = `
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
+                    `;
+                    
+                    // Tambahkan event listener untuk "Coba Lagi"
+                    document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                        modalBody.innerHTML = originalModalBody;
+                        modalFooter.innerHTML = originalModalFooter;
+                    });
+                }, 1500);
+            });
+        });
+    }
+    
+    // Fungsi untuk menangani file yang dipilih
+    function handleFileSelect(file) {
+        // Validasi tipe file
+        const validTypes = ['image/jpeg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            alert('Hanya file JPG dan PNG yang diizinkan');
+            return;
+        }
+        
+        // Validasi ukuran file (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Ukuran file maksimal 2MB');
+            return;
+        }
+        
+        fileToUpload = file;
+        
+        // Tampilkan preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            photoPreview.src = e.target.result;
+            uploadArea.style.display = 'none';
+            previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
     
     // Toggle password visibility
     function initTogglePassword() {
@@ -518,7 +748,7 @@
     // Inisialisasi toggle password
     initTogglePassword();
     
-    // Password change form validation and submission - KODE YANG DIPERBARUI
+    // Password change form validation and submission
     const changePasswordModal = document.getElementById('changePasswordModal');
     const changePasswordForm = document.getElementById('changePasswordForm');
     const modalBody = document.querySelector('#changePasswordModal .modal-body');
@@ -529,25 +759,27 @@
     const originalFooterHTML = modalFooter.innerHTML;
     
     // PENTING: Hapus event listener lama ketika modal dibuka
-    changePasswordModal.addEventListener('show.bs.modal', function() {
-        // Reset form ke kondisi awal
-        modalBody.innerHTML = originalFormHTML;
-        modalFooter.innerHTML = originalFooterHTML;
-        
-        // Reinitialize toggle password
-        initTogglePassword();
-        
-        // Attach event listener baru
-        const savePasswordBtn = document.getElementById('savePasswordBtn');
-        if (savePasswordBtn) {
-            // Hapus semua event listener
-            const newSavePasswordBtn = savePasswordBtn.cloneNode(true);
-            savePasswordBtn.parentNode.replaceChild(newSavePasswordBtn, savePasswordBtn);
+    if (changePasswordModal) {
+        changePasswordModal.addEventListener('show.bs.modal', function() {
+            // Reset form ke kondisi awal
+            modalBody.innerHTML = originalFormHTML;
+            modalFooter.innerHTML = originalFooterHTML;
             
-            // Tambahkan event listener baru
-            newSavePasswordBtn.addEventListener('click', savePasswordBtnHandler);
-        }
-    });
+            // Reinitialize toggle password
+            initTogglePassword();
+            
+            // Attach event listener baru
+            const savePasswordBtn = document.getElementById('savePasswordBtn');
+            if (savePasswordBtn) {
+                // Hapus semua event listener
+                const newSavePasswordBtn = savePasswordBtn.cloneNode(true);
+                savePasswordBtn.parentNode.replaceChild(newSavePasswordBtn, savePasswordBtn);
+                
+                // Tambahkan event listener baru
+                newSavePasswordBtn.addEventListener('click', savePasswordBtnHandler);
+            }
+        });
+    }
     
     // Fungsi untuk menangani klik tombol simpan
     function savePasswordBtnHandler() {
@@ -656,13 +888,19 @@
                     
                     // Ganti tombol footer dengan "Tutup" saja
                     modalFooter.innerHTML = `
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-primary" id="closePasswordModalBtn">Tutup</button>
                     `;
+                    
+                    // Tambahkan event listener untuk tombol "Tutup"
+                    document.getElementById('closePasswordModalBtn').addEventListener('click', function() {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                        if (modal) modal.hide();
+                    });
                     
                     // Tutup modal setelah beberapa detik
                     setTimeout(() => {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
-                        modal.hide();
+                        if (modal) modal.hide();
                     }, 2000);
                 } else {
                     if (data.message === 'Password saat ini salah') {
@@ -788,4 +1026,3 @@
     }
 });
 </script>
-@endpush
