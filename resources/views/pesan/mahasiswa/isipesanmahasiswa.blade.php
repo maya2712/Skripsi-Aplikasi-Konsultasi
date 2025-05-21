@@ -192,6 +192,18 @@
             background-color: var(--success-color);
         }
         
+        /* Style untuk badge kaprodi */
+        .badge-kaprodi {
+            background-color: #FF9800; /* Warna oranye */
+            color: white;
+            font-size: 10px;
+            padding: 5px 8px;
+            border-radius: 4px;
+            margin-left: 5px;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+        
         /* Tombol akhiri pesan */
         .end-chat-button {
             background: var(--danger-gradient);
@@ -678,7 +690,12 @@
                                 </div>
                             @endif
                             <h5 class="info-title">{{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}</h5>
-                            <p class="text-muted mb-0 text-center">Dosen (Penerima)</p>
+                            <p class="text-muted mb-0 text-center">
+                                Dosen (Penerima)
+                                @if($pesan->penerima_role == 'kaprodi')
+                                    <span class="badge bg-warning text-dark ms-1">KAPRODI</span>
+                                @endif
+                            </p>
                         @else
                             <!-- Jika dosen adalah pengirim, tampilkan informasi dosen pengirim -->
                             @php
@@ -694,7 +711,12 @@
                                 </div>
                             @endif
                             <h5 class="info-title">{{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}</h5>
-                            <p class="text-muted mb-0 text-center">Dosen (Pengirim)</p>
+                            <p class="text-muted mb-0 text-center">
+                                Dosen (Pengirim)
+                                @if($pesan->pengirim_role == 'kaprodi')
+                                    <span class="badge bg-warning text-dark ms-1">KAPRODI</span>
+                                @endif
+                            </p>
                         @endif
                     </div>
                     
@@ -711,7 +733,9 @@
                             <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
                             <tr>
                                 <td>Penerima</td>
-                                <td>{{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}</td>
+                                <td>
+                                    {{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}
+                                </td>
                             </tr>
                             <tr>
                                 <td>NIP</td>
@@ -721,7 +745,9 @@
                             <!-- Jika dosen adalah pengirim, tampilkan informasi dosen pengirim -->
                             <tr>
                                 <td>Pengirim</td>
-                                <td>{{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}</td>
+                                <td>
+                                    {{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}
+                                </td>
                             </tr>
                             <tr>
                                 <td>NIDN</td>
@@ -771,9 +797,15 @@
                         @if($pesan->nim_pengirim == Auth::user()->nim)
                             <!-- Jika mahasiswa adalah pengirim, tampilkan nama dosen penerima -->
                             {{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}
+                            @if($pesan->penerima_role == 'kaprodi')
+                                <span class="badge bg-warning text-dark ms-2" style="font-size: 10px;">KAPRODI</span>
+                            @endif
                         @else
                             <!-- Jika dosen adalah pengirim, tampilkan nama dosen pengirim -->
                             {{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}
+                            @if($pesan->pengirim_role == 'kaprodi')
+                                <span class="badge bg-warning text-dark ms-2" style="font-size: 10px;">KAPRODI</span>
+                            @endif
                         @endif
                     </h4>
                     <div class="action-buttons">
