@@ -371,11 +371,11 @@ class PesanMahasiswaController extends Controller
             $pesan = Pesan::findOrFail($id);
             $mahasiswa = Auth::user();
             
-            // Pastikan mahasiswa yang mengakhiri adalah pengirim ATAU penerima pesan
-            if ($pesan->nim_pengirim != $mahasiswa->nim && $pesan->nim_penerima != $mahasiswa->nim) {
+            // PERUBAHAN: Pastikan mahasiswa yang mengakhiri adalah PENGIRIM pesan
+            if ($pesan->nim_pengirim != $mahasiswa->nim) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda tidak memiliki akses ke pesan ini'
+                    'message' => 'Anda tidak memiliki akses untuk mengakhiri pesan ini. Hanya pengirim yang dapat mengakhiri pesan.'
                 ], 403);
             }
             

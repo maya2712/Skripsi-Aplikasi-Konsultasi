@@ -383,7 +383,7 @@ class PesanDosenController extends Controller
     }
         
     /**
-     * Mengakhiri pesan (dosen juga dapat mengakhiri pesan)
+     * Mengakhiri pesan (dosen juga dapat mengakhiri pesan jika dia adalah pengirim)
      */
     public function endChat($id)
     {
@@ -392,14 +392,11 @@ class PesanDosenController extends Controller
             $dosen = Auth::user();
             $activeRole = session('active_role', 'dosen');
             
-            // Pastikan dosen yang mengakhiri adalah pengirim ATAU penerima pesan
-            // Dan jika sebagai penerima, hanya dapat mengakhiri pesan untuk role yang aktif
-            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
-                // Lanjutkan proses
-            } else {
+            // PERUBAHAN: Pastikan dosen yang mengakhiri adalah PENGIRIM pesan
+            if ($pesan->nip_pengirim != $dosen->nip) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda tidak memiliki akses ke pesan ini'
+                    'message' => 'Anda tidak memiliki akses untuk mengakhiri pesan ini. Hanya pengirim yang dapat mengakhiri pesan.'
                 ], 403);
             }
             
@@ -434,7 +431,6 @@ class PesanDosenController extends Controller
             ], 500);
         }
     }
-    
     /**
      * Fungsi untuk membookmark pesan
      */

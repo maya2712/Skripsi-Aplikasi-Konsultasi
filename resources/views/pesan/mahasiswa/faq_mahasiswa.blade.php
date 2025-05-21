@@ -289,7 +289,7 @@
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item active">
-                                <i class="fas fa-question-circle me-2"></i>FAQ
+                                <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
                             </a>
                         </div>
                     </div>
@@ -299,12 +299,12 @@
             <!-- Main Content Area -->
             <div class="col-md-9">
                 <div class="bg-white p-4 rounded-3 shadow-sm">
-                    <h2 class="mb-1 text-center" style="font-weight: bold;">FAQ KONSULTASI AKADEMIK</h2>
-                    <p class="text-muted mb-4 text-center">Kumpulan pesan yang telah di Arsipkan oleh Dosen</p>
+                    <h2 class="mb-1 text-center" style="font-weight: bold;">PESAN TERSEMATKAN</h2>
+                    <p class="text-muted mb-4 text-center">Kumpulan pesan yang telah disematkan oleh Dosen</p>
 
                     <!-- Search Box -->
                     <div class="position-relative mb-4">
-                        <input type="text" class="search-box" id="searchFaq" placeholder="Cari Pertanyaan atau Topik...">
+                        <input type="text" class="search-box" id="searchFaq" placeholder="Cari Pesan yang disematkan...">
                         <i class="fas fa-search position-absolute" style="right: 20px; top: 50%; transform: translateY(-50%);"></i>
                     </div>
 
@@ -365,7 +365,7 @@
                             </div>
                         @empty
                             <div class="text-center p-4">
-                                <p class="text-muted">Belum ada FAQ yang disematkan</p>
+                                <p class="text-muted">Tidak ada pesan yang disematkan</p>
                             </div>
                         @endforelse
 

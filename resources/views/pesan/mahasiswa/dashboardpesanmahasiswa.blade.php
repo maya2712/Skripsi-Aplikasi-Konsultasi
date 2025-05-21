@@ -281,7 +281,7 @@
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
-                                <i class="fas fa-question-circle me-2"></i>FAQ
+                                <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
                             </a>
                         </div>
                     </div>

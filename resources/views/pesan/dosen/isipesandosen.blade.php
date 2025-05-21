@@ -9,6 +9,7 @@
             --light-bg: #F5F7FA;
             --success-color: #27AE60;
             --danger-color: #FF5252;
+            --danger-gradient: linear-gradient(135deg, #FF5252, #e63946);
             --dark-text: #333333;
             --light-text: #ffffff;
             --gray-text: #6c757d;
@@ -183,6 +184,48 @@
         
         .badge-priority.Umum {
             background-color: var(--success-color);
+        }
+
+        /* End Chat Button */
+        .end-chat-button {
+            background: var(--danger-gradient);
+            color: var(--light-text);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        .end-chat-button:hover {
+            background: linear-gradient(135deg, #e63946, #FF5252);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 82, 82, 0.3);
+        }
+        
+        .end-chat-button i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        /* Tampilan untuk tombol yang dinonaktifkan */
+        .end-chat-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        .end-chat-button:disabled:hover {
+            transform: none;
+            box-shadow: none;
         }
         
         /* Chat Container Styling */
@@ -728,6 +771,15 @@
                                 <span class="badge-priority {{ $pesan->prioritas }}">{{ $pesan->prioritas }}</span>
                             </td>
                         </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>
+                                <span id="pesanStatus" 
+                                    class="badge-priority {{ $pesan->status == 'Aktif' ? 'Umum' : '' }}">
+                                    {{ $pesan->status }}
+                                </span>
+                            </td>
+                        </tr>
                         @if($pesan->lampiran)
                         <tr>
                             <td>Lampiran</td>
@@ -739,6 +791,23 @@
                         </tr>
                         @endif
                     </table>
+
+                    <!-- Tombol Akhiri Pesan - hanya tampilkan untuk pengirim -->
+                    @if($pesan->status == 'Aktif')
+                        @if($pesan->nip_pengirim == Auth::user()->nip)
+                            <button id="endChatButton" class="end-chat-button">
+                                <i class="fas fa-times-circle"></i> Akhiri Pesan
+                            </button>
+                        @else
+                            {{-- <button class="end-chat-button" disabled style="background: #6c757d; cursor: not-allowed;">
+                                <i class="fas fa-info-circle"></i> Hanya Pengirim yang Dapat Mengakhiri Pesan
+                            </button> --}}
+                        @endif
+                    @else
+                        <button class="end-chat-button" disabled style="background: #6c757d; cursor: not-allowed;">
+                            <i class="fas fa-times-circle"></i> Pesan Diakhiri
+                        </button>
+                    @endif
                 </div>
             </div>
             
@@ -878,14 +947,18 @@
                     @if($pesan->status == 'Berakhir')
                         <!-- Pesan sistem - Pesan telah diakhiri -->
                         <div class="system-message">
-                            <span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri oleh mahasiswa</span>
+                            @if($pesan->nip_pengirim == Auth::user()->nip)
+                                <span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri oleh Anda</span>
+                            @else
+                                <span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri oleh pengirim</span>
+                            @endif
                         </div>
                     @endif
                 </div>
                 
                 <!-- Form Input Pesan -->
                 @if($pesan->status == 'Aktif')
-                <div class="message-input-container">
+                <div class="message-input-container" id="messageInputContainer">
                     <div class="input-actions">
                         <button class="input-action-button" title="Lampirkan File">
                             <i class="fas fa-paperclip"></i>
@@ -966,11 +1039,48 @@
         </div>
     </div>
 </div>
+
+<!-- Modal konfirmasi akhiri pesan -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--danger-gradient); color: white;">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-circle"></i> Konfirmasi Akhiri Pesan
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Apakah Anda yakin ingin mengakhiri pesan ini? Setelah diakhiri, tidak ada yang dapat mengirim pesan baru dalam percakapan ini.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="cancelEndChat">
+                    <i class="fas fa-times"></i> Tidak
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmEndChat">
+                    <i class="fas fa-check"></i> Ya, Akhiri
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="notificationToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="notificationMessage">Pesan berhasil dikirim</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
-    // PERBAIKAN JAVASCRIPT UNTUK FILE ISIPESANDOSEN.BLADE.PHP
 document.addEventListener('DOMContentLoaded', function() {
     // Elemen yang diperlukan
     const bookmarkButton = document.querySelector('#bookmarkButton');
@@ -985,8 +1095,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatContainer = document.getElementById('chatContainer');
     const messageInput = document.querySelector('.message-input');
     const sendButton = document.querySelector('.send-button');
+    const endChatButton = document.getElementById('endChatButton');
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    const cancelEndChatBtn = document.getElementById('cancelEndChat');
+    const confirmEndChatBtn = document.getElementById('confirmEndChat');
+    const messageInputContainer = document.getElementById('messageInputContainer');
+    const pesanStatus = document.getElementById('pesanStatus');
+    const notificationToast = document.getElementById('notificationToast');
+    const notificationMessage = document.getElementById('notificationMessage');
     
     let isBookmarkMode = false;
+    
+    // Status percakapan (aktif atau berakhir)
+    let isConversationEnded = {{ $pesan->status == 'Berakhir' ? 'true' : 'false' }};
+    
+    // Inisialisasi Toast
+    const toast = new bootstrap.Toast(notificationToast, {
+        delay: 3000
+    });
     
     // Sembunyikan tombol simpan secara default
     simpanButton.style.display = 'none';
@@ -994,6 +1120,74 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-scroll ke bawah chat container
     if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Tampilkan modal konfirmasi untuk akhiri pesan
+    if (endChatButton) {
+        endChatButton.addEventListener('click', function() {
+            // Pastikan ini adalah pengirim pesan dan percakapan belum diakhiri
+            if (!isConversationEnded && {{ $pesan->nip_pengirim == Auth::user()->nip ? 'true' : 'false' }}) {
+                confirmModal.show();
+            }
+        });
+    }
+    
+    // Konfirmasi akhiri pesan
+    if (confirmEndChatBtn) {
+        confirmEndChatBtn.addEventListener('click', function() {
+            // Kirim request ke server untuk mengakhiri pesan
+            fetch('{{ route("dosen.pesan.end", $pesan->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mengakhiri percakapan
+                    isConversationEnded = true;
+                    
+                    // Sembunyikan modal
+                    confirmModal.hide();
+                    
+                    // Sembunyikan form input pesan
+                    if (messageInputContainer) {
+                        messageInputContainer.style.display = 'none';
+                    }
+                    
+                    // Ubah status pesan
+                    pesanStatus.textContent = 'Berakhir';
+                    pesanStatus.classList.remove('Umum');
+                    
+                    // Nonaktifkan tombol akhiri pesan
+                    endChatButton.disabled = true;
+                    endChatButton.style.backgroundColor = '#6c757d';
+                    endChatButton.style.cursor = 'not-allowed';
+                    endChatButton.style.boxShadow = 'none';
+                    
+                    // Tambahkan pesan sistem di chat container
+                    const systemMessage = document.createElement('div');
+                    systemMessage.className = 'system-message';
+                    systemMessage.innerHTML = '<span><i class="fas fa-info-circle me-1"></i> Pesan telah diakhiri oleh Anda</span>';
+                    chatContainer.appendChild(systemMessage);
+                    
+                    // Scroll ke bawah untuk menampilkan pesan sistem
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    
+                    // Tampilkan notifikasi
+                    showNotification('Pesan berhasil diakhiri', 'success');
+                } else {
+                    // Tampilkan pesan error
+                    showNotification('Gagal mengakhiri pesan: ' + data.message, 'warning');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan saat mengakhiri pesan', 'warning');
+            });
+        });
     }
     
     // Toggle mode bookmark
@@ -1246,7 +1440,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== PERBAIKAN: Fungsi untuk format waktu =====
+    // Fungsi untuk format waktu
     function formatTimeToJakarta(dateString) {
         // Pastikan kita memiliki tanggal yang valid
         if (!dateString) return '';
@@ -1273,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return date.toLocaleTimeString('id-ID', options);
     }
     
-    // ===== PERBAIKAN: Menangani pengiriman pesan dengan format waktu yang benar =====
+    // Menangani pengiriman pesan dengan format waktu yang benar
     if (messageInput && sendButton) {
         messageInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -1344,23 +1538,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fungsi untuk menampilkan notifikasi
     function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show`;
-        notification.style.position = 'fixed';
-        notification.style.top = '20px';
-        notification.style.right = '20px';
-        notification.style.zIndex = '9999';
-        notification.style.borderRadius = '8px';
-        notification.style.boxShadow = '0 3px 10px rgba(0,0,0,0.1)';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        document.body.appendChild(notification);
+        const notificationToast = document.getElementById('notificationToast');
+        notificationToast.classList.remove('bg-success', 'bg-warning', 'bg-danger');
         
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
+        if (type === 'success') {
+            notificationToast.classList.add('bg-success');
+        } else if (type === 'warning') {
+            notificationToast.classList.add('bg-warning', 'text-dark');
+            notificationToast.classList.remove('text-white');
+        } else if (type === 'danger') {
+            notificationToast.classList.add('bg-danger');
+        }
+        
+        const notificationMessage = document.getElementById('notificationMessage');
+        notificationMessage.textContent = message;
+        
+        const toast = new bootstrap.Toast(notificationToast);
+        toast.show();
     }
 });
 </script>

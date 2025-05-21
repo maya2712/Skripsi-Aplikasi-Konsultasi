@@ -258,6 +258,10 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
             ->name('dosen.pesan.batalkan-sematan');
         Route::get('/daftar-sematan', 'getSematan')
             ->name('dosen.pesan.daftar-sematan');
+
+         // Tambahkan ini untuk fitur akhiri pesan
+        Route::post('/akhiripesandosen/{id}', 'endChat')
+            ->name('dosen.pesan.end');
     });
 
     Route::controller(MasukkanJadwalController::class)->prefix('masukkanjadwal')->group(function () {

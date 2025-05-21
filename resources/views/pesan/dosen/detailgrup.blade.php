@@ -369,29 +369,10 @@
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
-                                <i class="fas fa-question-circle me-2"></i>FAQ
+                                <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
                             </a>
                             
-                            <!-- Menu Pengaturan dengan Dropdown -->
-                            @if(!empty(Auth::guard('dosen')->user()->jabatan_fungsional) && 
-                                (stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'kaprodi') !== false || 
-                                 stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'ketua') !== false))
-                                <a href="#" class="nav-link menu-item" id="pengaturanDropdownToggle">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-cog me-2"></i>Pengelola</span>
-                                        <i class="fas fa-chevron-down" id="pengaturanDropdownIcon"></i>
-                                    </div>
-                                </a>
-                                <div class="collapse pengaturan-submenu" id="pengaturanSubmenu">
-                                    <form action="{{ route('dosen.switch-role') }}" method="POST" id="switchRoleForm" style="width: 100%;">
-                                        @csrf
-                                        <button type="submit" class="btn-link nav-link">
-                                            <i class="fas {{ session('active_role') === 'kaprodi' ? 'fa-chalkboard-teacher' : 'fa-user-tie' }} me-2"></i>
-                                            Mode {{ session('active_role') === 'kaprodi' ? 'Dosen' : 'Kaprodi' }}
-                                        </button>
-                                    </form>
-                                </div>
-                            @endif
+                    
                         </div>
                     </div>
                 </div>

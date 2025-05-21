@@ -306,6 +306,127 @@
             background-color: #f8f9fa;
             color: #546E7A; /* Warna teks saat hover - tetap konsisten */
         }
+        
+        /* Style untuk mode switcher */
+        .mode-switcher-container {
+            background: linear-gradient(to right, #0858b2, #53d1e0);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mode-switcher-container.kaprodi {
+            background: linear-gradient(to right, #53d1e0, #0858b2);
+        }
+        
+        .mode-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 28px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f0f2f0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        /* Style untuk mode Dosen (default) - bulat di kiri */
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: #0858b2;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        /* Style untuk mode Kaprodi - bulat di kanan (dengan !important) */
+        .mode-switcher-container.kaprodi .slider:before {
+            left: auto !important;
+            right: 4px !important;
+            background-color: #0cc0df !important;
+        }
+        
+        /* Animasi loading spinner */
+        .role-loading-spinner {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 15px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--bs-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Modal Role Switcher */
+        .role-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .role-modal-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .role-modal {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .role-modal-backdrop.show .role-modal {
+            transform: scale(1);
+        }
     </style>
 @endpush
 
@@ -364,29 +485,8 @@
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
-                                <i class="fas fa-question-circle me-2"></i>FAQ
+                                <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
                             </a>
-                            
-                            <!-- Menu Pengaturan dengan Dropdown -->
-                            @if(!empty(Auth::guard('dosen')->user()->jabatan_fungsional) && 
-                                (stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'kaprodi') !== false || 
-                                 stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'ketua') !== false))
-                                <a href="#" class="nav-link menu-item" id="pengaturanDropdownToggle">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-cog me-2"></i>Pengelola</span>
-                                        <i class="fas fa-chevron-down" id="pengaturanDropdownIcon"></i>
-                                    </div>
-                                </a>
-                                <div class="collapse pengaturan-submenu" id="pengaturanSubmenu">
-                                    <form action="{{ route('dosen.switch-role') }}" method="POST" id="switchRoleForm" style="width: 100%;">
-                                        @csrf
-                                        <button type="submit" class="btn-link nav-link">
-                                            <i class="fas {{ session('active_role') === 'kaprodi' ? 'fa-chalkboard-teacher' : 'fa-user-tie' }} me-2"></i>
-                                            Mode {{ session('active_role') === 'kaprodi' ? 'Dosen' : 'Kaprodi' }}
-                                        </button>
-                                    </form>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -394,7 +494,23 @@
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <h4 class="mb-4">Riwayat Pesan</h4>
+                <!-- Mode Switcher - Ditambahkan di halaman riwayat pesan -->
+                @if(!empty(Auth::guard('dosen')->user()->jabatan_fungsional) && 
+                    (stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'kaprodi') !== false || 
+                     stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'ketua') !== false))
+                <div class="mode-switcher-container {{ session('active_role') === 'kaprodi' ? 'kaprodi' : '' }}">
+                    <h5 class="mode-title">
+                        Mode {{ session('active_role') === 'kaprodi' ? 'Kaprodi' : 'Dosen' }}
+                    </h5>
+                    <form action="{{ route('dosen.switch-role') }}" method="POST" id="switchRoleForm">
+                        @csrf
+                        <label class="switch">
+                            <input type="checkbox" id="roleSwitcher">
+                            <span class="slider"></span>
+                        </label>
+                    </form>
+                </div>
+                @endif
                 
                 <!-- Search and Filters -->
                 <div class="card mb-4 search-filter-card">
@@ -511,16 +627,19 @@
                         </div>
                     @endif
                     
-                    <!-- Pesan tidak ditemukan -->
-                    <div class="no-messages-found" id="noMessagesFound">
-                        <div class="p-4 text-center">
-                            <i class="fas fa-search fa-3x mb-3 text-muted"></i>
-                            <h5>Tidak ada pesan yang ditemukan</h5>
-                            <p class="text-muted">Coba ubah kata kunci pencarian atau filter</p>
-                        </div>
-                    </div>
+                   
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Role Switcher - Hanya menampilkan loading spinner -->
+<div class="role-modal-backdrop" id="roleModalBackdrop">
+    <div class="role-modal role-modal-success">
+        <div class="role-modal-body py-4">
+            <div class="role-loading-spinner" id="roleLoadingSpinner"></div>
+            <p class="role-modal-message mt-3" id="roleModalMessage">Memuat...</p>
         </div>
     </div>
 </div>
@@ -548,24 +667,6 @@
                 // Toggle the icon
                 grupDropdownIcon.classList.toggle('fa-chevron-up');
                 grupDropdownIcon.classList.toggle('fa-chevron-down');
-            });
-        }
-        
-        // Initialize the pengaturan dropdown manually
-        const pengaturanDropdownToggle = document.getElementById('pengaturanDropdownToggle');
-        const pengaturanSubmenu = document.getElementById('pengaturanSubmenu');
-        const pengaturanDropdownIcon = document.getElementById('pengaturanDropdownIcon');
-        
-        if (pengaturanDropdownToggle && pengaturanSubmenu && pengaturanDropdownIcon) {
-            pengaturanDropdownToggle.addEventListener('click', function() {
-                // Toggle the collapse
-                const bsCollapse = new bootstrap.Collapse(pengaturanSubmenu, {
-                    toggle: true
-                });
-                
-                // Toggle the icon
-                pengaturanDropdownIcon.classList.toggle('fa-chevron-up');
-                pengaturanDropdownIcon.classList.toggle('fa-chevron-down');
             });
         }
         
@@ -646,16 +747,33 @@
             });
         });
         
-        // Tambahkan pengendali peristiwa ke form perpindahan peran untuk menampilkan toast
-        const switchRoleForm = document.getElementById('switchRoleForm');
-        if (switchRoleForm) {
-            switchRoleForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+        // Role switcher toggle
+        const roleSwitcher = document.getElementById('roleSwitcher');
+        if (roleSwitcher) {
+            roleSwitcher.addEventListener('change', function() {
+                // Tampilkan loading spinner
+                showRoleModal('Memuat...');
                 
-                // Kirim form langsung tanpa animasi
-                this.submit();
+                // Submit form langsung setelah delay singkat
+                setTimeout(() => {
+                    document.getElementById('switchRoleForm').submit();
+                }, 500);
             });
         }
     });
+    
+    // Fungsi untuk menampilkan modal loading sederhana
+    function showRoleModal(message) {
+        const modal = document.getElementById('roleModalBackdrop');
+        if (modal) {
+            // Perbarui pesan jika ada
+            if (message) {
+                document.getElementById('roleModalMessage').textContent = message;
+            }
+            
+            // Tampilkan modal
+            modal.classList.add('show');
+        }
+    }
 </script>
 @endpush
