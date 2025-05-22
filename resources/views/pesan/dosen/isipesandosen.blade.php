@@ -435,6 +435,59 @@
             margin-bottom: 0;
         }
         
+        /* Styling untuk bubble chat dengan lampiran */
+        .message-bubble.has-attachment {
+             background-color: #585f67;
+            border-left: 4px solid #f8ac30;
+        }
+
+        .message-reply .message-bubble.has-attachment {
+            background-color: var(--primary-color);
+            border-left: 4px solid #ffffff;
+        }
+
+        .attachment-container {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .attachment-icon {
+            color: #f8ac30;
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .message-reply .attachment-icon {
+            color: #ffffff;
+        }
+
+        .attachment-link {
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .attachment-link:hover {
+            color: #f8ac30;
+            text-decoration: none;
+        }
+
+        .message-reply .attachment-link:hover {
+            color: #e0e0e0;
+        }
+
+        .attachment-info {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
+        }
+        
         .message-time {
             color: rgba(255, 255, 255, 0.7);
             font-size: 12px;
@@ -780,16 +833,6 @@
                                 </span>
                             </td>
                         </tr>
-                        @if($pesan->lampiran)
-                        <tr>
-                            <td>Lampiran</td>
-                            <td>
-                                <a href="{{ $pesan->lampiran }}" target="_blank" class="text-primary">
-                                    <i class="fas fa-external-link-alt me-1"></i> Lihat Lampiran
-                                </a>
-                            </td>
-                        </tr>
-                        @endif
                     </table>
 
                     <!-- Tombol Akhiri Pesan - hanya tampilkan untuk pengirim -->
@@ -842,17 +885,35 @@
                             <span>{{ Carbon\Carbon::parse($date)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</span>
                         </div>
                         
+                        {{-- Bagian yang perlu diperbaiki di isipesandosen.blade.php --}}
+                        {{-- Ganti bagian balasan dengan kode di bawah ini --}}
+
                         @foreach($messages as $message)
                             @if($message instanceof App\Models\Pesan)
                                 <!-- Pesan Awal -->
                                 @if($message->nip_pengirim == Auth::user()->nip)
                                     <!-- Pesan yang dikirim dosen (posisi kanan) -->
                                     <div class="chat-message message-reply {{ $message->is_pinned ? 'pinned' : ($message->bookmarked ? 'bookmarked' : '') }}" data-id="message-{{ $message->id }}">
-                                        <div class="message-bubble">
+                                        <div class="message-bubble {{ $message->hasAttachment() ? 'has-attachment' : '' }}">
                                             <div class="bookmark-checkbox" style="{{ $message->is_pinned ? 'display: none;' : '' }}">
                                                 <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}" {{ $message->is_pinned ? 'disabled' : '' }}>
                                             </div>
+                                            
                                             <p>{{ $message->isi_pesan }}</p>
+                                            
+                                            {{-- Tampilkan lampiran jika ada --}}
+                                            @if($message->hasAttachment())
+                                                <div class="attachment-container">
+                                                    <a href="{{ $message->lampiran }}" target="_blank" class="attachment-link">
+                                                        <i class="fas fa-paperclip attachment-icon"></i>
+                                                        <div>
+                                                            <div>{{ $message->getAttachmentName() }}</div>
+                                                            <div class="attachment-info">Klik untuk membuka lampiran</div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            
                                             <div class="message-time">
                                                 {{ $message->formattedCreatedAt() }}
                                                 @if($message->is_pinned)
@@ -871,13 +932,28 @@
                                 @else
                                     <!-- Pesan dari mahasiswa (posisi kiri) -->
                                     <div class="chat-message {{ $message->is_pinned ? 'pinned' : ($message->bookmarked ? 'bookmarked' : '') }}" data-id="message-{{ $message->id }}">
-                                        <div class="message-bubble">
+                                        <div class="message-bubble {{ $message->hasAttachment() ? 'has-attachment' : '' }}">
                                             <div class="bookmark-checkbox" style="{{ $message->is_pinned ? 'display: none;' : '' }}">
                                                 <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}" {{ $message->is_pinned ? 'disabled' : '' }}>
                                             </div>
+                                            
                                             <p>{{ $message->isi_pesan }}</p>
+                                            
+                                            {{-- Tampilkan lampiran jika ada --}}
+                                            @if($message->hasAttachment())
+                                                <div class="attachment-container">
+                                                    <a href="{{ $message->lampiran }}" target="_blank" class="attachment-link">
+                                                        <i class="fas fa-paperclip attachment-icon"></i>
+                                                        <div>
+                                                            <div>{{ $message->getAttachmentName() }}</div>
+                                                            <div class="attachment-info">Klik untuk membuka lampiran</div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            
                                             <div class="message-time">
-                                               {{ $message->formattedCreatedAt() }}
+                                            {{ $message->formattedCreatedAt() }}
                                                 @if($message->is_pinned)
                                                     <span class="bookmark-icon" style="display: inline-block;">
                                                         <i class="fas fa-thumbtack text-warning"></i>
@@ -896,14 +972,28 @@
                                 @if($message->tipe_pengirim == 'dosen')
                                     <!-- Balasan dari Dosen (posisi kanan) -->
                                     <div class="chat-message message-reply {{ $message->is_pinned ? 'pinned' : ($message->bookmarked ? 'bookmarked' : '') }}" data-id="reply-{{ $message->id }}">
-                                        <div class="message-bubble">
+                                        <div class="message-bubble {{ $message->hasAttachment() ? 'has-attachment' : '' }}">
                                             <div class="bookmark-checkbox" style="{{ $message->is_pinned ? 'display: none;' : '' }}">
                                                 <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}" {{ $message->is_pinned ? 'disabled' : '' }}>
                                             </div>
                                             <p>{{ $message->isi_balasan }}</p>
+                                            
+                                            {{-- PERBAIKAN: Tampilkan lampiran balasan jika ada --}}
+                                            @if($message->hasAttachment())
+                                                <div class="attachment-container">
+                                                    <a href="{{ $message->lampiran }}" target="_blank" class="attachment-link">
+                                                        <i class="fas fa-paperclip attachment-icon"></i>
+                                                        <div>
+                                                            <div>{{ $message->getAttachmentName() }}</div>
+                                                            <div class="attachment-info">Klik untuk membuka lampiran</div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            
                                             <div class="message-time">
-                                              {{ $message->formattedCreatedAt() }}
-                                               @if($message->is_pinned)
+                                            {{ $message->formattedCreatedAt() }}
+                                            @if($message->is_pinned)
                                                     <span class="bookmark-icon" style="display: inline-block;">
                                                         <i class="fas fa-thumbtack text-warning"></i>
                                                     </span>
@@ -919,13 +1009,27 @@
                                 @else
                                     <!-- Balasan dari Mahasiswa (posisi kiri) -->
                                     <div class="chat-message {{ $message->is_pinned ? 'pinned' : ($message->bookmarked ? 'bookmarked' : '') }}" data-id="reply-{{ $message->id }}">
-                                        <div class="message-bubble">
+                                        <div class="message-bubble {{ $message->hasAttachment() ? 'has-attachment' : '' }}">
                                             <div class="bookmark-checkbox" style="{{ $message->is_pinned ? 'display: none;' : '' }}">
                                                 <input class="form-check-input" type="checkbox" value="" id="bookmark-{{ $message->id }}" {{ $message->is_pinned ? 'disabled' : '' }}>
                                             </div>
                                             <p>{{ $message->isi_balasan }}</p>
+                                            
+                                            {{-- PERBAIKAN: Tampilkan lampiran balasan jika ada --}}
+                                            @if($message->hasAttachment())
+                                                <div class="attachment-container">
+                                                    <a href="{{ $message->lampiran }}" target="_blank" class="attachment-link">
+                                                        <i class="fas fa-paperclip attachment-icon"></i>
+                                                        <div>
+                                                            <div>{{ $message->getAttachmentName() }}</div>
+                                                            <div class="attachment-info">Klik untuk membuka lampiran</div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            
                                             <div class="message-time">
-                                               {{ $message->formattedCreatedAt() }}
+                                            {{ $message->formattedCreatedAt() }}
                                                 @if($message->is_pinned)
                                                     <span class="bookmark-icon" style="display: inline-block;">
                                                         <i class="fas fa-thumbtack text-warning"></i>
@@ -960,9 +1064,11 @@
                 @if($pesan->status == 'Aktif')
                 <div class="message-input-container" id="messageInputContainer">
                     <div class="input-actions">
-                        <button class="input-action-button" title="Lampirkan File">
+                        <button class="input-action-button" title="Lampirkan File" id="attachmentButton">
                             <i class="fas fa-paperclip"></i>
                         </button>
+                        <!-- Input hidden untuk lampiran -->
+                        <input type="url" id="attachmentInput" class="form-control" style="display: none;" placeholder="Masukkan link lampiran...">
                     </div>
                     <input type="text" class="message-input" id="messageInput" placeholder="Tulis Pesan Anda disini..">
                     <button class="send-button" id="sendButton">
@@ -972,9 +1078,11 @@
                 @else
                 <div class="message-input-container" style="display: none;">
                     <div class="input-actions">
-                        <button class="input-action-button" title="Lampirkan File">
+                        <button class="input-action-button" title="Lampirkan File" id="attachmentButton">
                             <i class="fas fa-paperclip"></i>
                         </button>
+                        <!-- Input hidden untuk lampiran -->
+                        <input type="url" id="attachmentInput" class="form-control" style="display: none;" placeholder="Masukkan link lampiran...">
                     </div>
                     <input type="text" class="message-input" id="messageInput" placeholder="Tulis Pesan Anda disini..">
                     <button class="send-button" id="sendButton">
@@ -1104,6 +1212,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const notificationToast = document.getElementById('notificationToast');
     const notificationMessage = document.getElementById('notificationMessage');
     
+    // Tambahkan variabel untuk attachment
+    const attachmentButton = document.getElementById('attachmentButton');
+    const attachmentInput = document.getElementById('attachmentInput');
+    let isAttachmentMode = false;
+    
     let isBookmarkMode = false;
     
     // Status percakapan (aktif atau berakhir)
@@ -1120,6 +1233,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-scroll ke bawah chat container
     if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Toggle attachment input
+    if (attachmentButton && attachmentInput) {
+        attachmentButton.addEventListener('click', function() {
+            isAttachmentMode = !isAttachmentMode;
+            
+            if (isAttachmentMode) {
+                attachmentInput.style.display = 'block';
+                attachmentInput.focus();
+                attachmentButton.innerHTML = '<i class="fas fa-times"></i>';
+                attachmentButton.title = 'Batalkan lampiran';
+            } else {
+                attachmentInput.style.display = 'none';
+                attachmentInput.value = '';
+                attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
+                attachmentButton.title = 'Lampirkan File';
+            }
+        });
     }
     
     // Tampilkan modal konfirmasi untuk akhiri pesan
@@ -1467,6 +1599,18 @@ document.addEventListener('DOMContentLoaded', function() {
         return date.toLocaleTimeString('id-ID', options);
     }
     
+    // Helper function untuk mendapatkan nama attachment
+    function getAttachmentName(url) {
+        if (url.includes('drive.google.com')) {
+            return 'Google Drive File';
+        }
+        
+        const path = new URL(url).pathname;
+        const filename = path.split('/').pop();
+        
+        return filename || 'Lampiran';
+    }
+    
     // Menangani pengiriman pesan dengan format waktu yang benar
     if (messageInput && sendButton) {
         messageInput.addEventListener('keypress', function(e) {
@@ -1478,7 +1622,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         sendButton.addEventListener('click', function() {
             const message = messageInput.value.trim();
-            if (message) {
+            const attachment = attachmentInput ? attachmentInput.value.trim() : '';
+            
+            if (message && !isConversationEnded) {
+                // Persiapkan data untuk dikirim
+                const requestData = { balasan: message };
+                
+                // Tambahkan attachment jika ada
+                if (attachment) {
+                    requestData.lampiran = attachment;
+                }
+                
                 // Kirim pesan ke server
                 fetch('{{ route("dosen.pesan.reply", $pesan->id) }}', {
                     method: 'POST',
@@ -1486,9 +1640,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({
-                        balasan: message
-                    })
+                    body: JSON.stringify(requestData)
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -1496,17 +1648,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Format waktu pesan dengan benar
                         const formattedTime = formatTimeToJakarta(data.data.created_at);
                         
+                        // Buat attachment HTML jika ada
+                        let attachmentHtml = '';
+                        if (attachment) {
+                            const attachmentName = getAttachmentName(attachment);
+                            attachmentHtml = `
+                                <div class="attachment-container">
+                                    <a href="${attachment}" target="_blank" class="attachment-link">
+                                        <i class="fas fa-paperclip attachment-icon"></i>
+                                        <div>
+                                            <div>${attachmentName}</div>
+                                            <div class="attachment-info">Klik untuk membuka lampiran</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            `;
+                        }
+                        
                         // Tambahkan pesan baru ke chat container
                         const newMessage = document.createElement('div');
                         newMessage.className = 'chat-message message-reply';
                         newMessage.setAttribute('data-id', 'reply-' + data.data.id);
                         
                         newMessage.innerHTML = `
-                            <div class="message-bubble">
+                            <div class="message-bubble ${attachment ? 'has-attachment' : ''}">
                                 <div class="bookmark-checkbox">
                                     <input class="form-check-input" type="checkbox" value="" id="bookmark-${data.data.id}">
                                 </div>
                                 <p>${data.data.isi_balasan}</p>
+                                ${attachmentHtml}
                                 <div class="message-time">
                                     ${formattedTime}
                                     <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
@@ -1517,8 +1687,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         chatContainer.appendChild(newMessage);
                         
-                        // Bersihkan input pesan
+                        // Bersihkan input pesan dan attachment
                         messageInput.value = '';
+                        if (attachmentInput) {
+                            attachmentInput.value = '';
+                            attachmentInput.style.display = 'none';
+                            attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
+                            attachmentButton.title = 'Lampirkan File';
+                            isAttachmentMode = false;
+                        }
                         
                         // Scroll ke bawah untuk menampilkan pesan baru
                         chatContainer.scrollTop = chatContainer.scrollHeight;

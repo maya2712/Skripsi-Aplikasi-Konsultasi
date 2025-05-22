@@ -303,7 +303,8 @@ class PesanMahasiswaController extends Controller
     public function reply(Request $request, $id)
     {
         $request->validate([
-            'balasan' => 'required'
+            'balasan' => 'required',
+            'lampiran' => 'nullable|url' // Tambahkan validasi untuk lampiran
         ]);
         
         $pesan = Pesan::findOrFail($id);
@@ -326,13 +327,14 @@ class PesanMahasiswaController extends Controller
         }
         
         try {
-            // Buat balasan baru dengan nilai dibaca yang jelas
+            // Buat balasan baru dengan lampiran
             $balasan = new BalasanPesan();
             $balasan->id_pesan = $id;
             $balasan->pengirim_id = $mahasiswa->nim;
             $balasan->tipe_pengirim = 'mahasiswa';
             $balasan->isi_balasan = $request->balasan;
-            $balasan->dibaca = false; // Gunakan false untuk konsistensi dengan accessor/mutator
+            $balasan->lampiran = $request->lampiran; // Tambahkan lampiran
+            $balasan->dibaca = false;
             
             $balasan->save();
             
@@ -342,16 +344,18 @@ class PesanMahasiswaController extends Controller
                 'pengirim_id' => $balasan->pengirim_id,
                 'tipe_pengirim' => $balasan->tipe_pengirim,
                 'isi_balasan' => $balasan->isi_balasan,
-                'dibaca' => $balasan->dibaca
+                'dibaca' => $balasan->dibaca,
+                'has_attachment' => !empty($balasan->lampiran)
             ]);
             
-           return response()->json([
+        return response()->json([
                 'success' => true,
                 'message' => 'Balasan berhasil dikirim',
                 'data' => [
                     'id' => $balasan->id,
                     'isi_balasan' => $balasan->isi_balasan,
-                    'created_at' => $balasan->formattedCreatedAt() // Gunakan method dari model
+                    'lampiran' => $balasan->lampiran,
+                    'created_at' => $balasan->formattedCreatedAt()
                 ]
             ]);
         } catch (\Exception $e) {

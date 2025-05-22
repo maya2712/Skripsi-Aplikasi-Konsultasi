@@ -313,12 +313,13 @@ class PesanDosenController extends Controller
     }
     
     /**
-     * Mengirim balasan pesan
+     * Mengirim balasan pesan dengan dukungan lampiran
      */
     public function reply(Request $request, $id)
     {
         $request->validate([
-            'balasan' => 'required'
+            'balasan' => 'required',
+            'lampiran' => 'nullable|url' // Tambahkan validasi untuk lampiran
         ]);
         
         $pesan = Pesan::findOrFail($id);
@@ -345,14 +346,15 @@ class PesanDosenController extends Controller
         }
         
         try {
-            // Buat balasan baru dengan nilai dibaca yang jelas
+            // Buat balasan baru dengan lampiran
             $balasan = new BalasanPesan();
             $balasan->id_pesan = $id;
             $balasan->pengirim_id = $dosen->nip;
             $balasan->tipe_pengirim = 'dosen';
             $balasan->isi_balasan = $request->balasan;
-            $balasan->dibaca = false; // PERBAIKAN: Gunakan false (boolean) untuk konsistensi
-    
+            $balasan->lampiran = $request->lampiran; // Tambahkan lampiran
+            $balasan->dibaca = false;
+
             $balasan->save();
             
             // Log informasi
@@ -360,7 +362,8 @@ class PesanDosenController extends Controller
                 'id' => $balasan->id,
                 'pengirim_id' => $balasan->pengirim_id,
                 'tipe_pengirim' => $balasan->tipe_pengirim,
-                'dibaca' => $balasan->dibaca
+                'dibaca' => $balasan->dibaca,
+                'has_attachment' => !empty($balasan->lampiran)
             ]);
             
             return response()->json([
@@ -369,7 +372,8 @@ class PesanDosenController extends Controller
                 'data' => [
                     'id' => $balasan->id,
                     'isi_balasan' => $balasan->isi_balasan,
-                    'created_at' => $balasan->formattedCreatedAt() // Gunakan method dari model
+                    'lampiran' => $balasan->lampiran,
+                    'created_at' => $balasan->formattedCreatedAt()
                 ]
             ]);
         } catch (\Exception $e) {

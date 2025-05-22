@@ -99,4 +99,32 @@ class Pesan extends Model
     {
         return Carbon::parse($this->created_at)->timezone('Asia/Jakarta')->format($format);
     }
+    
+    // TAMBAHAN: Helper method untuk mengecek apakah ada lampiran
+    public function hasAttachment()
+    {
+        return !empty($this->lampiran);
+    }
+    
+    // TAMBAHAN: Helper method untuk mendapatkan nama file/judul dari URL lampiran
+    public function getAttachmentName()
+    {
+        if (!$this->hasAttachment()) {
+            return null;
+        }
+        
+        // Coba ekstrak nama file dari URL Google Drive atau URL lainnya
+        $url = $this->lampiran;
+        
+        // Jika Google Drive, ambil ID file
+        if (strpos($url, 'drive.google.com') !== false) {
+            return 'Google Drive File';
+        }
+        
+        // Untuk URL lainnya, ambil nama file
+        $path = parse_url($url, PHP_URL_PATH);
+        $filename = basename($path);
+        
+        return $filename ?: 'Lampiran';
+    }
 }
