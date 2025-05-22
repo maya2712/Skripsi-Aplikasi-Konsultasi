@@ -415,7 +415,7 @@
                                                 @if($mahasiswa->konsentrasi_id && isset($konsentrasiMap[$mahasiswa->konsentrasi_id]))
                                                     {{ $konsentrasiMap[$mahasiswa->konsentrasi_id] }}
                                                 @else
-                                                    N/A
+                                                    <span class="text-muted fst-italic">Belum dipilih</span>
                                                 @endif
                                             </td>
                                             <td>

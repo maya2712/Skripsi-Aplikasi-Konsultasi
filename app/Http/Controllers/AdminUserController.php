@@ -8,7 +8,7 @@ use App\Models\Mahasiswa;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB; // Ditambahkan import untuk DB
+use Illuminate\Support\Facades\DB;
 
 class AdminUserController extends Controller
 {
@@ -90,7 +90,7 @@ class AdminUserController extends Controller
                 'nama' => 'required',
                 'email' => 'required|email|unique:dosens,email',
                 'password' => 'required|min:6',
-                'prodi_id' => 'required',
+                'prodi_id' => 'required|exists:prodi,id',
             ]);
             
             if ($validator->fails()) {
@@ -144,14 +144,15 @@ class AdminUserController extends Controller
         try {
             Log::info('Attempting to store mahasiswa with data: ' . json_encode($request->except('password')));
             
-            // Validasi input
+            // Validasi input - konsentrasi_id dibuat opsional
             $validator = Validator::make($request->all(), [
                 'nim' => 'required|unique:mahasiswas,nim',
                 'nama' => 'required',
                 'email' => 'required|email|unique:mahasiswas,email',
                 'password' => 'required|min:6',
                 'angkatan' => 'required',
-                'prodi_id' => 'required',
+                'prodi_id' => 'required|exists:prodi,id',
+                'konsentrasi_id' => 'nullable|exists:konsentrasi,id', // nullable dan exists jika diisi
             ]);
             
             if ($validator->fails()) {
@@ -170,9 +171,11 @@ class AdminUserController extends Controller
             $mahasiswa->angkatan = $request->angkatan;
             $mahasiswa->prodi_id = $request->prodi_id;
             
-            // Opsional fields
-            if ($request->has('konsentrasi_id') && !empty($request->konsentrasi_id)) {
+            // Konsentrasi - hanya set jika ada nilai yang valid
+            if ($request->has('konsentrasi_id') && !empty($request->konsentrasi_id) && $request->konsentrasi_id !== '' && $request->konsentrasi_id !== '0') {
                 $mahasiswa->konsentrasi_id = $request->konsentrasi_id;
+            } else {
+                $mahasiswa->konsentrasi_id = null; // Eksplisit set ke null
             }
             
             // Kolom role_id dengan nilai default (3 untuk mahasiswa)
@@ -249,7 +252,7 @@ class AdminUserController extends Controller
             $validator = Validator::make($request->all(), [
                 'nama' => 'required',
                 'email' => 'required|email|unique:dosens,email,'.$nip.',nip',
-                'prodi_id' => 'required|exists:prodi,id', // Validate prodi_id exists in prodi table
+                'prodi_id' => 'required|exists:prodi,id',
                 'password' => 'nullable|min:6',
             ]);
             
@@ -336,12 +339,13 @@ class AdminUserController extends Controller
         try {
             Log::info('Attempting to update mahasiswa with NIM: ' . $nim);
             
-            // Validasi input
+            // Validasi input - konsentrasi_id dibuat opsional
             $validator = Validator::make($request->all(), [
                 'nama' => 'required',
                 'email' => 'required|email|unique:mahasiswas,email,'.$nim.',nim',
                 'angkatan' => 'required',
                 'prodi_id' => 'required|exists:prodi,id',
+                'konsentrasi_id' => 'nullable|exists:konsentrasi,id', // nullable dan exists jika diisi
                 'password' => 'nullable|min:6',
             ]);
             
@@ -361,11 +365,11 @@ class AdminUserController extends Controller
             $mahasiswa->angkatan = $request->angkatan;
             $mahasiswa->prodi_id = $request->prodi_id;
             
-            // Konsentrasi (opsional)
-            if ($request->has('konsentrasi_id') && !empty($request->konsentrasi_id)) {
+            // Konsentrasi (opsional) - perbaikan logic
+            if ($request->has('konsentrasi_id') && !empty($request->konsentrasi_id) && $request->konsentrasi_id !== '' && $request->konsentrasi_id !== '0') {
                 $mahasiswa->konsentrasi_id = $request->konsentrasi_id;
             } else {
-                $mahasiswa->konsentrasi_id = null;
+                $mahasiswa->konsentrasi_id = null; // Eksplisit set ke null jika kosong
             }
             
             // Update password jika diisi

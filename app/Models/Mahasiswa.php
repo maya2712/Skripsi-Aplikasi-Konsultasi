@@ -3,16 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use App\Traits\HasGoogleCalendar;
 use App\Models\Pesan;
 
 class Mahasiswa extends Authenticatable
 {
-    use HasGoogleCalendar;
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasGoogleCalendar;
+
+    protected $table = 'mahasiswas';
     protected $primaryKey = 'nim';
+    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -22,41 +24,48 @@ class Mahasiswa extends Authenticatable
         'email',
         'password',
         'prodi_id',
-        'konsentrasi_id',
+        'konsentrasi_id', // Bisa null
         'role_id',
         'profile_photo',
         'google_access_token',
         'google_refresh_token',
         'google_token_expires_in',
-        'google_token_created_at'
+        'google_token_created_at',
     ];
 
     protected $hidden = [
         'password',
+        'remember_token',
         'google_access_token',
-        'google_refresh_token'
+        'google_refresh_token',
     ];
 
     protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
         'google_token_created_at' => 'datetime',
         'google_token_expires_in' => 'integer',
     ];
 
+    // Relasi ke tabel role
     public function role()
     {
-        return $this->belongsTo(Role::class,'role_id','id');
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
 
+    // Relasi ke tabel prodi
     public function prodi()
     {
-        return $this->belongsTo(Prodi::class);
+        return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
+    // Relasi ke tabel konsentrasi (nullable)
     public function konsentrasi()
     {
-        return $this->belongsTo(Konsentrasi::class);
+        return $this->belongsTo(Konsentrasi::class, 'konsentrasi_id');
     }
 
+    // Method untuk mengecek role
     public function hasRole($roleName)
     {
         return $this->role && $this->role->role_akses === $roleName;

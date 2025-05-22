@@ -20,7 +20,7 @@ return new class extends Migration
             $table->datetime('created_at');
             $table->datetime('updated_at');
             $table->unsignedBigInteger('prodi_id');
-            $table->unsignedBigInteger('konsentrasi_id');
+            $table->unsignedBigInteger('konsentrasi_id')->nullable(); // Tambahkan nullable()
             $table->unsignedBigInteger('role_id');
             $table->text('google_access_token')->nullable();
             $table->text('google_refresh_token')->nullable();

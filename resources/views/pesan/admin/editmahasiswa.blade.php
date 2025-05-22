@@ -82,15 +82,21 @@
             </div>
             
            <div class="col-md-6 mb-3">
-                <label for="konsentrasi_id" class="form-label">Konsentrasi</label>
+                <label for="konsentrasi_id" class="form-label">
+                    Konsentrasi 
+                    <small class="text-muted">(Opsional)</small>
+                </label>
                 <select class="form-select @error('konsentrasi_id') is-invalid @enderror" id="konsentrasi_id" name="konsentrasi_id">
-                    <option value="">Pilih Konsentrasi</option>
+                    <option value="">-- Pilih Konsentrasi (Opsional) --</option>
                     @foreach($konsentrasis as $konsentrasi)
                         <option value="{{ $konsentrasi->id }}" {{ old('konsentrasi_id', $mahasiswa->konsentrasi_id) == $konsentrasi->id ? 'selected' : '' }}>
                             {{ $konsentrasi->nama_konsentrasi }}
                         </option>
                     @endforeach
                 </select>
+                <small class="form-text text-muted">
+                    Biarkan kosong jika mahasiswa belum memilih konsentrasi
+                </small>
                 @error('konsentrasi_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
