@@ -8,6 +8,7 @@
             --bs-primary: #1a73e8;
             --bs-danger: #FF5252;
             --bs-success: #27AE60;
+            --gradient-primary: linear-gradient(to right, #004AAD, #5DE0E6);
         }
 
         body {
@@ -47,7 +48,7 @@
         }
 
         .btn-gradient-primary {
-            background: linear-gradient(to right, #004AAD, #5DE0E6);
+            background: var(--gradient-primary);
             border: none;
             color: white;
             transition: all 0.3s ease;
@@ -120,6 +121,132 @@
             font-size: 12px;
             margin-bottom: 10px;
         }
+        
+        .required-field:after {
+            content: "*";
+            color: red;
+            margin-left: 3px;
+        }
+        
+        /* Style untuk modal loading */
+        .modal-loading .modal-content {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .modal-loading .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .modal-loading .loading-spinner {
+            display: inline-block;
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #5DE0E6;
+            border-left-color: #004AAD;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .modal-loading .loading-text {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Style untuk modal sukses/error */
+        .modal-status .modal-header {
+            border-bottom: none;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            padding: 1.5rem 1.5rem 0.5rem;
+        }
+        
+        .modal-status .modal-header.success {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .modal-status .modal-header.error {
+            background: linear-gradient(to right, #D32F2F, #FF5252);
+            color: white;
+        }
+        
+        .modal-status .modal-content {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .modal-status .status-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-status .status-icon.text-success i {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .modal-status .status-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .modal-status .status-message {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        
+        .modal-status .modal-body {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .modal-status .modal-footer {
+            border-top: none;
+            justify-content: center;
+            padding-bottom: 1.5rem;
+        }
+        
+        .modal-status .btn-status {
+            padding: 0.5rem 2rem;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        .modal-status .btn-success {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-status .btn-success:hover {
+            opacity: 0.9;
+            box-shadow: 0 2px 8px rgba(0, 74, 173, 0.3);
+        }
+        
+        .modal-status .btn-error {
+            background: linear-gradient(to right, #D32F2F, #FF5252);
+            border: none;
+            color: white;
+        }
     </style>
 @endpush
 
@@ -150,51 +277,86 @@
     </div>
     @endif
 
-    <form action="{{ route('dosen.grup.store') }}" method="POST">
+    <form id="formGrup" action="{{ route('dosen.grup.store') }}" method="POST">
         @csrf
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Nama Grup<span class="text-danger">*</span></label>
-            <input type="text" name="nama_grup" class="form-control rounded-2" placeholder="Buat Nama Grup" required>
-        </div>            
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="mb-4">
+                    <label class="form-label fw-semibold required-field">Nama Grup</label>
+                    <input type="text" name="nama_grup" id="nama_grup" class="form-control rounded-2" placeholder="Masukkan nama grup" required>
+                </div>            
 
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Anggota Grup<span class="text-danger">*</span></label>
-            <div class="input-group mb-2">
-                <input type="text" id="search_mahasiswa" class="form-control rounded-start" placeholder="Cari Mahasiswa (minimal 3 karakter)...">
-                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div id="search-info">Ketik minimal 3 karakter untuk mencari mahasiswa</div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold required-field">Anggota Grup</label>
+                    <div class="input-group mb-2">
+                        <input type="text" id="search_mahasiswa" class="form-control rounded-start" placeholder="Cari mahasiswa (minimal 3 karakter)...">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="search-info">Ketik minimal 3 karakter untuk mencari mahasiswa</div>
 
-            <div class="mt-3">
-                <div class="card border-0">
-                    <div class="card-body search-result" id="search_results">
-                        <!-- Hasil pencarian akan ditampilkan di sini -->
-                        <div class="no-results">
-                            Ketik nama atau NIM mahasiswa pada form pencarian
+                    <div class="mt-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body search-result" id="search_results">
+                                <!-- Hasil pencarian akan ditampilkan di sini -->
+                                <div class="no-results">
+                                    Ketik nama atau NIM mahasiswa pada form pencarian
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h6 class="mb-3">Anggota Terpilih:</h6>
+                                <div id="selected_members">
+                                    <p class="text-muted" id="no_selected">Belum ada anggota yang dipilih</p>
+                                    <!-- Anggota yang dipilih akan ditampilkan di sini -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="mt-3">
-                <div class="card border-0">
-                    <div class="card-body">
-                        <h6 class="mb-3">Anggota Terpilih:</h6>
-                        <div id="selected_members">
-                            <p class="text-muted" id="no_selected">Belum ada anggota yang dipilih</p>
-                            <!-- Anggota yang dipilih akan ditampilkan di sini -->
-                        </div>
-                    </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-gradient-primary px-4" id="buatGrupBtn">
+                        <i class="fas fa-users me-2"></i>Buat Grup
+                    </button>
                 </div>
             </div>
-        </div>
-
-        <div class="text-end">
-            <button type="submit" class="btn btn-gradient-primary px-4">Buat Grup</button>
         </div>
     </form>
+</div>
+
+<!-- Modal Loading -->
+<div class="modal fade modal-loading" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Membuat grup...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Status (Success/Error) -->
+<div class="modal fade modal-status" id="statusModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" id="statusModalHeader">
+                <!-- Header akan diisi dinamis -->
+            </div>
+            <div class="modal-body" id="statusModalBody">
+                <!-- Body akan diisi dinamis -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-status" id="statusModalBtn"></button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -207,6 +369,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const noSelectedMessage = document.getElementById('no_selected');
     const clearSearchBtn = document.getElementById('clearSearch');
     const searchInfo = document.getElementById('search-info');
+    const formGrup = document.getElementById('formGrup');
+    const buatGrupBtn = document.getElementById('buatGrupBtn');
+    const namaGrupInput = document.getElementById('nama_grup');
+    
+    // Inisialisasi modal
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
     
     // Data mahasiswa dari database
     const mahasiswaData = [
@@ -300,12 +469,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Tampilkan hasil pencarian
-        let html = '<div class="row">';
+        let html = '<div class="list-group">';
         
         filteredMahasiswa.forEach(mhs => {
             const isSelected = selectedMahasiswa.has(mhs.nim);
             html += `
-                <div class="col-md-6 mb-2">
+                <div class="list-group-item">
                     <div class="form-check">
                         <input class="form-check-input mahasiswa-checkbox" type="checkbox" value="${mhs.nim}" id="mhs${mhs.nim}" ${isSelected ? 'checked' : ''}>
                         <label class="form-check-label" for="mhs${mhs.nim}">
@@ -357,6 +526,82 @@ document.addEventListener('DOMContentLoaded', function() {
                 Ketik nama atau NIM mahasiswa pada form pencarian
             </div>
         `;
+    });
+    
+    // Fungsi untuk menampilkan modal status
+    function showStatusModal(success, message) {
+        const statusModalHeader = document.getElementById('statusModalHeader');
+        const statusModalBody = document.getElementById('statusModalBody');
+        const statusModalBtn = document.getElementById('statusModalBtn');
+        
+        if (success) {
+            statusModalHeader.className = 'modal-header success';
+            statusModalHeader.innerHTML = '<h5 class="modal-title text-white"><i class="fas fa-check-circle me-2"></i>Berhasil</h5>';
+            statusModalBody.innerHTML = `
+                <div class="status-icon text-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-title">Grup Berhasil Dibuat!</div>
+                <div class="status-message">${message}</div>
+            `;
+            statusModalBtn.className = 'btn btn-success btn-status';
+            statusModalBtn.innerHTML = '<i class="fas fa-users me-2"></i>Lihat Grup';
+            
+            // Redirect saat tombol diklik
+            statusModalBtn.onclick = function() {
+                window.location.href = '{{ route("dosen.grup.index") }}';
+            };
+        } else {
+            statusModalHeader.className = 'modal-header error';
+            statusModalHeader.innerHTML = '<h5 class="modal-title text-white"><i class="fas fa-exclamation-circle me-2"></i>Gagal</h5>';
+            statusModalBody.innerHTML = `
+                <div class="status-icon text-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="status-title">Pembuatan Grup Gagal</div>
+                <div class="status-message">${message}</div>
+            `;
+            statusModalBtn.className = 'btn btn-error btn-status';
+            statusModalBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Coba Lagi';
+            
+            // Tutup modal saat tombol diklik
+            statusModalBtn.onclick = function() {
+                statusModal.hide();
+            };
+        }
+        
+        loadingModal.hide();
+        statusModal.show();
+    }
+    
+    // Form Submit Handler
+    formGrup.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validasi form
+        const namaGrup = namaGrupInput.value.trim();
+        
+        if (!namaGrup) {
+            showStatusModal(false, 'Nama grup harus diisi');
+            return;
+        }
+        
+        if (selectedMahasiswa.size === 0) {
+            showStatusModal(false, 'Pilih minimal satu anggota untuk grup');
+            return;
+        }
+        
+        // Disable tombol submit untuk mencegah multiple submit
+        buatGrupBtn.disabled = true;
+        
+        // Tampilkan modal loading
+        loadingModal.show();
+        
+        // Simulasi delay untuk efek loading yang lebih smooth
+        setTimeout(() => {
+            // Submit form secara normal
+            this.submit();
+        }, 1200);
     });
     
     // Inisialisasi tampilan anggota terpilih

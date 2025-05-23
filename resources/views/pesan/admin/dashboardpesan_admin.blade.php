@@ -14,12 +14,12 @@
     
     body {
         background-color: #F5F7FA;
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .main-content {
-        padding-top: 20px; 
-        padding-bottom: 20px; 
+        padding-top: 10px; 
+        padding-bottom: 10px; 
     }
     
     .btn-custom-primary {
@@ -30,38 +30,6 @@
     .btn-custom-primary:hover {
         background: #1557b0;
         color: white;
-    }
-
-    .sidebar {
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        position: sticky;
-        top: 20px; 
-        max-height: calc(100vh - 100px);
-    }
-
-    .sidebar-menu {
-        padding: 15px;
-    }
-    
-    .sidebar-menu .nav-link {
-        color: #546E7A;
-        border-radius: 0.5rem;
-        margin-bottom: 8px;
-        padding: 10px 15px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-    }
-    
-    .sidebar-menu .nav-link.active {
-        background: #E3F2FD;
-        color: var(--bs-primary);
-    }
-    
-    .sidebar-menu .nav-link:hover:not(.active) {
-        background: #f8f9fa;
     }
 
     .badge-notification {
@@ -75,9 +43,9 @@
     }
     
     .card {
-        margin-bottom: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        margin-bottom: 12px;
+        border-radius: 6px;
+        box-shadow: 0 0 3px rgba(0,0,0,0.08);
         border: none;
     }
     
@@ -98,10 +66,10 @@
     .welcome-banner {
         background: linear-gradient(135deg, #1a73e8, #6c49e3);
         color: white;
-        border-radius: 10px;
-        padding: 30px;
-        margin-bottom: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         position: relative;
         overflow: hidden;
     }
@@ -120,14 +88,14 @@
     
     .welcome-banner h4 {
         font-weight: 600;
-        margin-bottom: 15px;
-        font-size: 24px;
+        margin-bottom: 5px;
+        font-size: 16px;
     }
     
     .chart-container {
         position: relative;
-        height: 280px;
-        margin-top: 15px;
+        height: 200px;
+        margin-top: 8px;
     }
     
     .chart-title {
@@ -140,20 +108,21 @@
     .card-header {
         background-color: transparent;
         border-bottom: 1px solid rgba(0,0,0,0.05);
-        padding: 15px 20px;
+        padding: 10px 12px;
     }
     
     .card-header h5 {
         margin-bottom: 0;
-        font-size: 16px;
+        font-size: 12px;
         font-weight: 600;
     }
     
     .legends {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 15px;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 10px;
     }
     
     .legend-item {
@@ -163,10 +132,10 @@
     }
     
     .legend-color {
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 2px;
-        margin-right: 5px;
+        margin-right: 4px;
     }
 </style>
 @endpush
@@ -174,39 +143,9 @@
 @section('content')
 <div class="main-content">
     <div class="custom-container">
-        <div class="row g-4">
-            <!-- Sidebar - Tanpa tombol -->
-            <div class="col-md-3">
-                <div class="sidebar">
-                    <div class="sidebar-menu">
-                        <div class="nav flex-column">
-                            <a href="{{ route('admin.dashboard') }}" class="nav-link active">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
-                            </a>
-                            <a href="#" class="nav-link" id="userManagementToggle">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-users-cog me-2"></i>Manajemen User</span>
-                                    <i class="fas fa-chevron-down" id="userManagementIcon"></i>
-                                </div>
-                            </a>
-                            <div class="collapse" id="userManagementSubmenu">
-                                <div class="ps-3">
-                                    <a href="{{ url('/admin/managementuser_dosen') }}" class="nav-link">
-                                        <i class="fas fa-chalkboard-teacher me-2"></i>Dosen
-                                    </a>                                    
-                                    <a href="{{ url('/admin/managementuser_mahasiswa') }}" class="nav-link">
-                                        <i class="fas fa-user-graduate me-2"></i>Mahasiswa
-                                    </a>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content - Redesigned dengan grafik -->
-            <div class="col-md-9">
+        <div class="row">
+            <!-- Main Content - Full width tanpa sidebar -->
+            <div class="col-12">
                 <!-- Notifikasi sukses dengan desain modern -->
                 @if(session('success'))
                 <div class="alert mb-4 auto-dismiss-alert" role="alert" style="background-color: rgba(39, 174, 96, 0.1); border-left: 4px solid #27AE60; color: #2E7D32; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 12px; position: relative;">
@@ -225,16 +164,16 @@
                 </div>
                 
                 <!-- Stats Cards - Total Dosen, Total Mahasiswa -->
-                <div class="stats-cards row g-3 mb-4">
+                <div class="stats-cards row g-2 mb-2">
                     <div class="col-md-6">
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1">Total Dosen</h6>
-                                    <h3 class="mb-0 fs-4">{{ $totalDosen }}</h3>
+                                    <h6 class="text-muted mb-1" style="font-size: 10px;">Total Dosen</h6>
+                                    <h3 class="mb-0" style="font-size: 18px;">{{ $totalDosen }}</h3>
                                 </div>
-                                <div class="bg-primary bg-opacity-10 p-3 rounded">
-                                    <i class="fas fa-chalkboard-teacher text-primary"></i>
+                                <div class="bg-primary bg-opacity-10 p-2 rounded">
+                                    <i class="fas fa-chalkboard-teacher text-primary" style="font-size: 16px;"></i>
                                 </div>
                             </div>
                         </div>
@@ -243,11 +182,11 @@
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1">Total Mahasiswa</h6>
-                                    <h3 class="mb-0 fs-4">{{ $totalMahasiswa }}</h3>
+                                    <h6 class="text-muted mb-1" style="font-size: 10px;">Total Mahasiswa</h6>
+                                    <h3 class="mb-0" style="font-size: 18px;">{{ $totalMahasiswa }}</h3>
                                 </div>
-                                <div class="bg-success bg-opacity-10 p-3 rounded">
-                                    <i class="fas fa-user-graduate text-success"></i>
+                                <div class="bg-success bg-opacity-10 p-2 rounded">
+                                    <i class="fas fa-user-graduate text-success" style="font-size: 16px;"></i>
                                 </div>
                             </div>
                         </div>
@@ -255,7 +194,7 @@
                 </div>
                 
                 <!-- Grafik Section - Hanya 2 grafik berdasarkan angkatan -->
-                <div class="row g-3">
+                <div class="row g-2">
                     <!-- Grafik Distribusi Mahasiswa per Angkatan (PIE CHART) -->
                     <div class="col-md-6">
                         <div class="card h-100">
@@ -308,24 +247,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             }, 5000); // Menghilang setelah 5 detik
-        });
-    }
-    
-    // Toggle dropdown for user management
-    const userManagementToggle = document.getElementById('userManagementToggle');
-    const userManagementSubmenu = document.getElementById('userManagementSubmenu');
-    const userManagementIcon = document.getElementById('userManagementIcon');
-    
-    if (userManagementToggle && userManagementSubmenu && userManagementIcon) {
-        userManagementToggle.addEventListener('click', function() {
-            // Toggle the collapse
-            const bsCollapse = new bootstrap.Collapse(userManagementSubmenu, {
-                toggle: true
-            });
-            
-            // Toggle the icon
-            userManagementIcon.classList.toggle('fa-chevron-up');
-            userManagementIcon.classList.toggle('fa-chevron-down');
         });
     }
     

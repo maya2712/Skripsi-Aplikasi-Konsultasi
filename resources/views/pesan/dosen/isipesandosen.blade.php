@@ -866,15 +866,13 @@
                         @endif
                     </h4>
                     <div class="action-buttons">
-                        <button class="action-button" title="Bookmark" id="bookmarkButton">
+                        <button class="action-button" title="Sematkan" id="bookmarkButton">
                             <i class="far fa-bookmark"></i>
                         </button>
                         <button class="simpan-button" id="simpanButton">
                             <i class="fas fa-check"></i> Simpan
                         </button>
-                        <button class="action-button" title="Opsi Lainnya">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
+                        
                     </div>
                 </div>
                 
@@ -1100,13 +1098,13 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Sematkan Pesan ke FAQ</h5>
+                <h5 class="modal-title">Sematkan Pesan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="sematkanJudul" class="form-label">Judul untuk FAQ</label>
-                    <input type="text" class="form-control" id="sematkanJudul" placeholder="Masukkan judul singkat">
+                    <label for="sematkanJudul" class="form-label">Judul untuk Pesan yang disematkan</label>
+                    <input type="text" class="form-control" id="sematkanJudul" placeholder="Masukkan judul">
                 </div>
                 <div class="mb-3">
                     <label for="sematkanKategori" class="form-label">Kategori</label>
@@ -1138,7 +1136,7 @@
                         </label>
                     </div>
                 </div>
-                <p class="text-muted small">Pesan yang disematkan akan ditampilkan di halaman FAQ selama durasi yang dipilih.</p>
+                <p class="text-muted small">Pesan yang disematkan akan ditampilkan di halaman pesan tersematkan selama durasi yang dipilih.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="batalSematkan">Batal</button>

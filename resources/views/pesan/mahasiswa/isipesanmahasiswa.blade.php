@@ -842,7 +842,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>NIDN</td>
+                                <td>NIP</td>
                                 <td>{{ $pesan->nip_pengirim }}</td>
                             </tr>
                         @endif
@@ -906,11 +906,7 @@
                             @endif
                         @endif
                     </h4>
-                    <div class="action-buttons">
-                        <button class="action-button" title="Opsi Lainnya">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                    </div>
+                   
                 </div>
                 
                 

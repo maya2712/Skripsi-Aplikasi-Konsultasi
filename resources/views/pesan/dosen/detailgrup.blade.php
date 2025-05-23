@@ -10,7 +10,11 @@
         --bs-success: #27AE60;
         --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
         --primary-hover: linear-gradient(to right, #003c8a, #4bc4c9);
-        --text-color: #546E7A; /* Warna teks menu utama */
+        --danger-gradient: linear-gradient(135deg, #FF5252, #FF1744);
+        --danger-hover: linear-gradient(135deg, #e04848, #e6153e);
+        --success-gradient: linear-gradient(135deg, #27AE60, #2ECC71);
+        --success-hover: linear-gradient(135deg, #229954, #28b965);
+        --text-color: #546E7A;
     }
     
     body {
@@ -101,7 +105,7 @@
         padding: 8px 15px;
         font-size: 13px;
         width: 100%;
-        color: #546E7A; /* Warna teks menu yang konsisten */
+        color: #546E7A;
     }
     
     .profile-image-placeholder {
@@ -115,6 +119,18 @@
         color: #6c757d;
         font-size: 20px;
         border: 2px solid #f8f9fa;
+        margin: 0 auto;
+    }
+
+    .profile-image-real {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #f8f9fa;
+        margin: 0 auto;
+        display: block;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     
     .btn-gradient-primary {
@@ -128,6 +144,36 @@
         background: var(--primary-hover);
         color: white;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .btn-gradient-danger {
+        background: var(--danger-gradient);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .btn-gradient-danger:hover {
+        background: var(--danger-hover);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-gradient-success {
+        background: var(--success-gradient);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .btn-gradient-success:hover {
+        background: var(--success-hover);
+        color: white;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        transform: translateY(-1px);
     }
     
     .group-header {
@@ -181,7 +227,6 @@
         background-color: rgba(255, 82, 82, 0.2);
     }
     
-    /* Container untuk memberi jarak dari tepi - menggunakan custom-container dari dashboard pesan */
     .custom-container {
         max-width: 1400px;
         margin: 0 auto;
@@ -210,7 +255,6 @@
         background: #555;
     }
     
-    /* Style baru untuk chat bubble yang disesuaikan dengan halaman isi pesan */
     .message-time {
         color: rgba(255, 255, 255, 0.7);
         font-size: 12px;
@@ -240,7 +284,7 @@
     }
     
     .chat-message.dosen {
-        margin-left: auto; /* Pesan dosen di kanan */
+        margin-left: auto;
     }
     
     .chat-message.dosen .message-bubble {
@@ -289,7 +333,6 @@
         z-index: 2;
     }
     
-    /* Style untuk submenu mode peran */
     .pengaturan-submenu .btn-link {
         padding: 8px 15px;
         display: flex;
@@ -302,12 +345,505 @@
         text-align: left;
         margin: 0;
         border-radius: 0.5rem;
-        color: #546E7A; /* Warna teks abu-abu yang konsisten */
+        color: #546E7A;
     }
     
     .pengaturan-submenu .btn-link:hover {
         background-color: #f8f9fa;
-        color: #546E7A; /* Warna teks saat hover - tetap konsisten */
+        color: #546E7A;
+    }
+    
+    /* Style untuk input message yang normal (tidak tersalin/miring) */
+    #messageInput {
+        font-style: normal !important;
+        font-family: inherit !important;
+        text-transform: none !important;
+    }
+    
+    /* ENHANCED MODAL STYLES */
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-bottom: none;
+        padding: 20px 25px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-header::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+    }
+
+    .modal-title {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin: 0;
+        flex: 1;
+    }
+
+    .btn-close {
+        opacity: 1;
+        font-size: 1.5rem;
+        font-weight: normal;
+        transition: all 0.2s ease;
+        background: none !important;
+        border: none !important;
+        color: white !important;
+        padding: 0 !important;
+        width: 30px !important;
+        height: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: none !important;
+        outline: none !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    .btn-close:hover {
+        opacity: 0.8;
+        transform: scale(1.1);
+        background: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn-close:focus {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-close::before {
+        content: "×";
+        font-size: 1.8rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-bottom: none;
+        padding: 20px 25px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-body {
+        padding: 25px;
+        background: #fafbfc;
+    }
+
+    .modal-footer {
+        background: white;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        padding: 20px 25px;
+    }
+    
+    /* Style untuk modal loading */
+    .modal-loading .modal-content {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        background: white;
+    }
+    
+    .modal-loading .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem;
+    }
+    
+    .modal-loading .loading-spinner {
+        display: inline-block;
+        width: 3.5rem;
+        height: 3.5rem;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #5DE0E6;
+        border-left-color: #004AAD;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .modal-loading .loading-text {
+        margin-top: 15px;
+        font-size: 16px;
+        font-weight: 500;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+    }
+    
+    /* Style untuk modal konfirmasi hapus */
+    .modal-confirm .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .modal-confirm .modal-body {
+        padding: 2rem 1.5rem;
+        text-align: center;
+        background: white;
+    }
+    
+    .modal-confirm .confirm-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .modal-confirm .confirm-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+        color: #2c3e50;
+    }
+    
+    .modal-confirm .confirm-message {
+        font-size: 1rem;
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Info Modal Styles */
+    .info-item {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-left: 4px solid transparent;
+        border-image: var(--primary-gradient) 1;
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .info-item label {
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .info-item label i {
+        margin-right: 8px;
+        color: #004AAD;
+    }
+
+    .info-item p {
+        margin: 0;
+        color: #546E7A;
+        font-size: 0.95rem;
+    }
+
+    /* Table Styles for Member List */
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+    }
+
+    .table {
+        margin-bottom: 0;
+        background: white;
+        border-collapse: collapse;
+    }
+
+    .table thead th {
+        background: #f8f9fa;
+        color: #495057;
+        border: 1px solid #e9ecef;
+        font-weight: 600;
+        text-align: center;
+        padding: 12px 10px;
+        font-size: 0.9rem;
+    }
+
+    .table tbody td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 12px 10px;
+        border: 1px solid #e9ecef;
+        font-size: 0.9rem;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #fafbfc;
+    }
+
+    .table tbody tr:nth-child(even):hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Hover effect untuk tombol hapus anggota */
+    .delete-member-btn:hover {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Search Box Styles */
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #5DE0E6;
+        box-shadow: 0 0 0 0.2rem rgba(93, 224, 230, 0.25);
+    }
+
+    /* Checkbox Styles */
+    .form-check {
+        background: white;
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-check:hover {
+        background: rgba(0, 74, 173, 0.05);
+        border-color: #5DE0E6;
+    }
+
+    .form-check-input:checked {
+        background-color: #004AAD;
+        border-color: #004AAD;
+    }
+
+    .form-check-label {
+        color: #2c3e50;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    /* Tab Styles */
+    .nav-tabs {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 20px;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6c757d;
+        font-weight: 500;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #004AAD;
+        border-bottom-color: #5DE0E6;
+        background: none;
+    }
+
+    .nav-tabs .nav-link:hover:not(.active) {
+        border-bottom-color: rgba(93, 224, 230, 0.5);
+        color: #004AAD;
+    }
+
+    /* Alert Styles */
+    .alert-info {
+        background: linear-gradient(135deg, rgba(0, 74, 173, 0.1), rgba(93, 224, 230, 0.1));
+        border: 1px solid rgba(93, 224, 230, 0.3);
+        color: #004AAD;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .custom-container {
+            padding: 0 10px;
+        }
+        
+        .main-content {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+        
+        .group-header {
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .group-header h5 {
+            font-size: 1.1rem;
+        }
+        
+        .sidebar {
+            position: relative;
+            top: 0;
+            max-height: none;
+            margin-bottom: 20px;
+        }
+        
+        .message-container {
+            max-height: 400px;
+            padding: 10px 15px;
+        }
+        
+        .message-input {
+            padding: 10px;
+        }
+        
+        .chat-message {
+            max-width: 90%;
+        }
+        
+        .message-bubble {
+            padding: 12px 15px;
+            max-width: 95%;
+        }
+        
+        .modal-dialog {
+            margin: 10px;
+            max-width: calc(100% - 20px);
+        }
+        
+        .modal-body {
+            padding: 20px 15px;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+        }
+        
+        .table-responsive {
+            font-size: 0.85rem;
+        }
+        
+        .table thead th,
+        .table tbody td {
+            padding: 8px 5px;
+        }
+        
+        .profile-image-placeholder {
+            width: 35px;
+            height: 35px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .form-check {
+            padding: 8px 12px;
+        }
+        
+        .nav-tabs .nav-link {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .confirm-icon {
+            font-size: 3rem !important;
+        }
+        
+        .confirm-title {
+            font-size: 1.2rem !important;
+        }
+        
+        .confirm-message {
+            font-size: 0.9rem !important;
+        }
+        
+        .loading-spinner {
+            width: 3rem !important;
+            height: 3rem !important;
+        }
+        
+        .loading-text {
+            font-size: 14px !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .header-icon {
+            margin-left: 8px;
+            padding: 6px;
+            font-size: 1rem;
+        }
+        
+        .group-header .d-flex {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .group-header .d-flex > div:last-child {
+            margin-top: 10px;
+            align-self: flex-end;
+        }
+        
+        .modal-dialog {
+            margin: 5px;
+            max-width: calc(100% - 10px);
+        }
+        
+        .btn-group-mobile {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn-group-mobile .btn {
+            width: 100%;
+        }
     }
 </style>
 @endpush
@@ -371,8 +907,6 @@
                             <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
                                 <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
                             </a>
-                            
-                    
                         </div>
                     </div>
                 </div>
@@ -390,13 +924,9 @@
                         <div class="d-flex">
                             <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#tambahAnggotaModal"></i>
                             <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
-                            <form action="{{ route('dosen.grup.destroy', $grup->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus grup ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-transparent border-0 p-0">
-                                    <i class="fas fa-trash header-icon danger"></i>
-                                </button>
-                            </form>
+                            <button type="button" class="bg-transparent border-0 p-0" id="deleteGrupBtn">
+                                <i class="fas fa-trash header-icon danger"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -436,13 +966,9 @@
                 <div class="message-input">
                     <form id="sendMessageForm" enctype="multipart/form-data">
                         @csrf
-                        <input type="file" id="lampiran" name="lampiran" style="display: none;">
                         <div class="input-group">
-                            <button type="button" class="btn btn-light" id="attachmentBtn">
-                                <i class="fas fa-paperclip"></i>
-                            </button>
-                            <input type="text" class="form-control" id="messageInput" name="isi_pesan" placeholder="Tulis Pesan Anda disini..">
-                            <button type="submit" class="btn btn-gradient-primary" id="sendBtn">
+                            <input type="text" class="form-control" id="messageInput" name="isi_pesan" placeholder="Tulis Pesan Anda disini.." autocomplete="off" style="border-radius: 25px 0 0 25px; padding: 12px 20px;">
+                            <button type="submit" class="btn btn-gradient-primary" id="sendBtn" style="border-radius: 0 25px 25px 0; padding: 12px 20px;">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -458,29 +984,33 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="infoGrupModalLabel">Informasi Grup</h5>
+                <h5 class="modal-title" id="infoGrupModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>Informasi Grup
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="fw-bold">Nama Grup:</label>
+                <div class="info-item">
+                    <label><i class="fas fa-tag"></i>Nama Grup:</label>
                     <p>{{ $grup->nama_grup }}</p>
                 </div>
-                <div class="mb-3">
-                    <label class="fw-bold">Dibuat pada:</label>
+                <div class="info-item">
+                    <label><i class="fas fa-calendar-alt"></i>Dibuat pada:</label>
                     <p>{{ $grup->created_at->format('d M Y, H:i') }}</p>
                 </div>
-                <div class="mb-3">
-                    <label class="fw-bold">Jumlah Anggota:</label>
+                <div class="info-item">
+                    <label><i class="fas fa-users"></i>Jumlah Anggota:</label>
                     <p>{{ $grup->mahasiswa->count() }} mahasiswa</p>
                 </div>
-                <div class="mb-3">
-                    <label class="fw-bold">Dibuat oleh:</label>
+                <div class="info-item">
+                    <label><i class="fas fa-user-tie"></i>Dibuat oleh:</label>
                     <p>{{ Auth::user()->nama }}</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Tutup
+                </button>
             </div>
         </div>
     </div>
@@ -491,16 +1021,22 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="tambahAnggotaModalLabel">Anggota Grup</h5>
+                <h5 class="modal-title" id="tambahAnggotaModalLabel">
+                    <i class="fas fa-users me-2"></i>Anggota Grup
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ul class="nav nav-tabs mb-3" id="anggotaTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="daftar-tab" data-bs-toggle="tab" data-bs-target="#daftar-tab-pane" type="button" role="tab" aria-controls="daftar-tab-pane" aria-selected="true">Daftar Anggota</button>
+                        <button class="nav-link active" id="daftar-tab" data-bs-toggle="tab" data-bs-target="#daftar-tab-pane" type="button" role="tab" aria-controls="daftar-tab-pane" aria-selected="true">
+                            <i class="fas fa-list me-2"></i>Daftar Anggota
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="tambah-tab" data-bs-toggle="tab" data-bs-target="#tambah-tab-pane" type="button" role="tab" aria-controls="tambah-tab-pane" aria-selected="false">Tambah Anggota</button>
+                        <button class="nav-link" id="tambah-tab" data-bs-toggle="tab" data-bs-target="#tambah-tab-pane" type="button" role="tab" aria-controls="tambah-tab-pane" aria-selected="false">
+                            <i class="fas fa-user-plus me-2"></i>Tambah Anggota
+                        </button>
                     </li>
                 </ul>
                 
@@ -511,7 +1047,7 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th width="5%">#</th>
+                                        <th width="5%">No.</th>
                                         <th width="15%">Foto</th>
                                         <th width="40%">Nama</th>
                                         <th width="25%">NIM</th>
@@ -523,20 +1059,26 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>
-                                            <div class="profile-image-placeholder">
-                                                <i class="fas fa-user"></i>
-                                            </div>
+                                            @if($anggota->profile_photo && file_exists(public_path('storage/profile_photos/' . $anggota->profile_photo)))
+                                                <img src="{{ asset('storage/profile_photos/' . $anggota->profile_photo) }}" 
+                                                     alt="Foto {{ $anggota->nama }}" 
+                                                     class="profile-image-real">
+                                            @else
+                                                <div class="profile-image-placeholder">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
                                         </td>
                                         <td>{{ $anggota->nama }}</td>
                                         <td>{{ $anggota->nim }}</td>
                                         <td>
-                                            <form action="{{ url('/grupanggota/hapus/'.$grup->id.'/'.$anggota->nim) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus anggota ini dari grup?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                    <i class="fas fa-trash me-1"></i> Hapus
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm delete-member-btn" 
+                                                    data-grup-id="{{ $grup->id }}" 
+                                                    data-member-nim="{{ $anggota->nim }}" 
+                                                    data-member-name="{{ $anggota->nama }}"
+                                                    style="transition: all 0.3s ease;">
+                                                <i class="fas fa-trash me-1"></i> Hapus
+                                            </button>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -550,7 +1092,9 @@
                         <form action="{{ route('dosen.grup.addMember', $grup->id) }}" method="POST" id="tambahAnggotaForm">
                             @csrf
                             <div class="mb-3">
-                                <label class="form-label">Cari Mahasiswa</label>
+                                <label class="form-label">
+                                    <i class="fas fa-search me-2"></i>Cari Mahasiswa
+                                </label>
                                 <input type="text" class="form-control" id="searchMahasiswa" placeholder="Cari berdasarkan nama atau NIM...">
                             </div>
                             <div class="mb-3">
@@ -567,7 +1111,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="new_members[]" value="{{ $mhs->nim }}" id="mhs{{ $mhs->nim }}">
                                                         <label class="form-check-label" for="mhs{{ $mhs->nim }}">
-                                                            {{ $mhs->nama }} - {{ $mhs->nim }}
+                                                            <i class="fas fa-user me-2"></i>{{ $mhs->nama }} - {{ $mhs->nim }}
                                                         </label>
                                                     </div>
                                                 </div>
@@ -575,6 +1119,7 @@
                                             </div>
                                         @else
                                             <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
                                                 Semua mahasiswa sudah ada di dalam grup ini.
                                             </div>
                                         @endif
@@ -582,7 +1127,9 @@
                                 </div>
                             </div>
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Tambahkan Anggota</button>
+                                <button type="submit" class="btn btn-gradient-success" id="btnTambahAnggota">
+                                    <i class="fas fa-user-plus me-2"></i>Tambahkan Anggota
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -591,46 +1138,127 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Hapus Grup -->
+<div class="modal fade modal-confirm" id="confirmDeleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus Grup
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="confirm-title">Apakah Anda yakin?</div>
+                <div class="confirm-message">
+                    Grup "<strong>{{ $grup->nama_grup }}</strong>" akan dihapus secara permanen beserta seluruh pesan di dalamnya. Tindakan ini tidak dapat dibatalkan.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group-mobile">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-gradient-primary" id="confirmDeleteBtn">
+                        <i class="fas fa-trash me-2"></i>Hapus Grup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus Anggota -->
+<div class="modal fade modal-confirm" id="confirmDeleteMemberModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-minus me-2"></i>Konfirmasi Hapus Anggota
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <div class="confirm-title">Hapus Anggota Grup?</div>
+                <div class="confirm-message">
+                    Anggota "<strong id="memberNameToDelete"></strong>" akan dihapus dari grup ini. Tindakan ini tidak dapat dibatalkan.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group-mobile">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-gradient-primary" id="confirmDeleteMemberBtn">
+                        <i class="fas fa-user-times me-2"></i>Hapus Anggota
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Loading -->
+<div class="modal fade modal-loading" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-text" id="loadingText">Memproses...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form tersembunyi untuk hapus grup -->
+<form id="deleteGrupForm" action="{{ route('dosen.grup.destroy', $grup->id) }}" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
+
+<!-- Form tersembunyi untuk hapus anggota -->
+<form id="deleteMemberForm" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Kode dropdown grup yang sudah ada
+    // Inisialisasi modal
+    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    const confirmDeleteMemberModal = new bootstrap.Modal(document.getElementById('confirmDeleteMemberModal'));
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const tambahAnggotaModal = new bootstrap.Modal(document.getElementById('tambahAnggotaModal'));
+    
+    // Variables untuk hapus anggota
+    let currentGrupId = null;
+    let currentMemberNim = null;
+    let currentMemberName = null;
+    
+    // Kode dropdown grup
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
     const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
     const grupDropdownIcon = document.getElementById('grupDropdownIcon');
     
     grupDropdownToggle.addEventListener('click', function() {
-        // Toggle the collapse
         const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
             toggle: true
         });
         
-        // Toggle the icon
         grupDropdownIcon.classList.toggle('fa-chevron-up');
         grupDropdownIcon.classList.toggle('fa-chevron-down');
     });
     
-    // Initialize the pengaturan dropdown manually
-    const pengaturanDropdownToggle = document.getElementById('pengaturanDropdownToggle');
-    const pengaturanSubmenu = document.getElementById('pengaturanSubmenu');
-    const pengaturanDropdownIcon = document.getElementById('pengaturanDropdownIcon');
-    
-    if (pengaturanDropdownToggle && pengaturanSubmenu && pengaturanDropdownIcon) {
-        pengaturanDropdownToggle.addEventListener('click', function() {
-            // Toggle the collapse
-            const bsCollapse = new bootstrap.Collapse(pengaturanSubmenu, {
-                toggle: true
-            });
-            
-            // Toggle the icon
-            pengaturanDropdownIcon.classList.toggle('fa-chevron-up');
-            pengaturanDropdownIcon.classList.toggle('fa-chevron-down');
-        });
-    }
-    
-    // Kode pencarian anggota yang sudah ada
+    // Kode pencarian anggota
     const searchInput = document.getElementById('searchMahasiswa');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
@@ -648,13 +1276,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Kode baru - Auto scroll ke chat terbaru
+    // Auto scroll ke chat terbaru
     const messageContainer = document.getElementById('messageContainer');
     if (messageContainer) {
         messageContainer.scrollTop = messageContainer.scrollHeight;
     }
     
-    // Kode baru - Kirim pesan
+    // Kirim pesan
     const sendMessageForm = document.getElementById('sendMessageForm');
     const messageInput = document.getElementById('messageInput');
     
@@ -664,6 +1292,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const message = messageInput.value.trim();
             if (!message) return;
+            
+            // Tampilkan loading sementara
+            const sendBtn = document.getElementById('sendBtn');
+            const originalText = sendBtn.innerHTML;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            sendBtn.disabled = true;
             
             // Kirim pesan ke server
             fetch('{{ route("dosen.grup.sendMessage", $grup->id) }}', {
@@ -727,29 +1361,175 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat mengirim pesan');
+            })
+            .finally(() => {
+                // Kembalikan tombol ke state normal
+                sendBtn.innerHTML = originalText;
+                sendBtn.disabled = false;
             });
         });
     }
     
-    // Kode untuk file upload
-    const attachmentBtn = document.getElementById('attachmentBtn');
-    const lampiran = document.getElementById('lampiran');
+    // Kode untuk file upload - REMOVED since attachment button is removed
     
-    if (attachmentBtn && lampiran) {
-        attachmentBtn.addEventListener('click', function() {
-            lampiran.click();
+    // Handler untuk hapus grup dengan konfirmasi dan loading
+    const deleteGrupBtn = document.getElementById('deleteGrupBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const deleteGrupForm = document.getElementById('deleteGrupForm');
+    const loadingText = document.getElementById('loadingText');
+    
+    if (deleteGrupBtn) {
+        deleteGrupBtn.addEventListener('click', function() {
+            confirmDeleteModal.show();
         });
     }
     
-    // Tambahkan pengendali peristiwa ke form perpindahan peran
-    const switchRoleForm = document.getElementById('switchRoleForm');
-    if (switchRoleForm) {
-        switchRoleForm.addEventListener('submit', function(e) {
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            // Tutup modal konfirmasi
+            confirmDeleteModal.hide();
+            
+            // Tampilkan loading modal
+            loadingText.textContent = 'Menghapus grup...';
+            loadingModal.show();
+            
+            // Submit form setelah delay untuk efek loading
+            setTimeout(() => {
+                deleteGrupForm.submit();
+            }, 1500);
+        });
+    }
+    
+    // Handler untuk hapus anggota dengan konfirmasi dan loading
+    const deleteMemberBtns = document.querySelectorAll('.delete-member-btn');
+    const confirmDeleteMemberBtn = document.getElementById('confirmDeleteMemberBtn');
+    const deleteMemberForm = document.getElementById('deleteMemberForm');
+    const memberNameToDelete = document.getElementById('memberNameToDelete');
+    
+    deleteMemberBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentGrupId = this.getAttribute('data-grup-id');
+            currentMemberNim = this.getAttribute('data-member-nim');
+            currentMemberName = this.getAttribute('data-member-name');
+            
+            // Set nama anggota di modal
+            memberNameToDelete.textContent = currentMemberName;
+            
+            // Tampilkan modal konfirmasi
+            confirmDeleteMemberModal.show();
+        });
+    });
+    
+    if (confirmDeleteMemberBtn) {
+        confirmDeleteMemberBtn.addEventListener('click', function() {
+            // Tutup modal konfirmasi
+            confirmDeleteMemberModal.hide();
+            
+            // Set action untuk form hapus anggota
+            deleteMemberForm.action = `/grupanggota/hapus/${currentGrupId}/${currentMemberNim}`;
+            
+            // Tampilkan loading modal
+            loadingText.textContent = 'Menghapus anggota...';
+            loadingModal.show();
+            
+            // Submit form setelah delay
+            setTimeout(() => {
+                deleteMemberForm.submit();
+            }, 1500);
+        });
+    }
+    
+    // Handler untuk tambah anggota dengan loading
+    const tambahAnggotaForm = document.getElementById('tambahAnggotaForm');
+    const btnTambahAnggota = document.getElementById('btnTambahAnggota');
+    
+    if (tambahAnggotaForm) {
+        tambahAnggotaForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Submit form langsung
-            this.submit();
+            // Cek apakah ada anggota yang dipilih
+            const checkedBoxes = this.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Pilih minimal satu mahasiswa untuk ditambahkan ke grup');
+                return;
+            }
+            
+            // Disable tombol untuk mencegah double submit
+            btnTambahAnggota.disabled = true;
+            btnTambahAnggota.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menambahkan...';
+            
+            // Tutup modal tambah anggota
+            tambahAnggotaModal.hide();
+            
+            // Tampilkan loading modal
+            loadingText.textContent = 'Menambahkan anggota...';
+            loadingModal.show();
+            
+            // Submit form setelah delay
+            setTimeout(() => {
+                this.submit();
+            }, 1500);
         });
     }
+    
+    // Prevent text styling di input message
+    if (messageInput) {
+        // Disable browser autocomplete yang mungkin menyebabkan styling aneh
+        messageInput.setAttribute('autocomplete', 'off');
+        messageInput.setAttribute('autocorrect', 'off');
+        messageInput.setAttribute('autocapitalize', 'off');
+        messageInput.setAttribute('spellcheck', 'false');
+        
+        // Reset style saat focus
+        messageInput.addEventListener('focus', function() {
+            this.style.fontStyle = 'normal';
+            this.style.textTransform = 'none';
+        });
+        
+        // Prevent paste formatting
+        messageInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            selection.deleteFromDocument();
+            selection.getRangeAt(0).insertNode(document.createTextNode(text));
+        });
+    }
+    
+    // Enhancement: Smooth animations untuk loading modal
+    document.getElementById('loadingModal').addEventListener('shown.bs.modal', function() {
+        const spinner = this.querySelector('.loading-spinner');
+        spinner.style.animation = 'spin 1s ease-in-out infinite';
+    });
+    
+    // Enhancement: Auto focus pada search input ketika tab tambah anggota dibuka
+    document.getElementById('tambah-tab').addEventListener('click', function() {
+        setTimeout(() => {
+            const searchInput = document.getElementById('searchMahasiswa');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        }, 200);
+    });
+    
+    // Enhancement: Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Esc untuk tutup modal yang terbuka
+        if (e.key === 'Escape') {
+            const openModals = document.querySelectorAll('.modal.show');
+            openModals.forEach(modal => {
+                if (!modal.classList.contains('modal-loading')) {
+                    bootstrap.Modal.getInstance(modal)?.hide();
+                }
+            });
+        }
+        
+        // Ctrl/Cmd + Enter untuk kirim pesan
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && messageInput === document.activeElement) {
+            sendMessageForm.dispatchEvent(new Event('submit'));
+        }
+    });
 });
 </script>
+@endpush

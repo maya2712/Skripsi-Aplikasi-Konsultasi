@@ -23,69 +23,6 @@
         padding-bottom: 20px; 
     }
     
-    .sidebar {
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        position: sticky;
-        top: 20px; 
-        max-height: calc(100vh - 100px);
-    }
-
-    .sidebar-buttons {
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .sidebar-buttons .btn {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-
-    .sidebar-menu {
-        padding: 15px;
-    }
-    
-    .sidebar-menu .nav-link {
-        color: #546E7A;
-        border-radius: 0.5rem;
-        margin-bottom: 8px;
-        padding: 10px 15px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-    }
-    
-    .sidebar-menu .nav-link.active {
-        background: #E3F2FD;
-        color: var(--bs-primary);
-    }
-    
-    /* Modifikasi disini - hanya submenu yang memiliki hover effect */
-    .sidebar-menu .submenu-active .nav-link:hover {
-        background: #f8f9fa;
-    }
-    
-    /* Pada menu parent tidak ada hover effect */
-    .sidebar-menu .nav-link.parent-menu:hover {
-        background: transparent;
-    }
-    
-    .sidebar-menu .nav-link.parent-active {
-        background: #EDF8FF;
-        color: #1a73e8;
-    }
-    
-    .sidebar-menu .nav-link.parent-active:hover {
-        background: #EDF8FF;
-    }
-    
-    .sidebar-menu .submenu-active {
-        display: block !important;
-    }
-    
     .profile-image-placeholder {
         width: 40px;
         height: 40px;
@@ -276,45 +213,9 @@
 @section('content')
 <div class="main-content">
     <div class="custom-container">
-        <div class="row g-4">
-            <!-- Sidebar -->
-            <div class="col-md-3">
-                <div class="sidebar">
-                    {{-- <div class="sidebar-buttons">
-                        <a href="{{ url('/addmessage_admin') }}" class="btn w-100" style="background: linear-gradient(to right, #004AAD, #5DE0E6); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
-                            <i class="fas fa-plus me-2"></i> Pesan Baru
-                        </a>
-                    </div>                                                     --}}
-                    
-                    <div class="sidebar-menu">
-                        <div class="nav flex-column">
-                            <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
-                            </a>
-                            <a href="#" class="nav-link parent-active parent-menu" id="userManagementToggle">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-users-cog me-2"></i>Manajemen User</span>
-                                    <i class="fas fa-chevron-up" id="userManagementIcon"></i>
-                                </div>
-                            </a>
-                            <div class="show submenu-active" id="userManagementSubmenu">
-                                <div class="ps-3">
-                                    <a href="{{ url('/admin/managementuser_dosen') }}" class="nav-link active">
-                                        <i class="fas fa-chalkboard-teacher me-2"></i>Dosen
-                                    </a>
-                                    <a href="{{ url('/admin/managementuser_mahasiswa') }}" class="nav-link">
-                                        <i class="fas fa-user-graduate me-2"></i>Mahasiswa
-                                    </a>
-                                </div>
-                            </div>
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div class="col-md-9">
+        <div class="row">
+            <!-- Main Content - Full width tanpa sidebar -->
+            <div class="col-12">
                 <!-- Users Table -->
                 <div class="card">
                     <div class="card-body p-4">
@@ -521,56 +422,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alert.style.display = 'none';
         }
     });
-
-    // Toggle dropdown for grup
-    const grupDropdownToggle = document.getElementById('grupDropdownToggle');
-    const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
-    const grupDropdownIcon = document.getElementById('grupDropdownIcon');
-    
-    if (grupDropdownToggle && komunikasiSubmenu && grupDropdownIcon) {
-        grupDropdownToggle.addEventListener('click', function() {
-            // Toggle the collapse
-            const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
-                toggle: true
-            });
-            
-            // Toggle the icon
-            grupDropdownIcon.classList.toggle('fa-chevron-up');
-            grupDropdownIcon.classList.toggle('fa-chevron-down');
-        });
-    }
-    
-    // Toggle dropdown for user management (but prevent closing if in submenu page)
-    const userManagementToggle = document.getElementById('userManagementToggle');
-    const userManagementSubmenu = document.getElementById('userManagementSubmenu');
-    const userManagementIcon = document.getElementById('userManagementIcon');
-    
-    if (userManagementToggle && userManagementSubmenu && userManagementIcon) {
-        // If we're already in a submenu page, make sure the submenu stays open
-        if (userManagementSubmenu.classList.contains('submenu-active')) {
-            userManagementSubmenu.classList.add('show');
-            userManagementIcon.classList.add('fa-chevron-up');
-            userManagementIcon.classList.remove('fa-chevron-down');
-        }
-        
-        userManagementToggle.addEventListener('click', function(e) {
-            // If we're in a submenu page, prevent toggle action
-            if (userManagementSubmenu.classList.contains('submenu-active')) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }
-            
-            // Otherwise, toggle as normal
-            const bsCollapse = new bootstrap.Collapse(userManagementSubmenu, {
-                toggle: true
-            });
-            
-            // Toggle the icon
-            userManagementIcon.classList.toggle('fa-chevron-up');
-            userManagementIcon.classList.toggle('fa-chevron-down');
-        });
-    }
     
     // Check all checkboxes
     const checkAll = document.getElementById('checkAll');
