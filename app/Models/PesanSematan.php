@@ -18,6 +18,7 @@ class PesanSematan extends Model
         'pesan_id',
         'balasan_id',
         'isi_sematan',
+        'lampiran',  // TAMBAHKAN INI
         'kategori',
         'judul',
         'aktif',
@@ -52,5 +53,29 @@ class PesanSematan extends Model
     {
         return $query->where('aktif', true)
                      ->where('durasi_sematan', '>', now());
+    }
+    
+    // TAMBAHKAN METHOD HELPER UNTUK LAMPIRAN
+    public function hasAttachment()
+    {
+        return !empty($this->lampiran);
+    }
+    
+    public function getAttachmentName()
+    {
+        if (!$this->hasAttachment()) {
+            return null;
+        }
+        
+        $url = $this->lampiran;
+        
+        if (strpos($url, 'drive.google.com') !== false) {
+            return 'Google Drive File';
+        }
+        
+        $path = parse_url($url, PHP_URL_PATH);
+        $filename = basename($path);
+        
+        return $filename ?: 'Lampiran';
     }
 }

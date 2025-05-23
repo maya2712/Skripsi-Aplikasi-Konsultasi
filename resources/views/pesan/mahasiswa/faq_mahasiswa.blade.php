@@ -239,8 +239,41 @@
             background-color: #E3F2FD;
             color: #1a73e8;
         }
+
+        /* LAMPIRAN SEDERHANA - DESAIN YANG MENONJOL UNTUK MAHASISWA */
+        .simple-attachment-link {
+            display: inline-flex;
+            align-items: center;
+            color: #1a73e8 !important;
+            text-decoration: none;
+            padding: 12px 16px;
+            background: white;
+            border: 2px solid #e8f0fe;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-top: 10px;
+            min-width: 180px;
+        }
+
+        .simple-attachment-link:hover {
+            background: #e8f0fe;
+            color: #1557b0 !important;
+            border-color: #1a73e8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2);
+        }
+
+        .simple-attachment-link i {
+            color: #34a853;
+            font-size: 18px;
+            margin-right: 10px;
+        }
     </style>
 @endpush
+
 @section('content')
 <div class="main-content">
     <div class="custom-container">
@@ -360,6 +393,16 @@
                                 <div class="collapse" id="faqItem{{ $item->id }}">
                                     <div class="p-3">
                                         <p>{{ $item->isi_sematan }}</p>
+                                        
+                                        {{-- LAMPIRAN SEDERHANA UNTUK MAHASISWA --}}
+                                        @if($item->hasAttachment())
+                                            <div class="mt-3">
+                                                <a href="{{ $item->lampiran }}" target="_blank" class="simple-attachment-link">
+                                                    <i class="fab fa-google-drive me-2"></i>
+                                                    {{ $item->getAttachmentName() }}
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -382,6 +425,7 @@
     </div>
 </div>
 @endsection
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {

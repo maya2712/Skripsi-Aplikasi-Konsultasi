@@ -718,14 +718,15 @@ class PesanDosenController extends Controller
                         continue; // Skip jika bukan pesan dosen dengan role yang sesuai
                     }
                     
-                    // Buat sematan dengan role dosen aktif
+                    // Buat sematan dengan role dosen aktif dan SERTAKAN LAMPIRAN
                     $sematan = PesanSematan::create([
                         'nip_dosen' => $dosen->nip,
-                        'dosen_role' => $activeRole, // Simpan role dosen saat membuat sematan
+                        'dosen_role' => $activeRole,
                         'jenis_pesan' => 'pesan',
                         'pesan_id' => $id,
                         'balasan_id' => null,
                         'isi_sematan' => $pesanToPin->isi_pesan,
+                        'lampiran' => $pesanToPin->lampiran, // TAMBAHKAN INI - Ambil lampiran dari pesan
                         'kategori' => $request->kategori,
                         'judul' => $request->judul,
                         'aktif' => true,
@@ -748,14 +749,15 @@ class PesanDosenController extends Controller
                         continue; // Skip jika bukan balasan dari dosen ini
                     }
                     
-                    // Buat sematan dengan role dosen aktif
+                    // Buat sematan dengan role dosen aktif dan SERTAKAN LAMPIRAN
                     $sematan = PesanSematan::create([
                         'nip_dosen' => $dosen->nip,
-                        'dosen_role' => $activeRole, // Simpan role dosen saat membuat sematan
+                        'dosen_role' => $activeRole,
                         'jenis_pesan' => 'balasan',
                         'pesan_id' => null,
                         'balasan_id' => $id,
                         'isi_sematan' => $balasanToPin->isi_balasan,
+                        'lampiran' => $balasanToPin->lampiran, // TAMBAHKAN INI - Ambil lampiran dari balasan
                         'kategori' => $request->kategori,
                         'judul' => $request->judul,
                         'aktif' => true,
@@ -781,7 +783,6 @@ class PesanDosenController extends Controller
             ], 500);
         }
     }
-
     /**
      * Batalkan sematan pesan
      */

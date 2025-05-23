@@ -1489,7 +1489,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Reset fields
                     sematkanJudul.value = '';
                     
-                    showNotification('Pesan berhasil disematkan ke FAQ', 'success');
+                    showNotification('Pesan berhasil disematkan', 'success');
                 } else {
                     showNotification(data.message, 'warning');
                 }

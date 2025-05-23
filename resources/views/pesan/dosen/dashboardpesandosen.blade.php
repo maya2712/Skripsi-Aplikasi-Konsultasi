@@ -715,9 +715,7 @@
                                             @if(isset($item->bookmarked))
                                             <form action="{{ route('dosen.pesan.bookmark', $item->id) }}" method="POST" class="d-inline me-2">
                                                 @csrf
-                                                <button type="submit" class="btn btn-link p-0 bookmark-btn" title="{{ $item->bookmarked ? 'Hapus Bookmark' : 'Bookmark Pesan' }}">
-                                                    <i class="fas fa-bookmark bookmark-icon {{ $item->bookmarked ? 'active' : '' }}"></i>
-                                                </button>
+                                            
                                             </form>
                                             @endif
                                             
