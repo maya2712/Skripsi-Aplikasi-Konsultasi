@@ -244,6 +244,16 @@
                         <div class="row mb-4">
                             <div class="col-auto mb-2 ms-3">
                                 <div class="d-flex align-items-center">
+                                    <label class="me-2 mb-0">Tampilkan</label>
+                                    <select class="form-select form-select-sm" style="width: 70px; height: 30px; padding: 2px 8px;" id="displayLimit">
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                        <option value="200">200</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-auto mb-2 ms-4">
+                                <div class="d-flex align-items-center">
                                     <label class="me-2 mb-0">Program Studi</label>
                                     <select class="form-select form-select-sm" style="width: 150px; height: 30px; padding: 2px 8px;" id="prodiFilter">
                                         <option>Semua</option>
@@ -257,10 +267,10 @@
                                     <label class="me-2 mb-0">Angkatan</label>
                                     <select class="form-select form-select-sm" style="width: 100px; height: 30px; padding: 2px 8px;" id="angkatanFilter">
                                         <option>Semua</option>
+                                        <option>2024</option>
                                         <option>2023</option>
                                         <option>2022</option>
                                         <option>2021</option>
-                                        <option>2020</option>
                                     </select>
                                 </div>
                             </div>
@@ -351,31 +361,19 @@
                             </table>
                         </div>
                         
-                        <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="d-flex justify-content-start align-items-center mt-3">
                             <div>
                                 <button class="btn btn-sm btn-outline-danger me-2" id="deleteSelected">
                                     <i class="fas fa-trash me-1"></i> Hapus yang dipilih
                                 </button>
                             </div>
-                            
-                            <!-- Pagination -->
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination pagination-sm mb-0">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                        </div>
+                        
+                        <!-- Pesan jika tidak ada data yang ditemukan -->
+                        <div id="noDataMessage" class="text-center py-4" style="display: none;">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Data tidak tersedia</h5>
+                            <p class="text-muted">Tidak ada data mahasiswa yang sesuai dengan kriteria pencarian Anda.</p>
                         </div>
                     </div>
                 </div>
@@ -538,16 +536,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Fungsi untuk filter tabel berdasarkan input
+    const displayLimitSelect = document.getElementById('displayLimit');
     const prodiFilter = document.getElementById('prodiFilter');
     const angkatanFilter = document.getElementById('angkatanFilter');
     const searchInput = document.getElementById('searchInput');
+    const noDataMessage = document.getElementById('noDataMessage');
+    const tableElement = document.querySelector('.table-responsive');
     
     function filterTable() {
+        const displayLimit = parseInt(displayLimitSelect.value);
         const prodiValue = prodiFilter.value;
         const angkatanValue = angkatanFilter.value;
         const searchValue = searchInput.value.toLowerCase();
         
         const tableRows = document.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+        let hasData = false;
+        
+        // Cek apakah ada data mahasiswa
+        tableRows.forEach(row => {
+            if (row.cells.length > 1) { // Bukan row "Belum ada data"
+                hasData = true;
+            }
+        });
         
         tableRows.forEach(row => {
             if (row.cells.length <= 1) return; // Skip "Belum ada data" row
@@ -581,14 +592,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            row.style.display = showRow ? '' : 'none';
+            // Filter berdasarkan batas tampilan
+            if (showRow && visibleCount < displayLimit) {
+                row.style.display = '';
+                visibleCount++;
+            } else if (showRow) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = 'none';
+            }
         });
+        
+        // Tampilkan pesan "Data tidak tersedia" jika tidak ada data yang cocok atau tidak ada data sama sekali
+        if (visibleCount === 0) {
+            noDataMessage.style.display = 'block';
+            tableElement.style.display = 'none';
+        } else {
+            noDataMessage.style.display = 'none';
+            tableElement.style.display = 'block';
+        }
     }
     
     // Event listeners untuk filter
+    if (displayLimitSelect) displayLimitSelect.addEventListener('change', filterTable);
     if (prodiFilter) prodiFilter.addEventListener('change', filterTable);
     if (angkatanFilter) angkatanFilter.addEventListener('change', filterTable);
     if (searchInput) searchInput.addEventListener('keyup', filterTable);
+    
+    // Inisialisasi filter saat halaman dimuat
+    filterTable();
     
     // Script untuk reset password dengan modal dan loading - DIPERBARUI
     const resetPasswordModal = document.getElementById('resetPasswordModal');

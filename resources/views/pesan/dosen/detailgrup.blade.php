@@ -4,6 +4,37 @@
 
 @push('styles')
 <style>
+    /* HIDE DEFAULT SEPTI NOTIFICATIONS */
+    .alert-success,
+    .alert-info,
+    .alert-warning,
+    .alert-danger,
+    .alert-primary,
+    .alert-secondary,
+    .alert-light,
+    .alert-dark {
+        display: none !important;
+    }
+    
+    /* Jika ada notifikasi Bootstrap lainnya yang muncul otomatis */
+    .alert {
+        display: none !important;
+    }
+    
+    /* Jika notifikasi menggunakan class khusus SEPTI */
+    .notification,
+    .septi-notification,
+    .default-notification,
+    .system-notification {
+        display: none !important;
+    }
+    
+    /* Sembunyikan semua div dengan class yang mengandung 'alert' atau 'notification' */
+    div[class*="alert"],
+    div[class*="notification"] {
+        display: none !important;
+    }
+
     :root {
         --bs-primary: #1a73e8;
         --bs-danger: #FF5252;
@@ -691,13 +722,141 @@
         color: #004AAD;
     }
 
-    /* Alert Styles */
-    .alert-info {
+    /* Alert Styles - HANYA UNTUK CUSTOM ALERT, BUKAN BAWAAN SEPTI */
+    .custom-alert-info {
         background: linear-gradient(135deg, rgba(0, 74, 173, 0.1), rgba(93, 224, 230, 0.1));
         border: 1px solid rgba(93, 224, 230, 0.3);
         color: #004AAD;
         border-radius: 10px;
         font-weight: 500;
+    }
+
+    /* Custom Toast Close Button Styles */
+    .toast .btn-close {
+        background: transparent !important;
+        border: none !important;
+        opacity: 0.9 !important;
+        font-size: 18px !important;
+        width: 30px !important;
+        height: 30px !important;
+        padding: 0 !important;
+        margin: 8px 12px 8px 8px !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative !important;
+        top: 0 !important;
+        right: 0 !important;
+        transform: none !important;
+        border-radius: 50% !important;
+        transition: all 0.2s ease !important;
+        flex-shrink: 0 !important;
+    }
+
+    .toast .btn-close:hover {
+        opacity: 1 !important;
+        color: white !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        transform: scale(1.1) !important;
+    }
+
+    .toast .btn-close:focus {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .toast .btn-close::before {
+        content: "×" !important;
+        font-weight: bold !important;
+        font-size: 22px !important;
+        color: white !important;
+        line-height: 1 !important;
+        display: block !important;
+        text-align: center !important;
+    }
+
+    /* Force white color for all toast close buttons */
+    .toast .btn-close,
+    .toast .btn-close:hover,
+    .toast .btn-close:focus {
+        filter: brightness(0) invert(1) !important;
+    }
+
+    /* Toast body alignment fix */
+    .toast .d-flex {
+        align-items: center !important;
+        padding: 0 !important;
+    }
+
+    .toast .toast-body {
+        display: flex !important;
+        align-items: center !important;
+        padding: 12px 16px !important;
+        flex-grow: 1 !important;
+    }
+
+    /* Toast container styling */
+    .toast {
+        min-width: 300px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* SUCCESS MODAL STYLES */
+    .modal-success .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 50px rgba(39, 174, 96, 0.2);
+    }
+
+    .modal-success .modal-header {
+        background: var(--success-gradient);
+        color: white;
+        border-bottom: none;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .modal-success .modal-body {
+        padding: 30px;
+        text-align: center;
+        background: white;
+    }
+
+    .modal-success .success-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: var(--success-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        animation: successPulse 1.5s ease-in-out;
+    }
+
+    @keyframes successPulse {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-success .success-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #27AE60;
+        margin-bottom: 15px;
+    }
+
+    .modal-success .success-message {
+        font-size: 1rem;
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 20px;
     }
 
     /* Responsive Design */
@@ -979,6 +1138,72 @@
     </div>
 </div>
 
+<!-- Success Toast Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="successToast" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true" style="background: linear-gradient(135deg, #27AE60, #2ECC71); color: white;">
+        <div class="d-flex align-items-center">
+            <div class="toast-body flex-grow-1">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="toastMessage">Operasi berhasil dilakukan.</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Error Toast Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="errorToast" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true" style="background: linear-gradient(135deg, #FF5252, #FF1744); color: white;">
+        <div class="d-flex align-items-center">
+            <div class="toast-body flex-grow-1">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span id="errorToastMessage">Terjadi kesalahan saat memproses permintaan.</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Warning Toast Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="warningToast" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true" style="background: linear-gradient(135deg, #ffc107, #ffca2c); color: white;">
+        <div class="d-flex align-items-center">
+            <div class="toast-body flex-grow-1">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span id="warningToastMessage">Peringatan.</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade modal-success" id="successModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Operasi Berhasil
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="success-title" id="successTitle">Berhasil!</div>
+                <div class="success-message" id="successMessage">
+                    Operasi telah berhasil dilakukan.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-gradient-success" data-bs-dismiss="modal" id="successOkBtn">
+                    <i class="fas fa-check me-2"></i>OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Info Grup Modal -->
 <div class="modal fade" id="infoGrupModal" tabindex="-1" aria-labelledby="infoGrupModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -1044,7 +1269,7 @@
                     <!-- Tab Daftar Anggota -->
                     <div class="tab-pane fade show active" id="daftar-tab-pane" role="tabpanel" aria-labelledby="daftar-tab" tabindex="0">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover" id="memberTable">
                                 <thead>
                                     <tr>
                                         <th width="5%">No.</th>
@@ -1056,7 +1281,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($grup->mahasiswa as $index => $anggota)
-                                    <tr>
+                                    <tr data-member-nim="{{ $anggota->nim }}">
                                         <td>{{ $index + 1 }}</td>
                                         <td>
                                             @if($anggota->profile_photo && file_exists(public_path('storage/profile_photos/' . $anggota->profile_photo)))
@@ -1118,7 +1343,7 @@
                                                 @endforeach
                                             </div>
                                         @else
-                                            <div class="alert alert-info">
+                                            <div class="custom-alert-info alert">
                                                 <i class="fas fa-info-circle me-2"></i>
                                                 Semua mahasiswa sudah ada di dalam grup ini.
                                             </div>
@@ -1233,16 +1458,96 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Inisialisasi modal
+    // Inisialisasi modal dan toast
     const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
     const confirmDeleteMemberModal = new bootstrap.Modal(document.getElementById('confirmDeleteMemberModal'));
     const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
     const tambahAnggotaModal = new bootstrap.Modal(document.getElementById('tambahAnggotaModal'));
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    
+    // Toast elements - Updated untuk menggunakan Bootstrap toast yang sama seperti isi pesan
+    const successToast = document.getElementById('successToast');
+    const errorToast = document.getElementById('errorToast');
+    const warningToast = document.getElementById('warningToast');
+    const toastMessage = document.getElementById('toastMessage');
+    const errorToastMessage = document.getElementById('errorToastMessage');
+    const warningToastMessage = document.getElementById('warningToastMessage');
+    
+    // Success modal elements
+    const successTitle = document.getElementById('successTitle');
+    const successMessage = document.getElementById('successMessage');
     
     // Variables untuk hapus anggota
     let currentGrupId = null;
     let currentMemberNim = null;
     let currentMemberName = null;
+    
+    // Function untuk menampilkan toast notification (sama seperti di isi pesan)
+    function showNotification(message, type = 'success') {
+        let toastElement, messageElement;
+        
+        // Tentukan toast yang akan digunakan berdasarkan type
+        if (type === 'success') {
+            toastElement = successToast;
+            messageElement = toastMessage;
+        } else if (type === 'warning') {
+            toastElement = warningToast;
+            messageElement = warningToastMessage;
+        } else if (type === 'danger' || type === 'error') {
+            toastElement = errorToast;
+            messageElement = errorToastMessage;
+        } else {
+            toastElement = successToast;
+            messageElement = toastMessage;
+        }
+        
+        // Set pesan
+        messageElement.textContent = message;
+        
+        // Tampilkan toast menggunakan Bootstrap
+        const toast = new bootstrap.Toast(toastElement, {
+            delay: 3000
+        });
+        toast.show();
+    }
+    
+    // Function untuk menampilkan success modal (tetap digunakan untuk operasi penting)
+    function showSuccessModal(title, message, callback = null) {
+        successTitle.textContent = title;
+        successMessage.textContent = message;
+        
+        successModal.show();
+        
+        // Handle callback ketika modal ditutup
+        if (callback) {
+            const successOkBtn = document.getElementById('successOkBtn');
+            const handleCallback = () => {
+                callback();
+                successOkBtn.removeEventListener('click', handleCallback);
+                successModal._element.removeEventListener('hidden.bs.modal', handleCallback);
+            };
+            
+            successOkBtn.addEventListener('click', handleCallback);
+            successModal._element.addEventListener('hidden.bs.modal', handleCallback);
+        }
+    }
+    
+    // Cek session flash messages saat halaman dimuat
+    @if(session('success'))
+        @if(session('operation_type') === 'add_member')
+            showSuccessModal('Anggota Berhasil Ditambahkan!', '{{ session('success') }}');
+        @elseif(session('operation_type') === 'delete_member')
+            showSuccessModal('Anggota Berhasil Dihapus!', '{{ session('success') }}');
+        @elseif(session('operation_type') === 'delete_group')
+            showNotification('{{ session('success') }}', 'success');
+        @else
+            showNotification('{{ session('success') }}', 'success');
+        @endif
+    @endif
+    
+    @if(session('error'))
+        showNotification('{{ session('error') }}', 'danger');
+    @endif
     
     // Kode dropdown grup
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
@@ -1354,13 +1659,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (emptyMessage) {
                         emptyMessage.remove();
                     }
+                    
+                    // Tampilkan notifikasi sukses
+                    showNotification('Pesan berhasil dikirim!', 'success');
                 } else {
-                    alert('Gagal mengirim pesan: ' + data.message);
+                    showNotification('Gagal mengirim pesan: ' + data.message, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengirim pesan');
+                showNotification('Terjadi kesalahan saat mengirim pesan', 'danger');
             })
             .finally(() => {
                 // Kembalikan tombol ke state normal
@@ -1369,8 +1677,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
-    // Kode untuk file upload - REMOVED since attachment button is removed
     
     // Handler untuk hapus grup dengan konfirmasi dan loading
     const deleteGrupBtn = document.getElementById('deleteGrupBtn');
@@ -1432,7 +1738,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingText.textContent = 'Menghapus anggota...';
             loadingModal.show();
             
-            // Submit form setelah delay
+            // Submit form setelah delay untuk efek loading
             setTimeout(() => {
                 deleteMemberForm.submit();
             }, 1500);
@@ -1450,7 +1756,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Cek apakah ada anggota yang dipilih
             const checkedBoxes = this.querySelectorAll('input[type="checkbox"]:checked');
             if (checkedBoxes.length === 0) {
-                alert('Pilih minimal satu mahasiswa untuk ditambahkan ke grup');
+                showNotification('Pilih minimal satu mahasiswa untuk ditambahkan ke grup', 'warning');
                 return;
             }
             
@@ -1465,7 +1771,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingText.textContent = 'Menambahkan anggota...';
             loadingModal.show();
             
-            // Submit form setelah delay
+            // Submit form setelah delay untuk efek loading
             setTimeout(() => {
                 this.submit();
             }, 1500);
@@ -1528,6 +1834,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Ctrl/Cmd + Enter untuk kirim pesan
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && messageInput === document.activeElement) {
             sendMessageForm.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Enhancement: Handle page visibility change untuk auto-refresh
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // Refresh grup member count ketika user kembali ke halaman
+            // (berguna jika ada perubahan dari tab/window lain)
+            // Optional: implementasikan polling untuk update real-time
         }
     });
 });

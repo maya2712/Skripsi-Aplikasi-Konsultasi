@@ -89,7 +89,11 @@
     .welcome-banner h4 {
         font-weight: 600;
         margin-bottom: 5px;
-        font-size: 16px;
+        font-size: 22px; /* Dikurangi dari 24px menjadi 22px */
+    }
+    
+    .welcome-banner p {
+        font-size: 14px; /* Dikurangi dari 16px menjadi 14px */
     }
     
     .chart-container {
@@ -115,6 +119,17 @@
         margin-bottom: 0;
         font-size: 12px;
         font-weight: 600;
+    }
+    
+    /* Memperbesar font untuk stats cards */
+    .stats-card .card-body h6 {
+        font-size: 12px !important; /* Dikurangi dari 14px menjadi 12px */
+        font-weight: 500;
+    }
+    
+    .stats-card .card-body h3 {
+        font-size: 26px !important; /* Dikurangi dari 28px menjadi 26px */
+        font-weight: 700;
     }
     
     .legends {
@@ -169,8 +184,8 @@
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1" style="font-size: 10px;">Total Dosen</h6>
-                                    <h3 class="mb-0" style="font-size: 18px;">{{ $totalDosen }}</h3>
+                                    <h6 class="text-muted mb-1">Total Dosen</h6>
+                                    <h3 class="mb-0">{{ $totalDosen }}</h3>
                                 </div>
                                 <div class="bg-primary bg-opacity-10 p-2 rounded">
                                     <i class="fas fa-chalkboard-teacher text-primary" style="font-size: 16px;"></i>
@@ -182,8 +197,8 @@
                         <div class="card h-100 stats-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="text-muted mb-1" style="font-size: 10px;">Total Mahasiswa</h6>
-                                    <h3 class="mb-0" style="font-size: 18px;">{{ $totalMahasiswa }}</h3>
+                                    <h6 class="text-muted mb-1">Total Mahasiswa</h6>
+                                    <h3 class="mb-0">{{ $totalMahasiswa }}</h3>
                                 </div>
                                 <div class="bg-success bg-opacity-10 p-2 rounded">
                                     <i class="fas fa-user-graduate text-success" style="font-size: 16px;"></i>

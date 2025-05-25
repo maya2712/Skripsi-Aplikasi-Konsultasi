@@ -8,6 +8,7 @@
             --bs-primary: #1a73e8;
             --bs-danger: #FF5252;
             --bs-success: #27AE60;
+            --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
         }
         
         body {
@@ -25,14 +26,29 @@
             margin-bottom: 20px;
         }
         
+        /* BOLD TITLE WITH GRADIENT - FIXED VERSION */
         .title-divider {
             border-bottom: 2px solid #dee2e6;
             padding-bottom: 15px;
             margin-bottom: 20px;
         }
         
-        .btn-gradient-primary {
+        .title-divider h4 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0;
+            display: inline-block;
+            background: var(--primary-gradient);
+            background: -webkit-linear-gradient(to right, #004AAD, #5DE0E6);
             background: linear-gradient(to right, #004AAD, #5DE0E6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .btn-gradient-primary {
+            background: var(--primary-gradient);
             border: none;
             color: white;
             transition: all 0.3s ease;
@@ -75,8 +91,6 @@
     <a href="{{ route('back') }}" class="btn btn-gradient-primary mb-4">
         <i class="fas fa-arrow-left me-2"></i> Kembali
     </a>
-    
-    {{-- Hapus bagian alert dari sini karena sudah ada di layout utama --}}
     
     <div class="row">
         <div class="col-md-4 mb-4">
