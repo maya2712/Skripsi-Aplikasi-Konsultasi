@@ -20,7 +20,8 @@
 
     .main-content {
         padding-top: 20px; 
-        padding-bottom: 20px; 
+        padding-bottom: 200px; /* Tambah padding bawah lebih besar untuk ruang dropdown */
+        min-height: 100vh; /* Pastikan main content cukup tinggi */
     }
     
     .profile-image-placeholder {
@@ -65,6 +66,42 @@
         width: 100%;
     }
     
+    /* FIX DROPDOWN VISIBILITY - HANYA UNTUK DROPDOWN TABEL */
+    .table-responsive {
+        overflow-x: auto;
+        overflow-y: visible !important;
+        padding-bottom: 150px; /* Tambah ruang di bawah untuk dropdown */
+        margin-bottom: -150px; /* Kompensasi padding */
+    }
+    
+    /* Dropdown positioning tepat di bawah tombol - HANYA UNTUK DROPDOWN AKSI TABEL */
+    .table .dropdown {
+        position: relative;
+    }
+    
+    .table .dropdown-menu {
+        position: absolute !important;
+        z-index: 9999 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid rgba(0, 0, 0, 0.05) !important;
+        border-radius: 6px !important;
+        min-width: 160px !important;
+        right: 0 !important; 
+        left: auto !important;
+        top: calc(100% + 2px) !important; /* Tepat di bawah tombol dengan jarak 2px */
+        margin: 0 !important; /* Hapus margin default */
+        transform: none !important; /* Hapus transform */
+        min-height: 120px !important; /* Pastikan tinggi minimum untuk 3 menu */
+    }
+    
+    /* Tambahan: Pastikan dropdown item terlihat semua - HANYA UNTUK TABEL */
+    .table .dropdown-item {
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Tombol aksi positioning */
     .edit-btn {
         background-color: #ffc107;
         border-radius: 50%;
@@ -77,6 +114,64 @@
         text-decoration: none;
         margin: 0 auto;
         font-size: 12px;
+        position: relative;
+    }
+    
+    /* Pastikan dropdown tidak terpotong di container */
+    .card-body {
+        overflow: visible !important;
+        position: relative;
+        min-height: 200px; /* Tambah tinggi minimum card body */
+    }
+    
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        border: none;
+        overflow: visible !important;
+        min-height: 250px; /* Tambah tinggi minimum card */
+    }
+    
+    /* Container utama */
+    .custom-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 15px;
+        overflow: visible !important;
+        position: relative;
+        min-height: 100vh; /* Pastikan container cukup tinggi */
+    }
+    
+    /* Baris tabel dengan dropdown - perbaiki positioning */
+    tbody tr {
+        position: relative;
+    }
+    
+    tbody tr td:last-child {
+        position: relative; /* Kolom aksi dengan posisi relative */
+    }
+    
+    /* Tambahan: Pastikan main content juga cukup tinggi */
+    .main-content {
+        padding-top: 20px; 
+        padding-bottom: 200px; /* Tambah padding bawah lebih besar */
+        min-height: 100vh; /* Pastikan main content tinggi */
+    }
+    
+    .edit-btn {
+        background-color: #ffc107;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #000;
+        text-decoration: none;
+        margin: 0 auto;
+        font-size: 12px;
+        position: relative;
+        z-index: 2;
     }
     
     .add-btn {
@@ -91,12 +186,6 @@
     .form-select {
         background-color: white;
         border: 1px solid #ced4da;
-    }
-    
-    .card {
-        border-radius: 10px;
-        box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        border: none;
     }
     
     .status-active {
@@ -137,6 +226,7 @@
         max-width: 1400px;
         margin: 0 auto;
         padding: 0 15px;
+        overflow: visible !important; /* Tambahan untuk dropdown */
     }
     
     /* Gaya untuk modal reset password - DIPERBARUI dengan gradasi */
@@ -206,6 +296,16 @@
         background: linear-gradient(to right, #004AAD, #5DE0E6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+    }
+    
+    /* RESPONSIVE FIXES untuk dropdown */
+    @media (max-width: 768px) {
+        .dropdown-menu {
+            position: absolute !important;
+            right: 0 !important;
+            left: auto !important;
+            transform: translateX(-50%) !important;
+        }
     }
 </style>
 @endpush
@@ -284,6 +384,7 @@
                             </div>
                         </div>
                         
+                        <!-- PERBAIKAN: Tabel dengan overflow yang tepat -->
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered border-secondary">
                                 <thead class="table-header">
@@ -331,10 +432,10 @@
                                             </td>
                                             <td>
                                                 <div class="dropdown">
-                                                    <a href="#" class="edit-btn" data-bs-toggle="dropdown">
+                                                    <a href="#" class="edit-btn" data-bs-toggle="dropdown" aria-expanded="false">
                                                         <i class="fas fa-pen"></i>
                                                     </a>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                    <ul class="dropdown-menu">
                                                         <li><a class="dropdown-item" href="{{ route('admin.edit-mahasiswa', $mahasiswa->nim) }}"><i class="fas fa-edit me-2 text-primary"></i>Edit</a></li>
                                                         <li><a class="dropdown-item reset-password-btn" href="javascript:void(0)" data-nim="{{ $mahasiswa->nim }}" data-nama="{{ $mahasiswa->nama }}"><i class="fas fa-key me-2 text-warning"></i>Reset Password</a></li>
                                                         <li><hr class="dropdown-divider"></li>
@@ -426,6 +527,40 @@ document.addEventListener('DOMContentLoaded', function() {
     globalAlerts.forEach(function(alert) {
         if (!alert.classList.contains('mb-4')) {
             alert.style.display = 'none';
+        }
+    });
+    
+    // PERBAIKAN: Auto close dropdown lain ketika membuka dropdown baru
+    
+    // Tambahkan event listener untuk setiap dropdown toggle
+    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function(dropdownToggle) {
+        dropdownToggle.addEventListener('click', function(e) {
+            // Tutup semua dropdown yang sedang terbuka kecuali yang diklik
+            document.querySelectorAll('.dropdown-menu.show').forEach(function(openDropdown) {
+                const currentDropdown = this.nextElementSibling;
+                if (openDropdown !== currentDropdown) {
+                    // Tutup dropdown lain
+                    openDropdown.classList.remove('show');
+                    // Hapus atribut aria-expanded pada toggle button
+                    const otherToggle = openDropdown.previousElementSibling;
+                    if (otherToggle) {
+                        otherToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            }.bind(this));
+        });
+    });
+    
+    // Tutup dropdown ketika klik di luar area dropdown
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu.show').forEach(function(openDropdown) {
+                openDropdown.classList.remove('show');
+                const toggle = openDropdown.previousElementSibling;
+                if (toggle) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            });
         }
     });
     
@@ -611,6 +746,9 @@ document.addEventListener('DOMContentLoaded', function() {
             noDataMessage.style.display = 'none';
             tableElement.style.display = 'block';
         }
+        
+        // Re-initialize normal dropdown setelah filter (tidak perlu positioning khusus)
+        // Bootstrap dropdown akan bekerja normal dengan CSS overflow fix
     }
     
     // Event listeners untuk filter
