@@ -359,8 +359,8 @@
                                 <div class="info-label">Angkatan</div>
                                 <div class="info-value">{{ $user->angkatan }}</div>
                                 @else
-                                <div class="info-label">Jabatan</div>
-                                <div class="info-value">{{ $guard === 'dosen' ? ($user->jabatan_fungsional ?? 'N/A') : 'Administrator' }}</div>
+                                <div class="info-label">Keterangan</div>
+                                <div class="info-value">{{ $guard === 'dosen' ? ($user->jabatan_fungsional ?? 'N/A') : 'Admin Prodi Teknik Informatika' }}</div>
                                 @endif
                             </div>
                         </div>

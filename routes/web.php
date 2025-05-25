@@ -86,8 +86,8 @@ Route::middleware(['auth:mahasiswa,dosen,admin', \App\Http\Middleware\PreventBac
         return view('bimbingan.admin.datausulanbimbingan');
     });
 
-// Route untuk mahasiswa
-Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () {
+// PERBAIKAN: Route untuk mahasiswa dengan PreventBackHistory middleware
+Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
     // Route profil khusus untuk mahasiswa
     Route::get('/profil-mahasiswa', [ProfileController::class, 'index'])->name('profil.mahasiswa');
     
@@ -182,8 +182,8 @@ Route::middleware(['auth:mahasiswa', 'checkRole:mahasiswa'])->group(function () 
     });
 });
 
-// Route untuk dosen
-Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
+// PERBAIKAN: Route untuk dosen dengan PreventBackHistory middleware
+Route::middleware(['auth:dosen', 'checkRole:dosen', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
     // Route profil khusus untuk dosen
     Route::get('/profil-dosen', [ProfileController::class, 'index'])->name('profil.dosen');
     
@@ -289,8 +289,8 @@ Route::middleware(['auth:dosen', 'checkRole:dosen'])->group(function () {
         ->name('dosen.grup.sendMessage');
 });
 
-// Pastikan routes sudah ada di web.php dalam grup admin
-Route::middleware(['web', 'auth:admin', \App\Http\Middleware\PreventBackHistory::class])->prefix('admin')->group(function () {
+// Pastikan routes sudah ada di web.php dalam grup admin dengan PreventBackHistory
+Route::middleware(['web', 'auth:admin', 'checkRole:admin', \App\Http\Middleware\PreventBackHistory::class])->prefix('admin')->group(function () {
     // Route profil khusus untuk admin
     Route::get('/profil-admin', [ProfileController::class, 'index'])->name('profil.admin');
     

@@ -138,11 +138,12 @@ class AuthController extends Controller
         
         Log::info('Logout berhasil');
         
-        // Redirect dengan header khusus untuk mencegah caching
+        // PERBAIKAN: Redirect dengan header yang lebih kuat untuk mencegah caching
         return redirect()->route('login')
             ->with('success', 'Anda telah berhasil keluar dari sistem.')
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
-            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT')
+            ->header('Clear-Site-Data', '"cache", "storage"'); // Tambahan untuk clear browser data
     }
 }
