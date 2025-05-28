@@ -35,6 +35,173 @@
         color: white;
     }
 
+    /* Mobile Navigation Bar */
+    .mobile-navbar {
+        display: none;
+        background: var(--primary-gradient);
+        color: white;
+        padding: 12px 15px;
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1025;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+        border-radius: 0;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        margin-top: 0;
+    }
+
+    /* Enhanced mobile navbar with scroll effect */
+    .mobile-navbar.scrolled {
+        background: rgba(0, 74, 173, 0.95);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        position: fixed;
+        top: 0;
+        z-index: 1030;
+    }
+
+    /* Add padding compensation when navbar becomes fixed */
+    .mobile-navbar-compensation {
+        height: 70px;
+        display: none;
+    }
+
+    .mobile-navbar-compensation.active {
+        display: block;
+    }
+
+    .mobile-navbar .navbar-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mobile-navbar .group-info h6 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .mobile-navbar .group-info small {
+        font-size: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .mobile-navbar .navbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .burger-menu {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        padding: 8px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .burger-menu:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .burger-menu:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .header-icon {
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.9;
+        transition: all 0.3s ease;
+        padding: 8px;
+        border-radius: 50%;
+    }
+
+    .header-icon:hover {
+        opacity: 1;
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    /* Mobile Sidebar Overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.show {
+        opacity: 1;
+    }
+
+    .mobile-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        height: 100%;
+        background: white;
+        z-index: 1050;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+        box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+    }
+
+    .mobile-sidebar.show {
+        left: 0;
+    }
+
+    .mobile-sidebar-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 20px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mobile-sidebar-header h6 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .close-sidebar {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        padding: 5px;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: all 0.2s ease;
+    }
+
+    .close-sidebar:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .close-sidebar:focus {
+        outline: none;
+    }
+
     .sidebar {
         background: #ffffff;
         border-radius: 10px;
@@ -179,23 +346,6 @@
         border-radius: 10px;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         margin-top: 15px;
-    }
-
-    .header-icon {
-        color: white;
-        font-size: 1.2rem;
-        margin-left: 15px;
-        cursor: pointer;
-        opacity: 0.9;
-        transition: all 0.3s ease;
-        padding: 8px;
-        border-radius: 50%;
-    }
-
-    .header-icon:hover {
-        opacity: 1;
-        background-color: rgba(255, 255, 255, 0.2);
-        transform: scale(1.1);
     }
     
     .custom-container {
@@ -519,117 +669,374 @@
         box-shadow: 0 0 0 0.2rem rgba(93, 224, 230, 0.25);
     }
 
-    /* Responsive Design */
+    /* Mobile Responsive Styles - ENHANCED */
+    @media (max-width: 991.98px) {
+        body {
+            padding-top: 0; /* Remove fixed padding since navbar is now sticky */
+        }
+        
+        .row.g-4 {
+            --bs-gutter-x: 0;
+        }
+        
+        .col-md-3 {
+            display: none; /* Hide desktop sidebar on mobile */
+        }
+        
+        .col-md-9 {
+            padding-left: 0;
+            padding-right: 0;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        .mobile-navbar {
+            display: block; /* Show mobile navbar */
+        }
+        
+        .group-header {
+            display: none; /* Hide desktop group header */
+        }
+        
+        .main-content {
+            padding-top: 15px; /* Normal padding since navbar is sticky */
+        }
+        
+        .message-container {
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .message-input {
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    }
+
+    /* Tablet Responsive Styles */
     @media (max-width: 768px) {
+        body {
+            padding-top: 0; /* Remove fixed padding */
+        }
+        
         .custom-container {
             padding: 0 10px;
         }
         
         .main-content {
-            padding-top: 15px;
+            padding-top: 10px; /* Normal padding */
             padding-bottom: 15px;
         }
         
-        .group-header {
-            padding: 15px;
-            margin-bottom: 15px;
+        .mobile-navbar {
+            padding: 10px 15px; /* Slightly smaller padding */
         }
         
-        .group-header h5 {
-            font-size: 1.1rem;
+        .mobile-navbar .navbar-content {
+            flex-direction: row;
+            align-items: center;
         }
         
-        .sidebar {
-            position: relative;
-            top: 0;
-            max-height: none;
-            margin-bottom: 20px;
+        .mobile-navbar .group-info h6 {
+            font-size: 0.95rem;
+        }
+        
+        .mobile-navbar .group-info small {
+            font-size: 0.7rem;
         }
         
         .message-container {
-            max-height: 400px;
-            padding: 10px 15px;
+            max-height: calc(100vh - 180px);
+            min-height: 300px;
+            padding: 12px 15px;
         }
         
         .message-input {
-            padding: 10px;
+            padding: 12px;
         }
         
         .chat-message {
             max-width: 90%;
+            margin-bottom: 20px;
         }
         
         .message-bubble {
-            padding: 12px 15px;
+            padding: 12px 16px;
             max-width: 95%;
         }
         
-        .modal-dialog {
-            margin: 10px;
-            max-width: calc(100% - 20px);
-        }
-        
-        .modal-body {
-            padding: 20px 15px;
-        }
-        
-        .modal-header {
-            padding: 15px 20px;
-        }
-        
-        .modal-footer {
-            padding: 15px 20px;
-        }
-        
-        .table-responsive {
-            font-size: 0.85rem;
-        }
-        
-        .table thead th,
-        .table tbody td {
-            padding: 8px 5px;
-        }
-        
-        .profile-image-placeholder {
+        .profile-image-placeholder,
+        .profile-image-real {
             width: 35px;
             height: 35px;
             font-size: 16px;
         }
+    }
+
+    /* Mobile Phone Responsive Styles */
+    @media (max-width: 576px) {
+        body {
+            font-size: 12px;
+            padding-top: 0; /* Remove fixed padding */
+        }
+        
+        .custom-container {
+            padding: 0 8px;
+        }
+        
+        .main-content {
+            padding-top: 8px; /* Normal top padding */
+            padding-bottom: 10px;
+        }
+        
+        .mobile-navbar {
+            padding: 8px 12px; /* More compact */
+        }
+        
+        .mobile-navbar .group-info h6 {
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+        
+        .mobile-navbar .group-info small {
+            font-size: 0.65rem;
+            opacity: 0.9;
+        }
+        
+        .mobile-navbar .navbar-actions {
+            gap: 5px;
+        }
+        
+        .burger-menu {
+            font-size: 1rem;
+            padding: 6px;
+        }
+        
+        .header-icon {
+            margin-left: 3px;
+            margin-right: 3px;
+            padding: 4px;
+            font-size: 0.9rem;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-sidebar {
+            width: 260px;
+        }
+        
+        .mobile-sidebar-header {
+            padding: 15px 12px;
+        }
+        
+        .mobile-sidebar-header h6 {
+            font-size: 0.95rem;
+        }
+        
+        .message-container {
+            max-height: calc(100vh - 160px);
+            min-height: 250px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .message-input {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+        
+        .chat-message {
+            max-width: 95%;
+            margin-bottom: 15px;
+        }
+        
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 100%;
+            min-width: 60px;
+        }
+        
+        .chat-message.mahasiswa .message-bubble {
+            border-radius: 12px 12px 3px 12px;
+            min-width: 80px;
+        }
+        
+        .chat-message.mahasiswa-lain .message-bubble,
+        .chat-message.dosen .message-bubble {
+            border-radius: 12px 12px 12px 3px;
+            min-width: 60px;
+        }
+        
+        .sender-name {
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        
+        .message-bubble p {
+            margin-bottom: 6px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .message-time {
+            font-size: 10px;
+            margin-top: 3px;
+        }
+        
+        .chat-date-divider {
+            margin: 15px 0;
+        }
+        
+        .chat-date-divider span {
+            padding: 0 10px;
+            font-size: 10px;
+        }
+        
+        .form-control {
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-size: 12px;
+        }
+        
+        .input-group .form-control {
+            border-radius: 20px 0 0 20px;
+        }
+        
+        .input-group .btn {
+            border-radius: 0 20px 20px 0;
+            padding: 10px 15px;
+            font-size: 12px;
+        }
         
         .btn {
             padding: 8px 12px;
-            font-size: 0.85rem;
+            font-size: 12px;
+        }
+        
+        /* Modal Responsive untuk Mobile */
+        .modal-dialog {
+            margin: 8px;
+            max-width: calc(100% - 16px);
+        }
+        
+        .modal-content {
+            border-radius: 8px;
+        }
+        
+        .modal-header {
+            padding: 15px 16px;
+        }
+        
+        .modal-title {
+            font-size: 1rem;
+        }
+        
+        .modal-body {
+            padding: 16px;
+        }
+        
+        .modal-footer {
+            padding: 12px 16px;
         }
         
         .info-item {
             padding: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
         }
         
         .info-item label {
-            font-size: 0.9rem;
+            font-size: 12px;
+            margin-bottom: 6px;
         }
         
         .info-item p {
-            font-size: 0.85rem;
+            font-size: 11px;
+        }
+        
+        .table-responsive {
+            font-size: 11px;
+        }
+        
+        .table thead th,
+        .table tbody td {
+            padding: 8px 4px;
+            font-size: 10px;
+        }
+        
+        .profile-image-placeholder,
+        .profile-image-real {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+        }
+        
+        /* Scroll to bottom button untuk mobile */
+        .scroll-to-bottom-mobile {
+            bottom: 100px !important;
+            right: 15px !important;
+            width: 35px !important;
+            height: 35px !important;
+        }
+        
+        /* Empty message state untuk mobile */
+        .text-center.py-5 {
+            padding: 2rem 1rem !important;
+        }
+        
+        .text-center.py-5 .fa-3x {
+            font-size: 2rem !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        .text-center.py-5 p {
+            font-size: 12px;
+            margin-bottom: 8px;
         }
     }
 
-    @media (max-width: 576px) {
-        .header-icon {
-            margin-left: 8px;
-            padding: 6px;
-            font-size: 1rem;
+    /* Extra Small Mobile (iPhone SE, etc) */
+    @media (max-width: 375px) {
+        body {
+            padding-top: 0; /* Remove fixed padding */
         }
         
-        .group-header .d-flex {
-            flex-direction: column;
-            align-items: flex-start;
+        .custom-container {
+            padding: 0 6px;
         }
         
-        .group-header .d-flex > div:last-child {
-            margin-top: 10px;
-            align-self: flex-end;
+        .message-container {
+            max-height: calc(100vh - 140px);
+            min-height: 220px;
+        }
+        
+        .chat-message {
+            max-width: 98%;
+        }
+        
+        .mobile-navbar .group-info h6 {
+            font-size: 0.85rem !important;
+            max-width: 150px;
+        }
+        
+        .mobile-navbar .group-info small {
+            font-size: 0.6rem !important;
+        }
+        
+        .mobile-sidebar {
+            width: 240px;
         }
         
         .modal-dialog {
@@ -641,43 +1048,155 @@
             flex-wrap: nowrap;
         }
         
-        .input-group .form-control {
+        .form-control {
             min-width: 0;
             flex: 1;
         }
-        
-        .message-input .input-group {
-            border-radius: 25px;
-            overflow: hidden;
+    }
+
+    /* Landscape orientation untuk mobile */
+    @media (max-width: 768px) and (orientation: landscape) {
+        body {
+            padding-top: 0; /* Remove fixed padding for landscape */
         }
         
-        .message-input .form-control {
-            border-radius: 25px 0 0 25px;
+        .mobile-navbar {
+            padding: 6px 12px; /* More compact in landscape */
         }
         
-        .message-input .btn {
-            border-radius: 0 25px 25px 0;
+        .main-content {
+            padding-top: 6px;
+            padding-bottom: 8px;
+        }
+        
+        .message-container {
+            max-height: calc(100vh - 120px);
+            min-height: 200px;
+        }
+        
+        .message-input {
+            padding: 8px;
+        }
+    }
+
+    /* High DPI / Retina Display Adjustments */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .message-bubble {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .sidebar {
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+        }
+        
+        .mobile-navbar {
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
+        }
+    }
+
+    /* Dark mode support (optional) */
+    @media (prefers-color-scheme: dark) {
+        .sidebar-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
         }
     }
 </style>
 @endpush
 
 @section('content')
+<!-- Mobile Navigation Bar - Fixed at top -->
+<div class="mobile-navbar" id="mobileNavbar">
+    <div class="navbar-content">
+        <div class="group-info">
+            <h6>{{ $grup->nama_grup }}</h6>
+            <small>{{ $grup->mahasiswa->count() }} anggota</small>
+        </div>
+        <div class="navbar-actions">
+            <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#anggotaGrupModal"></i>
+            <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
+            <button class="burger-menu" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile navbar compensation when it becomes fixed -->
+<div class="mobile-navbar-compensation" id="mobileNavbarCompensation"></div>
+
 <div class="main-content">
     <div class="custom-container">
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Mobile Sidebar -->
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <div class="mobile-sidebar-header">
+                <h6>Menu</h6>
+                <button class="close-sidebar" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-buttons">
+                <a href="{{ route('mahasiswa.pesan.create') }}" class="btn" style="background: var(--primary-gradient); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                    <i class="fas fa-plus me-2"></i> Pesan Baru
+                </a>
+            </div>
+            <div class="sidebar-menu">
+                <div class="nav flex-column">
+                    <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="nav-link">
+                        <i class="fas fa-home me-2"></i>Daftar Pesan
+                    </a>
+                    <a href="#" class="nav-link menu-item active" id="mobileGrupDropdownToggle">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
+                            <i class="fas fa-chevron-down" id="mobileGrupDropdownIcon"></i>
+                        </div>
+                    </a>
+                    <div class="collapse show komunikasi-submenu" id="mobileKomunikasiSubmenu">
+                        @php
+                            $grups = Auth::user()->grups;
+                        @endphp
+                        
+                        @if($grups && $grups->count() > 0)
+                            @foreach($grups as $grupItem)
+                            <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center {{ $grupItem->id == $grup->id ? 'active' : '' }}">
+                                {{ $grupItem->nama_grup }}
+                                @if(isset($grupItem->unreadMessages) && $grupItem->unreadMessages > 0)
+                                <span class="badge bg-danger rounded-pill">{{ $grupItem->unreadMessages }}</span>
+                                @endif
+                            </a>
+                            @endforeach
+                        @else
+                            <div class="nav-link menu-item text-muted">
+                                <small>Belum ada grup</small>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <a href="{{ route('mahasiswa.pesan.history') }}" class="nav-link menu-item">
+                        <i class="fas fa-history me-2"></i>Riwayat Pesan
+                    </a>
+                    <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
+                        <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-4">
-            <!-- Sidebar -->
+            <!-- Desktop Sidebar -->
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
-                        <a href="{{ url('/buatpesanmahasiswa') }}" class="btn" style="background: var(--primary-gradient); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                        <a href="{{ route('mahasiswa.pesan.create') }}" class="btn" style="background: var(--primary-gradient); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
                             <i class="fas fa-plus me-2"></i> Pesan Baru
                         </a>
                     </div>                                                    
                     
                     <div class="sidebar-menu">
                         <div class="nav flex-column">
-                            <a href="{{ url('/dashboardpesanmahasiswa') }}" class="nav-link">
+                            <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="nav-link">
                                 <i class="fas fa-home me-2"></i>Daftar Pesan
                             </a>
                             <a href="#" class="nav-link menu-item active" id="grupDropdownToggle">
@@ -707,7 +1226,7 @@
                                 @endif
                             </div>
                             
-                            <a href="{{ url('/riwayatpesanmahasiswa') }}" class="nav-link menu-item">
+                            <a href="{{ route('mahasiswa.pesan.history') }}" class="nav-link menu-item">
                                 <i class="fas fa-history me-2"></i>Riwayat Pesan
                             </a>
                             <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
@@ -720,7 +1239,7 @@
 
             <!-- Main Content Area -->
             <div class="col-md-9">
-                <!-- Group Header -->
+                <!-- Desktop Group Header -->
                 <div class="group-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -900,21 +1419,134 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Kode dropdown grup yang sudah ada
+    // Mobile sidebar functionality
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const mobileNavbar = document.getElementById('mobileNavbar');
+    const mobileNavbarCompensation = document.getElementById('mobileNavbarCompensation');
+    
+    // Enhanced mobile navbar with scroll effect - same as dashboard
+    function handleMobileNavbarScroll() {
+        if (!mobileNavbar || window.innerWidth > 991) return;
+        
+        const scrolled = window.scrollY > 50;
+        
+        if (scrolled) {
+            mobileNavbar.classList.add('scrolled');
+            mobileNavbarCompensation.classList.add('active');
+        } else {
+            mobileNavbar.classList.remove('scrolled');
+            mobileNavbarCompensation.classList.remove('active');
+        }
+    }
+    
+    // Add scroll listener for mobile navbar effect
+    window.addEventListener('scroll', handleMobileNavbarScroll);
+    
+    // Performance optimization: Throttle scroll events
+    let ticking = false;
+    
+    function updateScrollEffects() {
+        handleMobileNavbarScroll();
+        ticking = false;
+    }
+    
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(updateScrollEffects);
+            ticking = true;
+        }
+    });
+    
+    // Initialize scroll effects on load
+    handleMobileNavbarScroll();
+    
+    // Open mobile sidebar
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function() {
+            mobileSidebar.classList.add('show');
+            sidebarOverlay.style.display = 'block';
+            setTimeout(() => {
+                sidebarOverlay.classList.add('show');
+            }, 10);
+            
+            // Prevent body scroll when sidebar is open
+            document.body.style.overflow = 'hidden';
+        });
+    }
+    
+    // Close mobile sidebar
+    function closeMobileSidebar() {
+        mobileSidebar.classList.remove('show');
+        sidebarOverlay.classList.remove('show');
+        setTimeout(() => {
+            sidebarOverlay.style.display = 'none';
+        }, 300);
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+    
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', closeMobileSidebar);
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeMobileSidebar);
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile)
+    const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
+    mobileMenuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Add small delay to allow navigation
+            setTimeout(closeMobileSidebar, 100);
+        });
+    });
+    
+    // Mobile dropdown functionality
+    const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
+    const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
+    const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
+    
+    if (mobileGrupDropdownToggle) {
+        mobileGrupDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Toggle the collapse
+            const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
+            
+            if (isCollapsed) {
+                mobileKomunikasiSubmenu.classList.add('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-down');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-up');
+            } else {
+                mobileKomunikasiSubmenu.classList.remove('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-down');
+            }
+        });
+    }
+    
+    // Desktop dropdown functionality
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
     const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
     const grupDropdownIcon = document.getElementById('grupDropdownIcon');
     
-    grupDropdownToggle.addEventListener('click', function() {
-        // Toggle the collapse
-        const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
-            toggle: true
+    if (grupDropdownToggle) {
+        grupDropdownToggle.addEventListener('click', function() {
+            // Toggle the collapse using Bootstrap
+            const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
+                toggle: true
+            });
+            
+            // Toggle the icon
+            grupDropdownIcon.classList.toggle('fa-chevron-up');
+            grupDropdownIcon.classList.toggle('fa-chevron-down');
         });
-        
-        // Toggle the icon
-        grupDropdownIcon.classList.toggle('fa-chevron-up');
-        grupDropdownIcon.classList.toggle('fa-chevron-down');
-    });
+    }
     
     // Auto scroll ke chat terbaru
     const messageContainer = document.getElementById('messageContainer');
@@ -1037,12 +1669,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Enhancement: Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        // Esc untuk tutup modal yang terbuka
+        // Esc untuk tutup modal yang terbuka atau sidebar mobile
         if (e.key === 'Escape') {
             const openModals = document.querySelectorAll('.modal.show');
             openModals.forEach(modal => {
                 bootstrap.Modal.getInstance(modal)?.hide();
             });
+            
+            // Close mobile sidebar if open
+            if (mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
         }
         
         // Ctrl/Cmd + Enter untuk kirim pesan
@@ -1135,6 +1772,391 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollToBottomBtn.style.display = isAtBottom ? 'none' : 'block';
         });
     }
+    
+    // Mobile responsiveness enhancements
+    function handleMobileOptimizations() {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // Add mobile-specific classes
+            scrollToBottomBtn.classList.add('scroll-to-bottom-mobile');
+            
+            // Adjust message container height on mobile
+            if (messageContainer) {
+                const viewportHeight = window.innerHeight;
+                const mobileNavbarElement = document.querySelector('.mobile-navbar');
+                const inputHeight = document.querySelector('.message-input').offsetHeight;
+                const mobileNavbarHeight = mobileNavbarElement ? mobileNavbarElement.offsetHeight : 0;
+                
+                // Calculate optimal height for mobile
+                const availableHeight = viewportHeight - mobileNavbarHeight - inputHeight - 80; // 80px for margins
+                messageContainer.style.maxHeight = Math.max(250, availableHeight) + 'px';
+            }
+            
+            // Optimize touch interactions
+            if (messageInput) {
+                messageInput.addEventListener('touchstart', function() {
+                    // Prevent zoom on iOS
+                    const viewport = document.querySelector('meta[name="viewport"]');
+                    if (viewport) {
+                        viewport.setAttribute('content', 
+                            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+                    }
+                });
+                
+                messageInput.addEventListener('blur', function() {
+                    // Re-enable zoom after input loses focus
+                    const viewport = document.querySelector('meta[name="viewport"]');
+                    if (viewport) {
+                        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                    }
+                });
+            }
+        }
+    }
+    
+    // Run mobile optimizations on load and resize
+    handleMobileOptimizations();
+    window.addEventListener('resize', handleMobileOptimizations);
+    
+    // Handle orientation changes on mobile
+    window.addEventListener('orientationchange', function() {
+        setTimeout(handleMobileOptimizations, 500);
+    });
+    
+    // Swipe gesture for mobile sidebar
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+    });
+    
+    function handleSwipeGesture() {
+        const swipeThreshold = 100;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        // Swipe right to open sidebar (only if not already open)
+        if (swipeDistance > swipeThreshold && touchStartX < 50 && !mobileSidebar.classList.contains('show')) {
+            if (window.innerWidth <= 768) {
+                mobileMenuToggle.click();
+            }
+        }
+        
+        // Swipe left to close sidebar (only if open)
+        if (swipeDistance < -swipeThreshold && mobileSidebar.classList.contains('show')) {
+            closeMobileSidebar();
+        }
+    }
+    
+    // Prevent sidebar from opening when swiping on message input
+    if (messageInput) {
+        messageInput.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        });
+        
+        messageInput.addEventListener('touchend', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Prevent accidental sidebar opening when scrolling messages
+    if (messageContainer) {
+        messageContainer.addEventListener('touchstart', function(e) {
+            // Only prevent if touch starts more than 20px from left edge
+            if (e.touches[0].clientX > 20) {
+                e.stopPropagation();
+            }
+        });
+    }
+    
+    // Handle window resize to close mobile sidebar on desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && mobileSidebar.classList.contains('show')) {
+            closeMobileSidebar();
+        }
+    });
+    
+    // Add haptic feedback for mobile interactions (if supported)
+    function addHapticFeedback() {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50); // Short vibration
+        }
+    }
+    
+    // Add haptic feedback to button clicks on mobile
+    const interactiveElements = [mobileMenuToggle, closeSidebar, ...mobileMenuItems];
+    interactiveElements.forEach(element => {
+        if (element) {
+            element.addEventListener('touchstart', function() {
+                if (window.innerWidth <= 768) {
+                    addHapticFeedback();
+                }
+            });
+        }
+    });
+    
+    // Smooth animations for better mobile experience
+    mobileSidebar.style.transition = 'left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
+    sidebarOverlay.style.transition = 'opacity 0.3s ease';
+    
+    // Optimize scroll performance on mobile
+    let tickingScroll = false;
+    
+    function updateScrollPosition() {
+        // Update scroll-to-bottom button visibility
+        if (messageContainer) {
+            const isAtBottom = messageContainer.scrollTop + messageContainer.clientHeight >= messageContainer.scrollHeight - 100;
+            scrollToBottomBtn.style.display = isAtBottom ? 'none' : 'block';
+        }
+        tickingScroll = false;
+    }
+    
+    if (messageContainer) {
+        messageContainer.addEventListener('scroll', function() {
+            if (!tickingScroll) {
+                requestAnimationFrame(updateScrollPosition);
+                tickingScroll = true;
+            }
+        });
+    }
+    
+    // Enhanced mobile keyboard handling
+    function handleMobileKeyboard() {
+        if (window.innerWidth <= 768) {
+            const initialViewportHeight = window.innerHeight;
+            
+            window.addEventListener('resize', function() {
+                const currentViewportHeight = window.innerHeight;
+                const keyboardHeight = initialViewportHeight - currentViewportHeight;
+                
+                // Keyboard is likely open if viewport height decreased significantly
+                if (keyboardHeight > 150) {
+                    // Adjust message container height when keyboard is open
+                    if (messageContainer) {
+                        const mobileNavbarElement = document.querySelector('.mobile-navbar');
+                        const inputHeight = document.querySelector('.message-input').offsetHeight;
+                        const mobileNavbarHeight = mobileNavbarElement ? mobileNavbarElement.offsetHeight : 0;
+                        
+                        const availableHeight = currentViewportHeight - mobileNavbarHeight - inputHeight - 60;
+                        messageContainer.style.maxHeight = Math.max(200, availableHeight) + 'px';
+                        
+                        // Scroll to bottom when keyboard opens
+                        setTimeout(() => {
+                            messageContainer.scrollTop = messageContainer.scrollHeight;
+                        }, 100);
+                    }
+                } else {
+                    // Keyboard closed, restore normal height
+                    handleMobileOptimizations();
+                }
+            });
+        }
+    }
+    
+    handleMobileKeyboard();
+    
+    // Prevent double-tap zoom on mobile buttons
+    const preventDoubleTapZoom = function(e) {
+        e.preventDefault();
+        this.click();
+    };
+    
+    [mobileMenuToggle, closeSidebar].forEach(button => {
+        if (button) {
+            button.addEventListener('touchend', preventDoubleTapZoom);
+        }
+    });
+    
+    // Add loading states for better UX
+    function showLoading(element, originalContent) {
+        element.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        element.disabled = true;
+        return originalContent;
+    }
+    
+    function hideLoading(element, originalContent) {
+        element.innerHTML = originalContent;
+        element.disabled = false;
+    }
+    
+    // Enhanced error handling
+    function showError(message, duration = 3000) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger position-fixed';
+        errorDiv.style.cssText = `
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 300px;
+            animation: slideInRight 0.3s ease;
+        `;
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close ms-2" onclick="this.parentElement.remove()"></button>
+        `;
+        
+        document.body.appendChild(errorDiv);
+        
+        setTimeout(() => {
+            if (errorDiv.parentElement) {
+                errorDiv.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => errorDiv.remove(), 300);
+            }
+        }, duration);
+    }
+    
+    // Add CSS animations for notifications
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Connection status indicator for better UX
+    function updateConnectionStatus() {
+        const isOnline = navigator.onLine;
+        const statusIndicator = document.getElementById('connectionStatus') || createConnectionStatusIndicator();
+        
+        if (isOnline) {
+            statusIndicator.style.display = 'none';
+        } else {
+            statusIndicator.style.display = 'block';
+            statusIndicator.innerHTML = '<i class="fas fa-wifi"></i> Tidak ada koneksi internet';
+        }
+    }
+    
+    function createConnectionStatusIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'connectionStatus';
+        indicator.className = 'alert alert-warning position-fixed';
+        indicator.style.cssText = `
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9998;
+            display: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 20px;
+        `;
+        document.body.appendChild(indicator);
+        return indicator;
+    }
+    
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    
+    // Initialize connection status
+    updateConnectionStatus();
+    
+    // Performance optimization: Debounce resize events
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    const debouncedHandleMobileOptimizations = debounce(handleMobileOptimizations, 250);
+    window.addEventListener('resize', debouncedHandleMobileOptimizations);
+    
+    // Accessibility improvements
+    function enhanceAccessibility() {
+        // Add ARIA labels for better screen reader support
+        if (mobileMenuToggle) {
+            mobileMenuToggle.setAttribute('aria-label', 'Buka menu navigasi');
+            mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        }
+        
+        if (closeSidebar) {
+            closeSidebar.setAttribute('aria-label', 'Tutup menu navigasi');
+        }
+        
+        if (mobileSidebar) {
+            mobileSidebar.setAttribute('role', 'navigation');
+            mobileSidebar.setAttribute('aria-label', 'Menu navigasi utama');
+        }
+        
+        if (messageInput) {
+            messageInput.setAttribute('aria-label', 'Ketik pesan Anda');
+        }
+        
+        // Update ARIA states when sidebar opens/closes
+        const originalCloseMobileSidebar = closeMobileSidebar;
+        closeMobileSidebar = function() {
+            originalCloseMobileSidebar();
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        };
+        
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                this.setAttribute('aria-expanded', 'true');
+            });
+        }
+    }
+    
+    enhanceAccessibility();
+    
+    // Focus management for better keyboard navigation
+    function manageFocus() {
+        // When sidebar opens, focus on first menu item
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                setTimeout(() => {
+                    const firstMenuItem = mobileSidebar.querySelector('.nav-link');
+                    if (firstMenuItem) {
+                        firstMenuItem.focus();
+                    }
+                }, 350); // Wait for animation to complete
+            });
+        }
+        
+        // Trap focus within sidebar when open
+        if (mobileSidebar) {
+            mobileSidebar.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    const focusableElements = mobileSidebar.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+                    
+                    if (e.shiftKey && document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    } else if (!e.shiftKey && document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            });
+        }
+    }
+    
+    manageFocus();
+    
+    console.log('Mobile group chat initialized successfully');
 });
 </script>
 @endpush

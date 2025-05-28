@@ -134,6 +134,8 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             border: 1px solid #eaedf1;
             table-layout: fixed !important;
+            font-size: 14px;
+            margin-bottom: 20px;
         }
         
         .info-table tr {
@@ -149,10 +151,11 @@
             vertical-align: middle;
             white-space: normal;
             word-break: break-word;
+            overflow: hidden;
         }
         
         .info-table td:first-child {
-            width: 100px !important;
+            width: 35% !important;
             white-space: nowrap !important;
             color: var(--gray-text);
             background-color: #f0f4f8;
@@ -161,11 +164,13 @@
         }
         
         .info-table td:last-child {
-            width: calc(100% - 100px) !important;
+            width: 65% !important;
             border-bottom: 1px solid #eaedf1;
             padding-right: 20px;
-            word-break: normal;
+            word-break: break-all;
+            word-wrap: break-word;
             white-space: normal;
+            overflow-wrap: break-word;
         }
         
         .info-table tr:last-child td {
@@ -701,37 +706,6 @@
             box-shadow: 0 2px 5px rgba(231, 76, 60, 0.1);
         }
         
-        /* Responsive adjustments */
-        @media (max-width: 992px) {
-            .chat-message {
-                max-width: 90%;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .chat-message {
-                max-width: 100%;
-            }
-            
-            .main-content {
-                padding: 15px 0;
-            }
-            
-            .message-header {
-                padding: 15px 20px;
-            }
-            
-            .left-panel {
-                position: static;
-                margin-bottom: 20px;
-            }
-            
-            .profile-image {
-                width: 100px;
-                height: 100px;
-            }
-        }
-        
         /* Styling untuk pesan yang disematkan */
         .chat-message.pinned .bookmark-icon {
             display: inline-block !important;
@@ -743,6 +717,505 @@
         
         .chat-message.pinned .bookmark-checkbox {
             display: none !important;
+        }
+
+        /* ===============================
+           MOBILE RESPONSIVE STYLES
+           =============================== */
+
+        /* Tablet Portrait (768px and down) */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px 0;
+            }
+            
+            .custom-container {
+                padding: 0 15px;
+            }
+            
+            /* Left Panel Mobile Adjustments */
+            .left-panel {
+                position: static;
+                margin-bottom: 15px;
+                padding: 20px;
+                border-radius: 8px;
+            }
+            
+            /* Profile Image Smaller */
+            .profile-image,
+            .profile-image-placeholder {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+                margin-bottom: 8px;
+            }
+            
+            /* Profile Text Smaller */
+            .info-title {
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+            
+            /* Info Table Mobile - MINIMAL CHANGES */
+            .info-table {
+                font-size: 13px;
+                margin-bottom: 15px;
+            }
+            
+            .info-table td {
+                padding: 12px 15px;
+            }
+            
+            /* Smaller buttons */
+            .back-button,
+            .end-chat-button {
+                padding: 10px 15px;
+                font-size: 13px;
+                margin-bottom: 15px;
+            }
+            
+            .back-button:hover,
+            .end-chat-button:hover {
+                transform: none;
+            }
+            
+            /* Message Header Mobile */
+            .message-header {
+                padding: 15px 20px;
+                border-radius: 8px 8px 0 0;
+            }
+            
+            .message-header h4 {
+                font-size: 14px;
+            }
+            
+            /* Action buttons mobile */
+            .action-buttons {
+                gap: 10px;
+            }
+            
+            .action-button {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .simpan-button {
+                padding: 6px 12px;
+                font-size: 12px;
+                margin-left: 10px;
+            }
+            
+            /* Chat Container Mobile */
+            .chat-container {
+                padding: 20px 15px;
+                max-height: 400px;
+                border-radius: 0 0 8px 8px;
+            }
+            
+            /* Chat Messages Mobile */
+            .chat-message {
+                max-width: 95%;
+                margin-bottom: 20px;
+            }
+            
+            .message-bubble {
+                padding: 12px 15px;
+                max-width: 90%;
+                font-size: 13px;
+            }
+            
+            .message-time {
+                font-size: 11px;
+            }
+            
+            /* Input Container Mobile */
+            .message-input-container {
+                padding: 12px 15px;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .message-input {
+                padding: 10px 15px;
+                font-size: 13px;
+                min-height: 20px;
+            }
+            
+            .send-button {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+            
+            .send-button i {
+                margin-right: 5px;
+            }
+            
+            .input-action-button {
+                padding: 6px;
+                font-size: 16px;
+            }
+            
+            /* Attachment Mobile */
+            .attachment-container {
+                padding: 8px;
+                margin: 6px 0;
+            }
+            
+            .attachment-link {
+                font-size: 12px;
+            }
+            
+            .attachment-info {
+                font-size: 10px;
+            }
+            
+            .attachment-icon {
+                font-size: 16px;
+                margin-right: 6px;
+            }
+        }
+
+        /* Mobile Portrait (576px and down) */
+        @media (max-width: 576px) {
+            .custom-container {
+                padding: 0 10px;
+            }
+            
+            /* Even smaller profile image */
+            .profile-image,
+            .profile-image-placeholder {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+            
+            /* Compact left panel */
+            .left-panel {
+                padding: 15px;
+            }
+            
+            .info-title {
+                font-size: 15px;
+            }
+            
+            /* More compact info table - MINIMAL CHANGES */
+            .info-table {
+                font-size: 12px;
+            }
+            
+            .info-table td {
+                padding: 10px 12px;
+            }
+            
+            /* Header adjustments */
+            .message-header {
+                padding: 12px 15px;
+            }
+            
+            .message-header h4 {
+                font-size: 13px;
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons {
+                gap: 8px;
+            }
+            
+            .action-button {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            .simpan-button {
+                padding: 5px 10px;
+                font-size: 11px;
+                margin-left: 8px;
+            }
+            
+            /* Chat container smaller */
+            .chat-container {
+                padding: 15px 10px;
+                max-height: 350px;
+            }
+            
+            /* Message bubbles more compact */
+            .message-bubble {
+                padding: 10px 12px;
+                max-width: 85%;
+                font-size: 12px;
+            }
+            
+            .chat-date-divider span {
+                font-size: 11px;
+                padding: 0 10px;
+            }
+            
+            /* Input area very compact */
+            .message-input-container {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            
+            .message-input {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .send-button {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+            
+            .input-action-button {
+                padding: 5px;
+                font-size: 15px;
+            }
+            
+            /* Buttons more compact */
+            .back-button,
+            .end-chat-button {
+                padding: 8px 12px;
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
+            
+            /* Badge adjustments */
+            .badge-priority {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+        }
+
+        /* Extra Small Mobile (480px and down) */
+        @media (max-width: 480px) {
+            /* Force single column layout */
+            .row {
+                margin: 0;
+            }
+            
+            .col-md-4,
+            .col-lg-3,
+            .col-md-8,
+            .col-lg-9 {
+                padding: 0;
+                margin-bottom: 10px;
+            }
+            
+            /* Ultra compact profile */
+            .profile-image,
+            .profile-image-placeholder {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
+            }
+            
+            .left-panel {
+                padding: 12px;
+            }
+            
+            .info-title {
+                font-size: 14px;
+                line-height: 1.2;
+            }
+            
+            /* Ultra compact table - MINIMAL CHANGES */
+            .info-table {
+                font-size: 11px;
+            }
+            
+            .info-table td {
+                padding: 8px 10px;
+            }
+            
+            /* Ultra compact header */
+            .message-header {
+                padding: 10px 12px;
+            }
+            
+            .message-header h4 {
+                font-size: 12px;
+            }
+            
+            .action-buttons {
+                gap: 6px;
+            }
+            
+            .action-button {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+            
+            .simpan-button {
+                padding: 4px 8px;
+                font-size: 10px;
+                margin-left: 6px;
+            }
+            
+            /* Ultra compact chat */
+            .chat-container {
+                padding: 12px 8px;
+                max-height: 300px;
+            }
+            
+            .message-bubble {
+                padding: 8px 10px;
+                font-size: 11px;
+                max-width: 80%;
+            }
+            
+            /* Ultra compact input */
+            .message-input-container {
+                padding: 8px 10px;
+                gap: 6px;
+            }
+            
+            .message-input {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            
+            .send-button {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            
+            .send-button i {
+                font-size: 11px;
+            }
+            
+            /* Ultra compact buttons */
+            .back-button,
+            .end-chat-button {
+                padding: 6px 10px;
+                font-size: 11px;
+                margin-bottom: 10px;
+            }
+            
+            .back-button i,
+            .end-chat-button i {
+                font-size: 13px;
+                margin-right: 6px;
+            }
+        }
+
+        /* Landscape Mobile Specific (max-height: 500px) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .main-content {
+                padding: 10px 0;
+            }
+            
+            .left-panel {
+                position: static;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .profile-image,
+            .profile-image-placeholder {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+            
+            .info-title {
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+            
+            .info-table {
+                font-size: 10px;
+                margin-bottom: 8px;
+            }
+            
+            .info-table td {
+                padding: 6px 8px;
+            }
+            
+            .chat-container {
+                max-height: 200px;
+                padding: 10px;
+            }
+            
+            .message-header {
+                padding: 8px 12px;
+            }
+            
+            .message-header h4 {
+                font-size: 11px;
+            }
+            
+            .action-button {
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
+            }
+            
+            .simpan-button {
+                padding: 3px 6px;
+                font-size: 9px;
+            }
+            
+            .message-bubble {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+            
+            .message-input-container {
+                padding: 6px 8px;
+            }
+            
+            .message-input {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            .send-button {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            .back-button,
+            .end-chat-button {
+                padding: 4px 8px;
+                font-size: 10px;
+                margin-bottom: 8px;
+            }
+        }
+
+        /* Fix for sticky positioning on mobile */
+        @media (max-width: 768px) {
+            .left-panel {
+                position: static !important;
+                top: auto !important;
+            }
+        }
+        
+        /* Ensure touch targets are adequate */
+        @media (max-width: 576px) {
+            .send-button,
+            .back-button,
+            .end-chat-button,
+            .input-action-button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .message-input {
+                min-height: 44px;
+            }
+        }
+        
+                    /* Handle very long text in message bubbles */
+        @media (max-width: 576px) {
+            .message-bubble p {
+                word-break: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
         }
     </style>
 @endpush

@@ -716,38 +716,516 @@
             border: none;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 992px) {
-            .chat-message {
-                max-width: 90%;
-            }
-        }
+        /* ===============================
+           MOBILE RESPONSIVE STYLES
+           =============================== */
 
+        /* Tablet Portrait (768px and down) */
         @media (max-width: 768px) {
-            .chat-message {
-                max-width: 100%;
-            }
-            
             .main-content {
                 padding: 15px 0;
             }
             
+            .custom-container {
+                padding: 0 15px;
+            }
+            
+            /* Left Panel Mobile Adjustments */
+            .left-panel {
+                position: static;
+                margin-bottom: 15px;
+                padding: 20px;
+                border-radius: 8px;
+            }
+            
+            /* Profile Image Smaller */
+            .profile-image,
+            .profile-image-placeholder {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+                margin-bottom: 8px;
+            }
+            
+            /* Profile Text Smaller */
+            .profile-section h5.info-title {
+                font-size: 14px;
+                margin-bottom: 3px;
+            }
+            
+            .profile-section p.text-muted {
+                font-size: 11px;
+            }
+            
+            /* Info Table Mobile */
+            .info-table {
+                font-size: 11px;
+                margin-bottom: 12px;
+            }
+            
+            .info-table td {
+                padding: 8px 12px;
+            }
+            
+            .info-table td:first-child {
+                width: 35% !important;
+                font-size: 10px;
+            }
+            
+            .info-table td:last-child {
+                width: 65% !important;
+                font-size: 10px;
+                padding-right: 12px;
+            }
+            
+            /* Smaller buttons */
+            .back-button,
+            .end-chat-button {
+                padding: 10px 15px;
+                font-size: 13px;
+                margin-bottom: 15px;
+            }
+            
+            .back-button:hover,
+            .end-chat-button:hover {
+                transform: none;
+            }
+            
+            /* Message Header Mobile */
             .message-header {
                 padding: 15px 20px;
+                border-radius: 8px 8px 0 0;
+            }
+            
+            .message-header h4 {
+                font-size: 14px;
+            }
+            
+            /* Chat Container Mobile */
+            .chat-container {
+                padding: 20px 15px;
+                max-height: 400px;
+                border-radius: 0 0 8px 8px;
+            }
+            
+            /* Chat Messages Mobile */
+            .chat-message {
+                max-width: 95%;
+                margin-bottom: 20px;
+            }
+            
+            .message-bubble {
+                padding: 12px 15px;
+                max-width: 90%;
+                font-size: 13px;
+            }
+            
+            .message-time {
+                font-size: 11px;
+            }
+            
+            /* Input Container Mobile */
+            .message-input-container {
+                padding: 12px 15px;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .message-input {
+                padding: 10px 15px;
+                font-size: 13px;
+                min-height: 20px;
+            }
+            
+            .send-button {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+            
+            .send-button i {
+                margin-right: 5px;
+            }
+            
+            .input-action-button {
+                padding: 6px;
+                font-size: 16px;
+            }
+            
+            /* Modal Mobile */
+            .modal-title {
+                font-size: 16px;
+            }
+            
+            .modal-body {
+                padding: 20px;
+                font-size: 13px;
+            }
+            
+            .modal-footer {
+                padding: 15px 20px 20px;
+            }
+            
+            /* Attachment Mobile */
+            .attachment-container {
+                padding: 8px;
+                margin: 6px 0;
+            }
+            
+            .attachment-link {
+                font-size: 12px;
+            }
+            
+            .attachment-info {
+                font-size: 10px;
+            }
+            
+            .attachment-icon {
+                font-size: 16px;
+                margin-right: 6px;
+            }
+        }
+
+        /* Mobile Portrait (576px and down) */
+        @media (max-width: 576px) {
+            .custom-container {
+                padding: 0 10px;
+            }
+            
+            /* Even smaller profile image */
+            .profile-image,
+            .profile-image-placeholder {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
+            }
+            
+            /* Compact left panel */
+            .left-panel {
+                padding: 15px;
+            }
+            
+            .profile-section h5.info-title {
+                font-size: 13px;
+            }
+            
+            .profile-section p.text-muted {
+                font-size: 10px;
+            }
+            
+            /* More compact info table */
+            .info-table {
+                font-size: 10px;
+            }
+            
+            .info-table td {
+                padding: 6px 10px;
+            }
+            
+            .info-table td:first-child {
+                width: 38% !important;
+                font-size: 9px;
+            }
+            
+            .info-table td:last-child {
+                width: 62% !important;
+                font-size: 9px;
+            }
+            
+            /* Header adjustments */
+            .message-header {
+                padding: 12px 15px;
+            }
+            
+            .message-header h4 {
+                font-size: 13px;
+                flex-wrap: wrap;
+            }
+            
+            /* Chat container smaller */
+            .chat-container {
+                padding: 15px 10px;
+                max-height: 350px;
+            }
+            
+            /* Message bubbles more compact */
+            .message-bubble {
+                padding: 10px 12px;
+                max-width: 85%;
+                font-size: 12px;
+            }
+            
+            .chat-date-divider span {
+                font-size: 11px;
+                padding: 0 10px;
+            }
+            
+            /* Input area very compact */
+            .message-input-container {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            
+            .message-input {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .send-button {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+            
+            .input-action-button {
+                padding: 5px;
+                font-size: 15px;
+            }
+            
+            /* Buttons more compact */
+            .back-button,
+            .end-chat-button {
+                padding: 8px 12px;
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
+            
+            /* Badge adjustments */
+            .badge-kaprodi,
+            .badge.bg-warning {
+                font-size: 8px;
+                padding: 2px 4px;
+                margin-left: 3px;
+            }
+            
+            .badge-priority {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+        }
+
+        /* Extra Small Mobile (480px and down) */
+        @media (max-width: 480px) {
+            /* Force single column layout */
+            .row {
+                margin: 0;
+            }
+            
+            .col-md-4,
+            .col-lg-3,
+            .col-md-8,
+            .col-lg-9 {
+                padding: 0;
+                margin-bottom: 10px;
+            }
+            
+            /* Ultra compact profile */
+            .profile-image,
+            .profile-image-placeholder {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            .left-panel {
+                padding: 12px;
+            }
+            
+            .profile-section h5.info-title {
+                font-size: 12px;
+                line-height: 1.2;
+            }
+            
+            .profile-section p.text-muted {
+                font-size: 9px;
+            }
+            
+            /* Ultra compact table */
+            .info-table {
+                font-size: 9px;
+            }
+            
+            .info-table td {
+                padding: 4px 8px;
+            }
+            
+            .info-table td:first-child {
+                width: 40% !important;
+                font-size: 8px;
+            }
+            
+            .info-table td:last-child {
+                width: 60% !important;
+                font-size: 8px;
+            }
+            
+            /* Ultra compact header */
+            .message-header {
+                padding: 10px 12px;
+            }
+            
+            .message-header h4 {
+                font-size: 12px;
+            }
+            
+            /* Ultra compact chat */
+            .chat-container {
+                padding: 12px 8px;
+                max-height: 300px;
+            }
+            
+            .message-bubble {
+                padding: 8px 10px;
+                font-size: 11px;
+                max-width: 80%;
+            }
+            
+            /* Ultra compact input */
+            .message-input-container {
+                padding: 8px 10px;
+                gap: 6px;
+            }
+            
+            .message-input {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            
+            .send-button {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            
+            .send-button i {
+                font-size: 11px;
+            }
+            
+            /* Ultra compact buttons */
+            .back-button,
+            .end-chat-button {
+                padding: 6px 10px;
+                font-size: 11px;
+                margin-bottom: 10px;
+            }
+            
+            .back-button i,
+            .end-chat-button i {
+                font-size: 13px;
+                margin-right: 6px;
+            }
+        }
+
+        /* Landscape Mobile Specific (max-height: 500px) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .main-content {
+                padding: 10px 0;
             }
             
             .left-panel {
                 position: static;
-                margin-bottom: 20px;
+                padding: 10px;
+                margin-bottom: 10px;
             }
             
-            .profile-image {
-                width: 100px;
-                height: 100px;
+            .profile-image,
+            .profile-image-placeholder {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                margin-bottom: 5px;
             }
             
-            .end-chat-button, .back-button {
-                padding: 10px 15px;
+            .profile-section h5.info-title {
+                font-size: 11px;
+                margin-bottom: 2px;
+            }
+            
+            .profile-section p.text-muted {
+                font-size: 8px;
+            }
+            
+            .info-table {
+                font-size: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .info-table td {
+                padding: 3px 6px;
+            }
+            
+            .chat-container {
+                max-height: 200px;
+                padding: 10px;
+            }
+            
+            .message-header {
+                padding: 8px 12px;
+            }
+            
+            .message-header h4 {
+                font-size: 11px;
+            }
+            
+            .message-bubble {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+            
+            .message-input-container {
+                padding: 6px 8px;
+            }
+            
+            .message-input {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            .send-button {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            .back-button,
+            .end-chat-button {
+                padding: 4px 8px;
+                font-size: 10px;
+                margin-bottom: 8px;
+            }
+        }
+
+        /* Fix for sticky positioning on mobile */
+        @media (max-width: 768px) {
+            .left-panel {
+                position: static !important;
+                top: auto !important;
+            }
+        }
+        
+        /* Ensure touch targets are adequate */
+        @media (max-width: 576px) {
+            .send-button,
+            .back-button,
+            .end-chat-button,
+            .input-action-button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .message-input {
+                min-height: 44px;
+            }
+        }
+        
+        /* Handle very long text in message bubbles */
+        @media (max-width: 576px) {
+            .message-bubble p {
+                word-break: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
+            
+            .info-table td:last-child {
+                word-break: break-all;
+                overflow-wrap: break-word;
+                hyphens: auto;
             }
         }
     </style>
