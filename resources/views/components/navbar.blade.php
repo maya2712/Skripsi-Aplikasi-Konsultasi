@@ -54,9 +54,9 @@
                 @else
                     <!-- Menu untuk Mahasiswa dan Dosen (tetap seperti semula) -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#" style="font-weight: bold; border-bottom: 3px solid transparent; padding-bottom: 8px; margin-right: 20px;" onmouseover="this.style.borderBottomColor='#1a73e8'" onmouseout="this.style.borderBottomColor='transparent'">
+                        {{-- <a class="nav-link" href="#" style="font-weight: bold; border-bottom: 3px solid transparent; padding-bottom: 8px; margin-right: 20px;" onmouseover="this.style.borderBottomColor='#1a73e8'" onmouseout="this.style.borderBottomColor='transparent'">
                             BIMBINGAN
-                        </a>
+                        </a> --}}
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="#" style="font-weight: bold; border-bottom: 3px solid #1a73e8; padding-bottom: 8px;">

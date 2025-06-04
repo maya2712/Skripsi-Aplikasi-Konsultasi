@@ -209,9 +209,9 @@ class PesanDosenController extends Controller
             ], 500);
         }
     }
-    
+
     /**
-     * Menampilkan detail pesan
+     * Menampilkan detail pesan - PERBAIKAN
      */
     public function show($id)
     {
@@ -221,30 +221,37 @@ class PesanDosenController extends Controller
             $activeRole = session('active_role', 'dosen');
             
             // Pastikan dosen yang melihat adalah penerima ATAU pengirim pesan
-            // Dan jika sebagai penerima, hanya dapat melihat pesan untuk role yang aktif
-            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
+            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || 
+                ($pesan->nip_pengirim == $dosen->nip && $pesan->pengirim_role == $activeRole)) {
                 // Lanjutkan ke proses berikutnya
             } else {
                 return redirect()->route('dosen.dashboard.pesan')
                     ->with('error', 'Anda tidak memiliki akses ke pesan ini');
             }
             
-            // Load relasi balasan secara manual
-            $balasan = BalasanPesan::where('id_pesan', $pesan->id)->get();
+            // PERBAIKAN: Load relasi balasan dengan status is_pinned dari database
+            $balasan = BalasanPesan::where('id_pesan', $pesan->id)
+                ->select(['id', 'id_pesan', 'pengirim_id', 'tipe_pengirim', 'isi_balasan', 'lampiran', 'dibaca', 'is_pinned', 'created_at', 'updated_at'])
+                ->get();
+            
             $pesan->setRelation('balasan', $balasan);
             
-            // Log jumlah balasan untuk debug
-            Log::info('Balasan count for message ' . $id . ': ' . $balasan->count());
+            // PERBAIKAN: Refresh pesan untuk memastikan data terbaru dari database
+            $pesan->refresh();
+            
+            // Log untuk debugging
+            Log::info('Pesan ID: ' . $pesan->id . ', is_pinned from DB: ' . ($pesan->is_pinned ? 'true' : 'false'));
             
             // Cek balasan yang belum dibaca
             $unreadBalasan = $balasan->filter(function($item) {
                 return !$item->dibaca && $item->tipe_pengirim == 'mahasiswa';
             })->count();
             
-            Log::info('Unread balasan count: ' . $unreadBalasan);
-            
             // Load semua pengirim balasan (dosen dan mahasiswa) secara manual
             foreach ($pesan->balasan as $balasan) {
+                // Log status is_pinned untuk setiap balasan
+                Log::info('Balasan ID: ' . $balasan->id . ', is_pinned from DB: ' . ($balasan->is_pinned ? 'true' : 'false'));
+                
                 if ($balasan->tipe_pengirim == 'dosen') {
                     $dosenPengirim = Dosen::find($balasan->pengirim_id);
                     $balasan->pengirimData = $dosenPengirim;
@@ -281,8 +288,7 @@ class PesanDosenController extends Controller
                 Log::info('Marked message as read: ' . $pesan->id);
             }
             
-            // PERBAIKAN: Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
-            // Gunakan direct query untuk update balasan yang belum dibaca
+            // Update status balasan yang belum dibaca (hanya balasan dari mahasiswa)
             $updatedCount = BalasanPesan::where('id_pesan', $pesan->id)
                 ->where('tipe_pengirim', 'mahasiswa')
                 ->where('dibaca', false)
@@ -290,17 +296,12 @@ class PesanDosenController extends Controller
                 
             Log::info('Updated ' . $updatedCount . ' unread replies to read');
             
-            // Tambahkan informasi apakah pesan dan balasan sudah disematkan
-            $pesan->is_pinned = PesanSematan::where('jenis_pesan', 'pesan')
-                ->where('pesan_id', $pesan->id)
-                ->where('aktif', true)
-                ->exists();
+            // PERBAIKAN: Pastikan status is_pinned sudah benar dari database (tidak perlu query lagi)
+            // Cast ke boolean untuk memastikan konsistensi
+            $pesan->is_pinned = (bool) $pesan->is_pinned;
             
             foreach ($pesan->balasan as $balasan) {
-                $balasan->is_pinned = PesanSematan::where('jenis_pesan', 'balasan')
-                    ->where('balasan_id', $balasan->id)
-                    ->where('aktif', true)
-                    ->exists();
+                $balasan->is_pinned = (bool) $balasan->is_pinned;
             }
             
             return view('pesan.dosen.isipesandosen', compact('pesan', 'balasanByDate'));
@@ -311,6 +312,7 @@ class PesanDosenController extends Controller
                 ->with('error', 'Terjadi kesalahan saat menampilkan detail pesan');
         }
     }
+    
     
     /**
      * Mengirim balasan pesan dengan dukungan lampiran
@@ -670,126 +672,471 @@ class PesanDosenController extends Controller
     public function sematkan(Request $request, $id)
     {
         try {
-            $dosen = Auth::user();
-            $activeRole = session('active_role', 'dosen'); // Ambil peran aktif dosen
             $pesan = Pesan::findOrFail($id);
+            $dosen = Auth::guard('dosen')->user();
+            $activeRole = session('active_role', 'dosen');
             
-            // Pastikan dosen memiliki akses ke pesan ini dengan role yang aktif
-            if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
-                // Lanjutkan proses
-            } else {
+            // Validasi akses dosen terhadap pesan
+            if (!$this->validateDosenAccess($pesan, $dosen, $activeRole)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda tidak memiliki akses ke pesan ini'
                 ], 403);
             }
             
-            // Validasi data request
-            $request->validate([
-                'message_ids' => 'required|array',
+            // Validasi input request
+            $validatedData = $request->validate([
+                'message_ids' => 'required|array|min:1',
                 'message_ids.*' => 'required|string',
-                'kategori' => 'required|in:krs,kp,skripsi,mbkm',
-                'judul' => 'required|string|max:255',
                 'durasi' => 'required|integer|min:1|max:1000'
             ]);
             
-            // Pastikan konversi ke integer sebelum digunakan
-            $durasi = (int) $request->durasi;
-            $durasiSematan = Carbon::now()->addHours($request->durasi);
+            $messageIds = $validatedData['message_ids'];
+            $durasi = (int) $validatedData['durasi'];
             
-            // Array untuk menyimpan ID sematan yang dibuat
-            $sematanIds = [];
+            // PERBAIKAN: Proses dan validasi pesan yang dipilih
+            $processedData = $this->processMessageIds($messageIds, $pesan, $dosen);
             
-            // Proses sematan untuk setiap pesan
-            foreach ($request->message_ids as $messageId) {
-                // Format message_id: 'message-123' atau 'reply-456'
-                $parts = explode('-', $messageId);
-                $type = $parts[0]; // 'message' atau 'reply'
-                $id = $parts[1]; // ID pesan atau balasan
-                
-                if ($type === 'message') {
-                    // Sematan untuk pesan utama
-                    $pesanToPin = Pesan::findOrFail($id);
-                    
-                    // Pastikan pesan ini terkait dengan dosen dengan role yang aktif
-                    if (($pesanToPin->nip_penerima == $dosen->nip && $pesanToPin->penerima_role == $activeRole) || $pesanToPin->nip_pengirim == $dosen->nip) {
-                        // Lanjutkan
-                    } else {
-                        continue; // Skip jika bukan pesan dosen dengan role yang sesuai
-                    }
-                    
-                    // Buat sematan dengan role dosen aktif dan SERTAKAN LAMPIRAN
-                    $sematan = PesanSematan::create([
-                        'nip_dosen' => $dosen->nip,
-                        'dosen_role' => $activeRole,
-                        'jenis_pesan' => 'pesan',
-                        'pesan_id' => $id,
-                        'balasan_id' => null,
-                        'isi_sematan' => $pesanToPin->isi_pesan,
-                        'lampiran' => $pesanToPin->lampiran, // TAMBAHKAN INI - Ambil lampiran dari pesan
-                        'kategori' => $request->kategori,
-                        'judul' => $request->judul,
-                        'aktif' => true,
-                        'durasi_sematan' => $durasiSematan
-                    ]);
-                    
-                    $sematanIds[] = $sematan->id;
-                } else if ($type === 'reply') {
-                    // Sematan untuk balasan
-                    $balasanToPin = BalasanPesan::findOrFail($id);
-                    
-                    // Pastikan balasan ini terkait dengan pesan yang dosen punya akses
-                    $relatedPesan = Pesan::find($balasanToPin->id_pesan);
-                    if (!$relatedPesan || (($relatedPesan->nip_penerima != $dosen->nip || $relatedPesan->penerima_role != $activeRole) && $relatedPesan->nip_pengirim != $dosen->nip)) {
-                        continue; // Skip jika tidak terkait dengan pesan yang dosen punya akses
-                    }
-                    
-                    // Pastikan balasan ini terkait dengan dosen jika pengirimnya dosen
-                    if ($balasanToPin->tipe_pengirim === 'dosen' && $balasanToPin->pengirim_id != $dosen->nip) {
-                        continue; // Skip jika bukan balasan dari dosen ini
-                    }
-                    
-                    // Buat sematan dengan role dosen aktif dan SERTAKAN LAMPIRAN
-                    $sematan = PesanSematan::create([
-                        'nip_dosen' => $dosen->nip,
-                        'dosen_role' => $activeRole,
-                        'jenis_pesan' => 'balasan',
-                        'pesan_id' => null,
-                        'balasan_id' => $id,
-                        'isi_sematan' => $balasanToPin->isi_balasan,
-                        'lampiran' => $balasanToPin->lampiran, // TAMBAHKAN INI - Ambil lampiran dari balasan
-                        'kategori' => $request->kategori,
-                        'judul' => $request->judul,
-                        'aktif' => true,
-                        'durasi_sematan' => $durasiSematan
-                    ]);
-                    
-                    $sematanIds[] = $sematan->id;
-                }
+            // PERBAIKAN: Validasi harus ada pesan dari mahasiswa untuk judul
+            if (empty($processedData['pesanMahasiswa'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Minimal pilih satu pesan atau balasan dari mahasiswa untuk dijadikan judul FAQ'
+                ], 400);
             }
+            
+            // PERBAIKAN: Validasi harus ada pesan dari dosen untuk isinya
+            if (empty($processedData['pesanDosen'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Minimal pilih satu pesan atau balasan dari dosen untuk dijadikan isi sematan'
+                ], 400);
+            }
+            
+            // PERBAIKAN: Generate data sematan dengan logic yang diperbaiki
+            $sematanData = $this->generateSematanDataFixed(
+                $processedData['pesanMahasiswa'],
+                $processedData['pesanDosen'],
+                $dosen,
+                $activeRole,
+                $durasi
+            );
+            
+            // Simpan sematan
+            $sematan = $this->saveSematan($sematanData);
+            
+            // PERBAIKAN: Update status pesan yang disematkan di database
+            $this->updatePesanStatusSematanFixed($messageIds, $pesan->id);
             
             return response()->json([
                 'success' => true,
-                'message' => count($sematanIds) . ' pesan berhasil disematkan',
-                'sematan_ids' => $sematanIds
+                'message' => 'Pesan berhasil disematkan dengan judul: "' . $sematanData['judul'] . '"',
+                'data' => [
+                    'id' => $sematan->id,
+                    'judul' => $sematan->judul,
+                    'kategori' => $sematan->kategori,
+                    'durasi_jam' => $durasi,
+                    'pinned_messages' => $messageIds // TAMBAHAN: untuk update UI
+                ]
             ]);
             
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak valid',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
-            Log::error('Error saat menyematkan pesan: ' . $e->getMessage());
+            Log::error('Error saat menyematkan pesan: ' . $e->getMessage(), [
+                'pesan_id' => $id,
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyematkan pesan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menyematkan pesan'
             ], 500);
         }
     }
+
+    /**
+     * PERBAIKAN: Generate data untuk sematan dengan logic yang diperbaiki
+     */
+    private function generateSematanDataFixed($pesanMahasiswa, $pesanDosen, $dosen, $activeRole, $durasi)
+    {
+        // Tentukan kategori berdasarkan subjek pesan utama
+        $pesan = Pesan::find(request()->route('id'));
+        $kategori = $this->determineKategoriFromSubjek($pesan->subjek);
+        
+        // PERBAIKAN: Generate judul dari pesan mahasiswa pertama
+        $judulPesan = $pesanMahasiswa[0];
+        if ($judulPesan instanceof \App\Models\Pesan) {
+            $judul = $this->generateJudulFromPesan($judulPesan->isi_pesan);
+        } else {
+            // Ini adalah BalasanPesan
+            $judul = $this->generateJudulFromPesan($judulPesan->isi_balasan);
+        }
+        
+        // PERBAIKAN: Gabungkan semua pesan dari dosen untuk isi
+        $isiSematan = $this->gabungkanPesanDosen($pesanDosen);
+        
+        // Cari lampiran dari pesan dosen
+        $lampiran = $this->getFirstAttachmentFromPesanDosen($pesanDosen);
+        
+        return [
+            'nip_dosen' => $dosen->nip,
+            'dosen_role' => $activeRole,
+            'jenis_pesan' => 'pesan',
+            'pesan_id' => $pesan->id,
+            'isi_sematan' => $isiSematan,
+            'kategori' => $kategori,
+            'judul' => $judul,
+            'aktif' => true,
+            'durasi_sematan' => now()->addHours($durasi),
+            'lampiran' => $lampiran
+        ];
+    }
+
+    /**
+     * PERBAIKAN: Method helper untuk menggabungkan pesan dosen
+     */
+    private function gabungkanPesanDosen($pesanDosen)
+    {
+        if (empty($pesanDosen)) {
+            return 'Tidak ada pesan dosen yang dipilih';
+        }
+        
+        $gabunganPesan = [];
+        
+        // Urutkan pesan berdasarkan waktu
+        usort($pesanDosen, function($a, $b) {
+            return $a->created_at <=> $b->created_at;
+        });
+        
+        foreach ($pesanDosen as $index => $pesan) {
+            $prefix = '';
+            
+            // Tambahkan prefix jika ada lebih dari satu pesan
+            if (count($pesanDosen) > 1) {
+                $prefix = "Jawaban " . ($index + 1) . ":\n";
+            }
+            
+            // Ambil isi pesan tergantung tipe
+            if ($pesan instanceof \App\Models\Pesan) {
+                $isiPesan = trim($pesan->isi_pesan);
+            } else {
+                // Ini adalah BalasanPesan
+                $isiPesan = trim($pesan->isi_balasan);
+            }
+            
+            $gabunganPesan[] = $prefix . $isiPesan;
+        }
+        
+        return implode("\n\n" . str_repeat('-', 50) . "\n\n", $gabunganPesan);
+    }
+
+    /**
+     * PERBAIKAN: Method helper untuk mendapatkan lampiran dari pesan dosen
+     */
+    private function getFirstAttachmentFromPesanDosen($pesanDosen)
+    {
+        foreach ($pesanDosen as $pesan) {
+            $lampiran = null;
+            
+            if ($pesan instanceof \App\Models\Pesan) {
+                $lampiran = $pesan->lampiran;
+            } else {
+                // Ini adalah BalasanPesan
+                $lampiran = $pesan->lampiran;
+            }
+            
+            if (!empty($lampiran) && filter_var($lampiran, FILTER_VALIDATE_URL)) {
+                return $lampiran;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * PERBAIKAN: Method helper untuk update status sematan di database
+     */
+    private function updatePesanStatusSematanFixed($messageIds, $pesanId)
+    {
+        DB::transaction(function() use ($messageIds, $pesanId) {
+            foreach ($messageIds as $messageId) {
+                if (str_starts_with($messageId, 'message-')) {
+                    $actualId = str_replace('message-', '', $messageId);
+                    if ($actualId == $pesanId) {
+                        // Update pesan utama
+                        DB::table('pesan')
+                            ->where('id', $pesanId)
+                            ->update([
+                                'is_pinned' => true,
+                                'updated_at' => now()
+                            ]);
+                        
+                        Log::info('Updated pesan is_pinned status', ['pesan_id' => $pesanId]);
+                    }
+                } elseif (str_starts_with($messageId, 'reply-')) {
+                    $replyId = str_replace('reply-', '', $messageId);
+                    
+                    // Update balasan
+                    DB::table('balasan_pesan')
+                        ->where('id', $replyId)
+                        ->update([
+                            'is_pinned' => true,
+                            'updated_at' => now()
+                        ]);
+                    
+                    Log::info('Updated balasan is_pinned status', ['balasan_id' => $replyId]);
+                }
+            }
+        });
+    }
+
+    /**
+     * Validasi akses dosen terhadap pesan
+     */
+    private function validateDosenAccess($pesan, $dosen, $activeRole)
+    {
+        return ($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || 
+            ($pesan->nip_pengirim == $dosen->nip && $pesan->pengirim_role == $activeRole);
+    }
+
+    /**
+     * Proses message IDs untuk memisahkan pesan mahasiswa dan balasan dosen
+     */
+    private function processMessageIds($messageIds, $pesan, $dosen)
+    {
+        $pesanMahasiswa = []; // Ubah jadi array untuk menampung multiple pesan
+        $pesanDosen = [];     // Array untuk pesan dari dosen
+        
+        foreach ($messageIds as $messageId) {
+            if (str_starts_with($messageId, 'message-')) {
+                // Proses pesan utama
+                $actualId = str_replace('message-', '', $messageId);
+                if ($actualId == $pesan->id) {
+                    // PERBAIKAN: Cek apakah pesan dari mahasiswa atau dosen
+                    if (!empty($pesan->nim_pengirim)) {
+                        // Pesan dari mahasiswa
+                        $pesanMahasiswa[] = $pesan;
+                    } elseif (!empty($pesan->nip_pengirim)) {
+                        // Pesan dari dosen
+                        $pesanDosen[] = $pesan;
+                    }
+                }
+            } elseif (str_starts_with($messageId, 'reply-')) {
+                // Proses balasan
+                $replyId = str_replace('reply-', '', $messageId);
+                $balasan = BalasanPesan::find($replyId);
+                
+                if ($balasan) {
+                    // PERBAIKAN: Cek apakah balasan dari mahasiswa atau dosen
+                    if ($balasan->tipe_pengirim == 'mahasiswa') {
+                        $pesanMahasiswa[] = $balasan;
+                    } elseif ($balasan->tipe_pengirim == 'dosen') {
+                        $pesanDosen[] = $balasan;
+                    }
+                }
+            }
+        }
+        
+        return [
+            'pesanMahasiswa' => $pesanMahasiswa,
+            'pesanDosen' => $pesanDosen  // Ubah nama dari 'balasanDosen' ke 'pesanDosen'
+        ];
+    }
+
+    /**
+     * Validasi balasan untuk sematan
+     */
+    private function validateBalasanForSematan($balasan, $dosen)
+    {
+        // Pastikan balasan dari dosen dan dari dosen yang sedang login
+        return $balasan->tipe_pengirim == 'dosen' && $balasan->pengirim_id == $dosen->nip;
+    }
+
+    /**
+     * Generate data untuk sematan
+     */
+    private function generateSematanData($pesanMahasiswa, $balasanDosen, $dosen, $activeRole, $durasi)
+    {
+        // Tentukan kategori berdasarkan subjek pesan
+        $kategori = $this->determineKategoriFromSubjek($pesanMahasiswa->subjek);
+        
+        // Generate judul dari pesan mahasiswa
+        $judul = $this->generateJudulFromPesan($pesanMahasiswa->isi_pesan);
+        
+        // Gabungkan semua balasan dosen
+        $isiSematan = $this->gabungkanBalasanDosen($balasanDosen);
+        
+        // Cari lampiran dari balasan dosen
+        $lampiran = $this->getFirstAttachmentFromBalasan($balasanDosen);
+        
+        return [
+            'nip_dosen' => $dosen->nip,
+            'dosen_role' => $activeRole,
+            'jenis_pesan' => 'pesan',
+            'pesan_id' => $pesanMahasiswa->id,
+            'isi_sematan' => $isiSematan,
+            'kategori' => $kategori,
+            'judul' => $judul,
+            'aktif' => true,
+            'durasi_sematan' => now()->addHours($durasi),
+            'lampiran' => $lampiran
+        ];
+    }
+
+    /**
+     * Simpan sematan ke database
+     */
+    private function saveSematan($sematanData)
+    {
+        return PesanSematan::create($sematanData);
+    }
+
+    // Method helper untuk menentukan kategori otomatis (diperbaiki)
+    private function determineKategoriFromSubjek($subjek)
+    {
+        $subjekLower = strtolower(trim($subjek));
+        
+        // Mapping kata kunci ke kategori
+        $kategoriMapping = [
+            'krs' => ['krs', 'kartu rencana studi', 'pengisian krs', 'mata kuliah'],
+            'kp' => ['kp', 'kerja praktik', 'praktek kerja', 'magang'],
+            'skripsi' => ['skripsi', 'tugas akhir', 'thesis', 'penelitian'],
+            'mbkm' => ['mbkm', 'merdeka belajar', 'kampus merdeka', 'pertukaran mahasiswa']
+        ];
+        
+        foreach ($kategoriMapping as $kategori => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (strpos($subjekLower, $keyword) !== false) {
+                    return $kategori;
+                }
+            }
+        }
+        
+        // Default kategori jika tidak ditemukan match
+        return 'krs';
+    }
+
+    // Method helper untuk generate judul dari pesan mahasiswa (diperbaiki)
+    private function generateJudulFromPesan($isiPesan)
+    {
+        $isiPesan = trim($isiPesan);
+        
+        if (empty($isiPesan)) {
+            return 'Pesan Kosong';
+        }
+        
+        // Bersihkan dari karakter yang tidak perlu
+        $isiPesan = preg_replace('/\s+/', ' ', $isiPesan); // Normalize whitespace
+        
+        // Ambil maksimal 80 karakter untuk judul yang lebih informatif
+        $maxLength = 80;
+        $judul = substr($isiPesan, 0, $maxLength);
+        
+        // Cari tanda baca terakhir dalam batas karakter
+        $punctuationMarks = ['.', '?', '!', ';'];
+        $lastPunctuation = -1;
+        
+        foreach ($punctuationMarks as $mark) {
+            $pos = strrpos($judul, $mark);
+            if ($pos !== false && $pos > 30) { // Minimal 30 karakter sebelum tanda baca
+                $lastPunctuation = max($lastPunctuation, $pos);
+            }
+        }
+        
+        if ($lastPunctuation > 0) {
+            $judul = substr($judul, 0, $lastPunctuation + 1);
+        } elseif (strlen($isiPesan) > $maxLength) {
+            // Cari spasi terakhir untuk memotong di kata utuh
+            $lastSpace = strrpos($judul, ' ');
+            if ($lastSpace > 30) {
+                $judul = substr($judul, 0, $lastSpace);
+            }
+            $judul .= '...';
+        }
+        
+        return trim($judul);
+    }
+
+    // Method helper untuk menggabungkan balasan dosen (diperbaiki)
+    private function gabungkanBalasanDosen($balasanDosen)
+    {
+        if (empty($balasanDosen)) {
+            return 'Tidak ada balasan dosen yang dipilih';
+        }
+        
+        $gabunganBalasan = [];
+        
+        // Urutkan balasan berdasarkan waktu
+        usort($balasanDosen, function($a, $b) {
+            return $a->created_at <=> $b->created_at;
+        });
+        
+        foreach ($balasanDosen as $index => $balasan) {
+            $prefix = '';
+            
+            // Tambahkan prefix jika ada lebih dari satu balasan
+            if (count($balasanDosen) > 1) {
+                $prefix = "Balasan " . ($index + 1) . ":\n";
+            }
+            
+            $gabunganBalasan[] = $prefix . trim($balasan->isi_balasan);
+        }
+        
+        return implode("\n\n" . str_repeat('-', 50) . "\n\n", $gabunganBalasan);
+    }
+
+    // Method helper untuk mendapatkan lampiran pertama dari balasan (diperbaiki)
+    private function getFirstAttachmentFromBalasan($balasanDosen)
+    {
+        foreach ($balasanDosen as $balasan) {
+            if (!empty($balasan->lampiran) && filter_var($balasan->lampiran, FILTER_VALIDATE_URL)) {
+                return $balasan->lampiran;
+            }
+        }
+        return null;
+    }
+
+    // Method helper untuk update status sematan (diperbaiki)
+    private function updatePesanStatusSematan($messageIds, $pesanId)
+    {
+        DB::transaction(function() use ($messageIds, $pesanId) {
+            foreach ($messageIds as $messageId) {
+                if (str_starts_with($messageId, 'message-')) {
+                    $actualId = str_replace('message-', '', $messageId);
+                    if ($actualId == $pesanId) {
+                        DB::table('pesan')
+                            ->where('id', $pesanId)
+                            ->update([
+                                'is_pinned' => true,
+                                'updated_at' => now()
+                            ]);
+                    }
+                } elseif (str_starts_with($messageId, 'reply-')) {
+                    $replyId = str_replace('reply-', '', $messageId);
+                    DB::table('balasan_pesan')
+                        ->where('id', $replyId)
+                        ->update([
+                            'is_pinned' => true,
+                            'updated_at' => now()
+                        ]);
+                }
+            }
+        });
+    }
+
+
     /**
      * Batalkan sematan pesan
      */
     public function batalkanSematan($id)
     {
         try {
-            $dosen = Auth::user();
+            $dosen = Auth::user(); // Konsisten dengan method lain
             $activeRole = session('active_role', 'dosen');
             
             Log::info('Mencoba membatalkan sematan dengan ID: ' . $id);
@@ -799,21 +1146,21 @@ class PesanDosenController extends Controller
             $sematanDebug = PesanSematan::find($id);
             if ($sematanDebug) {
                 Log::info('Sematan ditemukan | ID: ' . $sematanDebug->id . 
-                         ', NIP Dosen: ' . $sematanDebug->nip_dosen . 
-                         ', Dosen Role: ' . $sematanDebug->dosen_role);
+                        ', NIP Dosen: ' . $sematanDebug->nip_dosen . 
+                        ', Dosen Role: ' . $sematanDebug->dosen_role);
             } else {
                 Log::error('Sematan dengan ID ' . $id . ' tidak ditemukan');
             }
             
             // Cari sematan yang sesuai dengan kondisi
             $sematan = PesanSematan::where('id', $id)
-                               ->where('nip_dosen', $dosen->nip)
-                               ->where('dosen_role', $activeRole)
-                               ->first();
+                            ->where('nip_dosen', $dosen->nip)
+                            ->where('dosen_role', $activeRole)
+                            ->first();
             
             if (!$sematan) {
                 Log::error('Tidak ada hasil query untuk sematan dengan ID: ' . $id . 
-                          ', NIP: ' . $dosen->nip . ', Role: ' . $activeRole);
+                        ', NIP: ' . $dosen->nip . ', Role: ' . $activeRole);
                 
                 return response()->json([
                     'success' => false,
@@ -821,23 +1168,54 @@ class PesanDosenController extends Controller
                 ], 403);
             }
             
-            // Nonaktifkan sematan
-            $sematan->aktif = false;
-            $sematan->save();
+            DB::beginTransaction();
             
-            Log::info('Sematan berhasil dinonaktifkan: ' . $id);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Sematan berhasil dibatalkan'
-            ]);
+            try {
+                // PERBAIKAN: Reset status is_pinned untuk pesan yang terkait
+                if ($sematan->pesan_id) {
+                    // Reset pesan utama jika ada
+                    $pesan = Pesan::find($sematan->pesan_id);
+                    if ($pesan && $pesan->is_pinned) {
+                        $pesan->is_pinned = false;
+                        $pesan->save();
+                        Log::info('Reset status pinned untuk pesan utama ID: ' . $sematan->pesan_id);
+                    }
+                    
+                    // Reset semua balasan yang di-pin untuk pesan ini
+                    $updatedReplies = BalasanPesan::where('id_pesan', $sematan->pesan_id)
+                        ->where('is_pinned', true)
+                        ->update(['is_pinned' => false]);
+                    
+                    Log::info('Reset status pinned untuk ' . $updatedReplies . ' balasan');
+                }
+                
+                // Nonaktifkan sematan (soft delete alternative)
+                $sematan->aktif = false;
+                $sematan->save();
+                
+                // Atau hapus permanen jika diinginkan
+                // $sematan->delete();
+                
+                DB::commit();
+                
+                Log::info('Sematan berhasil dibatalkan: ' . $id);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Sematan berhasil dibatalkan'
+                ]);
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
             
         } catch (\Exception $e) {
             Log::error('Error saat membatalkan sematan: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membatalkan sematan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat membatalkan sematan'
             ], 500);
         }
     }

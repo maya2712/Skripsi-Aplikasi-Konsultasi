@@ -1154,7 +1154,7 @@
                         @endforeach
                     @else
                         <div class="text-center py-5">
-                            <p class="text-muted">Belum ada pesan</p>
+                            <p class="text-muted">Tidak ada pesan</p>
                         </div>
                     @endif
 

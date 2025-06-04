@@ -262,6 +262,9 @@ Route::middleware(['auth:dosen', 'checkRole:dosen', \App\Http\Middleware\Prevent
          // Tambahkan ini untuk fitur akhiri pesan
         Route::post('/akhiripesandosen/{id}', 'endChat')
             ->name('dosen.pesan.end');
+        
+        Route::get('/check-pinned-status/{pesanId}', [App\Http\Controllers\PesanDosenController::class, 'checkPinnedStatus'])
+            ->name('dosen.pesan.check-pinned-status');
     });
 
     Route::controller(MasukkanJadwalController::class)->prefix('masukkanjadwal')->group(function () {

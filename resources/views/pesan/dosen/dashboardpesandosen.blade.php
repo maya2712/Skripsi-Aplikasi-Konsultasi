@@ -1494,9 +1494,7 @@
                         </div>
                         @endforeach
                     @else
-                        <div class="text-center py-5">
-                            <p class="text-muted">Tidak ada pesan</p>
-                        </div>
+                     
                     @endif
 
                     <!-- Pesan pencarian tidak tersedia -->

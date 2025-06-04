@@ -557,6 +557,126 @@
             margin-right: 10px;
         }
 
+        /* MODAL LOADING DAN KONFIRMASI SEPERTI DI BUAT PESAN MAHASISWA */
+        /* Modal Loading */
+        .modal-loading .modal-content {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .modal-loading .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .modal-loading .loading-spinner {
+            display: inline-block;
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #5DE0E6;
+            border-left-color: #004AAD;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .modal-loading .loading-text {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Modal Konfirmasi */
+        .modal-confirm .modal-content {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .modal-confirm .modal-header {
+            background: var(--primary-gradient);
+            color: white;
+            border-bottom: none;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            padding: 1.5rem 1.5rem 0.5rem;
+        }
+        
+        .modal-confirm .modal-header .modal-title {
+            font-weight: 600;
+        }
+        
+        .modal-confirm .modal-body {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .modal-confirm .confirm-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .modal-confirm .confirm-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .modal-confirm .confirm-message {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-confirm .modal-footer {
+            border-top: none;
+            padding: 0 1.5rem 1.5rem;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-confirm .btn-confirm {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            padding: 0.7rem 2rem;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-confirm .btn-confirm:hover {
+            opacity: 0.9;
+            box-shadow: 0 2px 8px rgba(0, 74, 173, 0.3);
+            color: white;
+        }
+        
+        .modal-confirm .btn-cancel {
+            background: #e9ecef;
+            border: none;
+            color: #495057;
+            padding: 0.7rem 2rem;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-confirm .btn-cancel:hover {
+            background: #dee2e6;
+            color: #495057;
+        }
+
         /* Mobile Responsive Styles - ENHANCED */
         @media (max-width: 991.98px) {
             body {
@@ -1343,12 +1463,14 @@
                     </div>
 
                     <!-- FAQ Items -->
+                    <!-- FAQ Items untuk Dosen - UPDATE VERSION (Tanpa CSS Tambahan) -->
                     <div class="faq-list mt-4">
                         @forelse($sematan as $item)
                             <div class="faq-item" data-category="{{ $item->kategori }}" data-dosen="{{ $item->dosen->nama ?? 'Dosen' }}" style="background-color: #F5F7FA;">
                                 <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem{{ $item->id }}" aria-expanded="false">
                                     <i class="fas fa-thumbtack pin-icon"></i>
                                     <div class="flex-grow-1">
+                                        <!-- JUDUL DIAMBIL DARI PERTANYAAN MAHASISWA -->
                                         <h5 class="faq-title mb-2">{{ $item->judul }}</h5>
                                         <div class="d-flex align-items-center flex-wrap">
                                             <span class="faq-badge me-3">
@@ -1371,9 +1493,10 @@
                                 </div>
                                 <div class="collapse" id="faqItem{{ $item->id }}">
                                     <div class="p-3">
-                                        <p>{{ $item->isi_sematan }}</p>
+                                        <!-- ISI SEMATAN (JAWABAN DOSEN SAJA) -->
+                                        <p>{!! nl2br(e($item->isi_sematan)) !!}</p>
                                         
-                                        {{-- LAMPIRAN SEDERHANA --}}
+                                        {{-- LAMPIRAN JIKA ADA --}}
                                         @if($item->hasAttachment())
                                             <div class="mt-3">
                                                 <a href="{{ $item->lampiran }}" target="_blank" class="simple-attachment-link">
@@ -1383,7 +1506,7 @@
                                             </div>
                                         @endif
                                         
-                                        <!-- Ganti bagian tombol batalkan -->
+                                        <!-- TOMBOL BATALKAN SEMATAN UNTUK DOSEN (jika ada hak akses) -->
                                         @if(isset($item->can_cancel) && $item->can_cancel)
                                             <div class="mt-3 text-end">
                                                 <button class="btn btn-sm btn-danger batalkan-sematan" data-id="{{ $item->id }}">
@@ -1396,11 +1519,13 @@
                             </div>
                         @empty
                             <div class="text-center p-4">
-                                <p class="text-muted">Tidak ada pesan yang disematkan</p>
+                                <i class="fas fa-info-circle fa-2x mb-3 text-muted"></i>
+                                <h5 class="text-muted">Belum Ada Pesan Tersematkan</h5>
+                                <p class="text-muted">Pesan yang disematkan akan muncul di sini</p>
                             </div>
                         @endforelse
 
-                        <!-- No FAQ Found Message -->
+                        <!-- PESAN KETIKA TIDAK ADA HASIL PENCARIAN -->
                         <div id="noFaqFound" class="text-center p-4 mt-3" style="display: none; background-color: #F8F9FA; border-radius: 10px;">
                             <i class="fas fa-search fa-3x mb-3 text-muted"></i>
                             <h5>Tidak ada FAQ yang ditemukan</h5>
@@ -1408,6 +1533,48 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Loading -->
+<div class="modal fade modal-loading" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Memproses...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi -->
+<div class="modal fade modal-confirm" id="confirmModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="confirm-title">Batalkan Sematan?</div>
+                <div class="confirm-message">
+                    Apakah Anda yakin ingin membatalkan sematan pesan ini? Pesan akan dihapus dari daftar FAQ.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelConfirm">
+                    <i class="fas fa-times me-2"></i>Batal
+                </button>
+                <button type="button" class="btn btn-confirm" id="confirmDelete">
+                    <i class="fas fa-check me-2"></i>Ya, Batalkan
+                </button>
             </div>
         </div>
     </div>
@@ -1427,6 +1594,10 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Inisialisasi modal
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    
     // Mobile sidebar functionality
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const mobileSidebar = document.getElementById('mobileSidebar');
@@ -1703,47 +1874,130 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('input', applyFilters);
     }
     
-    // Event listener untuk tombol batalkan sematan
+    // Variabel untuk menyimpan ID sematan yang akan dihapus
+    let sematanToDelete = null;
+    
+    // Event listener untuk tombol batalkan sematan dengan modal konfirmasi
     document.querySelectorAll('.batalkan-sematan').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const sematanId = this.getAttribute('data-id');
+            sematanToDelete = this.getAttribute('data-id');
             
-            if (confirm('Apakah Anda yakin ingin membatalkan sematan ini?')) {
-                // Kirim request untuk membatalkan sematan
-                fetch(`/batalkan-sematan/${sematanId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Hapus elemen FAQ dari DOM
-                        const faqItem = this.closest('.faq-item');
-                        faqItem.remove();
-                        
-                        // Tampilkan notifikasi
-                        alert('Sematan berhasil dibatalkan');
-                        
-                        // Reload halaman jika semua FAQ sudah dihapus
-                        if (document.querySelectorAll('.faq-item').length === 0) {
-                            window.location.reload();
-                        }
-                    } else {
-                        alert('Gagal membatalkan sematan: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat membatalkan sematan');
-                });
-            }
+            // Tampilkan modal konfirmasi
+            confirmModal.show();
         });
     });
+    
+    // Event listener untuk tombol batal di modal konfirmasi
+    document.getElementById('cancelConfirm').addEventListener('click', function() {
+        confirmModal.hide();
+        sematanToDelete = null;
+    });
+    
+    // Event listener untuk tombol konfirmasi hapus
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        if (sematanToDelete) {
+            // Sembunyikan modal konfirmasi
+            confirmModal.hide();
+            
+            // Tampilkan modal loading
+            document.querySelector('#loadingModal .loading-text').textContent = 'Membatalkan sematan...';
+            loadingModal.show();
+            
+            // Kirim request untuk membatalkan sematan
+            fetch(`/batalkan-sematan/${sematanToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan modal loading
+                loadingModal.hide();
+                
+                if (data.success) {
+                    // Hapus elemen FAQ dari DOM dengan animasi
+                    const faqItem = document.querySelector(`[data-id="${sematanToDelete}"]`).closest('.faq-item');
+                    faqItem.style.transition = 'opacity 0.3s ease';
+                    faqItem.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        faqItem.remove();
+                        
+                        // Update counter di mobile navbar jika ada
+                        const mobileNavbar = document.querySelector('.mobile-navbar .page-info small');
+                        if (mobileNavbar) {
+                            const currentCount = parseInt(mobileNavbar.textContent.match(/\d+/)[0]);
+                            const newCount = currentCount - 1;
+                            mobileNavbar.textContent = `${newCount} pesan tersematkan`;
+                        }
+                        
+                        // Periksa apakah masih ada FAQ tersisa
+                        const remainingFaq = document.querySelectorAll('.faq-item');
+                        if (remainingFaq.length === 0) {
+                            // Tampilkan pesan "belum ada pesan tersematkan"
+                            const faqList = document.querySelector('.faq-list');
+                            faqList.innerHTML = `
+                                <div class="text-center p-4">
+                                    <i class="fas fa-info-circle fa-2x mb-3 text-muted"></i>
+                                    <h5 class="text-muted">Belum Ada Pesan Tersematkan</h5>
+                                    <p class="text-muted">Pesan yang disematkan akan muncul di sini</p>
+                                </div>
+                            `;
+                        }
+                        
+                        applyFilters(); // Reapply filters
+                    }, 300);
+                    
+                    // Tampilkan notifikasi sukses (bisa diganti dengan toast notification)
+                    showNotification('Sematan berhasil dibatalkan', 'success');
+                } else {
+                    showNotification('Gagal membatalkan sematan: ' + data.message, 'error');
+                }
+                
+                // Reset variabel
+                sematanToDelete = null;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingModal.hide();
+                showNotification('Terjadi kesalahan saat membatalkan sematan', 'error');
+                sematanToDelete = null;
+            });
+        }
+    });
+    
+    // Fungsi untuk menampilkan notifikasi (sederhana)
+    function showNotification(message, type = 'info') {
+        // Buat elemen notifikasi
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = `
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        `;
+        
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove setelah 5 detik
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
     
     // Role switcher toggle untuk perpindahan peran
     const roleSwitcher = document.getElementById('roleSwitcher');
@@ -1778,11 +2032,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Enhanced keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        // Esc untuk tutup sidebar mobile
+        // Esc untuk tutup sidebar mobile atau modal
         if (e.key === 'Escape') {
             // Close mobile sidebar if open
             if (mobileSidebar && mobileSidebar.classList.contains('show')) {
                 closeMobileSidebar();
+            }
+            // Close confirm modal if open
+            else if (confirmModal._isShown) {
+                confirmModal.hide();
+                sematanToDelete = null;
             }
         }
     });
@@ -1886,7 +2145,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     enhanceAccessibility();
     
-    console.log('Mobile FAQ dosen initialized successfully');
+    console.log('Enhanced FAQ dosen with loading and confirmation modals initialized successfully');
 });
 </script>
 @endpush

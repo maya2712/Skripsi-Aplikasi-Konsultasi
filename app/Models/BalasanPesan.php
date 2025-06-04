@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -7,6 +9,7 @@ use Carbon\Carbon;
 class BalasanPesan extends Model
 {
     use HasFactory;
+    
     protected $table = 'balasan_pesan';
     
     protected $fillable = [
@@ -14,13 +17,14 @@ class BalasanPesan extends Model
         'pengirim_id',
         'tipe_pengirim', // 'mahasiswa' atau 'dosen'
         'isi_balasan',
-        'lampiran', // Tambahkan ini
-        'dibaca'
+        'lampiran',
+        'dibaca',
+        'is_pinned' // TAMBAHAN UNTUK FITUR PIN
     ];
     
-    // PERBAIKAN: Pastikan cast untuk field dibaca bekerja dengan benar
     protected $casts = [
         'dibaca' => 'boolean',
+        'is_pinned' => 'boolean', // TAMBAHAN UNTUK FITUR PIN
     ];
     
     // Relasi ke pesan
@@ -51,25 +55,25 @@ class BalasanPesan extends Model
         return null;
     }
     
-    // PENAMBAHAN: Method accessor untuk memastikan dibaca selalu boolean
+    // Method accessor untuk memastikan dibaca selalu boolean
     public function getDibacaAttribute($value)
     {
         return (bool) $value;
     }
     
-    // PENAMBAHAN: Method mutator untuk memastikan dibaca selalu boolean
+    // Method mutator untuk memastikan dibaca selalu boolean
     public function setDibacaAttribute($value)
     {
         $this->attributes['dibaca'] = (bool) $value;
     }
     
-    // TAMBAHAN: Helper method untuk mengecek apakah ada lampiran
+    // Helper method untuk mengecek apakah ada lampiran
     public function hasAttachment()
     {
         return !empty($this->lampiran);
     }
     
-    // TAMBAHAN: Helper method untuk mendapatkan nama file/judul dari URL lampiran
+    // Helper method untuk mendapatkan nama file/judul dari URL lampiran
     public function getAttachmentName()
     {
         if (!$this->hasAttachment()) {
@@ -96,8 +100,65 @@ class BalasanPesan extends Model
      */
     public function formattedCreatedAt($format = 'H:i')
     {
-        return \Carbon\Carbon::parse($this->created_at)
-        ->timezone('Asia/Jakarta')
-        ->format($format);
+        return Carbon::parse($this->created_at)
+            ->timezone('Asia/Jakarta')
+            ->format($format);
+    }
+    
+    // Method untuk mengecek apakah balasan dari mahasiswa
+    public function isFromMahasiswa()
+    {
+        return $this->tipe_pengirim === 'mahasiswa';
+    }
+    
+    // Method untuk mengecek apakah balasan dari dosen
+    public function isFromDosen()
+    {
+        return $this->tipe_pengirim === 'dosen';
+    }
+    
+    // TAMBAHAN: Scope untuk filter balasan yang di-pin
+    public function scopePinned($query)
+    {
+        return $query->where('is_pinned', true);
+    }
+    
+    // TAMBAHAN: Scope untuk filter balasan yang tidak di-pin
+    public function scopeNotPinned($query)
+    {
+        return $query->where('is_pinned', false);
+    }
+    
+    // TAMBAHAN: Method untuk toggle pin status
+    public function togglePin()
+    {
+        $this->is_pinned = !$this->is_pinned;
+        return $this->save();
+    }
+    
+    // TAMBAHAN: Method untuk pin balasan
+    public function pin()
+    {
+        $this->is_pinned = true;
+        return $this->save();
+    }
+    
+    // TAMBAHAN: Method untuk unpin balasan
+    public function unpin()
+    {
+        $this->is_pinned = false;
+        return $this->save();
+    }
+    
+    // TAMBAHAN: Method accessor untuk is_pinned
+    public function getIsPinnedAttribute($value)
+    {
+        return (bool) $value;
+    }
+    
+    // TAMBAHAN: Method mutator untuk is_pinned
+    public function setIsPinnedAttribute($value)
+    {
+        $this->attributes['is_pinned'] = (bool) $value;
     }
 }

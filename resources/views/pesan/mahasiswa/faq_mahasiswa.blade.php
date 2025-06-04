@@ -1076,61 +1076,73 @@
                     </div>
 
                     <!-- FAQ Items -->
-                    <div class="faq-list mt-4">
-                        @forelse($sematan as $item)
-                            <div class="faq-item" data-category="{{ $item->kategori }}" data-dosen="{{ $item->dosen->nama ?? 'Dosen' }}" style="background-color: #F5F7FA;">
-                                <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem{{ $item->id }}" aria-expanded="false">
-                                    <i class="fas fa-thumbtack pin-icon"></i>
-                                    <div class="flex-grow-1">
-                                        <h5 class="faq-title mb-2">{{ $item->judul }}</h5>
-                                        <div class="d-flex align-items-center flex-wrap">
-                                            <span class="faq-badge me-3">
-                                                @if($item->kategori == 'krs')
-                                                    Bimbingan KRS
-                                                @elseif($item->kategori == 'kp')
-                                                    Bimbingan KP
-                                                @elseif($item->kategori == 'skripsi')
-                                                    Bimbingan Skripsi
-                                                @elseif($item->kategori == 'mbkm')
-                                                    Bimbingan MBKM
-                                                @endif
-                                            </span>
-                                            <div class="faq-meta">
-                                                Di-Pin oleh: {{ $item->dosen->nama ?? 'Dosen' }} - {{ $item->created_at->format('H:i, d F Y') }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
-                                </div>
-                                <div class="collapse" id="faqItem{{ $item->id }}">
-                                    <div class="p-3">
-                                        <p>{{ $item->isi_sematan }}</p>
-                                        
-                                        {{-- LAMPIRAN SEDERHANA UNTUK MAHASISWA --}}
-                                        @if($item->hasAttachment())
-                                            <div class="mt-3">
-                                                <a href="{{ $item->lampiran }}" target="_blank" class="simple-attachment-link">
-                                                    <i class="fab fa-google-drive me-2"></i>
-                                                    {{ $item->getAttachmentName() }}
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="text-center p-4">
-                                <p class="text-muted">Tidak ada pesan yang disematkan</p>
-                            </div>
-                        @endforelse
-
-                        <!-- No FAQ Found Message -->
-                        <div id="noFaqFound" class="text-center p-4 mt-3" style="display: none; background-color: #F8F9FA; border-radius: 10px;">
-                            <i class="fas fa-search fa-3x mb-3 text-muted"></i>
-                            <h5>Tidak ada FAQ yang ditemukan</h5>
-                            <p class="text-muted">Silakan coba kata kunci lain atau pilih kategori yang berbeda</p>
+                    <!-- FAQ Items - UPDATE VERSION (Tanpa CSS Tambahan) -->
+<div class="faq-list mt-4">
+    @forelse($sematan as $item)
+        <div class="faq-item" data-category="{{ $item->kategori }}" data-dosen="{{ $item->dosen->nama ?? 'Dosen' }}" style="background-color: #F5F7FA;">
+            <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem{{ $item->id }}" aria-expanded="false">
+                <i class="fas fa-thumbtack pin-icon"></i>
+                <div class="flex-grow-1">
+                    <!-- JUDUL DIAMBIL DARI PERTANYAAN MAHASISWA -->
+                    <h5 class="faq-title mb-2">{{ $item->judul }}</h5>
+                    <div class="d-flex align-items-center flex-wrap">
+                        <span class="faq-badge me-3">
+                            @if($item->kategori == 'krs')
+                                Bimbingan KRS
+                            @elseif($item->kategori == 'kp')
+                                Bimbingan KP
+                            @elseif($item->kategori == 'skripsi')
+                                Bimbingan Skripsi
+                            @elseif($item->kategori == 'mbkm')
+                                Bimbingan MBKM
+                            @endif
+                        </span>
+                        <div class="faq-meta">
+                            Di-Pin oleh: {{ $item->dosen->nama ?? 'Dosen' }} - {{ $item->created_at->format('H:i, d F Y') }}
                         </div>
                     </div>
+                </div>
+                <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
+            </div>
+            <div class="collapse" id="faqItem{{ $item->id }}">
+                <div class="p-3">
+                    <!-- ISI SEMATAN (JAWABAN DOSEN SAJA) -->
+                    <p>{!! nl2br(e($item->isi_sematan)) !!}</p>
+                    
+                    {{-- LAMPIRAN JIKA ADA --}}
+                    @if($item->hasAttachment())
+                        <div class="mt-3">
+                            <a href="{{ $item->lampiran }}" target="_blank" class="simple-attachment-link">
+                                <i class="fab fa-google-drive me-2"></i>
+                                {{ $item->getAttachmentName() }}
+                            </a>
+                        </div>
+                    @endif
+                    
+                    <!-- TOMBOL BATALKAN SEMATAN UNTUK DOSEN (jika ada hak akses) -->
+                    @if(isset($item->can_cancel) && $item->can_cancel)
+                        <div class="mt-3 text-end">
+                            <button class="btn btn-sm btn-danger batalkan-sematan" data-id="{{ $item->id }}">
+                                <i class="fas fa-times"></i> Batalkan Sematan
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="text-center p-4">
+            <p class="text-muted">Tidak ada pesan yang disematkan</p>
+        </div>
+    @endforelse
+
+    <!-- No FAQ Found Message -->
+    <div id="noFaqFound" class="text-center p-4 mt-3" style="display: none; background-color: #F8F9FA; border-radius: 10px;">
+        <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+        <h5>Tidak ada FAQ yang ditemukan</h5>
+        <p class="text-muted">Silakan coba kata kunci lain atau pilih kategori yang berbeda</p>
+    </div>
+</div>
                 </div>
             </div>
         </div>

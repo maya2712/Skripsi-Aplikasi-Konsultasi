@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -7,13 +9,14 @@ use Carbon\Carbon;
 class Pesan extends Model
 {
     use HasFactory;
+    
     protected $table = 'pesan';
     
     protected $fillable = [
         'subjek',
         'nim_pengirim',
         'nip_pengirim',
-        'pengirim_role', // Tambahkan ini
+        'pengirim_role',
         'nip_penerima',
         'nim_penerima',
         'penerima_role',
@@ -21,11 +24,15 @@ class Pesan extends Model
         'prioritas',
         'status',
         'lampiran',
-        'dibaca'
+        'dibaca',
+        'bookmarked',
+        'is_pinned' // TAMBAHAN UNTUK FITUR PIN
     ];
     
     protected $casts = [
         'dibaca' => 'boolean',
+        'bookmarked' => 'boolean',
+        'is_pinned' => 'boolean', // TAMBAHAN UNTUK FITUR PIN
     ];
     
     // Helper method untuk mendapatkan pengirim (baik mahasiswa maupun dosen)
@@ -39,7 +46,7 @@ class Pesan extends Model
         return null;
     }
     
-   // Helper method untuk mendapatkan penerima (baik mahasiswa maupun dosen)
+    // Helper method untuk mendapatkan penerima (baik mahasiswa maupun dosen)
     public function penerima()
     {
         if (!empty($this->nim_penerima)) {
@@ -100,13 +107,13 @@ class Pesan extends Model
         return Carbon::parse($this->created_at)->timezone('Asia/Jakarta')->format($format);
     }
     
-    // TAMBAHAN: Helper method untuk mengecek apakah ada lampiran
+    // Helper method untuk mengecek apakah ada lampiran
     public function hasAttachment()
     {
         return !empty($this->lampiran);
     }
     
-    // TAMBAHAN: Helper method untuk mendapatkan nama file/judul dari URL lampiran
+    // Helper method untuk mendapatkan nama file/judul dari URL lampiran
     public function getAttachmentName()
     {
         if (!$this->hasAttachment()) {
@@ -126,5 +133,50 @@ class Pesan extends Model
         $filename = basename($path);
         
         return $filename ?: 'Lampiran';
+    }
+    
+    // Method untuk mengecek apakah pesan dari mahasiswa
+    public function isFromMahasiswa()
+    {
+        return !empty($this->nim_pengirim);
+    }
+    
+    // Method untuk mengecek apakah pesan dari dosen
+    public function isFromDosen()
+    {
+        return !empty($this->nip_pengirim);
+    }
+    
+    // TAMBAHAN: Scope untuk filter pesan yang di-pin
+    public function scopePinned($query)
+    {
+        return $query->where('is_pinned', true);
+    }
+    
+    // TAMBAHAN: Scope untuk filter pesan yang tidak di-pin
+    public function scopeNotPinned($query)
+    {
+        return $query->where('is_pinned', false);
+    }
+    
+    // TAMBAHAN: Method untuk toggle pin status
+    public function togglePin()
+    {
+        $this->is_pinned = !$this->is_pinned;
+        return $this->save();
+    }
+    
+    // TAMBAHAN: Method untuk pin pesan
+    public function pin()
+    {
+        $this->is_pinned = true;
+        return $this->save();
+    }
+    
+    // TAMBAHAN: Method untuk unpin pesan
+    public function unpin()
+    {
+        $this->is_pinned = false;
+        return $this->save();
     }
 }
