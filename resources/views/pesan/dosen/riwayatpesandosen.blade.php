@@ -37,89 +37,6 @@
             color: white;
         }
 
-        /* Mobile Navigation Bar */
-        .mobile-navbar {
-            display: none;
-            background: var(--primary-gradient);
-            color: white;
-            padding: 12px 15px;
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1025;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.15);
-            border-radius: 0;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            margin-top: 0;
-        }
-
-        /* Enhanced mobile navbar with scroll effect */
-        .mobile-navbar.scrolled {
-            background: rgba(0, 74, 173, 0.95);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            position: fixed;
-            top: 0;
-            z-index: 1030;
-        }
-
-        /* Add padding compensation when navbar becomes fixed */
-        .mobile-navbar-compensation {
-            height: 70px;
-            display: none;
-        }
-
-        .mobile-navbar-compensation.active {
-            display: block;
-        }
-
-        .mobile-navbar .navbar-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .mobile-navbar .page-info h6 {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .mobile-navbar .page-info small {
-            font-size: 0.75rem;
-            opacity: 0.9;
-        }
-
-        .mobile-navbar .navbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .burger-menu {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            padding: 8px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .burger-menu:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .burger-menu:focus {
-            outline: none;
-            box-shadow: none;
-        }
-
         /* Mobile Sidebar Overlay */
         .sidebar-overlay {
             display: none;
@@ -220,9 +137,6 @@
             padding: 10px 15px;
             transition: all 0.3s ease;
             cursor: pointer;
-            position: relative;
-            width: 100%;
-            text-align: left;
         }
         
         .sidebar-menu .nav-link.active {
@@ -243,6 +157,17 @@
         .komunikasi-submenu .nav-link:hover:not(.active),
         .pengaturan-submenu .nav-link:hover:not(.active) {
             background: #f8f9fa;
+        }
+
+        .komunikasi-submenu,
+        .pengaturan-submenu {
+            margin-left: 15px;
+        }
+
+        .komunikasi-submenu .nav-link,
+        .pengaturan-submenu .nav-link {
+            padding: 8px 15px;
+            font-size: 13px;
         }
 
         .badge-notification {
@@ -307,20 +232,6 @@
         
         .message-list .card {
             margin-bottom: 15px;
-        }
-
-        .komunikasi-submenu,
-        .pengaturan-submenu {
-            margin-left: 15px;
-            width: 100%;
-        }
-
-        .komunikasi-submenu .nav-link,
-        .pengaturan-submenu .nav-link {
-            padding: 8px 15px;
-            font-size: 13px;
-            width: 100%;
-            color: #546E7A;
         }
 
         .profile-image {
@@ -581,18 +492,14 @@
             transform: scale(1);
         }
 
-        /* Mobile Responsive Styles - ENHANCED */
+        /* Mobile Responsive Styles - ENHANCED SEPERTI MAHASISWA */
         @media (max-width: 991.98px) {
-            body {
-                padding-top: 0;
-            }
-            
             .row.g-4 {
                 --bs-gutter-x: 0;
             }
             
             .col-md-3 {
-                display: none;
+                display: none; /* Hide desktop sidebar on mobile */
             }
             
             .col-md-9 {
@@ -602,12 +509,8 @@
                 max-width: 100%;
             }
             
-            .mobile-navbar {
-                display: block;
-            }
-            
             .main-content {
-                padding-top: 15px;
+                padding-top: 15px; /* Normal padding since navbar is sticky */
             }
 
             .mode-switcher-container {
@@ -724,34 +627,13 @@
 
         /* Tablet Responsive Styles */
         @media (max-width: 768px) {
-            body {
-                padding-top: 0;
-            }
-            
             .custom-container {
                 padding: 0 10px;
             }
             
             .main-content {
-                padding-top: 10px;
+                padding-top: 10px; /* Normal padding */
                 padding-bottom: 15px;
-            }
-            
-            .mobile-navbar {
-                padding: 10px 15px;
-            }
-            
-            .mobile-navbar .navbar-content {
-                flex-direction: row;
-                align-items: center;
-            }
-            
-            .mobile-navbar .page-info h6 {
-                font-size: 0.95rem;
-            }
-            
-            .mobile-navbar .page-info small {
-                font-size: 0.7rem;
             }
 
             .mode-switcher-container {
@@ -765,7 +647,11 @@
 
             .search-filter-card .row {
                 flex-direction: column;
-                gap: 15px;
+                gap: 8px;
+            }
+
+            .form-control {
+                margin-bottom: 6px !important;
             }
 
             .btn-group {
@@ -806,7 +692,6 @@
         @media (max-width: 576px) {
             body {
                 font-size: 12px;
-                padding-top: 0;
             }
             
             .custom-container {
@@ -814,36 +699,8 @@
             }
             
             .main-content {
-                padding-top: 8px;
+                padding-top: 8px; /* Normal top padding */
                 padding-bottom: 10px;
-            }
-            
-            .mobile-navbar {
-                padding: 8px 12px;
-            }
-            
-            .mobile-navbar .page-info h6 {
-                font-size: 0.9rem;
-                margin-bottom: 2px;
-                line-height: 1.2;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                max-width: 200px;
-            }
-            
-            .mobile-navbar .page-info small {
-                font-size: 0.65rem;
-                opacity: 0.9;
-            }
-            
-            .mobile-navbar .navbar-actions {
-                gap: 5px;
-            }
-            
-            .burger-menu {
-                font-size: 1rem;
-                padding: 6px;
             }
             
             .mobile-sidebar {
@@ -896,13 +753,14 @@
             .form-control {
                 padding: 8px 12px;
                 font-size: 12px;
-                margin-bottom: 10px;
+                margin-bottom: 6px;
             }
 
             .btn-group {
                 width: 100%;
                 justify-content: center;
-                gap: 4px;
+                gap: 3px;
+                margin-top: 0;
             }
 
             .btn-filter {
@@ -1037,25 +895,8 @@
 
         /* Extra Small Mobile (iPhone SE, etc) */
         @media (max-width: 375px) {
-            body {
-                padding-top: 0;
-            }
-            
             .custom-container {
                 padding: 0 6px;
-            }
-            
-            .mobile-navbar {
-                padding: 6px 10px;
-            }
-            
-            .mobile-navbar .page-info h6 {
-                font-size: 0.85rem !important;
-                max-width: 150px;
-            }
-            
-            .mobile-navbar .page-info small {
-                font-size: 0.6rem !important;
             }
             
             .mobile-sidebar {
@@ -1098,6 +939,7 @@
             .form-control {
                 padding: 6px 10px;
                 font-size: 11px;
+                margin-bottom: 4px;
             }
 
             .btn-filter {
@@ -1146,31 +988,6 @@
             }
         }
 
-        /* Landscape orientation untuk mobile */
-        @media (max-width: 768px) and (orientation: landscape) {
-            body {
-                padding-top: 0;
-            }
-            
-            .mobile-navbar {
-                padding: 6px 12px;
-            }
-            
-            .main-content {
-                padding-top: 6px;
-                padding-bottom: 8px;
-            }
-            
-            .mode-switcher-container {
-                margin: 0 5px 10px;
-                padding: 8px 12px;
-            }
-
-            .search-filter-card {
-                margin: 0 5px 10px;
-            }
-        }
-
         /* High DPI / Retina Display Adjustments */
         @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
             .message-card {
@@ -1179,10 +996,6 @@
             
             .sidebar {
                 box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
-            }
-            
-            .mobile-navbar {
-                box-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
             }
         }
 
@@ -1196,23 +1009,7 @@
 @endpush
 
 @section('content')
-<!-- Mobile Navigation Bar - Fixed at top -->
-<div class="mobile-navbar" id="mobileNavbar">
-    <div class="navbar-content">
-        <div class="page-info">
-            <h6>Riwayat Pesan</h6>
-            <small>{{ $riwayatPesan->count() }} pesan selesai</small>
-        </div>
-        <div class="navbar-actions">
-            <button class="burger-menu" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Mobile navbar compensation when it becomes fixed -->
-<div class="mobile-navbar-compensation" id="mobileNavbarCompensation"></div>
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
 
 <div class="main-content">
     <div class="custom-container">
@@ -1222,7 +1019,7 @@
         <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="mobile-sidebar-header">
-                <h6>Menu</h6>
+                <h6>Menu Navigasi</h6>
                 <button class="close-sidebar" id="closeSidebar">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1363,9 +1160,9 @@
                 <!-- Search and Filters -->
                 <div class="card mb-4 search-filter-card">
                     <div class="card-body">
-                        <div class="row g-3 align-items-center">
+                        <div class="row g-2 align-items-center">
                             <div class="col-md">
-                                <input type="text" class="form-control" id="searchInput" placeholder="Cari Pesan..." style="font-size: 14px;">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Cari Pesan..." style="font-size: 14px; margin-bottom: 8px;">
                             </div>
                             <div class="col-md-auto">
                                 <div class="btn-group">
@@ -1501,89 +1298,84 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileSidebar = document.getElementById('mobileSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const closeSidebar = document.getElementById('closeSidebar');
-    const mobileNavbar = document.getElementById('mobileNavbar');
-    const mobileNavbarCompensation = document.getElementById('mobileNavbarCompensation');
+    const menuDots = document.getElementById('menuDots');
     
-    // Enhanced mobile navbar with scroll effect
-    function handleMobileNavbarScroll() {
-        if (!mobileNavbar || window.innerWidth > 991) return;
-        
-        const scrolled = window.scrollY > 50;
-        
-        if (scrolled) {
-            mobileNavbar.classList.add('scrolled');
-            mobileNavbarCompensation.classList.add('active');
-        } else {
-            mobileNavbar.classList.remove('scrolled');
-            mobileNavbarCompensation.classList.remove('active');
-        }
-    }
-    
-    // Add scroll listener for mobile navbar effect
-    window.addEventListener('scroll', handleMobileNavbarScroll);
-    
-    // Performance optimization: Throttle scroll events
-    let ticking = false;
-    
-    function updateScrollEffects() {
-        handleMobileNavbarScroll();
-        ticking = false;
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateScrollEffects);
-            ticking = true;
-        }
-    });
-    
-    // Initialize scroll effects on load
-    handleMobileNavbarScroll();
-    
-    // Open mobile sidebar
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', function() {
+    // Fungsi untuk membuka mobile sidebar
+    function openMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
             mobileSidebar.classList.add('show');
             sidebarOverlay.style.display = 'block';
             setTimeout(() => {
                 sidebarOverlay.classList.add('show');
             }, 10);
-            
-            // Prevent body scroll when sidebar is open
             document.body.style.overflow = 'hidden';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+    }
+    
+    // Fungsi untuk menutup mobile sidebar
+    function closeMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            setTimeout(() => {
+                sidebarOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+    
+    // Event listener untuk mobile menu toggle
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileSidebar();
         });
     }
     
-    // Close mobile sidebar
-    function closeMobileSidebar() {
-        mobileSidebar.classList.remove('show');
-        sidebarOverlay.classList.remove('show');
-        setTimeout(() => {
-            sidebarOverlay.style.display = 'none';
-        }, 300);
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-    }
-    
+    // Event listener untuk menutup sidebar
     if (closeSidebar) {
-        closeSidebar.addEventListener('click', closeMobileSidebar);
+        closeSidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
     }
     
     if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', closeMobileSidebar);
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
     }
     
-    // Close sidebar when clicking on a menu item (mobile)
+    // Menu dots functionality (for account menu)
+    if (menuDots) {
+        menuDots.addEventListener('click', function() {
+            console.log('Account menu clicked');
+            // Add account menu functionality here
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
     const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
     mobileMenuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Add small delay to allow navigation
-            setTimeout(closeMobileSidebar, 100);
-        });
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
+            });
+        }
     });
     
-    // Mobile dropdown functionality
+    // Mobile dropdown functionality - PERBAIKAN
     const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
     const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
     const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
@@ -1591,6 +1383,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileGrupDropdownToggle) {
         mobileGrupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
             
             // Toggle the collapse
             const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
@@ -1605,14 +1398,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileGrupDropdownIcon.classList.add('fa-chevron-down');
             }
         });
+        
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     }
     
-    // Initialize the grup dropdown manually (desktop)
+    // Desktop dropdown functionality
     const grupDropdownToggle = document.getElementById('grupDropdownToggle');
     const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
     const grupDropdownIcon = document.getElementById('grupDropdownIcon');
     
-    // Buat instance collapse
+    // Membuat instance Bootstrap collapse untuk menu grup
     const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
         toggle: false
     });
@@ -1620,12 +1418,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (grupDropdownToggle) {
         grupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
-            // Toggle the collapse
+            // Menggunakan metode toggle dari Bootstrap daripada manipulasi kelas manual
             bsCollapse.toggle();
-            
-            // Toggle the icon
-            grupDropdownIcon.classList.toggle('fa-chevron-up');
-            grupDropdownIcon.classList.toggle('fa-chevron-down');
+        });
+        
+        // Mengubah ikon saat submenu dibuka
+        komunikasiSubmenu.addEventListener('shown.bs.collapse', function() {
+            grupDropdownIcon.classList.remove('fa-chevron-down');
+            grupDropdownIcon.classList.add('fa-chevron-up');
+        });
+        
+        // Mengubah ikon saat submenu ditutup
+        komunikasiSubmenu.addEventListener('hidden.bs.collapse', function() {
+            grupDropdownIcon.classList.remove('fa-chevron-up');
+            grupDropdownIcon.classList.add('fa-chevron-down');
         });
     }
     
@@ -1669,9 +1475,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show/hide no messages found message
         if (visibleCount === 0 && messageCards.length > 0) {
-            noMessagesFound.style.display = 'block';
+            if (noMessagesFound) noMessagesFound.style.display = 'block';
         } else {
-            noMessagesFound.style.display = 'none';
+            if (noMessagesFound) noMessagesFound.style.display = 'none';
         }
     }
     
@@ -1722,6 +1528,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Fungsi untuk menampilkan modal loading sederhana
+    function showRoleModal(message) {
+        const modal = document.getElementById('roleModalBackdrop');
+        if (modal) {
+            // Perbarui pesan jika ada
+            if (message) {
+                const messageElement = document.getElementById('roleModalMessage');
+                if (messageElement) {
+                    messageElement.textContent = message;
+                }
+            }
+            
+            // Tampilkan modal
+            modal.classList.add('show');
+        }
+    }
+    
     // Enhanced keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         // Esc untuk tutup sidebar mobile
@@ -1759,7 +1582,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Swipe right to open sidebar (only if not already open)
         if (swipeDistance > swipeThreshold && touchStartX < 50 && mobileSidebar && !mobileSidebar.classList.contains('show')) {
-            if (window.innerWidth <= 991) {
+            if (window.innerWidth <= 768) {
                 if (mobileMenuToggle) {
                     mobileMenuToggle.click();
                 }
@@ -1784,7 +1607,7 @@ document.addEventListener('DOMContentLoaded', function() {
     interactiveElements.forEach(element => {
         if (element) {
             element.addEventListener('touchstart', function() {
-                if (window.innerWidth <= 991) {
+                if (window.innerWidth <= 768) {
                     addHapticFeedback();
                 }
             });
@@ -1814,7 +1637,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update ARIA states when sidebar opens/closes
         if (mobileMenuToggle) {
-            const originalMobileMenuClick = mobileMenuToggle.addEventListener;
             mobileMenuToggle.addEventListener('click', function() {
                 this.setAttribute('aria-expanded', 'true');
             });
@@ -1841,22 +1663,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Mobile Riwayat Pesan Dosen initialized successfully');
 });
-
-// Fungsi untuk menampilkan modal loading sederhana
-function showRoleModal(message) {
-    const modal = document.getElementById('roleModalBackdrop');
-    if (modal) {
-        // Perbarui pesan jika ada
-        if (message) {
-            const messageElement = document.getElementById('roleModalMessage');
-            if (messageElement) {
-                messageElement.textContent = message;
-            }
-        }
-        
-        // Tampilkan modal
-        modal.classList.add('show');
-    }
-}
 </script>
 @endpush

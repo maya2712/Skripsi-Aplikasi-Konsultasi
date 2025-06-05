@@ -35,105 +35,6 @@
         color: white;
     }
 
-    /* Mobile Navigation Bar */
-    .mobile-navbar {
-        display: none;
-        background: var(--primary-gradient);
-        color: white;
-        padding: 12px 15px;
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1025;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.15);
-        border-radius: 0;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        margin-top: 0;
-    }
-
-    /* Enhanced mobile navbar with scroll effect */
-    .mobile-navbar.scrolled {
-        background: rgba(0, 74, 173, 0.95);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-        position: fixed;
-        top: 0;
-        z-index: 1030;
-    }
-
-    /* Add padding compensation when navbar becomes fixed */
-    .mobile-navbar-compensation {
-        height: 70px;
-        display: none;
-    }
-
-    .mobile-navbar-compensation.active {
-        display: block;
-    }
-
-    .mobile-navbar .navbar-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .mobile-navbar .group-info h6 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .mobile-navbar .group-info small {
-        font-size: 0.75rem;
-        opacity: 0.9;
-    }
-
-    .mobile-navbar .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .burger-menu {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        padding: 8px;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .burger-menu:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    .burger-menu:focus {
-        outline: none;
-        box-shadow: none;
-    }
-
-    .header-icon {
-        color: white;
-        font-size: 1.2rem;
-        cursor: pointer;
-        opacity: 0.9;
-        transition: all 0.3s ease;
-        padding: 8px;
-        border-radius: 50%;
-    }
-
-    .header-icon:hover {
-        opacity: 1;
-        background-color: rgba(255, 255, 255, 0.2);
-        transform: scale(1.1);
-    }
-
     /* Mobile Sidebar Overlay */
     .sidebar-overlay {
         display: none;
@@ -324,6 +225,29 @@
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    .group-header .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.9;
+        transition: all 0.3s ease;
+        padding: 8px;
+        border-radius: 50%;
+    }
+
+    .header-icon:hover {
+        opacity: 1;
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
     }
     
     .message-container {
@@ -671,10 +595,6 @@
 
     /* Mobile Responsive Styles - ENHANCED */
     @media (max-width: 991.98px) {
-        body {
-            padding-top: 0; /* Remove fixed padding since navbar is now sticky */
-        }
-        
         .row.g-4 {
             --bs-gutter-x: 0;
         }
@@ -688,14 +608,6 @@
             padding-right: 0;
             flex: 0 0 100%;
             max-width: 100%;
-        }
-        
-        .mobile-navbar {
-            display: block; /* Show mobile navbar */
-        }
-        
-        .group-header {
-            display: none; /* Hide desktop group header */
         }
         
         .main-content {
@@ -716,10 +628,6 @@
 
     /* Tablet Responsive Styles */
     @media (max-width: 768px) {
-        body {
-            padding-top: 0; /* Remove fixed padding */
-        }
-        
         .custom-container {
             padding: 0 10px;
         }
@@ -727,23 +635,6 @@
         .main-content {
             padding-top: 10px; /* Normal padding */
             padding-bottom: 15px;
-        }
-        
-        .mobile-navbar {
-            padding: 10px 15px; /* Slightly smaller padding */
-        }
-        
-        .mobile-navbar .navbar-content {
-            flex-direction: row;
-            align-items: center;
-        }
-        
-        .mobile-navbar .group-info h6 {
-            font-size: 0.95rem;
-        }
-        
-        .mobile-navbar .group-info small {
-            font-size: 0.7rem;
         }
         
         .message-container {
@@ -772,13 +663,21 @@
             height: 35px;
             font-size: 16px;
         }
+
+        .group-header .header-actions {
+            gap: 10px;
+        }
+
+        .header-icon {
+            font-size: 1rem;
+            padding: 6px;
+        }
     }
 
     /* Mobile Phone Responsive Styles */
     @media (max-width: 576px) {
         body {
             font-size: 12px;
-            padding-top: 0; /* Remove fixed padding */
         }
         
         .custom-container {
@@ -788,46 +687,6 @@
         .main-content {
             padding-top: 8px; /* Normal top padding */
             padding-bottom: 10px;
-        }
-        
-        .mobile-navbar {
-            padding: 8px 12px; /* More compact */
-        }
-        
-        .mobile-navbar .group-info h6 {
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-        }
-        
-        .mobile-navbar .group-info small {
-            font-size: 0.65rem;
-            opacity: 0.9;
-        }
-        
-        .mobile-navbar .navbar-actions {
-            gap: 5px;
-        }
-        
-        .burger-menu {
-            font-size: 1rem;
-            padding: 6px;
-        }
-        
-        .header-icon {
-            margin-left: 3px;
-            margin-right: 3px;
-            padding: 4px;
-            font-size: 0.9rem;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
         .mobile-sidebar {
@@ -924,6 +783,25 @@
             padding: 8px 12px;
             font-size: 12px;
         }
+
+        .group-header {
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .group-header h5 {
+            font-size: 1.1rem;
+        }
+
+        .group-header small {
+            font-size: 0.75rem;
+        }
+
+        .header-icon {
+            font-size: 0.9rem;
+            padding: 4px;
+            margin: 0 2px;
+        }
         
         /* Modal Responsive untuk Mobile */
         .modal-dialog {
@@ -1009,10 +887,6 @@
 
     /* Extra Small Mobile (iPhone SE, etc) */
     @media (max-width: 375px) {
-        body {
-            padding-top: 0; /* Remove fixed padding */
-        }
-        
         .custom-container {
             padding: 0 6px;
         }
@@ -1024,15 +898,6 @@
         
         .chat-message {
             max-width: 98%;
-        }
-        
-        .mobile-navbar .group-info h6 {
-            font-size: 0.85rem !important;
-            max-width: 150px;
-        }
-        
-        .mobile-navbar .group-info small {
-            font-size: 0.6rem !important;
         }
         
         .mobile-sidebar {
@@ -1052,30 +917,19 @@
             min-width: 0;
             flex: 1;
         }
-    }
 
-    /* Landscape orientation untuk mobile */
-    @media (max-width: 768px) and (orientation: landscape) {
-        body {
-            padding-top: 0; /* Remove fixed padding for landscape */
+        .group-header {
+            padding: 12px;
         }
-        
-        .mobile-navbar {
-            padding: 6px 12px; /* More compact in landscape */
+
+        .group-header h5 {
+            font-size: 1rem;
         }
-        
-        .main-content {
-            padding-top: 6px;
-            padding-bottom: 8px;
-        }
-        
-        .message-container {
-            max-height: calc(100vh - 120px);
-            min-height: 200px;
-        }
-        
-        .message-input {
-            padding: 8px;
+
+        .header-icon {
+            font-size: 0.8rem;
+            padding: 3px;
+            margin: 0 1px;
         }
     }
 
@@ -1087,10 +941,6 @@
         
         .sidebar {
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
-        }
-        
-        .mobile-navbar {
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
         }
     }
 
@@ -1104,25 +954,7 @@
 @endpush
 
 @section('content')
-<!-- Mobile Navigation Bar - Fixed at top -->
-<div class="mobile-navbar" id="mobileNavbar">
-    <div class="navbar-content">
-        <div class="group-info">
-            <h6>{{ $grup->nama_grup }}</h6>
-            <small>{{ $grup->mahasiswa->count() }} anggota</small>
-        </div>
-        <div class="navbar-actions">
-            <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#anggotaGrupModal"></i>
-            <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
-            <button class="burger-menu" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Mobile navbar compensation when it becomes fixed -->
-<div class="mobile-navbar-compensation" id="mobileNavbarCompensation"></div>
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
 
 <div class="main-content">
     <div class="custom-container">
@@ -1132,7 +964,7 @@
         <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="mobile-sidebar-header">
-                <h6>Menu</h6>
+                <h6>Menu Navigasi</h6>
                 <button class="close-sidebar" id="closeSidebar">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1246,7 +1078,7 @@
                             <h5 class="mb-0 fw-semibold">{{ $grup->nama_grup }}</h5>
                             <small>{{ $grup->mahasiswa->count() }} anggota</small>
                         </div>
-                        <div class="d-flex">
+                        <div class="header-actions">
                             <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#anggotaGrupModal"></i>
                             <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
                         </div>
@@ -1424,89 +1256,84 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileSidebar = document.getElementById('mobileSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const closeSidebar = document.getElementById('closeSidebar');
-    const mobileNavbar = document.getElementById('mobileNavbar');
-    const mobileNavbarCompensation = document.getElementById('mobileNavbarCompensation');
+    const menuDots = document.getElementById('menuDots');
     
-    // Enhanced mobile navbar with scroll effect - same as dashboard
-    function handleMobileNavbarScroll() {
-        if (!mobileNavbar || window.innerWidth > 991) return;
-        
-        const scrolled = window.scrollY > 50;
-        
-        if (scrolled) {
-            mobileNavbar.classList.add('scrolled');
-            mobileNavbarCompensation.classList.add('active');
-        } else {
-            mobileNavbar.classList.remove('scrolled');
-            mobileNavbarCompensation.classList.remove('active');
-        }
-    }
-    
-    // Add scroll listener for mobile navbar effect
-    window.addEventListener('scroll', handleMobileNavbarScroll);
-    
-    // Performance optimization: Throttle scroll events
-    let ticking = false;
-    
-    function updateScrollEffects() {
-        handleMobileNavbarScroll();
-        ticking = false;
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateScrollEffects);
-            ticking = true;
-        }
-    });
-    
-    // Initialize scroll effects on load
-    handleMobileNavbarScroll();
-    
-    // Open mobile sidebar
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', function() {
+    // Fungsi untuk membuka mobile sidebar
+    function openMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
             mobileSidebar.classList.add('show');
             sidebarOverlay.style.display = 'block';
             setTimeout(() => {
                 sidebarOverlay.classList.add('show');
             }, 10);
-            
-            // Prevent body scroll when sidebar is open
             document.body.style.overflow = 'hidden';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+    }
+    
+    // Fungsi untuk menutup mobile sidebar
+    function closeMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            setTimeout(() => {
+                sidebarOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+    
+    // Event listener untuk mobile menu toggle
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileSidebar();
         });
     }
     
-    // Close mobile sidebar
-    function closeMobileSidebar() {
-        mobileSidebar.classList.remove('show');
-        sidebarOverlay.classList.remove('show');
-        setTimeout(() => {
-            sidebarOverlay.style.display = 'none';
-        }, 300);
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-    }
-    
+    // Event listener untuk menutup sidebar
     if (closeSidebar) {
-        closeSidebar.addEventListener('click', closeMobileSidebar);
+        closeSidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
     }
     
     if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', closeMobileSidebar);
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
     }
     
-    // Close sidebar when clicking on a menu item (mobile)
+    // Menu dots functionality (for account menu)
+    if (menuDots) {
+        menuDots.addEventListener('click', function() {
+            console.log('Account menu clicked');
+            // Add account menu functionality here
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
     const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
     mobileMenuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Add small delay to allow navigation
-            setTimeout(closeMobileSidebar, 100);
-        });
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
+            });
+        }
     });
     
-    // Mobile dropdown functionality
+    // Mobile dropdown functionality - PERBAIKAN
     const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
     const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
     const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
@@ -1514,6 +1341,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileGrupDropdownToggle) {
         mobileGrupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
             
             // Toggle the collapse
             const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
@@ -1527,6 +1355,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
                 mobileGrupDropdownIcon.classList.add('fa-chevron-down');
             }
+        });
+        
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     }
     
@@ -1729,21 +1562,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Enhancement: Deteksi jika user scroll ke atas
-    let isUserScrolling = false;
-    let scrollTimeout;
-    
-    if (messageContainer) {
-        messageContainer.addEventListener('scroll', function() {
-            isUserScrolling = true;
-            clearTimeout(scrollTimeout);
-            
-            scrollTimeout = setTimeout(() => {
-                isUserScrolling = false;
-            }, 1000);
-        });
-    }
-    
     // Enhancement: Show/hide scroll to bottom button
     const scrollToBottomBtn = document.createElement('button');
     scrollToBottomBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
@@ -1773,55 +1591,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Mobile responsiveness enhancements
-    function handleMobileOptimizations() {
-        const isMobile = window.innerWidth <= 768;
-        
-        if (isMobile) {
-            // Add mobile-specific classes
-            scrollToBottomBtn.classList.add('scroll-to-bottom-mobile');
-            
-            // Adjust message container height on mobile
-            if (messageContainer) {
-                const viewportHeight = window.innerHeight;
-                const mobileNavbarElement = document.querySelector('.mobile-navbar');
-                const inputHeight = document.querySelector('.message-input').offsetHeight;
-                const mobileNavbarHeight = mobileNavbarElement ? mobileNavbarElement.offsetHeight : 0;
-                
-                // Calculate optimal height for mobile
-                const availableHeight = viewportHeight - mobileNavbarHeight - inputHeight - 80; // 80px for margins
-                messageContainer.style.maxHeight = Math.max(250, availableHeight) + 'px';
-            }
-            
-            // Optimize touch interactions
-            if (messageInput) {
-                messageInput.addEventListener('touchstart', function() {
-                    // Prevent zoom on iOS
-                    const viewport = document.querySelector('meta[name="viewport"]');
-                    if (viewport) {
-                        viewport.setAttribute('content', 
-                            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-                    }
-                });
-                
-                messageInput.addEventListener('blur', function() {
-                    // Re-enable zoom after input loses focus
-                    const viewport = document.querySelector('meta[name="viewport"]');
-                    if (viewport) {
-                        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-                    }
-                });
-            }
+    // Handle window resize to close mobile sidebar on desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && mobileSidebar.classList.contains('show')) {
+            closeMobileSidebar();
         }
-    }
-    
-    // Run mobile optimizations on load and resize
-    handleMobileOptimizations();
-    window.addEventListener('resize', handleMobileOptimizations);
-    
-    // Handle orientation changes on mobile
-    window.addEventListener('orientationchange', function() {
-        setTimeout(handleMobileOptimizations, 500);
     });
     
     // Swipe gesture for mobile sidebar
@@ -1875,13 +1649,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle window resize to close mobile sidebar on desktop
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768 && mobileSidebar.classList.contains('show')) {
-            closeMobileSidebar();
-        }
-    });
-    
     // Add haptic feedback for mobile interactions (if supported)
     function addHapticFeedback() {
         if ('vibrate' in navigator) {
@@ -1900,184 +1667,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
-    // Smooth animations for better mobile experience
-    mobileSidebar.style.transition = 'left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
-    sidebarOverlay.style.transition = 'opacity 0.3s ease';
-    
-    // Optimize scroll performance on mobile
-    let tickingScroll = false;
-    
-    function updateScrollPosition() {
-        // Update scroll-to-bottom button visibility
-        if (messageContainer) {
-            const isAtBottom = messageContainer.scrollTop + messageContainer.clientHeight >= messageContainer.scrollHeight - 100;
-            scrollToBottomBtn.style.display = isAtBottom ? 'none' : 'block';
-        }
-        tickingScroll = false;
-    }
-    
-    if (messageContainer) {
-        messageContainer.addEventListener('scroll', function() {
-            if (!tickingScroll) {
-                requestAnimationFrame(updateScrollPosition);
-                tickingScroll = true;
-            }
-        });
-    }
-    
-    // Enhanced mobile keyboard handling
-    function handleMobileKeyboard() {
-        if (window.innerWidth <= 768) {
-            const initialViewportHeight = window.innerHeight;
-            
-            window.addEventListener('resize', function() {
-                const currentViewportHeight = window.innerHeight;
-                const keyboardHeight = initialViewportHeight - currentViewportHeight;
-                
-                // Keyboard is likely open if viewport height decreased significantly
-                if (keyboardHeight > 150) {
-                    // Adjust message container height when keyboard is open
-                    if (messageContainer) {
-                        const mobileNavbarElement = document.querySelector('.mobile-navbar');
-                        const inputHeight = document.querySelector('.message-input').offsetHeight;
-                        const mobileNavbarHeight = mobileNavbarElement ? mobileNavbarElement.offsetHeight : 0;
-                        
-                        const availableHeight = currentViewportHeight - mobileNavbarHeight - inputHeight - 60;
-                        messageContainer.style.maxHeight = Math.max(200, availableHeight) + 'px';
-                        
-                        // Scroll to bottom when keyboard opens
-                        setTimeout(() => {
-                            messageContainer.scrollTop = messageContainer.scrollHeight;
-                        }, 100);
-                    }
-                } else {
-                    // Keyboard closed, restore normal height
-                    handleMobileOptimizations();
-                }
-            });
-        }
-    }
-    
-    handleMobileKeyboard();
-    
-    // Prevent double-tap zoom on mobile buttons
-    const preventDoubleTapZoom = function(e) {
-        e.preventDefault();
-        this.click();
-    };
-    
-    [mobileMenuToggle, closeSidebar].forEach(button => {
-        if (button) {
-            button.addEventListener('touchend', preventDoubleTapZoom);
-        }
-    });
-    
-    // Add loading states for better UX
-    function showLoading(element, originalContent) {
-        element.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        element.disabled = true;
-        return originalContent;
-    }
-    
-    function hideLoading(element, originalContent) {
-        element.innerHTML = originalContent;
-        element.disabled = false;
-    }
-    
-    // Enhanced error handling
-    function showError(message, duration = 3000) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger position-fixed';
-        errorDiv.style.cssText = `
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            max-width: 300px;
-            animation: slideInRight 0.3s ease;
-        `;
-        errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            ${message}
-            <button type="button" class="btn-close ms-2" onclick="this.parentElement.remove()"></button>
-        `;
-        
-        document.body.appendChild(errorDiv);
-        
-        setTimeout(() => {
-            if (errorDiv.parentElement) {
-                errorDiv.style.animation = 'slideOutRight 0.3s ease';
-                setTimeout(() => errorDiv.remove(), 300);
-            }
-        }, duration);
-    }
-    
-    // Add CSS animations for notifications
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Connection status indicator for better UX
-    function updateConnectionStatus() {
-        const isOnline = navigator.onLine;
-        const statusIndicator = document.getElementById('connectionStatus') || createConnectionStatusIndicator();
-        
-        if (isOnline) {
-            statusIndicator.style.display = 'none';
-        } else {
-            statusIndicator.style.display = 'block';
-            statusIndicator.innerHTML = '<i class="fas fa-wifi"></i> Tidak ada koneksi internet';
-        }
-    }
-    
-    function createConnectionStatusIndicator() {
-        const indicator = document.createElement('div');
-        indicator.id = 'connectionStatus';
-        indicator.className = 'alert alert-warning position-fixed';
-        indicator.style.cssText = `
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9998;
-            display: none;
-            padding: 8px 16px;
-            font-size: 12px;
-            border-radius: 20px;
-        `;
-        document.body.appendChild(indicator);
-        return indicator;
-    }
-    
-    window.addEventListener('online', updateConnectionStatus);
-    window.addEventListener('offline', updateConnectionStatus);
-    
-    // Initialize connection status
-    updateConnectionStatus();
-    
-    // Performance optimization: Debounce resize events
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-    
-    const debouncedHandleMobileOptimizations = debounce(handleMobileOptimizations, 250);
-    window.addEventListener('resize', debouncedHandleMobileOptimizations);
     
     // Accessibility improvements
     function enhanceAccessibility() {
@@ -2117,44 +1706,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     enhanceAccessibility();
-    
-    // Focus management for better keyboard navigation
-    function manageFocus() {
-        // When sidebar opens, focus on first menu item
-        if (mobileMenuToggle) {
-            mobileMenuToggle.addEventListener('click', function() {
-                setTimeout(() => {
-                    const firstMenuItem = mobileSidebar.querySelector('.nav-link');
-                    if (firstMenuItem) {
-                        firstMenuItem.focus();
-                    }
-                }, 350); // Wait for animation to complete
-            });
-        }
-        
-        // Trap focus within sidebar when open
-        if (mobileSidebar) {
-            mobileSidebar.addEventListener('keydown', function(e) {
-                if (e.key === 'Tab') {
-                    const focusableElements = mobileSidebar.querySelectorAll(
-                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-                    );
-                    const firstElement = focusableElements[0];
-                    const lastElement = focusableElements[focusableElements.length - 1];
-                    
-                    if (e.shiftKey && document.activeElement === firstElement) {
-                        e.preventDefault();
-                        lastElement.focus();
-                    } else if (!e.shiftKey && document.activeElement === lastElement) {
-                        e.preventDefault();
-                        firstElement.focus();
-                    }
-                }
-            });
-        }
-    }
-    
-    manageFocus();
     
     console.log('Mobile group chat initialized successfully');
 });

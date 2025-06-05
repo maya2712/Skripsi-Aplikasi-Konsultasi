@@ -16,12 +16,10 @@
         display: none !important;
     }
     
-    /* Jika ada notifikasi Bootstrap lainnya yang muncul otomatis */
     .alert {
         display: none !important;
     }
     
-    /* Jika notifikasi menggunakan class khusus SEPTI */
     .notification,
     .septi-notification,
     .default-notification,
@@ -29,7 +27,6 @@
         display: none !important;
     }
     
-    /* Sembunyikan semua div dengan class yang mengandung 'alert' atau 'notification' */
     div[class*="alert"],
     div[class*="notification"] {
         display: none !important;
@@ -66,6 +63,74 @@
     .btn-custom-primary:hover {
         background: #1557b0;
         color: white;
+    }
+
+    /* Mobile Sidebar */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.show {
+        opacity: 1;
+    }
+
+    .mobile-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        height: 100%;
+        background: white;
+        z-index: 1050;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+        box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+    }
+
+    .mobile-sidebar.show {
+        left: 0;
+    }
+
+    .mobile-sidebar-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 20px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mobile-sidebar-header h6 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .close-sidebar {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        padding: 5px;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: all 0.2s ease;
+    }
+
+    .close-sidebar:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .close-sidebar:focus {
+        outline: none;
     }
 
     .sidebar {
@@ -214,6 +279,13 @@
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    .group-header .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
     
     .message-container {
@@ -224,6 +296,8 @@
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         padding: 15px 20px;
+        display: flex;
+        flex-direction: column;
     }
     
     .message-input {
@@ -290,7 +364,7 @@
         color: rgba(255, 255, 255, 0.7);
         font-size: 12px;
         text-align: right;
-        margin-top: 8px;
+        margin-top: 4px;
     }
     
     .chat-message {
@@ -314,28 +388,47 @@
         max-width: 85%;
     }
     
+    /* Pesan dari dosen yang sedang login (diri sendiri) */
     .chat-message.dosen {
         margin-left: auto;
     }
     
     .chat-message.dosen .message-bubble {
-        background-color: var(--bs-primary);
+        background-color: #1a73e8;
         color: white;
         border-radius: 15px 15px 3px 15px;
         margin-left: auto;
+        min-width: 120px;
+        display: block;
     }
     
+    .chat-message.dosen p {
+        margin-bottom: 8px;
+        word-break: break-word;
+    }
+    
+    /* Pesan dari mahasiswa */
     .chat-message.mahasiswa .message-bubble {
         background-color: #585f67;
         color: white;
         border-radius: 15px 15px 15px 3px;
+        min-width: 80px;
+        display: block;
+    }
+    
+    .chat-message.mahasiswa p {
+        margin-bottom: 8px;
+        word-break: break-word;
     }
     
     .sender-name {
-        color: #f8ac30;
         font-size: 14px;
         font-weight: 600;
         margin-bottom: 4px;
+    }
+    
+    .chat-message.mahasiswa .sender-name {
+        color: #f8ac30;
     }
     
     .chat-date-divider {
@@ -384,7 +477,6 @@
         color: #546E7A;
     }
     
-    /* Style untuk input message yang normal (tidak tersalin/miring) */
     #messageInput {
         font-style: normal !important;
         font-family: inherit !important;
@@ -466,17 +558,6 @@
         line-height: 1;
     }
 
-    .modal-header {
-        background: var(--primary-gradient);
-        color: white;
-        border-bottom: none;
-        padding: 20px 25px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
     .modal-body {
         padding: 25px;
         background: #fafbfc;
@@ -488,7 +569,6 @@
         padding: 20px 25px;
     }
     
-    /* Style untuk modal loading */
     .modal-loading .modal-content {
         border: none;
         border-radius: 15px;
@@ -530,7 +610,6 @@
         text-align: center;
     }
     
-    /* Style untuk modal konfirmasi hapus */
     .modal-confirm .modal-header {
         background: var(--primary-gradient);
         color: white;
@@ -569,7 +648,6 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Info Modal Styles */
     .info-item {
         background: white;
         border-radius: 10px;
@@ -605,7 +683,6 @@
         font-size: 0.95rem;
     }
 
-    /* Table Styles for Member List */
     .table-responsive {
         border-radius: 8px;
         overflow: hidden;
@@ -648,7 +725,6 @@
         background-color: #f8f9fa;
     }
 
-    /* Hover effect untuk tombol hapus anggota */
     .delete-member-btn:hover {
         background-color: #dc3545 !important;
         border-color: #dc3545 !important;
@@ -657,7 +733,6 @@
         box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
     }
 
-    /* Search Box Styles */
     .form-control {
         border: 2px solid #e9ecef;
         border-radius: 10px;
@@ -670,7 +745,6 @@
         box-shadow: 0 0 0 0.2rem rgba(93, 224, 230, 0.25);
     }
 
-    /* Checkbox Styles */
     .form-check {
         background: white;
         border-radius: 8px;
@@ -696,7 +770,6 @@
         cursor: pointer;
     }
 
-    /* Tab Styles */
     .nav-tabs {
         border-bottom: 2px solid #e9ecef;
         margin-bottom: 20px;
@@ -722,7 +795,6 @@
         color: #004AAD;
     }
 
-    /* Alert Styles - HANYA UNTUK CUSTOM ALERT, BUKAN BAWAAN SEPTI */
     .custom-alert-info {
         background: linear-gradient(135deg, rgba(0, 74, 173, 0.1), rgba(93, 224, 230, 0.1));
         border: 1px solid rgba(93, 224, 230, 0.3);
@@ -731,7 +803,6 @@
         font-weight: 500;
     }
 
-    /* Custom Toast Close Button Styles */
     .toast .btn-close {
         background: transparent !important;
         border: none !important;
@@ -776,14 +847,12 @@
         text-align: center !important;
     }
 
-    /* Force white color for all toast close buttons */
     .toast .btn-close,
     .toast .btn-close:hover,
     .toast .btn-close:focus {
         filter: brightness(0) invert(1) !important;
     }
 
-    /* Toast body alignment fix */
     .toast .d-flex {
         align-items: center !important;
         padding: 0 !important;
@@ -796,14 +865,12 @@
         flex-grow: 1 !important;
     }
 
-    /* Toast container styling */
     .toast {
         min-width: 300px !important;
         border-radius: 10px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* SUCCESS MODAL STYLES */
     .modal-success .modal-content {
         border: none;
         border-radius: 20px;
@@ -859,49 +926,88 @@
         margin-bottom: 20px;
     }
 
-    /* Responsive Design */
+    /* Mobile Responsive Styles - ENHANCED */
+    @media (max-width: 991.98px) {
+        body {
+            padding-top: 0;
+        }
+        
+        .row.g-4 {
+            --bs-gutter-x: 0;
+        }
+        
+        .col-md-3 {
+            display: none;
+        }
+        
+        .col-md-9 {
+            padding-left: 0;
+            padding-right: 0;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        .main-content {
+            padding-top: 15px;
+        }
+        
+        .message-container {
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .message-input {
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    }
+
+    /* Tablet Responsive Styles */
     @media (max-width: 768px) {
         .custom-container {
             padding: 0 10px;
         }
         
         .main-content {
-            padding-top: 15px;
+            padding-top: 10px;
             padding-bottom: 15px;
         }
         
-        .group-header {
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .group-header h5 {
-            font-size: 1.1rem;
-        }
-        
-        .sidebar {
-            position: relative;
-            top: 0;
-            max-height: none;
-            margin-bottom: 20px;
-        }
-        
         .message-container {
-            max-height: 400px;
-            padding: 10px 15px;
+            max-height: calc(100vh - 180px);
+            min-height: 300px;
+            padding: 12px 15px;
         }
         
         .message-input {
-            padding: 10px;
+            padding: 12px;
         }
         
         .chat-message {
             max-width: 90%;
+            margin-bottom: 20px;
         }
         
         .message-bubble {
-            padding: 12px 15px;
+            padding: 12px 16px;
             max-width: 95%;
+        }
+        
+        .profile-image-placeholder,
+        .profile-image-real {
+            width: 35px;
+            height: 35px;
+            font-size: 16px;
+        }
+
+        .group-header .header-actions {
+            gap: 10px;
+        }
+
+        .header-icon {
+            font-size: 1rem;
+            padding: 6px;
         }
         
         .modal-dialog {
@@ -928,12 +1034,6 @@
         .table thead th,
         .table tbody td {
             padding: 8px 5px;
-        }
-        
-        .profile-image-placeholder {
-            width: 35px;
-            height: 35px;
-            font-size: 16px;
         }
         
         .btn {
@@ -972,26 +1072,203 @@
         }
     }
 
+    /* Mobile Phone Responsive Styles */
     @media (max-width: 576px) {
+        body {
+            font-size: 12px;
+        }
+        
+        .custom-container {
+            padding: 0 8px;
+        }
+        
+        .main-content {
+            padding-top: 8px;
+            padding-bottom: 10px;
+        }
+        
+        .mobile-sidebar {
+            width: 260px;
+        }
+        
+        .mobile-sidebar-header {
+            padding: 15px 12px;
+        }
+        
+        .mobile-sidebar-header h6 {
+            font-size: 0.95rem;
+        }
+        
+        .message-container {
+            max-height: calc(100vh - 160px);
+            min-height: 250px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .message-input {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+        
+        .chat-message {
+            max-width: 95%;
+            margin-bottom: 15px;
+        }
+        
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 100%;
+            min-width: 60px;
+        }
+        
+        .chat-message.dosen .message-bubble {
+            border-radius: 12px 12px 3px 12px;
+            min-width: 80px;
+        }
+        
+        .chat-message.mahasiswa .message-bubble {
+            border-radius: 12px 12px 12px 3px;
+            min-width: 60px;
+        }
+        
+        .sender-name {
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        
+        .message-bubble p {
+            margin-bottom: 6px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .message-time {
+            font-size: 10px;
+            margin-top: 3px;
+        }
+        
+        .chat-date-divider {
+            margin: 15px 0;
+        }
+        
+        .chat-date-divider span {
+            padding: 0 10px;
+            font-size: 10px;
+        }
+        
+        .form-control {
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-size: 12px;
+        }
+        
+        .input-group .form-control {
+            border-radius: 20px 0 0 20px;
+        }
+        
+        .input-group .btn {
+            border-radius: 0 20px 20px 0;
+            padding: 10px 15px;
+            font-size: 12px;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .group-header {
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .group-header h5 {
+            font-size: 1.1rem;
+        }
+
+        .group-header small {
+            font-size: 0.75rem;
+        }
+
         .header-icon {
-            margin-left: 8px;
-            padding: 6px;
-            font-size: 1rem;
-        }
-        
-        .group-header .d-flex {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .group-header .d-flex > div:last-child {
-            margin-top: 10px;
-            align-self: flex-end;
+            font-size: 0.9rem;
+            padding: 4px;
+            margin: 0 2px;
         }
         
         .modal-dialog {
-            margin: 5px;
-            max-width: calc(100% - 10px);
+            margin: 8px;
+            max-width: calc(100% - 16px);
+        }
+        
+        .modal-content {
+            border-radius: 8px;
+        }
+        
+        .modal-header {
+            padding: 15px 16px;
+        }
+        
+        .modal-title {
+            font-size: 1rem;
+        }
+        
+        .modal-body {
+            padding: 16px;
+        }
+        
+        .modal-footer {
+            padding: 12px 16px;
+        }
+        
+        .info-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+        
+        .info-item label {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .info-item p {
+            font-size: 11px;
+        }
+        
+        .table-responsive {
+            font-size: 11px;
+        }
+        
+        .table thead th,
+        .table tbody td {
+            padding: 8px 4px;
+            font-size: 10px;
+        }
+        
+        .profile-image-placeholder,
+        .profile-image-real {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+        }
+        
+        .text-center.py-5 {
+            padding: 2rem 1rem !important;
+        }
+        
+        .text-center.py-5 .fa-3x {
+            font-size: 2rem !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        .text-center.py-5 p {
+            font-size: 12px;
+            margin-bottom: 8px;
         }
         
         .btn-group-mobile {
@@ -1004,14 +1281,128 @@
             width: 100%;
         }
     }
+
+    /* Extra Small Mobile (iPhone SE, etc) */
+    @media (max-width: 375px) {
+        .custom-container {
+            padding: 0 6px;
+        }
+        
+        .message-container {
+            max-height: calc(100vh - 140px);
+            min-height: 220px;
+        }
+        
+        .chat-message {
+            max-width: 98%;
+        }
+        
+        .mobile-sidebar {
+            width: 240px;
+        }
+        
+        .modal-dialog {
+            margin: 5px;
+            max-width: calc(100% - 10px);
+        }
+        
+        .input-group {
+            flex-wrap: nowrap;
+        }
+        
+        .form-control {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .group-header {
+            padding: 12px;
+        }
+
+        .group-header h5 {
+            font-size: 1rem;
+        }
+
+        .header-icon {
+            font-size: 0.8rem;
+            padding: 3px;
+            margin: 0 1px;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
+
 <div class="main-content">
     <div class="custom-container">
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Mobile Sidebar -->
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <div class="mobile-sidebar-header">
+                <h6>Menu Sidebar</h6>
+                <button class="close-sidebar" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-buttons">
+                <a href="{{ route('dosen.pesan.create') }}" class="btn" style="background: var(--primary-gradient); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                    <i class="fas fa-plus me-2"></i> Pesan Baru
+                </a>
+            </div>
+            <div class="sidebar-menu">
+                <div class="nav flex-column">
+                    <a href="{{ route('dosen.dashboard.pesan') }}" class="nav-link">
+                        <i class="fas fa-home me-2"></i>Daftar Pesan
+                    </a>
+                    <a href="#" class="nav-link menu-item active" id="mobileGrupDropdownToggle">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
+                            <i class="fas fa-chevron-down" id="mobileGrupDropdownIcon"></i>
+                        </div>
+                    </a>
+                    <div class="collapse show komunikasi-submenu" id="mobileKomunikasiSubmenu">
+                        <a href="{{ route('dosen.grup.create') }}" class="nav-link menu-item d-flex align-items-center">
+                            <i class="fas fa-plus me-2"></i>Grup Baru
+                        </a>
+                        
+                        @php
+                            $activeRole = session('active_role', 'dosen');
+                            $grups = App\Models\Grup::where('dosen_id', Auth::user()->nip)
+                                                    ->where('dosen_role', $activeRole)
+                                                    ->get();
+                        @endphp
+                        
+                        @if($grups && $grups->count() > 0)
+                            @foreach($grups as $grupItem)
+                            <a href="{{ route('dosen.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center {{ $grupItem->id == $grup->id ? 'active' : '' }}">
+                                {{ $grupItem->nama_grup }}
+                                @if(isset($grupItem->unreadCount) && $grupItem->unreadCount > 0)
+                                <span class="badge bg-danger rounded-pill">{{ $grupItem->unreadCount }}</span>
+                                @endif
+                            </a>
+                            @endforeach
+                        @else
+                            <div class="nav-link menu-item text-muted">
+                                <small>Belum ada grup</small>
+                            </div>
+                        @endif
+                    </div>
+                    <a href="{{ route('dosen.pesan.history') }}" class="nav-link menu-item">
+                        <i class="fas fa-history me-2"></i>Riwayat Pesan
+                    </a>
+                    <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
+                        <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-4">
-            <!-- Sidebar - Kolom Kiri -->
+            <!-- Desktop Sidebar - Kolom Kiri -->
             <div class="col-md-3">
                 <div class="sidebar">
                     <div class="sidebar-buttons">
@@ -1073,14 +1464,14 @@
 
             <!-- Main Content Area - Kolom Kanan -->
             <div class="col-md-9">
-                <!-- Group Header -->
+                <!-- Desktop Group Header -->
                 <div class="group-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="mb-0 fw-semibold">{{ $grup->nama_grup }}</h5>
                             <small>{{ $grup->mahasiswa->count() }} anggota</small>
                         </div>
-                        <div class="d-flex">
+                        <div class="header-actions">
                             <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#tambahAnggotaModal"></i>
                             <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
                             <button type="button" class="bg-transparent border-0 p-0" id="deleteGrupBtn">
@@ -1458,6 +1849,138 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Detail grup dosen loaded');
+    
+    // ============= MOBILE SIDEBAR FUNCTIONALITY =============
+    
+    // Mobile sidebar elements
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const closeSidebar = document.getElementById('closeSidebar');
+    
+    // Fungsi untuk membuka mobile sidebar
+    function openMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.add('show');
+            sidebarOverlay.style.display = 'block';
+            setTimeout(() => {
+                sidebarOverlay.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+    }
+    
+    // Fungsi untuk menutup mobile sidebar
+    function closeMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            setTimeout(() => {
+                sidebarOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+    
+    // Event listener untuk mobile menu toggle
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileSidebar();
+        });
+    }
+    
+    // Event listener untuk menutup sidebar
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
+    const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
+    mobileMenuItems.forEach(item => {
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
+            });
+        }
+    });
+    
+    // ============= DROPDOWN FUNCTIONALITY =============
+    
+    // Mobile dropdown functionality - PERBAIKAN
+    const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
+    const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
+    const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
+    
+    if (mobileGrupDropdownToggle) {
+        mobileGrupDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
+            
+            // Toggle the collapse
+            const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
+            
+            if (isCollapsed) {
+                mobileKomunikasiSubmenu.classList.add('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-down');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-up');
+            } else {
+                mobileKomunikasiSubmenu.classList.remove('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-down');
+            }
+        });
+        
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Desktop dropdown functionality
+    const grupDropdownToggle = document.getElementById('grupDropdownToggle');
+    const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
+    const grupDropdownIcon = document.getElementById('grupDropdownIcon');
+    
+    if (grupDropdownToggle) {
+        grupDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (komunikasiSubmenu.classList.contains('show')) {
+                komunikasiSubmenu.classList.remove('show');
+                grupDropdownIcon.classList.remove('fa-chevron-up');
+                grupDropdownIcon.classList.add('fa-chevron-down');
+            } else {
+                komunikasiSubmenu.classList.add('show');
+                grupDropdownIcon.classList.remove('fa-chevron-down');
+                grupDropdownIcon.classList.add('fa-chevron-up');
+            }
+        });
+    }
+    
+    // ============= MODAL & TOAST FUNCTIONALITY =============
+    
     // Inisialisasi modal dan toast
     const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
     const confirmDeleteMemberModal = new bootstrap.Modal(document.getElementById('confirmDeleteMemberModal'));
@@ -1465,7 +1988,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tambahAnggotaModal = new bootstrap.Modal(document.getElementById('tambahAnggotaModal'));
     const successModal = new bootstrap.Modal(document.getElementById('successModal'));
     
-    // Toast elements - Updated untuk menggunakan Bootstrap toast yang sama seperti isi pesan
+    // Toast elements
     const successToast = document.getElementById('successToast');
     const errorToast = document.getElementById('errorToast');
     const warningToast = document.getElementById('warningToast');
@@ -1482,7 +2005,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentMemberNim = null;
     let currentMemberName = null;
     
-    // Function untuk menampilkan toast notification (sama seperti di isi pesan)
+    // Function untuk menampilkan toast notification
     function showNotification(message, type = 'success') {
         let toastElement, messageElement;
         
@@ -1511,7 +2034,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.show();
     }
     
-    // Function untuk menampilkan success modal (tetap digunakan untuk operasi penting)
+    // Function untuk menampilkan success modal
     function showSuccessModal(title, message, callback = null) {
         successTitle.textContent = title;
         successMessage.textContent = message;
@@ -1549,19 +2072,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification('{{ session('error') }}', 'danger');
     @endif
     
-    // Kode dropdown grup
-    const grupDropdownToggle = document.getElementById('grupDropdownToggle');
-    const komunikasiSubmenu = document.getElementById('komunikasiSubmenu');
-    const grupDropdownIcon = document.getElementById('grupDropdownIcon');
-    
-    grupDropdownToggle.addEventListener('click', function() {
-        const bsCollapse = new bootstrap.Collapse(komunikasiSubmenu, {
-            toggle: true
-        });
-        
-        grupDropdownIcon.classList.toggle('fa-chevron-up');
-        grupDropdownIcon.classList.toggle('fa-chevron-down');
-    });
+    // ============= SEARCH FUNCTIONALITY =============
     
     // Kode pencarian anggota
     const searchInput = document.getElementById('searchMahasiswa');
@@ -1580,6 +2091,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // ============= CHAT FUNCTIONALITY =============
     
     // Auto scroll ke chat terbaru
     const messageContainer = document.getElementById('messageContainer');
@@ -1678,6 +2191,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ============= DELETE GROUP FUNCTIONALITY =============
+    
     // Handler untuk hapus grup dengan konfirmasi dan loading
     const deleteGrupBtn = document.getElementById('deleteGrupBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
@@ -1705,6 +2220,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1500);
         });
     }
+    
+    // ============= DELETE MEMBER FUNCTIONALITY =============
     
     // Handler untuk hapus anggota dengan konfirmasi dan loading
     const deleteMemberBtns = document.querySelectorAll('.delete-member-btn');
@@ -1745,6 +2262,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ============= ADD MEMBER FUNCTIONALITY =============
+    
     // Handler untuk tambah anggota dengan loading
     const tambahAnggotaForm = document.getElementById('tambahAnggotaForm');
     const btnTambahAnggota = document.getElementById('btnTambahAnggota');
@@ -1778,6 +2297,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ============= MESSAGE INPUT ENHANCEMENTS =============
+    
     // Prevent text styling di input message
     if (messageInput) {
         // Disable browser autocomplete yang mungkin menyebabkan styling aneh
@@ -1803,6 +2324,69 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ============= OTHER FUNCTIONALITY =============
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Esc untuk tutup modal yang terbuka
+        if (e.key === 'Escape') {
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+            
+            const openModals = document.querySelectorAll('.modal.show');
+            openModals.forEach(modal => {
+                if (!modal.classList.contains('modal-loading')) {
+                    bootstrap.Modal.getInstance(modal)?.hide();
+                }
+            });
+        }
+        
+        // Ctrl/Cmd + Enter untuk kirim pesan
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && messageInput === document.activeElement) {
+            sendMessageForm.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991) {
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+        }
+    });
+    
+    // Swipe gestures
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+    });
+    
+    function handleSwipeGesture() {
+        const swipeThreshold = 100;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (swipeDistance > swipeThreshold && touchStartX < 50 && !mobileSidebar.classList.contains('show')) {
+            if (window.innerWidth <= 768) {
+                openMobileSidebar();
+            }
+        }
+        
+        if (swipeDistance < -swipeThreshold && mobileSidebar.classList.contains('show')) {
+            closeMobileSidebar();
+        }
+    }
+    
+    // ============= ENHANCEMENTS =============
+    
     // Enhancement: Smooth animations untuk loading modal
     document.getElementById('loadingModal').addEventListener('shown.bs.modal', function() {
         const spinner = this.querySelector('.loading-spinner');
@@ -1819,24 +2403,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200);
     });
     
-    // Enhancement: Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Esc untuk tutup modal yang terbuka
-        if (e.key === 'Escape') {
-            const openModals = document.querySelectorAll('.modal.show');
-            openModals.forEach(modal => {
-                if (!modal.classList.contains('modal-loading')) {
-                    bootstrap.Modal.getInstance(modal)?.hide();
-                }
-            });
-        }
-        
-        // Ctrl/Cmd + Enter untuk kirim pesan
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && messageInput === document.activeElement) {
-            sendMessageForm.dispatchEvent(new Event('submit'));
-        }
-    });
-    
     // Enhancement: Handle page visibility change untuk auto-refresh
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
@@ -1845,6 +2411,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Optional: implementasikan polling untuk update real-time
         }
     });
+    
+    console.log('Detail grup dosen initialization complete');
 });
 </script>
 @endpush

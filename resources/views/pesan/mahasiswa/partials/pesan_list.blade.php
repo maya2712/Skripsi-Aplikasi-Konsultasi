@@ -1,4 +1,4 @@
-<!-- File: views/pesan/mahasiswa/partials/pesan_list.blade.php -->
+<!-- File: resources/views/pesan/mahasiswa/partials/pesan_list.blade.php -->
 
 @if($pesan->count() > 0)
     @foreach($pesan as $p)
@@ -126,6 +126,7 @@
     @endforeach
 @else
     <div class="text-center py-5">
-        <p class="text-muted">Belum ada pesan</p>
+        <i class="fas fa-inbox text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+        <p class="text-muted mt-3">Belum ada pesan</p>
     </div>
 @endif

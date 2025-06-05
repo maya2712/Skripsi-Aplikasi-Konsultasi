@@ -11,7 +11,7 @@
         --bs-warning: #ff9800;
         --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
         --primary-hover: linear-gradient(to right, #003c8a, #4bc4c9);
-        --text-color: #546E7A; /* Warna teks menu utama */
+        --text-color: #546E7A;
     }
     
     body {
@@ -32,78 +32,6 @@
     .btn-custom-primary:hover {
         background: #1557b0;
         color: white;
-    }
-
-    /* Mobile Navigation Bar */
-    .mobile-navbar {
-        display: none;
-        background: var(--primary-gradient);
-        color: white;
-        padding: 12px 15px;
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1025;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.15);
-        border-radius: 0;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        margin-top: 0;
-    }
-
-    .mobile-navbar.scrolled {
-        background: rgba(0, 74, 173, 0.95);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-        position: fixed;
-        top: 0;
-        z-index: 1030;
-    }
-
-    .mobile-navbar .navbar-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .mobile-navbar .page-info h6 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .mobile-navbar .page-info small {
-        font-size: 0.75rem;
-        opacity: 0.9;
-    }
-
-    .mobile-navbar .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .burger-menu {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        padding: 8px;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .burger-menu:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    .burger-menu:focus {
-        outline: none;
-        box-shadow: none;
     }
 
     /* Mobile Sidebar */
@@ -135,15 +63,6 @@
         transition: left 0.3s ease;
         overflow-y: auto;
         box-shadow: 2px 0 15px rgba(0,0,0,0.1);
-    }
-
-    /* PERBAIKAN: Pastikan navbar dropdown memiliki z-index yang lebih tinggi */
-    .navbar .dropdown-menu {
-        z-index: 1060 !important;
-    }
-    
-    .navbar .dropdown-toggle {
-        z-index: 1055 !important;
     }
 
     .mobile-sidebar.show {
@@ -216,8 +135,6 @@
         transition: all 0.3s ease;
         cursor: pointer;
         position: relative;
-        width: 100%;
-        text-align: left;
     }
     
     .sidebar-menu .nav-link.active {
@@ -229,14 +146,12 @@
         background: #f8f9fa;
     }
 
-    .komunikasi-submenu .nav-link.active,
-    .pengaturan-submenu .nav-link.active {
+    .komunikasi-submenu .nav-link.active {
         background: #E3F2FD;
         color: var(--bs-primary);
     }
 
-    .komunikasi-submenu .nav-link:hover:not(.active),
-    .pengaturan-submenu .nav-link:hover:not(.active) {
+    .komunikasi-submenu .nav-link:hover:not(.active) {
         background: #f8f9fa;
     }
 
@@ -316,18 +231,15 @@
         margin-bottom: 15px;
     }
 
-    .komunikasi-submenu,
-    .pengaturan-submenu {
+    .komunikasi-submenu {
         margin-left: 15px;
-        width: 100%;
     }
 
-    .komunikasi-submenu .nav-link,
-    .pengaturan-submenu .nav-link {
+    .komunikasi-submenu .nav-link {
         padding: 8px 15px;
         font-size: 13px;
         width: 100%;
-        color: #546E7A; /* Warna teks menu yang konsisten */
+        color: #546E7A;
     }
 
     .profile-image {
@@ -364,7 +276,6 @@
         color: #dee2e6;
     }
     
-    /* Style baru untuk message card clickable */
     .message-card {
         cursor: pointer;
         transition: all 0.2s ease;
@@ -377,175 +288,15 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
-    /* Memastikan tombol-tombol tetap berfungsi dan tidak mengganggu card clickable */
-    .message-card .btn, 
-    .message-card .bookmark-icon {
+    .message-card .btn,
+    .message-card a {
         position: relative;
         z-index: 10;
     }
     
     .action-buttons {
         position: relative;
-        z-index: 10;
-    }
-    
-    /* Style untuk role badge */
-    .role-badge {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 30px;
-        font-size: 12px;
-        margin-bottom: 10px;
-    }
-    
-    /* Custom modal/pop-up styling */
-    .role-modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1050;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .role-modal-backdrop.show {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    .role-modal {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        width: 90%;
-        max-width: 400px;
-        transform: scale(0.8);
-        transition: transform 0.3s ease;
-        overflow: hidden;
-        text-align: center;
-    }
-    
-    .role-modal-backdrop.show .role-modal {
-        transform: scale(1);
-    }
-    
-    .role-modal-header {
-        padding: 15px;
-        border-bottom: 1px solid #e9ecef;
-        position: relative;
-    }
-    
-    .role-modal-body {
-        padding: 20px;
-    }
-    
-    .role-modal-icon {
-        width: 70px;
-        height: 70px;
-        margin: 0 auto 15px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 30px;
-    }
-    
-    .role-modal-success .role-modal-header {
-        background-color: #E3F2FD;
-        color: var(--bs-primary);
-    }
-    
-    .role-modal-success .role-modal-icon {
-        background-color: #E3F2FD;
-        color: var(--bs-primary);
-    }
-    
-    .role-modal-error .role-modal-header {
-        background-color: #FFEBEE;
-        color: var(--bs-danger);
-    }
-    
-    .role-modal-error .role-modal-icon {
-        background-color: #FFEBEE;
-        color: var(--bs-danger);
-    }
-    
-    .role-modal-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    .role-modal-message {
-        font-size: 16px;
-        margin-bottom: 0;
-    }
-    
-    .role-modal-footer {
-        padding: 10px 20px 20px;
-    }
-    
-    .btn-role-modal {
-        padding: 8px 20px;
-        border-radius: 30px;
-        font-weight: 500;
-        border: none;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-role-modal-primary {
-        background: linear-gradient(to right, #1a73e8, #3f9cff);
-        color: white;
-    }
-    
-    .btn-role-modal-primary:hover {
-        background: linear-gradient(to right, #1557b0, #1a73e8);
-        box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
-        color: white;
-    }
-    
-    /* Animasi loading spinner */
-    .role-loading-spinner {
-        width: 40px;
-        height: 40px;
-        margin: 0 auto 15px;
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-left-color: var(--bs-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Style untuk submenu mode peran */
-    .pengaturan-submenu .btn-link {
-        padding: 8px 15px;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        border: none;
-        background: none;
-        font-size: 13px;
-        width: 100%;
-        text-align: left;
-        margin: 0;
-        border-radius: 0.5rem;
-        color: #546E7A; /* Warna teks abu-abu yang konsisten */
-    }
-    
-    .pengaturan-submenu .btn-link:hover {
-        background-color: #f8f9fa;
-        color: #546E7A; /* Warna teks saat hover - tetap konsisten */
+        z-index: 5;
     }
     
     /* Style untuk mode switcher */
@@ -595,7 +346,6 @@
         border-radius: 34px;
     }
     
-    /* Style untuk mode Dosen (default) - bulat di kiri */
     .slider:before {
         position: absolute;
         content: "";
@@ -608,7 +358,6 @@
         border-radius: 50%;
     }
     
-    /* Style untuk mode Kaprodi - bulat di kanan (dengan !important) */
     .mode-switcher-container.kaprodi .slider:before {
         left: auto !important;
         right: 4px !important;
@@ -651,10 +400,6 @@
             max-width: 100%;
         }
         
-        .mobile-navbar {
-            display: block;
-        }
-        
         .main-content {
             padding-top: 15px;
         }
@@ -670,21 +415,9 @@
             overflow: visible;
             padding-right: 0;
         }
-
-        .mode-switcher-container {
-            padding: 12px 15px;
-        }
-
-        .mode-title {
-            font-size: 14px;
-        }
     }
 
     @media (max-width: 768px) {
-        body {
-            padding-top: 0;
-        }
-        
         .custom-container {
             padding: 0 10px;
         }
@@ -692,23 +425,6 @@
         .main-content {
             padding-top: 10px;
             padding-bottom: 15px;
-        }
-        
-        .mobile-navbar {
-            padding: 10px 15px;
-        }
-        
-        .mobile-navbar .navbar-content {
-            flex-direction: row;
-            align-items: center;
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.95rem;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.7rem;
         }
         
         .stats-cards {
@@ -805,35 +521,17 @@
         }
 
         .mode-switcher-container {
-            padding: 10px 12px;
-            margin-bottom: 15px;
+            padding: 12px 15px;
         }
 
         .mode-title {
-            font-size: 13px;
-        }
-
-        .switch {
-            width: 48px;
-            height: 24px;
-        }
-
-        .slider:before {
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-        }
-
-        .mode-switcher-container.kaprodi .slider:before {
-            right: 4px !important;
+            font-size: 14px;
         }
     }
 
     @media (max-width: 576px) {
         body {
             font-size: 12px;
-            padding-top: 0;
         }
         
         .custom-container {
@@ -843,34 +541,6 @@
         .main-content {
             padding-top: 8px;
             padding-bottom: 10px;
-        }
-        
-        .mobile-navbar {
-            padding: 8px 12px;
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.65rem;
-            opacity: 0.9;
-        }
-        
-        .mobile-navbar .navbar-actions {
-            gap: 5px;
-        }
-        
-        .burger-menu {
-            font-size: 1rem;
-            padding: 6px;
         }
         
         .mobile-sidebar {
@@ -1036,22 +706,22 @@
         }
 
         .mode-switcher-container {
-            padding: 8px 10px;
-            margin-bottom: 10px;
+            padding: 10px 12px;
+            margin-bottom: 15px;
         }
 
         .mode-title {
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .switch {
-            width: 40px;
-            height: 20px;
+            width: 48px;
+            height: 24px;
         }
 
         .slider:before {
-            height: 12px;
-            width: 12px;
+            height: 16px;
+            width: 16px;
             left: 4px;
             bottom: 4px;
         }
@@ -1148,20 +818,7 @@
 @endpush
 
 @section('content')
-<!-- Mobile Navigation Bar -->
-<div class="mobile-navbar">
-    <div class="navbar-content">
-        <div class="page-info">
-            <h6>Dashboard Pesan Dosen</h6>
-            <small>{{ $totalPesan }} total pesan</small>
-        </div>
-        <div class="navbar-actions">
-            <button class="burger-menu" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </div>
-</div>
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
 
 <div class="main-content">
     <div class="custom-container">
@@ -1171,7 +828,7 @@
         <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="mobile-sidebar-header">
-                <h6>Menu</h6>
+                <h6>Menu Sidebar</h6>
                 <button class="close-sidebar" id="closeSidebar">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1293,7 +950,7 @@
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <!-- Mode Switcher - Perubahan sesuai desain baru -->
+                <!-- Mode Switcher -->
                 @if(!empty(Auth::guard('dosen')->user()->jabatan_fungsional) && 
                     (stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'kaprodi') !== false || 
                      stripos(Auth::guard('dosen')->user()->jabatan_fungsional, 'ketua') !== false))
@@ -1364,9 +1021,15 @@
                             </div>
                             <div class="col-md-auto">
                                 <div class="btn-group">
-                                    <button class="btn btn-outline-danger rounded-pill px-4 py-2 me-2 filter-btn" data-filter="penting" style="font-size: 14px;">Penting</button>
-                                    <button class="btn btn-outline-success rounded-pill px-4 py-2 me-2 filter-btn" data-filter="umum" style="font-size: 14px;">Umum</button>
-                                    <button class="btn btn-primary rounded-pill px-4 py-2 filter-btn" data-filter="semua" style="font-size: 14px;">Semua</button>
+                                    <button class="btn btn-outline-danger rounded-pill px-4 py-2 me-2 filter-btn" data-filter="penting" style="font-size: 14px;">
+                                        Penting
+                                    </button>
+                                    <button class="btn btn-outline-success rounded-pill px-4 py-2 me-2 filter-btn" data-filter="umum" style="font-size: 14px;">
+                                        Umum
+                                    </button>
+                                    <button class="btn btn-primary rounded-pill px-4 py-2 filter-btn active" data-filter="semua" style="font-size: 14px;">
+                                        Semua
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1377,12 +1040,13 @@
                 <div class="message-list" id="messageList">
                     @if($pesan->count() > 0)
                         @foreach($pesan as $item)
-                        <div class="card mb-2 message-card {{ strtolower($item->prioritas) }}" onclick="window.location.href='{{ route('dosen.pesan.show', $item->id) }}';" style="cursor: pointer;">
+                        <div class="card mb-2 message-card {{ strtolower($item->prioritas) }}" 
+                             onclick="window.location.href='{{ route('dosen.pesan.show', $item->id) }}'">
+                            
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 d-flex align-items-center">
                                         @if($item->nip_pengirim == Auth::user()->nip)
-                                            <!-- Menampilkan foto mahasiswa penerima -->
                                             @php
                                                 $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_penerima)->first();
                                                 $profilePhoto = $mahasiswa && $mahasiswa->profile_photo ? asset('storage/profile_photos/'.$mahasiswa->profile_photo) : null;
@@ -1395,7 +1059,6 @@
                                                 </div>
                                             @endif
                                         @else
-                                            <!-- Menampilkan foto mahasiswa pengirim -->
                                             @php
                                                 $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_pengirim)->first();
                                                 $profilePhoto = $mahasiswa && $mahasiswa->profile_photo ? asset('storage/profile_photos/'.$mahasiswa->profile_photo) : null;
@@ -1409,15 +1072,12 @@
                                             @endif
                                         @endif
                                         <div>
-                                            
                                             <span class="badge bg-primary mb-1">{{ $item->subjek }}</span>
                                             
                                             @if($item->nip_pengirim == Auth::user()->nip)
-                                                <!-- Jika dosen adalah pengirim, tampilkan nama mahasiswa penerima -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     <span class="badge bg-info me-1" style="font-size: 10px;">Kepada</span>
                                                     @php
-                                                        // Ambil langsung data mahasiswa penerima
                                                         $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_penerima)->first();
                                                         $nama_penerima = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
                                                     @endphp
@@ -1425,11 +1085,9 @@
                                                 </h6>
                                                 <small class="text-muted">{{ $item->nim_penerima }}</small>
                                             @else
-                                                <!-- Jika dosen adalah penerima, tampilkan nama mahasiswa pengirim -->
                                                 <h6 class="mb-1" style="font-size: 14px;">
                                                     <span class="badge bg-info me-1" style="font-size: 10px;">Dari</span>
                                                     @php
-                                                        // Ambil langsung data mahasiswa pengirim
                                                         $mahasiswa = App\Models\Mahasiswa::where('nim', $item->nim_pengirim)->first();
                                                         $nama_pengirim = $mahasiswa ? $mahasiswa->nama : 'Mahasiswa';
                                                     @endphp
@@ -1441,29 +1099,24 @@
                                     </div>
                                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
                                         @php
-                                            // Hitung jumlah balasan yang belum dibaca dengan Query Builder
                                             $unreadReplies = App\Models\BalasanPesan::where('id_pesan', $item->id)
                                                 ->where('dibaca', false)
-                                                ->where('tipe_pengirim', 'mahasiswa') // Hanya balasan dari mahasiswa
+                                                ->where('tipe_pengirim', 'mahasiswa')
                                                 ->count();
                                             
-                                            // Tentukan status badge - Gunakan pengecekan yang lebih ketat
                                             $badgeClass = 'bg-success';
                                             $badgeText = 'Sudah dibaca';
                                             
                                             if ($item->nip_penerima == Auth::user()->nip && $item->dibaca == false) {
-                                                // Pesan utama belum dibaca oleh dosen (sebagai penerima)
                                                 $badgeClass = 'bg-danger';
                                                 $badgeText = 'Belum dibaca';
                                             } 
                                             elseif ($unreadReplies > 0) {
-                                                // Ada balasan baru dari mahasiswa yang belum dibaca
                                                 $badgeClass = 'bg-danger';
                                                 $badgeText = $unreadReplies . ' balasan baru';
                                             }
                                         @endphp
                                         
-                                        <!-- Status dibaca/balasan baru dalam satu badge -->
                                         <span class="badge {{ $badgeClass }} me-1">
                                             {{ $badgeText }}
                                         </span>
@@ -1477,14 +1130,7 @@
                                         </small>
                                         
                                         <div class="action-buttons" onclick="event.stopPropagation();">
-                                            @if(isset($item->bookmarked))
-                                            <form action="{{ route('dosen.pesan.bookmark', $item->id) }}" method="POST" class="d-inline me-2">
-                                                @csrf
-                                            
-                                            </form>
-                                            @endif
-                                            
-                                            <a href="{{ route('dosen.pesan.show', $item->id) }}" class="btn btn-custom-primary btn-sm view-btn" style="font-size: 10px;">
+                                            <a href="{{ route('dosen.pesan.show', $item->id) }}" class="btn btn-custom-primary btn-sm" style="font-size: 10px;">
                                                 <i class="fas fa-eye me-1"></i>Lihat
                                             </a>
                                         </div>
@@ -1494,7 +1140,9 @@
                         </div>
                         @endforeach
                     @else
-                     
+                        <div class="text-center py-5">
+                            <p class="text-muted">Tidak ada pesan</p>
+                        </div>
                     @endif
 
                     <!-- Pesan pencarian tidak tersedia -->
@@ -1506,54 +1154,176 @@
         </div>
     </div>
 </div>
-
-<!-- Modal Role Switcher - Hanya menampilkan loading spinner -->
-<div class="role-modal-backdrop" id="roleModalBackdrop">
-    <div class="role-modal role-modal-success">
-        <div class="role-modal-body py-4">
-            <div class="role-loading-spinner" id="roleLoadingSpinner"></div>
-            <p class="role-modal-message mt-3" id="roleModalMessage">Memuat...</p>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ============= PERBAIKAN KHUSUS UNTUK DROPDOWN AKUN =============
+    console.log('Dashboard dosen loaded');
     
-    // Event listener khusus untuk dropdown AKUN di navbar
-    const userDropdownBtn = document.getElementById('userDropdown');
-    if (userDropdownBtn) {
-        userDropdownBtn.addEventListener('click', function(e) {
-            // PENTING: Jangan preventDefault atau stopPropagation
-            // Biarkan Bootstrap menangani dropdown secara normal
-            
-            console.log('Dropdown AKUN diklik - tidak akan menutup sidebar');
-            
-            // Tidak ada aksi tambahan - biarkan Bootstrap bekerja
+    // ============= FILTER FUNCTIONALITY =============
+    
+    function applyEventListeners() {
+        document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
         });
     }
     
-    // Event listener untuk dropdown menu AKUN
-    const userDropdownMenu = document.querySelector('#userDropdown + .dropdown-menu');
-    if (userDropdownMenu) {
-        userDropdownMenu.addEventListener('click', function(e) {
-            console.log('Klik di dalam dropdown menu AKUN');
-            // Biarkan link profil dan logout berfungsi normal
+    // Fungsi filter pesan berdasarkan prioritas
+    function filterMessages(filter) {
+        console.log('Filtering messages with:', filter);
+        
+        const messageCards = document.querySelectorAll('.message-card');
+        let visibleCount = 0;
+        
+        messageCards.forEach(card => {
+            const isPenting = card.classList.contains('penting');
+            const isUmum = card.classList.contains('umum');
+            
+            let shouldShow = false;
+            
+            if (filter === 'semua') {
+                shouldShow = true;
+            } else if (filter === 'penting' && isPenting) {
+                shouldShow = true;
+            } else if (filter === 'umum' && isUmum) {
+                shouldShow = true;
+            }
+            
+            if (shouldShow) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
         });
+        
+        // Tampilkan pesan jika tidak ada yang cocok
+        showNoResultsMessage(visibleCount, 'Tidak ada pesan untuk filter ini');
+        
+        console.log('Filter complete. Visible cards:', visibleCount);
     }
     
-    // Pastikan semua dropdown di navbar tidak menutup sidebar
-    document.querySelectorAll('.navbar .dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-            console.log('Klik di navbar dropdown - sidebar tidak akan ditutup');
+    // Fungsi pencarian pesan
+    function searchMessages(keyword) {
+        console.log('Searching messages with keyword:', keyword);
+        
+        if (keyword.trim() === '') {
+            // Jika pencarian kosong, kembali ke filter aktif
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (activeFilter) {
+                filterMessages(activeFilter.dataset.filter);
+            } else {
+                filterMessages('semua');
+            }
+            return;
+        }
+        
+        const messageCards = document.querySelectorAll('.message-card');
+        const activeFilter = document.querySelector('.filter-btn.active');
+        const currentFilter = activeFilter ? activeFilter.dataset.filter : 'semua';
+        let visibleCount = 0;
+        
+        messageCards.forEach(card => {
+            const messageText = card.textContent.toLowerCase();
+            const isPenting = card.classList.contains('penting');
+            const isUmum = card.classList.contains('umum');
+            
+            // Cek apakah pesan cocok dengan keyword
+            const matchesSearch = messageText.includes(keyword.toLowerCase());
+            
+            // Cek apakah pesan cocok dengan filter aktif
+            let matchesFilter = false;
+            if (currentFilter === 'semua') {
+                matchesFilter = true;
+            } else if (currentFilter === 'penting' && isPenting) {
+                matchesFilter = true;
+            } else if (currentFilter === 'umum' && isUmum) {
+                matchesFilter = true;
+            }
+            
+            // Tampilkan jika cocok dengan pencarian DAN filter
+            if (matchesSearch && matchesFilter) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
         });
-    });
+        
+        // Tampilkan pesan jika tidak ada hasil
+        showNoResultsMessage(visibleCount, `Tidak ada pesan yang ditemukan dengan kata kunci "${keyword}"`);
+        
+        console.log('Search complete. Visible cards:', visibleCount);
+    }
+    
+    // Fungsi untuk menampilkan pesan "tidak ada hasil"
+    function showNoResultsMessage(visibleCount, message) {
+        const messageList = document.getElementById('messageList');
+        let noResults = document.getElementById('no-results');
+        
+        if (visibleCount === 0) {
+            if (!noResults) {
+                noResults = document.createElement('div');
+                noResults.id = 'no-results';
+                noResults.className = 'text-center py-5';
+                messageList.appendChild(noResults);
+            }
+            noResults.innerHTML = `
+                <i class="fas fa-search text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                <p class="text-muted mt-3">${message}</p>
+            `;
+            noResults.style.display = 'block';
+        } else {
+            if (noResults) {
+                noResults.style.display = 'none';
+            }
+        }
+    }
+    
+    // Fungsi untuk set active filter
+    function setActiveFilter(filterValue) {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(btn => {
+            btn.classList.remove('active');
+            
+            // Reset styling
+            if (btn.dataset.filter === 'penting') {
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-outline-danger');
+            } else if (btn.dataset.filter === 'umum') {
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-success');
+            } else if (btn.dataset.filter === 'semua') {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+            }
+            
+            // Set active filter
+            if (btn.dataset.filter === filterValue) {
+                btn.classList.add('active');
+                
+                // Set styling untuk button aktif
+                if (filterValue === 'penting') {
+                    btn.classList.remove('btn-outline-danger');
+                    btn.classList.add('btn-danger');
+                } else if (filterValue === 'umum') {
+                    btn.classList.remove('btn-outline-success');
+                    btn.classList.add('btn-success');
+                } else if (filterValue === 'semua') {
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-primary');
+                }
+            }
+        });
+    }
     
     // ============= MOBILE SIDEBAR FUNCTIONALITY =============
     
+    // Mobile sidebar elements
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const mobileSidebar = document.getElementById('mobileSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -1614,60 +1384,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Tutup sidebar saat klik menu item mobile
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
     const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
     mobileMenuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            setTimeout(closeMobileSidebar, 100);
-        });
-    });
-    
-    // Event listener global dengan logika yang SANGAT SPESIFIK
-    document.addEventListener('click', function(e) {
-        // Jika sidebar tidak terbuka, tidak perlu melakukan apa-apa
-        if (!mobileSidebar || !mobileSidebar.classList.contains('show')) {
-            return;
-        }
-        
-        // Identifikasi area klik yang SANGAT spesifik
-        const clickedElement = e.target;
-        
-        // JANGAN tutup sidebar jika klik di:
-        const isClickInsideSidebar = clickedElement.closest('.mobile-sidebar');
-        const isClickOnHamburgerMenu = clickedElement.closest('#mobileMenuToggle');
-        const isClickOnNavbarAkun = clickedElement.closest('#userDropdown') || clickedElement.closest('.dropdown-menu');
-        const isClickOnNavbarToggler = clickedElement.closest('.navbar-toggler');
-        const isClickAnywhereInNavbar = clickedElement.closest('.navbar');
-        
-        // Debug log
-        if (isClickAnywhereInNavbar) {
-            console.log('Klik di navbar terdeteksi - sidebar TIDAK akan ditutup');
-        }
-        
-        if (isClickOnNavbarAkun) {
-            console.log('Klik di dropdown AKUN terdeteksi - sidebar TIDAK akan ditutup');
-        }
-        
-        // Hanya tutup sidebar jika:
-        // 1. Klik TIDAK di dalam sidebar
-        // 2. Klik TIDAK di hamburger menu dashboard  
-        // 3. Klik TIDAK di dropdown AKUN atau menu dropdown
-        // 4. Klik TIDAK di navbar toggler
-        // 5. Klik TIDAK di manapun dalam navbar
-        if (!isClickInsideSidebar && 
-            !isClickOnHamburgerMenu && 
-            !isClickOnNavbarAkun && 
-            !isClickOnNavbarToggler && 
-            !isClickAnywhereInNavbar) {
-            
-            console.log('Klik di luar area yang diizinkan - menutup sidebar');
-            closeMobileSidebar();
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
+            });
         }
     });
     
     // ============= DROPDOWN FUNCTIONALITY =============
     
-    // Mobile dropdown untuk grup
+    // Mobile dropdown functionality - PERBAIKAN
     const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
     const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
     const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
@@ -1675,7 +1406,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileGrupDropdownToggle) {
         mobileGrupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
             
+            // Toggle the collapse
             const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
             
             if (isCollapsed) {
@@ -1688,6 +1421,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileGrupDropdownIcon.classList.add('fa-chevron-down');
             }
         });
+        
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     }
     
     // Desktop dropdown functionality
@@ -1699,7 +1437,6 @@ document.addEventListener('DOMContentLoaded', function() {
         grupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Toggle the collapse
             if (komunikasiSubmenu.classList.contains('show')) {
                 komunikasiSubmenu.classList.remove('show');
                 grupDropdownIcon.classList.remove('fa-chevron-up');
@@ -1712,161 +1449,75 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ============= FILTER & SEARCH FUNCTIONALITY =============
+    // ============= EVENT LISTENERS =============
     
-    // Fungsi filter pesan
-    function filterMessages(filter) {
-        const messageCards = document.querySelectorAll('.message-card');
-        let visibleCount = 0;
-        
-        messageCards.forEach(card => {
-            const isPenting = card.classList.contains('penting');
-            const isUmum = card.classList.contains('umum');
-            
-            if (filter === 'semua' || 
-                (filter === 'penting' && isPenting) || 
-                (filter === 'umum' && isUmum)) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai filter
-        const noResults = document.getElementById('no-results');
-        if (noResults) {
-            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
-            if (visibleCount === 0) {
-                noResults.classList.remove('d-none');
-            } else {
-                noResults.classList.add('d-none');
-            }
-        }
-    }
-    
-    // Fungsi pencarian pesan
-    function searchMessages(searchTerm) {
-        // Dapatkan filter aktif saat ini
-        const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'semua';
-        
-        const messageCards = document.querySelectorAll('.message-card');
-        let visibleCount = 0;
-        
-        messageCards.forEach(card => {
-            const messageText = card.textContent.toLowerCase();
-            const isPenting = card.classList.contains('penting');
-            const isUmum = card.classList.contains('umum');
-            
-            // Kombinasikan filter pencarian dengan filter prioritas
-            const matchesSearch = messageText.includes(searchTerm);
-            const matchesFilter = activeFilter === 'semua' || 
-                                 (activeFilter === 'penting' && isPenting) || 
-                                 (activeFilter === 'umum' && isUmum);
-            
-            if (matchesSearch && matchesFilter) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Tampilkan pesan "tidak tersedia" jika tidak ada pesan yang sesuai pencarian
-        const noResults = document.getElementById('no-results');
-        if (noResults) {
-            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
-            if (visibleCount === 0) {
-                noResults.classList.remove('d-none');
-            } else {
-                noResults.classList.add('d-none');
-            }
-        }
-    }
-    
-    // Pencarian pesan
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            searchMessages(searchTerm);
-        });
-    }
-    
-    // Menghentikan propagasi klik pada tombol-tombol di dalam card
-    document.querySelectorAll('.action-buttons').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    });
-    
-    // Tambahkan event listener pada tombol filter
+    // Event listener untuk filter buttons
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Hapus class active dari semua tombol
-            filterButtons.forEach(btn => {
-                btn.classList.remove('active');
-                
-                if (btn.dataset.filter === 'semua') {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-outline-primary');
-                }
-            });
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Filter button clicked:', this.dataset.filter);
             
-            // Tambahkan class active ke tombol yang diklik
-            this.classList.add('active');
-            
-            if (this.dataset.filter === 'semua') {
-                this.classList.remove('btn-outline-primary');
-                this.classList.add('btn-primary');
+            // Kosongkan search input ketika filter diklik
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && searchInput.value.trim() !== '') {
+                console.log('Clearing search input because filter was clicked');
+                searchInput.value = '';
             }
             
-            // Filter pesan berdasarkan tombol yang diklik
+            // Set active filter
+            setActiveFilter(this.dataset.filter);
+            
+            // Apply filter
             const filter = this.dataset.filter;
             filterMessages(filter);
         });
     });
     
-    // Set default filter ke "semua" saat halaman dimuat
-    window.addEventListener('load', function() {
-        // Hapus kelas active dari semua tombol filter
-        filterButtons.forEach(btn => btn.classList.remove('active'));
+    // Event listener untuk search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        let searchTimeout;
         
-        // Tambahkan kelas active ke tombol filter "semua"
-        const semuaFilterBtn = document.querySelector('.filter-btn[data-filter="semua"]');
-        if (semuaFilterBtn) {
-            semuaFilterBtn.classList.add('active');
-            semuaFilterBtn.classList.remove('btn-outline-primary');
-            semuaFilterBtn.classList.add('btn-primary');
-            // Aktifkan filter semua
-            filterMessages('semua');
-        }
-    });
-    
-    // ============= ROLE SWITCHER FUNCTIONALITY =============
-    
-    // Role switcher toggle
-    const roleSwitcher = document.getElementById('roleSwitcher');
-    if (roleSwitcher) {
-        roleSwitcher.addEventListener('change', function() {
-            // Tampilkan loading spinner
-            showRoleModal('Memuat...');
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = this.value.trim();
             
-            // Submit form langsung setelah delay singkat
-            setTimeout(() => {
-                document.getElementById('switchRoleForm').submit();
-            }, 500);
+            console.log('Search input changed:', searchTerm);
+            
+            searchTimeout = setTimeout(() => {
+                searchMessages(searchTerm);
+            }, 300);
+        });
+        
+        // Clear search dengan Escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                const inputEvent = new Event('input', { bubbles: true });
+                this.dispatchEvent(inputEvent);
+                this.blur();
+            }
+        });
+        
+        // Pastikan filter kembali normal saat search blur dan kosong
+        searchInput.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                const activeFilter = document.querySelector('.filter-btn.active');
+                if (activeFilter) {
+                    filterMessages(activeFilter.dataset.filter);
+                }
+            }
         });
     }
     
-    // Periksa apakah ada pesan sukses dari backend (dari session)
-    // dan jika ada, hilangkan setelah beberapa detik
-    const successAlert = document.querySelector('.alert-success');
-    if (successAlert) {
-        setTimeout(() => {
-            successAlert.remove();
-        }, 5000);
+    // ============= ROLE SWITCHER =============
+    
+    const roleSwitcher = document.getElementById('roleSwitcher');
+    if (roleSwitcher) {
+        roleSwitcher.addEventListener('change', function() {
+            document.getElementById('switchRoleForm').submit();
+        });
     }
     
     // ============= OTHER FUNCTIONALITY =============
@@ -1917,53 +1568,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Mobile navbar scroll effect
-    function handleMobileNavbarScroll() {
-        const mobileNavbar = document.querySelector('.mobile-navbar');
-        if (!mobileNavbar || window.innerWidth > 991) return;
+    // ============= INITIALIZATION =============
+    
+    // Set default filter dan initialize
+    window.addEventListener('load', function() {
+        console.log('Window loaded, initializing filters...');
         
-        const scrolled = window.scrollY > 50;
+        // Set default filter ke "semua"
+        setActiveFilter('semua');
         
-        if (scrolled) {
-            mobileNavbar.classList.add('scrolled');
-        } else {
-            mobileNavbar.classList.remove('scrolled');
-        }
-    }
-    
-    window.addEventListener('scroll', handleMobileNavbarScroll);
-    
-    let ticking = false;
-    
-    function updateScrollEffects() {
-        handleMobileNavbarScroll();
-        ticking = false;
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateScrollEffects);
-            ticking = true;
-        }
+        // Tampilkan semua pesan (tidak perlu filter karena sudah tampil)
+        const messageCards = document.querySelectorAll('.message-card');
+        console.log('Found', messageCards.length, 'message cards');
+        
+        // Apply event listeners
+        applyEventListeners();
+        
+        // Pastikan semua pesan terlihat di awal
+        messageCards.forEach(card => {
+            card.style.display = 'block';
+        });
+        
+        console.log('Initialization complete');
     });
     
-    handleMobileNavbarScroll();
+    // Apply event listeners untuk tombol yang sudah ada
+    applyEventListeners();
     
-    console.log('Dashboard dosen initialized - navbar dropdown should work normally');
-});
-
-// Fungsi untuk menampilkan modal loading sederhana
-function showRoleModal(message) {
-    const modal = document.getElementById('roleModalBackdrop');
-    if (modal) {
-        // Perbarui pesan jika ada
-        if (message) {
-            document.getElementById('roleModalMessage').textContent = message;
-        }
-        
-        // Tampilkan modal
-        modal.classList.add('show');
+    // Set default active filter jika belum ada
+    const activeFilter = document.querySelector('.filter-btn.active');
+    if (!activeFilter) {
+        setActiveFilter('semua');
     }
-}
+    
+    console.log('Dashboard dosen initialization complete');
+});
 </script>
 @endpush

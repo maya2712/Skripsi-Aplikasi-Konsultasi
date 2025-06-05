@@ -40,89 +40,6 @@
         color: white;
     }
 
-    /* Mobile Navigation Bar */
-    .mobile-navbar {
-        display: none;
-        background: var(--primary-gradient);
-        color: white;
-        padding: 12px 15px;
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1025;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.15);
-        border-radius: 0;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        margin-top: 0;
-    }
-
-    /* Enhanced mobile navbar with scroll effect */
-    .mobile-navbar.scrolled {
-        background: rgba(0, 74, 173, 0.95);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-        position: fixed;
-        top: 0;
-        z-index: 1030;
-    }
-
-    /* Add padding compensation when navbar becomes fixed */
-    .mobile-navbar-compensation {
-        height: 70px;
-        display: none;
-    }
-
-    .mobile-navbar-compensation.active {
-        display: block;
-    }
-
-    .mobile-navbar .navbar-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .mobile-navbar .page-info h6 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .mobile-navbar .page-info small {
-        font-size: 0.75rem;
-        opacity: 0.9;
-    }
-
-    .mobile-navbar .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .burger-menu {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        padding: 8px;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .burger-menu:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    .burger-menu:focus {
-        outline: none;
-        box-shadow: none;
-    }
-
     /* Mobile Sidebar Overlay */
     .sidebar-overlay {
         display: none;
@@ -431,10 +348,6 @@
 
     /* Mobile Responsive Styles - ENHANCED */
     @media (max-width: 991.98px) {
-        body {
-            padding-top: 0; /* Remove fixed padding since navbar is now sticky */
-        }
-        
         .row.g-4 {
             --bs-gutter-x: 0;
         }
@@ -450,10 +363,6 @@
             max-width: 100%;
         }
         
-        .mobile-navbar {
-            display: block; /* Show mobile navbar */
-        }
-        
         .main-content {
             padding-top: 15px; /* Normal padding since navbar is sticky */
         }
@@ -461,10 +370,6 @@
 
     /* Tablet Responsive Styles */
     @media (max-width: 768px) {
-        body {
-            padding-top: 0; /* Remove fixed padding */
-        }
-        
         .custom-container {
             padding: 0 10px;
         }
@@ -472,23 +377,6 @@
         .main-content {
             padding-top: 10px; /* Normal padding */
             padding-bottom: 15px;
-        }
-        
-        .mobile-navbar {
-            padding: 10px 15px; /* Slightly smaller padding */
-        }
-        
-        .mobile-navbar .navbar-content {
-            flex-direction: row;
-            align-items: center;
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.95rem;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.7rem;
         }
         
         .bg-white {
@@ -552,7 +440,6 @@
     @media (max-width: 576px) {
         body {
             font-size: 12px;
-            padding-top: 0; /* Remove fixed padding */
         }
         
         .custom-container {
@@ -562,34 +449,6 @@
         .main-content {
             padding-top: 8px; /* Normal top padding */
             padding-bottom: 10px;
-        }
-        
-        .mobile-navbar {
-            padding: 8px 12px; /* More compact */
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.65rem;
-            opacity: 0.9;
-        }
-        
-        .mobile-navbar .navbar-actions {
-            gap: 5px;
-        }
-        
-        .burger-menu {
-            font-size: 1rem;
-            padding: 6px;
         }
         
         .mobile-sidebar {
@@ -801,25 +660,8 @@
 
     /* Extra Small Mobile (iPhone SE, etc) */
     @media (max-width: 375px) {
-        body {
-            padding-top: 0; /* Remove fixed padding */
-        }
-        
         .custom-container {
             padding: 0 6px;
-        }
-        
-        .mobile-navbar {
-            padding: 6px 10px; /* Very compact */
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.85rem !important;
-            max-width: 150px;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.6rem !important;
         }
         
         .mobile-sidebar {
@@ -859,34 +701,6 @@
         }
     }
 
-    /* Landscape orientation untuk mobile */
-    @media (max-width: 768px) and (orientation: landscape) {
-        body {
-            padding-top: 0; /* Remove fixed padding for landscape */
-        }
-        
-        .mobile-navbar {
-            padding: 6px 12px; /* More compact in landscape */
-        }
-        
-        .main-content {
-            padding-top: 6px;
-            padding-bottom: 8px;
-        }
-        
-        .bg-white {
-            padding: 15px !important;
-        }
-        
-        .category-pills {
-            margin: 10px 0;
-        }
-        
-        .faq-header {
-            padding: 10px 15px;
-        }
-    }
-
     /* High DPI / Retina Display Adjustments */
     @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
         .faq-item {
@@ -895,10 +709,6 @@
         
         .sidebar {
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
-        }
-        
-        .mobile-navbar {
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
         }
     }
 
@@ -912,23 +722,7 @@
 @endpush
 
 @section('content')
-<!-- Mobile Navigation Bar - Fixed at top -->
-<div class="mobile-navbar" id="mobileNavbar">
-    <div class="navbar-content">
-        <div class="page-info">
-            <h6>Pesan Tersematkan</h6>
-            <small>{{ $sematan->count() }} pesan tersematkan</small>
-        </div>
-        <div class="navbar-actions">
-            <button class="burger-menu" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Mobile navbar compensation when it becomes fixed -->
-<div class="mobile-navbar-compensation" id="mobileNavbarCompensation"></div>
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
 
 <div class="main-content">
     <div class="custom-container">
@@ -938,7 +732,7 @@
         <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="mobile-sidebar-header">
-                <h6>Menu</h6>
+                <h6>Menu Navigasi</h6>
                 <button class="close-sidebar" id="closeSidebar">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1076,73 +870,72 @@
                     </div>
 
                     <!-- FAQ Items -->
-                    <!-- FAQ Items - UPDATE VERSION (Tanpa CSS Tambahan) -->
-<div class="faq-list mt-4">
-    @forelse($sematan as $item)
-        <div class="faq-item" data-category="{{ $item->kategori }}" data-dosen="{{ $item->dosen->nama ?? 'Dosen' }}" style="background-color: #F5F7FA;">
-            <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem{{ $item->id }}" aria-expanded="false">
-                <i class="fas fa-thumbtack pin-icon"></i>
-                <div class="flex-grow-1">
-                    <!-- JUDUL DIAMBIL DARI PERTANYAAN MAHASISWA -->
-                    <h5 class="faq-title mb-2">{{ $item->judul }}</h5>
-                    <div class="d-flex align-items-center flex-wrap">
-                        <span class="faq-badge me-3">
-                            @if($item->kategori == 'krs')
-                                Bimbingan KRS
-                            @elseif($item->kategori == 'kp')
-                                Bimbingan KP
-                            @elseif($item->kategori == 'skripsi')
-                                Bimbingan Skripsi
-                            @elseif($item->kategori == 'mbkm')
-                                Bimbingan MBKM
-                            @endif
-                        </span>
-                        <div class="faq-meta">
-                            Di-Pin oleh: {{ $item->dosen->nama ?? 'Dosen' }} - {{ $item->created_at->format('H:i, d F Y') }}
+                    <div class="faq-list mt-4">
+                        @forelse($sematan as $item)
+                            <div class="faq-item" data-category="{{ $item->kategori }}" data-dosen="{{ $item->dosen->nama ?? 'Dosen' }}" style="background-color: #F5F7FA;">
+                                <div class="faq-header" data-bs-toggle="collapse" data-bs-target="#faqItem{{ $item->id }}" aria-expanded="false">
+                                    <i class="fas fa-thumbtack pin-icon"></i>
+                                    <div class="flex-grow-1">
+                                        <!-- JUDUL DIAMBIL DARI PERTANYAAN MAHASISWA -->
+                                        <h5 class="faq-title mb-2">{{ $item->judul }}</h5>
+                                        <div class="d-flex align-items-center flex-wrap">
+                                            <span class="faq-badge me-3">
+                                                @if($item->kategori == 'krs')
+                                                    Bimbingan KRS
+                                                @elseif($item->kategori == 'kp')
+                                                    Bimbingan KP
+                                                @elseif($item->kategori == 'skripsi')
+                                                    Bimbingan Skripsi
+                                                @elseif($item->kategori == 'mbkm')
+                                                    Bimbingan MBKM
+                                                @endif
+                                            </span>
+                                            <div class="faq-meta">
+                                                Di-Pin oleh: {{ $item->dosen->nama ?? 'Dosen' }} - {{ $item->created_at->format('H:i, d F Y') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
+                                </div>
+                                <div class="collapse" id="faqItem{{ $item->id }}">
+                                    <div class="p-3">
+                                        <!-- ISI SEMATAN (JAWABAN DOSEN SAJA) -->
+                                        <p>{!! nl2br(e($item->isi_sematan)) !!}</p>
+                                        
+                                        {{-- LAMPIRAN JIKA ADA --}}
+                                        @if($item->hasAttachment())
+                                            <div class="mt-3">
+                                                <a href="{{ $item->lampiran }}" target="_blank" class="simple-attachment-link">
+                                                    <i class="fab fa-google-drive me-2"></i>
+                                                    {{ $item->getAttachmentName() }}
+                                                </a>
+                                            </div>
+                                        @endif
+                                        
+                                        <!-- TOMBOL BATALKAN SEMATAN UNTUK DOSEN (jika ada hak akses) -->
+                                        @if(isset($item->can_cancel) && $item->can_cancel)
+                                            <div class="mt-3 text-end">
+                                                <button class="btn btn-sm btn-danger batalkan-sematan" data-id="{{ $item->id }}">
+                                                    <i class="fas fa-times"></i> Batalkan Sematan
+                                                </button>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center p-4">
+                                <p class="text-muted">Tidak ada pesan yang disematkan</p>
+                            </div>
+                        @endforelse
+
+                        <!-- No FAQ Found Message -->
+                        <div id="noFaqFound" class="text-center p-4 mt-3" style="display: none; background-color: #F8F9FA; border-radius: 10px;">
+                            <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                            <h5>Tidak ada FAQ yang ditemukan</h5>
+                            <p class="text-muted">Silakan coba kata kunci lain atau pilih kategori yang berbeda</p>
                         </div>
                     </div>
-                </div>
-                <i class="fas fa-chevron-down ms-3 chevron-icon"></i>
-            </div>
-            <div class="collapse" id="faqItem{{ $item->id }}">
-                <div class="p-3">
-                    <!-- ISI SEMATAN (JAWABAN DOSEN SAJA) -->
-                    <p>{!! nl2br(e($item->isi_sematan)) !!}</p>
-                    
-                    {{-- LAMPIRAN JIKA ADA --}}
-                    @if($item->hasAttachment())
-                        <div class="mt-3">
-                            <a href="{{ $item->lampiran }}" target="_blank" class="simple-attachment-link">
-                                <i class="fab fa-google-drive me-2"></i>
-                                {{ $item->getAttachmentName() }}
-                            </a>
-                        </div>
-                    @endif
-                    
-                    <!-- TOMBOL BATALKAN SEMATAN UNTUK DOSEN (jika ada hak akses) -->
-                    @if(isset($item->can_cancel) && $item->can_cancel)
-                        <div class="mt-3 text-end">
-                            <button class="btn btn-sm btn-danger batalkan-sematan" data-id="{{ $item->id }}">
-                                <i class="fas fa-times"></i> Batalkan Sematan
-                            </button>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    @empty
-        <div class="text-center p-4">
-            <p class="text-muted">Tidak ada pesan yang disematkan</p>
-        </div>
-    @endforelse
-
-    <!-- No FAQ Found Message -->
-    <div id="noFaqFound" class="text-center p-4 mt-3" style="display: none; background-color: #F8F9FA; border-radius: 10px;">
-        <i class="fas fa-search fa-3x mb-3 text-muted"></i>
-        <h5>Tidak ada FAQ yang ditemukan</h5>
-        <p class="text-muted">Silakan coba kata kunci lain atau pilih kategori yang berbeda</p>
-    </div>
-</div>
                 </div>
             </div>
         </div>
@@ -1158,89 +951,84 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileSidebar = document.getElementById('mobileSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const closeSidebar = document.getElementById('closeSidebar');
-    const mobileNavbar = document.getElementById('mobileNavbar');
-    const mobileNavbarCompensation = document.getElementById('mobileNavbarCompensation');
+    const menuDots = document.getElementById('menuDots');
     
-    // Enhanced mobile navbar with scroll effect - same as dashboard
-    function handleMobileNavbarScroll() {
-        if (!mobileNavbar || window.innerWidth > 991) return;
-        
-        const scrolled = window.scrollY > 50;
-        
-        if (scrolled) {
-            mobileNavbar.classList.add('scrolled');
-            mobileNavbarCompensation.classList.add('active');
-        } else {
-            mobileNavbar.classList.remove('scrolled');
-            mobileNavbarCompensation.classList.remove('active');
-        }
-    }
-    
-    // Add scroll listener for mobile navbar effect
-    window.addEventListener('scroll', handleMobileNavbarScroll);
-    
-    // Performance optimization: Throttle scroll events
-    let ticking = false;
-    
-    function updateScrollEffects() {
-        handleMobileNavbarScroll();
-        ticking = false;
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateScrollEffects);
-            ticking = true;
-        }
-    });
-    
-    // Initialize scroll effects on load
-    handleMobileNavbarScroll();
-    
-    // Open mobile sidebar
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', function() {
+    // Fungsi untuk membuka mobile sidebar
+    function openMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
             mobileSidebar.classList.add('show');
             sidebarOverlay.style.display = 'block';
             setTimeout(() => {
                 sidebarOverlay.classList.add('show');
             }, 10);
-            
-            // Prevent body scroll when sidebar is open
             document.body.style.overflow = 'hidden';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+    }
+    
+    // Fungsi untuk menutup mobile sidebar
+    function closeMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            setTimeout(() => {
+                sidebarOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+    
+    // Event listener untuk mobile menu toggle
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileSidebar();
         });
     }
     
-    // Close mobile sidebar
-    function closeMobileSidebar() {
-        mobileSidebar.classList.remove('show');
-        sidebarOverlay.classList.remove('show');
-        setTimeout(() => {
-            sidebarOverlay.style.display = 'none';
-        }, 300);
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-    }
-    
+    // Event listener untuk menutup sidebar
     if (closeSidebar) {
-        closeSidebar.addEventListener('click', closeMobileSidebar);
+        closeSidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
     }
     
     if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', closeMobileSidebar);
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
     }
     
-    // Close sidebar when clicking on a menu item (mobile)
+    // Menu dots functionality (for account menu)
+    if (menuDots) {
+        menuDots.addEventListener('click', function() {
+            console.log('Account menu clicked');
+            // Add account menu functionality here
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
     const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
     mobileMenuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Add small delay to allow navigation
-            setTimeout(closeMobileSidebar, 100);
-        });
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
+            });
+        }
     });
     
-    // Mobile dropdown functionality
+    // Mobile dropdown functionality - PERBAIKAN
     const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
     const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
     const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
@@ -1248,6 +1036,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileGrupDropdownToggle) {
         mobileGrupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
             
             // Toggle the collapse
             const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
@@ -1261,6 +1050,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
                 mobileGrupDropdownIcon.classList.add('fa-chevron-down');
             }
+        });
+        
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     }
     

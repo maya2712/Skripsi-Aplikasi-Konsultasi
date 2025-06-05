@@ -26,6 +26,130 @@
             padding-top: 20px; 
             padding-bottom: 20px; 
         }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+        }
+
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background: white;
+            z-index: 1050;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .mobile-sidebar.show {
+            left: 0;
+        }
+
+        .mobile-sidebar-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-sidebar-header h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+
+        .close-sidebar:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .close-sidebar:focus {
+            outline: none;
+        }
+
+        .sidebar-buttons {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sidebar-buttons .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        .sidebar-buttons .btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .sidebar-menu {
+            padding: 15px;
+        }
+        
+        .sidebar-menu .nav-link {
+            color: #546E7A;
+            border-radius: 0.5rem;
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu .nav-link.active {
+            background: #E3F2FD;
+            color: var(--bs-primary);
+        }
+        
+        .sidebar-menu .nav-link:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .komunikasi-submenu .nav-link.active {
+            background: #E3F2FD;
+            color: var(--bs-primary);
+        }
+
+        .komunikasi-submenu .nav-link:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .komunikasi-submenu {
+            margin-left: 15px;
+        }
+
+        .komunikasi-submenu .nav-link {
+            padding: 8px 15px;
+            font-size: 13px;
+        }
         
         .form-header {
             padding-bottom: 15px;
@@ -389,11 +513,203 @@
             border: none;
             color: white;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 991.98px) {
+            .main-content {
+                padding-top: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .main-content {
+                padding-top: 10px;
+                padding-bottom: 15px;
+            }
+
+            h4 {
+                font-size: 20px;
+            }
+
+            .form-control, .form-select {
+                font-size: 13px;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .btn {
+                font-size: 13px;
+                padding: 0.5rem 1rem;
+            }
+
+            .dosen-dropdown-menu {
+                max-height: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                font-size: 12px;
+            }
+            
+            .container {
+                padding: 0 8px;
+            }
+            
+            .main-content {
+                padding-top: 8px;
+                padding-bottom: 10px;
+            }
+            
+            .mobile-sidebar {
+                width: 260px;
+            }
+            
+            .mobile-sidebar-header {
+                padding: 15px 12px;
+            }
+            
+            .mobile-sidebar-header h6 {
+                font-size: 0.95rem;
+            }
+
+            h4 {
+                font-size: 18px;
+            }
+
+            .form-control, .form-select {
+                font-size: 12px;
+                padding: 0.4rem 0.6rem;
+            }
+
+            .btn {
+                font-size: 12px;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .form-label {
+                font-size: 13px;
+            }
+
+            textarea {
+                min-height: 120px !important;
+            }
+
+            .dosen-dropdown-menu {
+                max-height: 180px;
+            }
+
+            .dosen-dropdown-item {
+                padding: 6px 10px;
+            }
+
+            .role-badge {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .container {
+                padding: 0 6px;
+            }
+            
+            .mobile-sidebar {
+                width: 240px;
+            }
+
+            h4 {
+                font-size: 16px;
+            }
+
+            .form-control, .form-select {
+                font-size: 11px;
+                padding: 0.3rem 0.5rem;
+            }
+
+            .btn {
+                font-size: 11px;
+                padding: 0.3rem 0.6rem;
+            }
+
+            textarea {
+                min-height: 100px !important;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .sidebar-overlay {
+                background-color: rgba(0, 0, 0, 0.7);
+            }
+        }
     </style>
 @endpush
 
 @section('content')
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
+
 <div class="main-content">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <div class="mobile-sidebar-header">
+            <h6>Menu Navigasi</h6>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-buttons">
+            <a href="{{ route('mahasiswa.pesan.create') }}" class="btn active" style="background: var(--gradient-primary); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+                <i class="fas fa-plus me-2"></i> Pesan Baru
+            </a>
+        </div>
+        <div class="sidebar-menu">
+            <div class="nav flex-column">
+                <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="nav-link">
+                    <i class="fas fa-home me-2"></i>Daftar Pesan
+                </a>
+                <a href="#" class="nav-link menu-item" id="mobileGrupDropdownToggle">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
+                        <i class="fas fa-chevron-down" id="mobileGrupDropdownIcon"></i>
+                    </div>
+                </a>
+                <div class="collapse komunikasi-submenu" id="mobileKomunikasiSubmenu">
+                    @php
+                        $userGrups = Auth::user()->grups;
+                    @endphp
+                    
+                    @if($userGrups && $userGrups->count() > 0)
+                        @foreach($userGrups as $grupItem)
+                        <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                            {{ $grupItem->nama_grup }}
+                            @if($unreadCount = $grupItem->unreadMessages ?? 0)
+                            <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                            @endif
+                        </a>
+                        @endforeach
+                    @else
+                        <div class="nav-link menu-item text-muted">
+                            <small>Belum ada grup</small>
+                        </div>
+                    @endif
+                </div>
+                <a href="{{ route('mahasiswa.pesan.history') }}" class="nav-link menu-item">
+                    <i class="fas fa-history me-2"></i>Riwayat Pesan
+                </a>
+                <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
+                    <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -511,269 +827,488 @@
 
 @push('scripts')
 <script>
-    // Perbaikan JavaScript untuk menampilkan daftar dosen
-    document.addEventListener('DOMContentLoaded', function() {
-        // Mengambil data dosen dari database
-        let dataDosen = [];
-        
-        // Inisialisasi modal
-        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-        const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
-        
-        // Fungsi untuk menampilkan modal status
-        function showStatusModal(success, message) {
-            const statusModalHeader = document.getElementById('statusModalHeader');
-            const statusModalBody = document.getElementById('statusModalBody');
-            const statusModalBtn = document.getElementById('statusModalBtn');
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile sidebar functionality
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const menuDots = document.getElementById('menuDots');
+    
+    // Fungsi untuk membuka mobile sidebar
+    function openMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.add('show');
+            sidebarOverlay.style.display = 'block';
+            setTimeout(() => {
+                sidebarOverlay.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden';
             
-            if (success) {
-                statusModalHeader.className = 'modal-header success';
-                statusModalHeader.innerHTML = '<h5 class="modal-title text-white"><i class="fas fa-check-circle me-2"></i>Berhasil</h5>';
-                statusModalBody.innerHTML = `
-                    <div class="status-icon text-success">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="status-title">Pesan Terkirim!</div>
-                    <div class="status-message">${message}</div>
-                `;
-                statusModalBtn.className = 'btn btn-success btn-status';
-                statusModalBtn.innerHTML = '<i class="fas fa-check me-2"></i>Lihat Pesan';
-                
-                // Redirect saat tombol diklik
-                statusModalBtn.onclick = function() {
-                    window.location.href = '{{ route("mahasiswa.dashboard.pesan") }}';
-                };
-            } else {
-                statusModalHeader.className = 'modal-header error';
-                statusModalHeader.innerHTML = '<h5 class="modal-title text-white"><i class="fas fa-exclamation-circle me-2"></i>Gagal</h5>';
-                statusModalBody.innerHTML = `
-                    <div class="status-icon text-danger">
-                        <i class="fas fa-exclamation-circle"></i>
-                    </div>
-                    <div class="status-title">Pengiriman Gagal</div>
-                    <div class="status-message">${message}</div>
-                `;
-                statusModalBtn.className = 'btn btn-error btn-status';
-                statusModalBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Coba Lagi';
-                
-                // Tutup modal saat tombol diklik
-                statusModalBtn.onclick = function() {
-                    statusModal.hide();
-                };
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
             }
-            
-            loadingModal.hide();
-            statusModal.show();
         }
-        
-        // Menggunakan Blade untuk mengisi data dosen dengan peran yang benar
-        @foreach($dosen as $d)
-            dataDosen.push({ 
-                id: '{{ $d['nip'] }}', 
-                nama: '{{ $d['nama'] }}',
-                role: '{{ $d['role'] }}',
-                displayName: '{{ $d['nama'] }}{{ $d['role'] == "kaprodi" ? " (Sebagai Kaprodi)" : "" }}',
-                jabatan: '{{ $d['jabatan_fungsional'] ?? "Dosen" }}'
+    }
+    
+    // Fungsi untuk menutup mobile sidebar
+    function closeMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            setTimeout(() => {
+                sidebarOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+    
+    // Event listener untuk mobile menu toggle
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileSidebar();
+        });
+    }
+    
+    // Event listener untuk menutup sidebar
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    // Menu dots functionality (for account menu)
+    if (menuDots) {
+        menuDots.addEventListener('click', function() {
+            console.log('Account menu clicked');
+            // Add account menu functionality here
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
+    const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
+    mobileMenuItems.forEach(item => {
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
             });
-        @endforeach
-        
-        // Log untuk debugging
-        console.log('Data dosen:', dataDosen);
-        
-        // Variabel untuk menyimpan data dosen yang dipilih
-        let selectedDosen = null;
-        
-        // Get DOM elements
-        const dosenDropdownToggle = document.getElementById('dosenDropdownToggle');
-        const dosenDropdownMenu = document.getElementById('dosenDropdownMenu');
-        const dosenSearchInput = document.getElementById('dosenSearchInput');
-        const dosenDropdownItems = document.getElementById('dosenDropdownItems');
-        const noResults = document.getElementById('noResults');
-        const kirimPesanBtn = document.getElementById('kirimPesanBtn');
-        
-        // Toggle dropdown
-        dosenDropdownToggle.addEventListener('click', function() {
-            if (dosenDropdownMenu.style.display === 'block') {
-                dosenDropdownMenu.style.display = 'none';
+        }
+    });
+    
+    // Mobile dropdown functionality - PERBAIKAN
+    const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
+    const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
+    const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
+    
+    if (mobileGrupDropdownToggle) {
+        mobileGrupDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
+            
+            // Toggle the collapse
+            const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
+            
+            if (isCollapsed) {
+                mobileKomunikasiSubmenu.classList.add('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-down');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-up');
             } else {
-                dosenDropdownMenu.style.display = 'block';
-                dosenSearchInput.focus();
-                
-                // Bersihkan dropdown items dulu
-                dosenDropdownItems.innerHTML = '';
-                
-                // Tampilkan kolom search, tapi tidak langsung tampilkan dosen
-                dosenSearchInput.value = '';
-                noResults.style.display = 'none';
+                mobileKomunikasiSubmenu.classList.remove('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-down');
             }
         });
         
-        // Render dosen list dengan info jabatan yang ditambahkan
-        function renderDosenList(dosenList) {
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Enhanced keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Esc untuk tutup sidebar mobile
+        if (e.key === 'Escape') {
+            // Close mobile sidebar if open
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+        }
+    });
+    
+    // Handle window resize to close mobile sidebar on desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991 && mobileSidebar && mobileSidebar.classList.contains('show')) {
+            closeMobileSidebar();
+        }
+    });
+    
+    // Swipe gesture for mobile sidebar
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+    });
+    
+    function handleSwipeGesture() {
+        const swipeThreshold = 100;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        // Swipe right to open sidebar (only if not already open)
+        if (swipeDistance > swipeThreshold && touchStartX < 50 && mobileSidebar && !mobileSidebar.classList.contains('show')) {
+            if (window.innerWidth <= 768) {
+                if (mobileMenuToggle) {
+                    mobileMenuToggle.click();
+                }
+            }
+        }
+        
+        // Swipe left to close sidebar (only if open)
+        if (swipeDistance < -swipeThreshold && mobileSidebar && mobileSidebar.classList.contains('show')) {
+            closeMobileSidebar();
+        }
+    }
+    
+    // Add haptic feedback for mobile interactions (if supported)
+    function addHapticFeedback() {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50); // Short vibration
+        }
+    }
+    
+    // Add haptic feedback to button clicks on mobile
+    const interactiveElements = [mobileMenuToggle, closeSidebar, ...mobileMenuItems];
+    interactiveElements.forEach(element => {
+        if (element) {
+            element.addEventListener('touchstart', function() {
+                if (window.innerWidth <= 768) {
+                    addHapticFeedback();
+                }
+            });
+        }
+    });
+    
+    // Accessibility improvements
+    function enhanceAccessibility() {
+        // Add ARIA labels for better screen reader support
+        if (mobileMenuToggle) {
+            mobileMenuToggle.setAttribute('aria-label', 'Buka menu navigasi');
+            mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        }
+        
+        if (closeSidebar) {
+            closeSidebar.setAttribute('aria-label', 'Tutup menu navigasi');
+        }
+        
+        if (mobileSidebar) {
+            mobileSidebar.setAttribute('role', 'navigation');
+            mobileSidebar.setAttribute('aria-label', 'Menu navigasi utama');
+        }
+        
+        // Update ARIA states when sidebar opens/closes
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                this.setAttribute('aria-expanded', 'true');
+            });
+        }
+        
+        // Reset ARIA state when closing
+        const originalCloseMobileSidebar = closeMobileSidebar;
+        closeMobileSidebar = function() {
+            originalCloseMobileSidebar();
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        };
+    }
+    
+    enhanceAccessibility();
+
+    // Original form functionality - Perbaikan JavaScript untuk menampilkan daftar dosen
+    // Mengambil data dosen dari database
+    let dataDosen = [];
+    
+    // Inisialisasi modal
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+    
+    // Fungsi untuk menampilkan modal status
+    function showStatusModal(success, message) {
+        const statusModalHeader = document.getElementById('statusModalHeader');
+        const statusModalBody = document.getElementById('statusModalBody');
+        const statusModalBtn = document.getElementById('statusModalBtn');
+        
+        if (success) {
+            statusModalHeader.className = 'modal-header success';
+            statusModalHeader.innerHTML = '<h5 class="modal-title text-white"><i class="fas fa-check-circle me-2"></i>Berhasil</h5>';
+            statusModalBody.innerHTML = `
+                <div class="status-icon text-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-title">Pesan Terkirim!</div>
+                <div class="status-message">${message}</div>
+            `;
+            statusModalBtn.className = 'btn btn-success btn-status';
+            statusModalBtn.innerHTML = '<i class="fas fa-check me-2"></i>Lihat Pesan';
+            
+            // Redirect saat tombol diklik
+            statusModalBtn.onclick = function() {
+                window.location.href = '{{ route("mahasiswa.dashboard.pesan") }}';
+            };
+        } else {
+            statusModalHeader.className = 'modal-header error';
+            statusModalHeader.innerHTML = '<h5 class="modal-title text-white"><i class="fas fa-exclamation-circle me-2"></i>Gagal</h5>';
+            statusModalBody.innerHTML = `
+                <div class="status-icon text-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="status-title">Pengiriman Gagal</div>
+                <div class="status-message">${message}</div>
+            `;
+            statusModalBtn.className = 'btn btn-error btn-status';
+            statusModalBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Coba Lagi';
+            
+            // Tutup modal saat tombol diklik
+            statusModalBtn.onclick = function() {
+                statusModal.hide();
+            };
+        }
+        
+        loadingModal.hide();
+        statusModal.show();
+    }
+    
+    // Menggunakan Blade untuk mengisi data dosen dengan peran yang benar
+    @foreach($dosen as $d)
+        dataDosen.push({ 
+            id: '{{ $d['nip'] }}', 
+            nama: '{{ $d['nama'] }}',
+            role: '{{ $d['role'] }}',
+            displayName: '{{ $d['nama'] }}{{ $d['role'] == "kaprodi" ? " (Sebagai Kaprodi)" : "" }}',
+            jabatan: '{{ $d['jabatan_fungsional'] ?? "Dosen" }}'
+        });
+    @endforeach
+    
+    // Log untuk debugging
+    console.log('Data dosen:', dataDosen);
+    
+    // Variabel untuk menyimpan data dosen yang dipilih
+    let selectedDosen = null;
+    
+    // Get DOM elements
+    const dosenDropdownToggle = document.getElementById('dosenDropdownToggle');
+    const dosenDropdownMenu = document.getElementById('dosenDropdownMenu');
+    const dosenSearchInput = document.getElementById('dosenSearchInput');
+    const dosenDropdownItems = document.getElementById('dosenDropdownItems');
+    const noResults = document.getElementById('noResults');
+    const kirimPesanBtn = document.getElementById('kirimPesanBtn');
+    
+    // Toggle dropdown
+    dosenDropdownToggle.addEventListener('click', function() {
+        if (dosenDropdownMenu.style.display === 'block') {
+            dosenDropdownMenu.style.display = 'none';
+        } else {
+            dosenDropdownMenu.style.display = 'block';
+            dosenSearchInput.focus();
+            
+            // Bersihkan dropdown items dulu
             dosenDropdownItems.innerHTML = '';
             
-            if (dosenList.length > 0) {
-                noResults.style.display = 'none';
+            // Tampilkan kolom search, tapi tidak langsung tampilkan dosen
+            dosenSearchInput.value = '';
+            noResults.style.display = 'none';
+        }
+    });
+    
+    // Render dosen list dengan info jabatan yang ditambahkan
+    function renderDosenList(dosenList) {
+        dosenDropdownItems.innerHTML = '';
+        
+        if (dosenList.length > 0) {
+            noResults.style.display = 'none';
+            
+            // Group dosen vs kaprodi
+            const dosenRegular = dosenList.filter(d => d.role === 'dosen');
+            const dosenKaprodi = dosenList.filter(d => d.role === 'kaprodi');
+            
+            // Tambahkan header untuk dosen
+            if (dosenRegular.length > 0) {
+                const header = document.createElement('div');
+                header.className = 'dropdown-header';
+                header.textContent = 'Dosen';
+                dosenDropdownItems.appendChild(header);
                 
-                // Group dosen vs kaprodi
-                const dosenRegular = dosenList.filter(d => d.role === 'dosen');
-                const dosenKaprodi = dosenList.filter(d => d.role === 'kaprodi');
-                
-                // Tambahkan header untuk dosen
-                if (dosenRegular.length > 0) {
-                    const header = document.createElement('div');
-                    header.className = 'dropdown-header';
-                    header.textContent = 'Dosen';
-                    dosenDropdownItems.appendChild(header);
-                    
-                    dosenRegular.forEach(dosen => {
-                        appendDosenItem(dosen);
-                    });
-                }
-                
-                // Tambahkan header untuk kaprodi
-                if (dosenKaprodi.length > 0) {
-                    const header = document.createElement('div');
-                    header.className = 'dropdown-header';
-                    header.textContent = 'Kaprodi';
-                    dosenDropdownItems.appendChild(header);
-                    
-                    dosenKaprodi.forEach(dosen => {
-                        appendDosenItem(dosen);
-                    });
-                }
-            } else {
-                noResults.style.display = 'block';
+                dosenRegular.forEach(dosen => {
+                    appendDosenItem(dosen);
+                });
             }
+            
+            // Tambahkan header untuk kaprodi
+            if (dosenKaprodi.length > 0) {
+                const header = document.createElement('div');
+                header.className = 'dropdown-header';
+                header.textContent = 'Kaprodi';
+                dosenDropdownItems.appendChild(header);
+                
+                dosenKaprodi.forEach(dosen => {
+                    appendDosenItem(dosen);
+                });
+            }
+        } else {
+            noResults.style.display = 'block';
+        }
+    }
+    
+    function appendDosenItem(dosen) {
+        const item = document.createElement('div');
+        item.className = 'dosen-dropdown-item';
+        item.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div>${dosen.nama}</div>
+                </div>
+                <span class="role-badge ${dosen.role === 'kaprodi' ? 'role-badge-kaprodi' : 'role-badge-dosen'}">
+                    ${dosen.role === 'kaprodi' ? 'Kaprodi' : 'Dosen'}
+                </span>
+            </div>
+        `;
+        
+        item.addEventListener('click', function() {
+            pilihDosen(dosen);
+        });
+        
+        dosenDropdownItems.appendChild(item);
+    }
+    
+    // Fungsi untuk memilih dosen
+    function pilihDosen(dosen) {
+        selectedDosen = dosen;
+        
+        // Set nilai ke hidden fields
+        document.getElementById('selectedDosenId').value = dosen.id;
+        document.getElementById('selectedDosenNama').value = dosen.nama;
+        document.getElementById('selectedDosenJabatan').value = dosen.jabatan;
+        document.getElementById('selectedDosenRole').value = dosen.role;
+        
+        // Update dropdown toggle text
+        dosenDropdownToggle.innerHTML = `
+            <div class="selected-dosen">
+                <div class="selected-dosen-avatar">
+                    <i class="fas fa-user" style="font-size: 8px;"></i>
+                </div>
+                <span>${dosen.nama}${dosen.role === 'kaprodi' ? ' (Sebagai Kaprodi)' : ''}</span>
+                <span class="role-badge ${dosen.role === 'kaprodi' ? 'role-badge-kaprodi' : 'role-badge-dosen'}">
+                    ${dosen.role === 'kaprodi' ? 'Kaprodi' : 'Dosen'}
+                </span>
+            </div>
+            <i class="fas fa-chevron-down"></i>
+        `;
+        
+        // Hide dropdown
+        dosenDropdownMenu.style.display = 'none';
+    }
+    
+    // Search functionality
+    dosenSearchInput.addEventListener('input', function() {
+        const keyword = this.value.toLowerCase().trim();
+        
+        if (keyword === '') {
+            // Jika search dikosongkan, hilangkan semua hasil
+            dosenDropdownItems.innerHTML = '';
+            noResults.style.display = 'none';
+            return;
         }
         
-        function appendDosenItem(dosen) {
-            const item = document.createElement('div');
-            item.className = 'dosen-dropdown-item';
-            item.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div>${dosen.nama}</div>
-                    </div>
-                    <span class="role-badge ${dosen.role === 'kaprodi' ? 'role-badge-kaprodi' : 'role-badge-dosen'}">
-                        ${dosen.role === 'kaprodi' ? 'Kaprodi' : 'Dosen'}
-                    </span>
-                </div>
-            `;
-            
-            item.addEventListener('click', function() {
-                pilihDosen(dosen);
-            });
-            
-            dosenDropdownItems.appendChild(item);
-        }
+        // Filter dosen berdasarkan keyword
+        const filteredDosen = dataDosen.filter(dosen => {
+            return dosen.nama.toLowerCase().includes(keyword) || 
+                dosen.jabatan.toLowerCase().includes(keyword);
+        });
         
-        // Fungsi untuk memilih dosen
-        function pilihDosen(dosen) {
-            selectedDosen = dosen;
-            
-            // Set nilai ke hidden fields
-            document.getElementById('selectedDosenId').value = dosen.id;
-            document.getElementById('selectedDosenNama').value = dosen.nama;
-            document.getElementById('selectedDosenJabatan').value = dosen.jabatan;
-            document.getElementById('selectedDosenRole').value = dosen.role;
-            
-            // Update dropdown toggle text
-            dosenDropdownToggle.innerHTML = `
-                <div class="selected-dosen">
-                    <div class="selected-dosen-avatar">
-                        <i class="fas fa-user" style="font-size: 8px;"></i>
-                    </div>
-                    <span>${dosen.nama}${dosen.role === 'kaprodi' ? ' (Sebagai Kaprodi)' : ''}</span>
-                    <span class="role-badge ${dosen.role === 'kaprodi' ? 'role-badge-kaprodi' : 'role-badge-dosen'}">
-                        ${dosen.role === 'kaprodi' ? 'Kaprodi' : 'Dosen'}
-                    </span>
-                </div>
-                <i class="fas fa-chevron-down"></i>
-            `;
-            
-            // Hide dropdown
+        renderDosenList(filteredDosen);
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!dosenDropdownToggle.contains(e.target) && !dosenDropdownMenu.contains(e.target)) {
             dosenDropdownMenu.style.display = 'none';
         }
-        
-        // Search functionality
-        dosenSearchInput.addEventListener('input', function() {
-            const keyword = this.value.toLowerCase().trim();
-            
-            if (keyword === '') {
-                // Jika search dikosongkan, hilangkan semua hasil
-                dosenDropdownItems.innerHTML = '';
-                noResults.style.display = 'none';
-                return;
-            }
-            
-            // Filter dosen berdasarkan keyword
-            const filteredDosen = dataDosen.filter(dosen => {
-                return dosen.nama.toLowerCase().includes(keyword) || 
-                    dosen.jabatan.toLowerCase().includes(keyword);
-            });
-            
-            renderDosenList(filteredDosen);
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!dosenDropdownToggle.contains(e.target) && !dosenDropdownMenu.contains(e.target)) {
-                dosenDropdownMenu.style.display = 'none';
-            }
-        });
-        
-        // Event listener untuk form submission
-        document.getElementById('formPesan').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!selectedDosen) {
-                showStatusModal(false, 'Pilih penerima pesan terlebih dahulu');
-                return false;
-            }
-            
-            // Disable tombol kirim untuk mencegah multiple submit
-            kirimPesanBtn.disabled = true;
-            
-            // Tampilkan modal loading
-            loadingModal.show();
-            
-            // Kumpulkan data dari form
-            const formData = new FormData(this);
-            
-            // Delay simulasi untuk efek loading (dapat dihapus di produksi)
-            setTimeout(() => {
-                // Kirim data via AJAX
-                fetch('{{ route("mahasiswa.pesan.store") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showStatusModal(true, 'Pesan berhasil dikirim kepada ' + selectedDosen.nama);
-                        
-                        // Reset form akan dilakukan saat user mengklik tombol di modal
-                    } else {
-                        showStatusModal(false, data.message || 'Gagal mengirim pesan. Silakan coba lagi.');
-                        kirimPesanBtn.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showStatusModal(false, 'Terjadi kesalahan saat mengirim pesan. Silakan coba lagi.');
-                    kirimPesanBtn.disabled = false;
-                });
-            }, 1200); // Simulasi delay 1.2 detik untuk efek loading (dapat disesuaikan)
-        });
     });
+    
+    // Event listener untuk form submission
+    document.getElementById('formPesan').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!selectedDosen) {
+            showStatusModal(false, 'Pilih penerima pesan terlebih dahulu');
+            return false;
+        }
+        
+        // Disable tombol kirim untuk mencegah multiple submit
+        kirimPesanBtn.disabled = true;
+        
+        // Tampilkan modal loading
+        loadingModal.show();
+        
+        // Kumpulkan data dari form
+        const formData = new FormData(this);
+        
+        // Delay simulasi untuk efek loading (dapat dihapus di produksi)
+        setTimeout(() => {
+            // Kirim data via AJAX
+            fetch('{{ route("mahasiswa.pesan.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showStatusModal(true, 'Pesan berhasil dikirim kepada ' + selectedDosen.nama);
+                    
+                    // Reset form akan dilakukan saat user mengklik tombol di modal
+                } else {
+                    showStatusModal(false, data.message || 'Gagal mengirim pesan. Silakan coba lagi.');
+                    kirimPesanBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatusModal(false, 'Terjadi kesalahan saat mengirim pesan. Silakan coba lagi.');
+                kirimPesanBtn.disabled = false;
+            });
+        }, 1200); // Simulasi delay 1.2 detik untuk efek loading (dapat disesuaikan)
+    });
+    
+    console.log('Mobile Buat Pesan Mahasiswa initialized successfully');
+});
 </script>
 @endpush

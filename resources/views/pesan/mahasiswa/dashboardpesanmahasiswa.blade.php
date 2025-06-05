@@ -34,78 +34,6 @@
         color: white;
     }
 
-    /* Mobile Navigation Bar */
-    .mobile-navbar {
-        display: none;
-        background: var(--primary-gradient);
-        color: white;
-        padding: 12px 15px;
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1025;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.15);
-        border-radius: 0;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        margin-top: 0;
-    }
-
-    .mobile-navbar.scrolled {
-        background: rgba(0, 74, 173, 0.95);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-        position: fixed;
-        top: 0;
-        z-index: 1030;
-    }
-
-    .mobile-navbar .navbar-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .mobile-navbar .page-info h6 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .mobile-navbar .page-info small {
-        font-size: 0.75rem;
-        opacity: 0.9;
-    }
-
-    .mobile-navbar .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .burger-menu {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        padding: 8px;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .burger-menu:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    .burger-menu:focus {
-        outline: none;
-        box-shadow: none;
-    }
-
     /* Mobile Sidebar */
     .sidebar-overlay {
         display: none;
@@ -135,15 +63,6 @@
         transition: left 0.3s ease;
         overflow-y: auto;
         box-shadow: 2px 0 15px rgba(0,0,0,0.1);
-    }
-
-    /* PERBAIKAN: Pastikan navbar dropdown memiliki z-index yang lebih tinggi */
-    .navbar .dropdown-menu {
-        z-index: 1060 !important;
-    }
-    
-    .navbar .dropdown-toggle {
-        z-index: 1055 !important;
     }
 
     .mobile-sidebar.show {
@@ -410,10 +329,6 @@
             max-width: 100%;
         }
         
-        .mobile-navbar {
-            display: block;
-        }
-        
         .main-content {
             padding-top: 15px;
         }
@@ -432,10 +347,6 @@
     }
 
     @media (max-width: 768px) {
-        body {
-            padding-top: 0;
-        }
-        
         .custom-container {
             padding: 0 10px;
         }
@@ -443,23 +354,6 @@
         .main-content {
             padding-top: 10px;
             padding-bottom: 15px;
-        }
-        
-        .mobile-navbar {
-            padding: 10px 15px;
-        }
-        
-        .mobile-navbar .navbar-content {
-            flex-direction: row;
-            align-items: center;
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.95rem;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.7rem;
         }
         
         .stats-cards {
@@ -559,7 +453,6 @@
     @media (max-width: 576px) {
         body {
             font-size: 12px;
-            padding-top: 0;
         }
         
         .custom-container {
@@ -569,34 +462,6 @@
         .main-content {
             padding-top: 8px;
             padding-bottom: 10px;
-        }
-        
-        .mobile-navbar {
-            padding: 8px 12px;
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.65rem;
-            opacity: 0.9;
-        }
-        
-        .mobile-navbar .navbar-actions {
-            gap: 5px;
-        }
-        
-        .burger-menu {
-            font-size: 1rem;
-            padding: 6px;
         }
         
         .mobile-sidebar {
@@ -854,20 +719,7 @@
 @endpush
 
 @section('content')
-<!-- Mobile Navigation Bar -->
-<div class="mobile-navbar">
-    <div class="navbar-content">
-        <div class="page-info">
-            <h6>Dashboard Pesan</h6>
-            <small>{{ $totalPesan }} total pesan</small>
-        </div>
-        <div class="navbar-actions">
-            <button class="burger-menu" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </div>
-</div>
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
 
 <div class="main-content">
     <div class="custom-container">
@@ -877,7 +729,7 @@
         <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="mobile-sidebar-header">
-                <h6>Menu</h6>
+                <h6>Menu Sidebar</h6>
                 <button class="close-sidebar" id="closeSidebar">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1035,9 +887,15 @@
                             </div>
                             <div class="col-md-auto">
                                 <div class="btn-group">
-                                    <button class="btn btn-outline-danger rounded-pill px-4 py-2 me-2 filter-btn" data-filter="penting" style="font-size: 14px;">Penting</button>
-                                    <button class="btn btn-outline-success rounded-pill px-4 py-2 me-2 filter-btn" data-filter="umum" style="font-size: 14px;">Umum</button>
-                                    <button class="btn btn-primary rounded-pill px-4 py-2 filter-btn" data-filter="semua" style="font-size: 14px;">Semua</button>
+                                    <button class="btn btn-outline-danger rounded-pill px-4 py-2 me-2 filter-btn" data-filter="penting" style="font-size: 14px;">
+                                        Penting
+                                    </button>
+                                    <button class="btn btn-outline-success rounded-pill px-4 py-2 me-2 filter-btn" data-filter="umum" style="font-size: 14px;">
+                                        Umum
+                                    </button>
+                                    <button class="btn btn-primary rounded-pill px-4 py-2 filter-btn active" data-filter="semua" style="font-size: 14px;">
+                                        Semua
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1172,43 +1030,176 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ============= PERBAIKAN KHUSUS UNTUK DROPDOWN AKUN =============
+    console.log('Dashboard mahasiswa loaded');
     
-    // Event listener khusus untuk dropdown AKUN di navbar
-    const userDropdownBtn = document.getElementById('userDropdown');
-    if (userDropdownBtn) {
-        userDropdownBtn.addEventListener('click', function(e) {
-            // PENTING: Jangan preventDefault atau stopPropagation
-            // Biarkan Bootstrap menangani dropdown secara normal
-            
-            console.log('Dropdown AKUN diklik - tidak akan menutup sidebar');
-            
-            // Tidak ada aksi tambahan - biarkan Bootstrap bekerja
+    // ============= FILTER FUNCTIONALITY =============
+    
+    function applyEventListeners() {
+        document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
         });
     }
     
-    // Event listener untuk dropdown menu AKUN
-    const userDropdownMenu = document.querySelector('#userDropdown + .dropdown-menu');
-    if (userDropdownMenu) {
-        userDropdownMenu.addEventListener('click', function(e) {
-            console.log('Klik di dalam dropdown menu AKUN');
-            // Biarkan link profil dan logout berfungsi normal
+    // Fungsi filter pesan berdasarkan prioritas
+    function filterMessages(filter) {
+        console.log('Filtering messages with:', filter);
+        
+        const messageCards = document.querySelectorAll('.message-card');
+        let visibleCount = 0;
+        
+        messageCards.forEach(card => {
+            const isPenting = card.classList.contains('penting');
+            const isUmum = card.classList.contains('umum');
+            
+            let shouldShow = false;
+            
+            if (filter === 'semua') {
+                shouldShow = true;
+            } else if (filter === 'penting' && isPenting) {
+                shouldShow = true;
+            } else if (filter === 'umum' && isUmum) {
+                shouldShow = true;
+            }
+            
+            if (shouldShow) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
         });
+        
+        // Tampilkan pesan jika tidak ada yang cocok
+        showNoResultsMessage(visibleCount, 'Tidak ada pesan untuk filter ini');
+        
+        console.log('Filter complete. Visible cards:', visibleCount);
     }
     
-    // Pastikan semua dropdown di navbar tidak menutup sidebar
-    document.querySelectorAll('.navbar .dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-            console.log('Klik di navbar dropdown - sidebar tidak akan ditutup');
+    // Fungsi pencarian pesan
+    function searchMessages(keyword) {
+        console.log('Searching messages with keyword:', keyword);
+        
+        if (keyword.trim() === '') {
+            // Jika pencarian kosong, kembali ke filter aktif
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (activeFilter) {
+                filterMessages(activeFilter.dataset.filter);
+            } else {
+                filterMessages('semua');
+            }
+            return;
+        }
+        
+        const messageCards = document.querySelectorAll('.message-card');
+        const activeFilter = document.querySelector('.filter-btn.active');
+        const currentFilter = activeFilter ? activeFilter.dataset.filter : 'semua';
+        let visibleCount = 0;
+        
+        messageCards.forEach(card => {
+            const messageText = card.textContent.toLowerCase();
+            const isPenting = card.classList.contains('penting');
+            const isUmum = card.classList.contains('umum');
+            
+            // Cek apakah pesan cocok dengan keyword
+            const matchesSearch = messageText.includes(keyword.toLowerCase());
+            
+            // Cek apakah pesan cocok dengan filter aktif
+            let matchesFilter = false;
+            if (currentFilter === 'semua') {
+                matchesFilter = true;
+            } else if (currentFilter === 'penting' && isPenting) {
+                matchesFilter = true;
+            } else if (currentFilter === 'umum' && isUmum) {
+                matchesFilter = true;
+            }
+            
+            // Tampilkan jika cocok dengan pencarian DAN filter
+            if (matchesSearch && matchesFilter) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
         });
-    });
+        
+        // Tampilkan pesan jika tidak ada hasil
+        showNoResultsMessage(visibleCount, `Tidak ada pesan yang ditemukan dengan kata kunci "${keyword}"`);
+        
+        console.log('Search complete. Visible cards:', visibleCount);
+    }
+    
+    // Fungsi untuk menampilkan pesan "tidak ada hasil"
+    function showNoResultsMessage(visibleCount, message) {
+        const messageList = document.getElementById('messageList');
+        let noResults = document.getElementById('no-results');
+        
+        if (visibleCount === 0) {
+            if (!noResults) {
+                noResults = document.createElement('div');
+                noResults.id = 'no-results';
+                noResults.className = 'text-center py-5';
+                messageList.appendChild(noResults);
+            }
+            noResults.innerHTML = `
+                <i class="fas fa-search text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                <p class="text-muted mt-3">${message}</p>
+            `;
+            noResults.style.display = 'block';
+        } else {
+            if (noResults) {
+                noResults.style.display = 'none';
+            }
+        }
+    }
+    
+    // Fungsi untuk set active filter
+    function setActiveFilter(filterValue) {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(btn => {
+            btn.classList.remove('active');
+            
+            // Reset styling
+            if (btn.dataset.filter === 'penting') {
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-outline-danger');
+            } else if (btn.dataset.filter === 'umum') {
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-success');
+            } else if (btn.dataset.filter === 'semua') {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+            }
+            
+            // Set active filter
+            if (btn.dataset.filter === filterValue) {
+                btn.classList.add('active');
+                
+                // Set styling untuk button aktif
+                if (filterValue === 'penting') {
+                    btn.classList.remove('btn-outline-danger');
+                    btn.classList.add('btn-danger');
+                } else if (filterValue === 'umum') {
+                    btn.classList.remove('btn-outline-success');
+                    btn.classList.add('btn-success');
+                } else if (filterValue === 'semua') {
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-primary');
+                }
+            }
+        });
+    }
     
     // ============= MOBILE SIDEBAR FUNCTIONALITY =============
     
+    // Mobile sidebar elements
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const mobileSidebar = document.getElementById('mobileSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const closeSidebar = document.getElementById('closeSidebar');
+    const menuDots = document.getElementById('menuDots');
     
     // Fungsi untuk membuka mobile sidebar
     function openMobileSidebar() {
@@ -1265,60 +1256,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Tutup sidebar saat klik menu item mobile
+    // Menu dots functionality (for account menu)
+    if (menuDots) {
+        menuDots.addEventListener('click', function() {
+            console.log('Account menu clicked');
+            // Add account menu functionality here
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
     const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
     mobileMenuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            setTimeout(closeMobileSidebar, 100);
-        });
-    });
-    
-    // Event listener global dengan logika yang SANGAT SPESIFIK
-    document.addEventListener('click', function(e) {
-        // Jika sidebar tidak terbuka, tidak perlu melakukan apa-apa
-        if (!mobileSidebar || !mobileSidebar.classList.contains('show')) {
-            return;
-        }
-        
-        // Identifikasi area klik yang SANGAT spesifik
-        const clickedElement = e.target;
-        
-        // JANGAN tutup sidebar jika klik di:
-        const isClickInsideSidebar = clickedElement.closest('.mobile-sidebar');
-        const isClickOnHamburgerMenu = clickedElement.closest('#mobileMenuToggle');
-        const isClickOnNavbarAkun = clickedElement.closest('#userDropdown') || clickedElement.closest('.dropdown-menu');
-        const isClickOnNavbarToggler = clickedElement.closest('.navbar-toggler');
-        const isClickAnywhereInNavbar = clickedElement.closest('.navbar');
-        
-        // Debug log
-        if (isClickAnywhereInNavbar) {
-            console.log('Klik di navbar terdeteksi - sidebar TIDAK akan ditutup');
-        }
-        
-        if (isClickOnNavbarAkun) {
-            console.log('Klik di dropdown AKUN terdeteksi - sidebar TIDAK akan ditutup');
-        }
-        
-        // Hanya tutup sidebar jika:
-        // 1. Klik TIDAK di dalam sidebar
-        // 2. Klik TIDAK di hamburger menu dashboard  
-        // 3. Klik TIDAK di dropdown AKUN atau menu dropdown
-        // 4. Klik TIDAK di navbar toggler
-        // 5. Klik TIDAK di manapun dalam navbar
-        if (!isClickInsideSidebar && 
-            !isClickOnHamburgerMenu && 
-            !isClickOnNavbarAkun && 
-            !isClickOnNavbarToggler && 
-            !isClickAnywhereInNavbar) {
-            
-            console.log('Klik di luar area yang diizinkan - menutup sidebar');
-            closeMobileSidebar();
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
+            });
         }
     });
     
     // ============= DROPDOWN FUNCTIONALITY =============
     
-    // Mobile dropdown untuk grup
+    // Mobile dropdown functionality - PERBAIKAN
     const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
     const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
     const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
@@ -1326,7 +1286,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileGrupDropdownToggle) {
         mobileGrupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
             
+            // Toggle the collapse
             const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
             
             if (isCollapsed) {
@@ -1339,6 +1301,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileGrupDropdownIcon.classList.add('fa-chevron-down');
             }
         });
+        
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     }
     
     // Desktop dropdown functionality
@@ -1350,7 +1317,6 @@ document.addEventListener('DOMContentLoaded', function() {
         grupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Toggle the collapse
             if (komunikasiSubmenu.classList.contains('show')) {
                 komunikasiSubmenu.classList.remove('show');
                 grupDropdownIcon.classList.remove('fa-chevron-up');
@@ -1362,201 +1328,67 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // ============= FILTER & SEARCH FUNCTIONALITY =============
-
-    function applyEventListeners() {
-        document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
-            element.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
-    }
-
-    const filterButtons = document.querySelectorAll('.filter-btn');
     
-    function filterMessages(filter) {
-        fetch(`{{ route('mahasiswa.pesan.filter') }}?filter=${filter}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                if (data.html.includes('Belum ada pesan') || data.html.trim() === '') {
-                    document.getElementById('messageList').innerHTML = 
-                        '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
-                } else {
-                    document.getElementById('messageList').innerHTML = data.html;
-                    applyEventListeners();
-                }
-                
-                const messageCards = document.querySelectorAll('.message-card');
-                document.getElementById('no-results').style.display = 
-                    messageCards.length === 0 ? 'block' : 'none';
-            } else {
-                console.error('Filter response indicates failure:', data);
-                fallbackFilterMessages(filter);
-            }
-        })
-        .catch(error => {
-            console.error('Error during filter operation:', error);
-            fallbackFilterMessages(filter);
-        });
-    }
-
-    function fallbackFilterMessages(filter) {
-        const messageCards = document.querySelectorAll('.message-card');
-        let visibleCount = 0;
-        
-        messageCards.forEach(card => {
-            const isPenting = card.classList.contains('penting');
-            const isUmum = card.classList.contains('umum');
-            
-            if (filter === 'semua' || 
-                (filter === 'penting' && isPenting) || 
-                (filter === 'umum' && isUmum)) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        if (visibleCount === 0) {
-            document.getElementById('messageList').innerHTML = 
-                '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
-        }
-        
-        document.getElementById('no-results').style.display = 'none';
-        applyEventListeners();
-    }
-
+    // ============= EVENT LISTENERS =============
+    
+    // Event listener untuk filter buttons
+    const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
+            console.log('Filter button clicked:', this.dataset.filter);
             
-            filterButtons.forEach(btn => {
-                btn.classList.remove('active');
-                
-                if (btn.dataset.filter === 'semua') {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-outline-primary');
-                }
-            });
-            
-            this.classList.add('active');
-            
-            if (this.dataset.filter === 'semua') {
-                this.classList.remove('btn-outline-primary');
-                this.classList.add('btn-primary');
+            // Kosongkan search input ketika filter diklik
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && searchInput.value.trim() !== '') {
+                console.log('Clearing search input because filter was clicked');
+                searchInput.value = '';
             }
             
+            // Set active filter
+            setActiveFilter(this.dataset.filter);
+            
+            // Apply filter
             const filter = this.dataset.filter;
             filterMessages(filter);
         });
     });
-
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    let searchTimeout;
     
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const searchTerm = this.value.trim();
+    // Event listener untuk search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        let searchTimeout;
         
-        searchTimeout = setTimeout(() => {
-            if (searchTerm.length > 0) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = this.value.trim();
+            
+            console.log('Search input changed:', searchTerm);
+            
+            searchTimeout = setTimeout(() => {
                 searchMessages(searchTerm);
-            } else {
+            }, 300);
+        });
+        
+        // Clear search dengan Escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                const inputEvent = new Event('input', { bubbles: true });
+                this.dispatchEvent(inputEvent);
+                this.blur();
+            }
+        });
+        
+        // Pastikan filter kembali normal saat search blur dan kosong
+        searchInput.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
                 const activeFilter = document.querySelector('.filter-btn.active');
                 if (activeFilter) {
                     filterMessages(activeFilter.dataset.filter);
-                } else {
-                    filterMessages('semua');
                 }
             }
-        }, 500);
-    });
-
-    function searchMessages(keyword) {
-        fetch(`{{ route('mahasiswa.pesan.search') }}?keyword=${encodeURIComponent(keyword)}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                if (data.html.includes('Belum ada pesan') || data.html.trim() === '') {
-                    document.getElementById('messageList').innerHTML = 
-                        '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
-                } else {
-                    document.getElementById('messageList').innerHTML = data.html;
-                    applyEventListeners();
-                }
-                
-                const messageCards = document.querySelectorAll('.message-card');
-                document.getElementById('no-results').style.display = 
-                    messageCards.length === 0 ? 'block' : 'none';
-            } else {
-                console.error('Search response indicates failure:', data);
-                fallbackSearchMessages(keyword);
-            }
-        })
-        .catch(error => {
-            console.error('Error during search operation:', error);
-            fallbackSearchMessages(keyword);
         });
-    }
-
-    function fallbackSearchMessages(searchTerm) {
-        const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'semua';
-        const messageCards = document.querySelectorAll('.message-card');
-        let visibleCount = 0;
-        
-        messageCards.forEach(card => {
-           const messageText = card.textContent.toLowerCase();
-            const isPenting = card.classList.contains('penting');
-            const isUmum = card.classList.contains('umum');
-            
-            const matchesSearch = messageText.includes(searchTerm.toLowerCase());
-            const matchesFilter = activeFilter === 'semua' || 
-                               (activeFilter === 'penting' && isPenting) || 
-                               (activeFilter === 'umum' && isUmum);
-            
-            if (matchesSearch && matchesFilter) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        if (visibleCount === 0) {
-            document.getElementById('messageList').innerHTML = 
-                '<div class="text-center py-5"><p class="text-muted">Pesan tidak tersedia</p></div>';
-        }
-        
-        document.getElementById('no-results').style.display = 'none';
-        applyEventListeners();
     }
     
     // ============= OTHER FUNCTIONALITY =============
@@ -1607,60 +1439,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Mobile navbar scroll effect
-    function handleMobileNavbarScroll() {
-        const mobileNavbar = document.querySelector('.mobile-navbar');
-        if (!mobileNavbar || window.innerWidth > 991) return;
-        
-        const scrolled = window.scrollY > 50;
-        
-        if (scrolled) {
-            mobileNavbar.classList.add('scrolled');
-        } else {
-            mobileNavbar.classList.remove('scrolled');
-        }
-    }
+    // ============= INITIALIZATION =============
     
-    window.addEventListener('scroll', handleMobileNavbarScroll);
-    
-    let ticking = false;
-    
-    function updateScrollEffects() {
-        handleMobileNavbarScroll();
-        ticking = false;
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateScrollEffects);
-            ticking = true;
-        }
-    });
-    
-    handleMobileNavbarScroll();
-    
-    // Initialize default filter
+    // Set default filter dan initialize
     window.addEventListener('load', function() {
-        filterButtons.forEach(btn => {
-            if (btn.dataset.filter === 'semua') {
-                btn.classList.add('active');
-                btn.classList.remove('btn-outline-primary');
-                btn.classList.add('btn-primary');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
+        console.log('Window loaded, initializing filters...');
         
-        document.querySelectorAll('.action-buttons, .action-buttons *').forEach(element => {
-            element.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
+        // Set default filter ke "semua"
+        setActiveFilter('semua');
         
+        // Tampilkan semua pesan (tidak perlu filter karena sudah tampil)
+        const messageCards = document.querySelectorAll('.message-card');
+        console.log('Found', messageCards.length, 'message cards');
+        
+        // Apply event listeners
         applyEventListeners();
+        
+        // Pastikan semua pesan terlihat di awal
+        messageCards.forEach(card => {
+            card.style.display = 'block';
+        });
+        
+        console.log('Initialization complete');
     });
     
-    console.log('Dashboard initialized - navbar dropdown should work normally');
+    // Apply event listeners untuk tombol yang sudah ada
+    applyEventListeners();
+    
+    // Set default active filter jika belum ada
+    const activeFilter = document.querySelector('.filter-btn.active');
+    if (!activeFilter) {
+        setActiveFilter('semua');
+    }
+    
+    console.log('Dashboard initialization complete');
 });
 </script>
 @endpush

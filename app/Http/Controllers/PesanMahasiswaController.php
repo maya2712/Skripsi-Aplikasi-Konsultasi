@@ -474,47 +474,94 @@ class PesanMahasiswaController extends Controller
         $mahasiswa = Auth::user();
         $filter = $request->filter;
         
-        // Membuat subquery untuk mendapatkan waktu balasan terakhir
-        $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
-            ->groupBy('id_pesan');
+        Log::info('Filter request received:', ['filter' => $filter, 'mahasiswa_nim' => $mahasiswa->nim]);
         
-        $query = Pesan::with(['dosenPengirim', 'dosenPenerima'])
-            ->where(function($query) use ($mahasiswa) {
-                $query->where('nim_pengirim', $mahasiswa->nim)
-                    ->orWhere('nim_penerima', $mahasiswa->nim);
-            });
-        
-        // Filter berdasarkan prioritas
-        if ($filter == 'penting') {
-            $query->where('prioritas', 'Penting');
-        } elseif ($filter == 'umum') {
-            $query->where('prioritas', 'Umum');
-        }
-        
-        // Filter hanya pesan aktif untuk dashboard utama
-        if (!$request->has('include_ended') || !$request->include_ended) {
-            $query->where('status', 'Aktif');
-        }
-        
-        // Gabungkan dengan subquery balasan terakhir
-        $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
-                    $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+        try {
+            // Membuat subquery untuk mendapatkan waktu balasan terakhir
+            $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
+                ->groupBy('id_pesan');
+            
+            $query = Pesan::with(['dosenPengirim', 'dosenPenerima'])
+                ->where(function($query) use ($mahasiswa) {
+                    $query->where('nim_pengirim', $mahasiswa->nim)
+                        ->orWhere('nim_penerima', $mahasiswa->nim);
                 })
-                ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
-                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
-                ->get();
-        
-        return response()->json([
-            'success' => true,
-            'html' => view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render()
-        ]);
+                ->where('status', 'Aktif'); // Hanya pesan aktif
+            
+            // Filter berdasarkan prioritas
+            if ($filter == 'penting') {
+                $query->where('prioritas', 'Penting');
+            } elseif ($filter == 'umum') {
+                $query->where('prioritas', 'Umum');
+            }
+            // Jika filter == 'semua', tidak perlu filter tambahan
+            
+            // Gabungkan dengan subquery balasan terakhir
+            $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
+                        $join->on('pesan.id', '=', 'latest_replies.id_pesan');
+                    })
+                    ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
+                    ->orderBy('last_activity', 'desc')
+                    ->get();
+            
+            Log::info('Filter results:', [
+                'filter' => $filter,
+                'total_found' => $pesan->count(),
+                'pesan_ids' => $pesan->pluck('id')->toArray()
+            ]);
+            
+            // Generate HTML menggunakan partial
+            $html = view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'count' => $pesan->count()
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Filter error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memfilter pesan: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
+    // Pencarian pesan - PERBAIKAN
+    // Pencarian pesan - PERBAIKAN dengan validation keyword
+public function search(Request $request)
+{
+    $mahasiswa = Auth::user();
+    $keyword = trim($request->get('keyword', ''));
     
-    // Pencarian pesan
-    public function search(Request $request)
-    {
-        $mahasiswa = Auth::user();
-        $keyword = $request->keyword;
+    Log::info('Search request received:', [
+        'keyword' => $keyword, 
+        'mahasiswa_nim' => $mahasiswa->nim,
+        'keyword_length' => strlen($keyword),
+        'request_method' => $request->method(),
+        'is_ajax' => $request->ajax()
+    ]);
+    
+    try {
+        // Jika keyword kosong, redirect ke filter semua
+        if (empty($keyword)) {
+            Log::info('Empty keyword, redirecting to filter all');
+            return $this->filter($request->merge(['filter' => 'semua']));
+        }
+        
+        // Validasi panjang keyword minimal
+        if (strlen($keyword) < 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kata kunci pencarian minimal 2 karakter',
+                'count' => 0
+            ]);
+        }
         
         // Membuat subquery untuk mendapatkan waktu balasan terakhir
         $latestReplies = BalasanPesan::selectRaw('id_pesan, MAX(created_at) as latest_reply_at')
@@ -525,38 +572,83 @@ class PesanMahasiswaController extends Controller
                         $query->where('nim_pengirim', $mahasiswa->nim)
                               ->orWhere('nim_penerima', $mahasiswa->nim);
                      })
-                     ->where(function($query) use ($keyword) {
-                        $query->where('subjek', 'like', "%{$keyword}%")
-                              ->orWhere('isi_pesan', 'like', "%{$keyword}%")
-                              ->orWhereHas('pengirim', function($q) use ($keyword) {
-                                  $q->where('nama', 'like', "%{$keyword}%");
-                              })
-                              ->orWhereHas('penerima', function($q) use ($keyword) {
-                                  $q->where('nama', 'like', "%{$keyword}%");
-                              });
-                     });
-                     
-        // Filter berdasarkan status jika parameter diberikan 
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        } else {
-            // Default hanya tampilkan pesan aktif
-            $query->where('status', 'Aktif');
-        }
+                     ->where('status', 'Aktif'); // Hanya pesan aktif
         
-        // Gabungkan dengan subquery balasan terakhir
+        // Filter pencarian dengan multiple field dan case insensitive
+        $query->where(function($searchQuery) use ($keyword) {
+            $searchQuery->where('subjek', 'like', "%{$keyword}%")
+                        ->orWhere('isi_pesan', 'like', "%{$keyword}%")
+                        ->orWhere('prioritas', 'like', "%{$keyword}%")
+                        ->orWhereHas('dosenPengirim', function($q) use ($keyword) {
+                            $q->where('nama', 'like', "%{$keyword}%")
+                              ->orWhere('jabatan_fungsional', 'like', "%{$keyword}%");
+                        })
+                        ->orWhereHas('dosenPenerima', function($q) use ($keyword) {
+                            $q->where('nama', 'like', "%{$keyword}%")
+                              ->orWhere('jabatan_fungsional', 'like', "%{$keyword}%");
+                        });
+        });
+        
+        // Gabungkan dengan subquery balasan terakhir dan urutkan
         $pesan = $query->leftJoinSub($latestReplies, 'latest_replies', function ($join) {
                     $join->on('pesan.id', '=', 'latest_replies.id_pesan');
                 })
                 ->select('pesan.*', DB::raw('IFNULL(latest_replies.latest_reply_at, pesan.created_at) as last_activity'))
-                ->orderBy('last_activity', 'desc') // Urutkan berdasarkan aktivitas terakhir
+                ->orderBy('last_activity', 'desc')
+                ->limit(50) // Batasi hasil untuk performa
                 ->get();
+        
+        Log::info('Search results:', [
+            'keyword' => $keyword,
+            'total_found' => $pesan->count(),
+            'pesan_ids' => $pesan->pluck('id')->toArray(),
+            'execution_time' => microtime(true) - LARAVEL_START
+        ]);
+        
+        // Jika tidak ada hasil
+        if ($pesan->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'html' => '<div class="text-center py-5">
+                            <i class="fas fa-search text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <p class="text-muted mt-3">Tidak ada pesan yang ditemukan dengan kata kunci "<strong>' . htmlspecialchars($keyword) . '</strong>"</p>
+                            <small class="text-muted">Coba gunakan kata kunci yang berbeda atau lebih umum</small>
+                          </div>',
+                'count' => 0,
+                'keyword' => $keyword
+            ]);
+        }
+        
+        // Generate HTML menggunakan partial
+        $html = view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render();
         
         return response()->json([
             'success' => true,
-            'html' => view('pesan.mahasiswa.partials.pesan_list', compact('pesan'))->render()
+            'html' => $html,
+            'count' => $pesan->count(),
+            'keyword' => $keyword,
+            'message' => $pesan->count() . ' pesan ditemukan untuk "' . $keyword . '"'
         ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Search error:', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'keyword' => $keyword,
+            'mahasiswa_nim' => $mahasiswa->nim,
+            'line' => $e->getLine(),
+            'file' => $e->getFile()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan saat mencari pesan. Silakan coba lagi.',
+            'error_detail' => config('app.debug') ? $e->getMessage() : null
+        ], 500);
     }
+}
+    
+   
     
     // Halaman FAQ
     public function faq()

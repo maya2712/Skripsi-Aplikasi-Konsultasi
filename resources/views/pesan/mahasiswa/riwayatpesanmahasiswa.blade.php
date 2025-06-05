@@ -34,89 +34,6 @@
         color: white;
     }
 
-    /* Mobile Navigation Bar */
-    .mobile-navbar {
-        display: none;
-        background: var(--primary-gradient);
-        color: white;
-        padding: 12px 15px;
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1025;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.15);
-        border-radius: 0;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        margin-top: 0;
-    }
-
-    /* Enhanced mobile navbar with scroll effect */
-    .mobile-navbar.scrolled {
-        background: rgba(0, 74, 173, 0.95);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-        position: fixed;
-        top: 0;
-        z-index: 1030;
-    }
-
-    /* Add padding compensation when navbar becomes fixed */
-    .mobile-navbar-compensation {
-        height: 70px;
-        display: none;
-    }
-
-    .mobile-navbar-compensation.active {
-        display: block;
-    }
-
-    .mobile-navbar .navbar-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .mobile-navbar .page-info h6 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .mobile-navbar .page-info small {
-        font-size: 0.75rem;
-        opacity: 0.9;
-    }
-
-    .mobile-navbar .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .burger-menu {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        padding: 8px;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .burger-menu:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    .burger-menu:focus {
-        outline: none;
-        box-shadow: none;
-    }
-
     /* Mobile Sidebar Overlay */
     .sidebar-overlay {
         display: none;
@@ -439,10 +356,36 @@
         display: none;
     }
 
+    /* Mobile Navigation Buttons - akan diintegrasikan ke navbar existing */
+    .mobile-nav-buttons {
+        display: none;
+    }
+
+    .burger-menu, .menu-dots {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-left: 8px;
+    }
+
+    .burger-menu:hover, .menu-dots:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .burger-menu:focus, .menu-dots:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
     /* Mobile Responsive Styles - ENHANCED */
     @media (max-width: 991.98px) {
         body {
-            padding-top: 0; /* Remove fixed padding since navbar is now sticky */
+            padding-top: 0;
         }
         
         .row.g-4 {
@@ -460,22 +403,24 @@
             max-width: 100%;
         }
         
-        .mobile-navbar {
-            display: block; /* Show mobile navbar */
+        .mobile-nav-buttons {
+            display: flex; /* Show mobile buttons */
+            align-items: center;
+            gap: 5px;
         }
         
         .main-content {
-            padding-top: 15px; /* Normal padding since navbar is sticky */
+            padding-top: 15px;
         }
         
         .search-filter-card {
-            position: static; /* Remove sticky positioning on mobile */
+            position: static;
             top: auto;
             margin-bottom: 20px;
         }
         
         .message-container {
-            max-height: none; /* Remove max height on mobile */
+            max-height: none;
             overflow: visible;
             padding-right: 0;
         }
@@ -483,34 +428,33 @@
 
     /* Tablet Responsive Styles */
     @media (max-width: 768px) {
-        body {
-            padding-top: 0; /* Remove fixed padding */
-        }
-        
         .custom-container {
             padding: 0 10px;
         }
         
         .main-content {
-            padding-top: 10px; /* Normal padding */
+            padding-top: 10px;
             padding-bottom: 15px;
         }
         
-        .mobile-navbar {
-            padding: 10px 15px; /* Slightly smaller padding */
-        }
-        
-        .mobile-navbar .navbar-content {
-            flex-direction: row;
+        .mobile-nav-buttons {
+            display: flex;
             align-items: center;
+            gap: 5px;
         }
         
-        .mobile-navbar .page-info h6 {
-            font-size: 0.95rem;
+        .mobile-top-header {
+            padding: 12px 15px;
         }
         
-        .mobile-navbar .page-info small {
-            font-size: 0.7rem;
+        .mobile-top-header .app-logo {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+        
+        .mobile-top-header .app-name {
+            font-size: 15px;
         }
         
         .card-body {
@@ -549,7 +493,6 @@
     @media (max-width: 576px) {
         body {
             font-size: 12px;
-            padding-top: 0; /* Remove fixed padding */
         }
         
         .custom-container {
@@ -557,35 +500,19 @@
         }
         
         .main-content {
-            padding-top: 8px; /* Normal top padding */
+            padding-top: 8px;
             padding-bottom: 10px;
         }
         
-        .mobile-navbar {
-            padding: 8px 12px; /* More compact */
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-            line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.65rem;
-            opacity: 0.9;
-        }
-        
-        .mobile-navbar .navbar-actions {
+        .mobile-nav-buttons {
+            display: flex;
+            align-items: center;
             gap: 5px;
         }
         
-        .burger-menu {
-            font-size: 1rem;
+        .burger-menu,
+        .menu-dots {
+            font-size: 18px;
             padding: 6px;
         }
         
@@ -712,25 +639,14 @@
 
     /* Extra Small Mobile (iPhone SE, etc) */
     @media (max-width: 375px) {
-        body {
-            padding-top: 0; /* Remove fixed padding */
+        .mobile-top-header {
+            padding: 8px 10px;
         }
         
-        .custom-container {
-            padding: 0 6px;
-        }
-        
-        .mobile-navbar {
-            padding: 6px 10px; /* Very compact */
-        }
-        
-        .mobile-navbar .page-info h6 {
-            font-size: 0.85rem !important;
-            max-width: 150px;
-        }
-        
-        .mobile-navbar .page-info small {
-            font-size: 0.6rem !important;
+        .mobile-nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 3px;
         }
         
         .mobile-sidebar {
@@ -750,12 +666,8 @@
 
     /* Landscape orientation untuk mobile */
     @media (max-width: 768px) and (orientation: landscape) {
-        body {
-            padding-top: 0; /* Remove fixed padding for landscape */
-        }
-        
-        .mobile-navbar {
-            padding: 6px 12px; /* More compact in landscape */
+        .mobile-top-header {
+            padding: 8px 12px;
         }
         
         .main-content {
@@ -778,7 +690,7 @@
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
         }
         
-        .mobile-navbar {
+        .mobile-top-header {
             box-shadow: 0 1px 8px rgba(0, 0, 0, 0.12);
         }
     }
@@ -793,23 +705,7 @@
 @endpush
 
 @section('content')
-<!-- Mobile Navigation Bar - Fixed at top -->
-<div class="mobile-navbar" id="mobileNavbar">
-    <div class="navbar-content">
-        <div class="page-info">
-            <h6>Riwayat Pesan</h6>
-            <small>{{ $riwayatPesan->count() }} pesan diakhiri</small>
-        </div>
-        <div class="navbar-actions">
-            <button class="burger-menu" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Mobile navbar compensation when it becomes fixed -->
-<div class="mobile-navbar-compensation" id="mobileNavbarCompensation"></div>
+<!-- Mobile buttons akan diintegrasikan ke navbar yang sudah ada di layout -->
 
 <div class="main-content">
     <div class="custom-container">
@@ -819,7 +715,7 @@
         <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <div class="mobile-sidebar-header">
-                <h6>Menu</h6>
+                <h6>Menu Navigasi</h6>
                 <button class="close-sidebar" id="closeSidebar">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1072,44 +968,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileSidebar = document.getElementById('mobileSidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const closeSidebar = document.getElementById('closeSidebar');
-    const mobileNavbar = document.getElementById('mobileNavbar');
-    const mobileNavbarCompensation = document.getElementById('mobileNavbarCompensation');
-    
-    // Enhanced mobile navbar with scroll effect - same as dashboard
-    function handleMobileNavbarScroll() {
-        if (!mobileNavbar || window.innerWidth > 991) return;
-        
-        const scrolled = window.scrollY > 50;
-        
-        if (scrolled) {
-            mobileNavbar.classList.add('scrolled');
-            mobileNavbarCompensation.classList.add('active');
-        } else {
-            mobileNavbar.classList.remove('scrolled');
-            mobileNavbarCompensation.classList.remove('active');
-        }
-    }
-    
-    // Add scroll listener for mobile navbar effect
-    window.addEventListener('scroll', handleMobileNavbarScroll);
-    
-    // Performance optimization: Throttle scroll events
-    let ticking = false;
-    
-    function updateScrollEffects() {
-        handleMobileNavbarScroll();
-        ticking = false;
-    }
-    
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(updateScrollEffects);
-            ticking = true;
-        }
-    });
-    
-    // Initialize scroll effects on load
-    handleMobileNavbarScroll();
+    const menuDots = document.getElementById('menuDots');
     
     // Open mobile sidebar
     if (mobileMenuToggle) {
@@ -1145,16 +1004,28 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebarOverlay.addEventListener('click', closeMobileSidebar);
     }
     
-    // Close sidebar when clicking on a menu item (mobile)
+    // Menu dots functionality (for account menu - can be implemented later)
+    if (menuDots) {
+        menuDots.addEventListener('click', function() {
+            // Add account menu functionality here
+            console.log('Account menu clicked');
+            // You can add dropdown menu for account settings, logout, etc.
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
     const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
     mobileMenuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Add small delay to allow navigation
-            setTimeout(closeMobileSidebar, 100);
-        });
+        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                // Add small delay to allow navigation
+                setTimeout(closeMobileSidebar, 100);
+            });
+        }
     });
     
-    // Mobile dropdown functionality
+    // Mobile dropdown functionality - PERBAIKAN
     const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
     const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
     const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
@@ -1162,6 +1033,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileGrupDropdownToggle) {
         mobileGrupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
             
             // Toggle the collapse
             const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
@@ -1175,6 +1047,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
                 mobileGrupDropdownIcon.classList.add('fa-chevron-down');
             }
+        });
+        
+        // Mencegah klik pada icon dropdown menutup sidebar
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     }
     
@@ -1340,8 +1217,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Add haptic feedback to button clicks on mobile
-    const interactiveElements = [mobileMenuToggle, closeSidebar, ...mobileMenuItems];
+    // Add haptic feedback to button clicks on mobile - PERBAIKAN
+    const interactiveElements = [mobileMenuToggle, closeSidebar, menuDots];
+    // Tidak termasuk mobileMenuItems karena sudah dihandle secara terpisah
     interactiveElements.forEach(element => {
         if (element) {
             element.addEventListener('touchstart', function() {
@@ -1358,6 +1236,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mobileMenuToggle) {
             mobileMenuToggle.setAttribute('aria-label', 'Buka menu navigasi');
             mobileMenuToggle.setAttribute('aria-expanded', 'false');
+        }
+        
+        if (menuDots) {
+            menuDots.setAttribute('aria-label', 'Menu akun');
         }
         
         if (closeSidebar) {
