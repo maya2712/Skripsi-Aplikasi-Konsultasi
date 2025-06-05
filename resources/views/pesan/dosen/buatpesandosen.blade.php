@@ -191,6 +191,22 @@
         h4 {
             font-size: 22px;
             font-weight: 600;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* Fallback untuk browser yang tidak support gradient text */
+            color: #1a73e8;
+        }
+        
+        /* Force gradient text dengan metode yang lebih kuat */
+        .gradient-text {
+            background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
         }
         
         h6 {
@@ -390,6 +406,13 @@
             h4 {
                 font-size: 20px;
             }
+            
+            .gradient-text {
+                background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
+            }
 
             .form-control, .form-select {
                 font-size: 13px;
@@ -454,6 +477,13 @@
             h4 {
                 font-size: 18px;
             }
+            
+            .gradient-text {
+                background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
+            }
 
             .form-control, .form-select {
                 font-size: 12px;
@@ -505,6 +535,13 @@
 
             h4 {
                 font-size: 16px;
+            }
+            
+            .gradient-text {
+                background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
             }
 
             .form-control, .form-select {
@@ -601,7 +638,7 @@
 
     <div class="container py-4">
         <div class="title-divider">
-            <h4 class="mb-0">Buat Pesan Baru</h4>
+            <h4 class="mb-0 gradient-text">Buat Pesan Baru</h4>
         </div>
 
         <a href="{{ route('dosen.dashboard.pesan') }}" class="btn btn-gradient-primary mb-4">

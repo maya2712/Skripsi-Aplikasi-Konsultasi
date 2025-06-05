@@ -299,12 +299,15 @@ class PesanMahasiswaController extends Controller
         }
     }
       
-    // Mengirim balasan pesan
+    /**
+     * Mengirim balasan pesan
+     */
     public function reply(Request $request, $id)
     {
+        // PERBAIKAN: Validasi - balasan tidak wajib jika ada lampiran
         $request->validate([
-            'balasan' => 'required',
-            'lampiran' => 'nullable|url' // Tambahkan validasi untuk lampiran
+            'balasan' => 'required_without:lampiran|string', // Wajib jika tidak ada lampiran
+            'lampiran' => 'nullable|url' // Lampiran opsional tapi harus berupa URL yang valid
         ]);
         
         $pesan = Pesan::findOrFail($id);
@@ -332,7 +335,9 @@ class PesanMahasiswaController extends Controller
             $balasan->id_pesan = $id;
             $balasan->pengirim_id = $mahasiswa->nim;
             $balasan->tipe_pengirim = 'mahasiswa';
-            $balasan->isi_balasan = $request->balasan;
+            
+            // PERBAIKAN: Set balasan default jika kosong tapi ada lampiran
+            $balasan->isi_balasan = $request->balasan ?: '[Lampiran]';
             $balasan->lampiran = $request->lampiran; // Tambahkan lampiran
             $balasan->dibaca = false;
             
@@ -348,7 +353,7 @@ class PesanMahasiswaController extends Controller
                 'has_attachment' => !empty($balasan->lampiran)
             ]);
             
-        return response()->json([
+            return response()->json([
                 'success' => true,
                 'message' => 'Balasan berhasil dikirim',
                 'data' => [

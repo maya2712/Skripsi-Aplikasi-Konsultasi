@@ -1714,100 +1714,102 @@
            });
            
            sendButton.addEventListener('click', function() {
-               const message = messageInput.value.trim();
-               const attachment = attachmentInput ? attachmentInput.value.trim() : '';
-               
-               // Debug untuk melihat apakah tombol diklik
-               console.log('Send button clicked. Message:', message);
-               console.log('Attachment:', attachment);
-               
-               if (message && !isConversationEnded) {
-                   // Persiapkan data untuk dikirim
-                   const requestData = { balasan: message };
-                   
-                   // Tambahkan attachment jika ada
-                   if (attachment) {
-                       requestData.lampiran = attachment;
-                   }
-                   
-                   // Kirim pesan ke server
-                   fetch('{{ route("mahasiswa.pesan.reply", $pesan->id) }}', {
-                       method: 'POST',
-                       headers: {
-                           'Content-Type': 'application/json',
-                           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                       },
-                       body: JSON.stringify(requestData)
-                   })
-                   .then(response => {
-                       // Log response untuk debugging
-                       console.log('Response status:', response.status);
-                       return response.json();
-                   })
-                   .then(data => {
-                       // Log data untuk debugging
-                       console.log('Response data:', data);
-                       
-                       if (data.success) {
-                           // Buat attachment HTML jika ada
-                           let attachmentHtml = '';
-                           if (attachment) {
-                               const attachmentName = getAttachmentName(attachment);
-                               attachmentHtml = `
-                                   <div class="attachment-container">
-                                       <a href="${attachment}" target="_blank" class="attachment-link">
-                                           <i class="fas fa-paperclip attachment-icon"></i>
-                                           <div>
-                                               <div>${attachmentName}</div>
-                                               <div class="attachment-info">Klik untuk membuka lampiran</div>
-                                           </div>
-                                       </a>
-                                   </div>
-                               `;
-                           }
-                           
-                           // Tambahkan pesan baru ke chat container
-                           const newMessage = document.createElement('div');
-                           newMessage.className = 'chat-message message-reply';
-                           
-                           newMessage.innerHTML = `
-                               <div class="message-bubble ${attachment ? 'has-attachment' : ''}">
-                                   <p>${data.data.isi_balasan}</p>
-                                   ${attachmentHtml}
-                                   <div class="message-time">
-                                       ${data.data.created_at}
-                                   </div>
-                               </div>
-                           `;
-                           
-                           chatContainer.appendChild(newMessage);
-                           
-                           // Bersihkan input pesan dan attachment
-                           messageInput.value = '';
-                           if (attachmentInput) {
-                               attachmentInput.value = '';
-                               attachmentInput.style.display = 'none';
-                               attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
-                               attachmentButton.title = 'Lampirkan File';
-                               isAttachmentMode = false;
-                           }
-                           
-                           // Scroll ke bawah untuk menampilkan pesan baru
-                           chatContainer.scrollTop = chatContainer.scrollHeight;
-                           
-                           // Tampilkan notifikasi
-                           showNotification('Pesan berhasil dikirim', 'success');
-                       } else {
-                           // Tampilkan pesan error
-                           showNotification('Gagal mengirim pesan: ' + data.message, 'warning');
-                       }
-                   })
-                   .catch(error => {
-                       console.error('Error:', error);
-                       showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
-                   });
-               }
-           });
+            const message = messageInput.value.trim();
+            const attachment = attachmentInput ? attachmentInput.value.trim() : '';
+            
+            console.log('Send button clicked. Message:', message);
+            console.log('Attachment:', attachment);
+            
+            // PERBAIKAN: Validasi - boleh kirim pesan saja, lampiran saja, atau keduanya
+            if ((message || attachment) && !isConversationEnded) {
+                const requestData = {};
+                
+                // Tambahkan balasan jika ada pesan text
+                if (message) {
+                    requestData.balasan = message;
+                } else {
+                    // Jika hanya lampiran, berikan pesan default
+                    requestData.balasan = '[Lampiran]';
+                }
+                
+                // Tambahkan lampiran jika ada
+                if (attachment) {
+                    requestData.lampiran = attachment;
+                }
+                
+                fetch('{{ route("mahasiswa.pesan.reply", $pesan->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    
+                    if (data.success) {
+                        let attachmentHtml = '';
+                        if (attachment) {
+                            const attachmentName = getAttachmentName(attachment);
+                            attachmentHtml = `
+                                <div class="attachment-container">
+                                    <a href="${attachment}" target="_blank" class="attachment-link">
+                                        <i class="fas fa-paperclip attachment-icon"></i>
+                                        <div>
+                                            <div>${attachmentName}</div>
+                                            <div class="attachment-info">Klik untuk membuka lampiran</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            `;
+                        }
+                        
+                        const newMessage = document.createElement('div');
+                        newMessage.className = 'chat-message message-reply';
+                        
+                        // PERBAIKAN: Tampilkan pesan yang sesuai
+                        const displayMessage = message || '';
+                        
+                        newMessage.innerHTML = `
+                            <div class="message-bubble ${attachment ? 'has-attachment' : ''}">
+                                ${displayMessage ? `<p>${displayMessage}</p>` : ''}
+                                ${attachmentHtml}
+                                <div class="message-time">
+                                    ${data.data.created_at}
+                                </div>
+                            </div>
+                        `;
+                        
+                        chatContainer.appendChild(newMessage);
+                        
+                        messageInput.value = '';
+                        if (attachmentInput) {
+                            attachmentInput.value = '';
+                            attachmentInput.style.display = 'none';
+                            attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
+                            attachmentButton.title = 'Lampirkan File';
+                            isAttachmentMode = false;
+                        }
+                        
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        showNotification('Pesan berhasil dikirim', 'success');
+                    } else {
+                        showNotification('Gagal mengirim pesan: ' + data.message, 'warning');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
+                });
+            } else if (!message && !attachment) {
+                showNotification('Mohon masukkan pesan atau lampiran', 'warning');
+            }
+        });
        }
        
        // Fungsi untuk menampilkan notifikasi

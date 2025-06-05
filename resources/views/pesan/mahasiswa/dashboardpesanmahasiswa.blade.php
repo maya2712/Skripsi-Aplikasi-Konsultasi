@@ -1072,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Tampilkan pesan jika tidak ada yang cocok
-        showNoResultsMessage(visibleCount, 'Tidak ada pesan untuk filter ini');
+        showNoResultsMessage(visibleCount, 'Tidak ada pesan');
         
         console.log('Filter complete. Visible cards:', visibleCount);
     }

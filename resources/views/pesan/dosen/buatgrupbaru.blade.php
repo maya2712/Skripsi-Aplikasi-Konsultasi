@@ -191,6 +191,22 @@
         h4 {
             font-size: 22px;
             font-weight: 600;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* Fallback untuk browser yang tidak support gradient text */
+            color: #1a73e8;
+        }
+        
+        /* Force gradient text dengan metode yang lebih kuat */
+        .gradient-text {
+            background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
         }
         
         h6 {
@@ -400,6 +416,13 @@
             h4 {
                 font-size: 20px;
             }
+            
+            .gradient-text {
+                background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
+            }
 
             .form-control, .form-select {
                 font-size: 13px;
@@ -449,6 +472,13 @@
             h4 {
                 font-size: 18px;
             }
+            
+            .gradient-text {
+                background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
+            }
 
             .form-control, .form-select {
                 font-size: 12px;
@@ -496,6 +526,13 @@
 
             h4 {
                 font-size: 16px;
+            }
+            
+            .gradient-text {
+                background: linear-gradient(135deg, #004AAD 0%, #1a73e8 50%, #5DE0E6 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
             }
 
             .form-control, .form-select {
@@ -588,7 +625,7 @@
 
     <div class="container py-4">
         <div class="title-divider">
-            <h4 class="mb-0">Buat Grup Baru</h4>
+            <h4 class="mb-0 gradient-text">Buat Grup Baru</h4>
         </div>
 
         <a href="{{ route('back') }}" class="btn btn-gradient-primary mb-4">
@@ -769,19 +806,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Close sidebar when clicking on a menu item (mobile) - PERBAIKAN
+    // Close sidebar when clicking on a menu item (mobile)
     const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
     mobileMenuItems.forEach(item => {
-        // Hanya tutup sidebar untuk menu yang benar-benar punya href dan bukan dropdown toggle
         if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
             item.addEventListener('click', function() {
-                // Add small delay to allow navigation
                 setTimeout(closeMobileSidebar, 100);
             });
         }
     });
     
-    // Mobile dropdown functionality - PERBAIKAN
+    // Mobile dropdown functionality
     const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
     const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
     const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
@@ -789,9 +824,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileGrupDropdownToggle) {
         mobileGrupDropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation(); // Mencegah event bubbling yang bisa menutup sidebar
+            e.stopPropagation();
             
-            // Toggle the collapse
             const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
             
             if (isCollapsed) {
@@ -805,7 +839,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Mencegah klik pada icon dropdown menutup sidebar
         mobileGrupDropdownIcon.addEventListener('click', function(e) {
             e.stopPropagation();
         });
@@ -813,9 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Enhanced keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        // Esc untuk tutup sidebar mobile
         if (e.key === 'Escape') {
-            // Close mobile sidebar if open
             if (mobileSidebar && mobileSidebar.classList.contains('show')) {
                 closeMobileSidebar();
             }
@@ -828,95 +859,9 @@ document.addEventListener('DOMContentLoaded', function() {
             closeMobileSidebar();
         }
     });
-    
-    // Swipe gesture for mobile sidebar
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    document.addEventListener('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-    
-    document.addEventListener('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipeGesture();
-    });
-    
-    function handleSwipeGesture() {
-        const swipeThreshold = 100;
-        const swipeDistance = touchEndX - touchStartX;
-        
-        // Swipe right to open sidebar (only if not already open)
-        if (swipeDistance > swipeThreshold && touchStartX < 50 && mobileSidebar && !mobileSidebar.classList.contains('show')) {
-            if (window.innerWidth <= 768) {
-                if (mobileMenuToggle) {
-                    mobileMenuToggle.click();
-                }
-            }
-        }
-        
-        // Swipe left to close sidebar (only if open)
-        if (swipeDistance < -swipeThreshold && mobileSidebar && mobileSidebar.classList.contains('show')) {
-            closeMobileSidebar();
-        }
-    }
-    
-    // Add haptic feedback for mobile interactions (if supported)
-    function addHapticFeedback() {
-        if ('vibrate' in navigator) {
-            navigator.vibrate(50); // Short vibration
-        }
-    }
-    
-    // Add haptic feedback to button clicks on mobile
-    const interactiveElements = [mobileMenuToggle, closeSidebar, ...mobileMenuItems];
-    interactiveElements.forEach(element => {
-        if (element) {
-            element.addEventListener('touchstart', function() {
-                if (window.innerWidth <= 768) {
-                    addHapticFeedback();
-                }
-            });
-        }
-    });
-    
-    // Accessibility improvements
-    function enhanceAccessibility() {
-        // Add ARIA labels for better screen reader support
-        if (mobileMenuToggle) {
-            mobileMenuToggle.setAttribute('aria-label', 'Buka menu navigasi');
-            mobileMenuToggle.setAttribute('aria-expanded', 'false');
-        }
-        
-        if (closeSidebar) {
-            closeSidebar.setAttribute('aria-label', 'Tutup menu navigasi');
-        }
-        
-        if (mobileSidebar) {
-            mobileSidebar.setAttribute('role', 'navigation');
-            mobileSidebar.setAttribute('aria-label', 'Menu navigasi utama');
-        }
-        
-        // Update ARIA states when sidebar opens/closes
-        if (mobileMenuToggle) {
-            mobileMenuToggle.addEventListener('click', function() {
-                this.setAttribute('aria-expanded', 'true');
-            });
-        }
-        
-        // Reset ARIA state when closing
-        const originalCloseMobileSidebar = closeMobileSidebar;
-        closeMobileSidebar = function() {
-            originalCloseMobileSidebar();
-            if (mobileMenuToggle) {
-                mobileMenuToggle.setAttribute('aria-expanded', 'false');
-            }
-        };
-    }
-    
-    enhanceAccessibility();
 
-    // Original form functionality
+    // ==================== FORM FUNCTIONALITY - FOKUS PADA PERMINTAAN ====================
+    
     const searchInput = document.getElementById('search_mahasiswa');
     const searchResults = document.getElementById('search_results');
     const selectedMembersContainer = document.getElementById('selected_members');
@@ -985,16 +930,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedMahasiswa.delete(nim);
                 updateSelectedMembers();
                 
-                // Update checkbox jika sedang ditampilkan
-                const checkbox = document.querySelector(`input[type="checkbox"][value="${nim}"]`);
-                if (checkbox) {
-                    checkbox.checked = false;
+                // Refresh hasil pencarian untuk menampilkan kembali item yang dihapus
+                const currentSearchTerm = searchInput.value.trim();
+                if (currentSearchTerm.length >= 3) {
+                    showSearchResults(currentSearchTerm);
                 }
             });
         });
     }
     
-    // Fungsi untuk menampilkan hasil pencarian
+    // Fungsi untuk menampilkan hasil pencarian - PERBAIKAN UTAMA
     function showSearchResults(searchTerm) {
         if (searchTerm.length < 3) {
             searchResults.innerHTML = `
@@ -1007,10 +952,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         searchTerm = searchTerm.toLowerCase();
         
-        // Filter mahasiswa berdasarkan kata kunci
+        // Filter mahasiswa berdasarkan kata kunci DAN yang belum dipilih (PERBAIKAN UTAMA)
         const filteredMahasiswa = mahasiswaData.filter(mhs => 
-            mhs.nama.toLowerCase().includes(searchTerm) || 
-            mhs.nim.toLowerCase().includes(searchTerm)
+            (mhs.nama.toLowerCase().includes(searchTerm) || 
+             mhs.nim.toLowerCase().includes(searchTerm)) &&
+            !selectedMahasiswa.has(mhs.nim) // HANYA TAMPILKAN YANG BELUM DIPILIH
         );
         
         if (filteredMahasiswa.length === 0) {
@@ -1026,11 +972,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '<div class="list-group">';
         
         filteredMahasiswa.forEach(mhs => {
-            const isSelected = selectedMahasiswa.has(mhs.nim);
             html += `
                 <div class="list-group-item">
                     <div class="form-check">
-                        <input class="form-check-input mahasiswa-checkbox" type="checkbox" value="${mhs.nim}" id="mhs${mhs.nim}" ${isSelected ? 'checked' : ''}>
+                        <input class="form-check-input mahasiswa-checkbox" type="checkbox" value="${mhs.nim}" id="mhs${mhs.nim}">
                         <label class="form-check-label" for="mhs${mhs.nim}">
                             ${mhs.nama} - ${mhs.nim}
                         </label>
@@ -1049,11 +994,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (this.checked) {
                     selectedMahasiswa.add(nim);
-                } else {
-                    selectedMahasiswa.delete(nim);
+                    updateSelectedMembers();
+                    // Refresh hasil pencarian untuk menyembunyikan item yang baru dipilih
+                    const currentSearchTerm = searchInput.value.trim();
+                    showSearchResults(currentSearchTerm);
                 }
-                
-                updateSelectedMembers();
             });
         });
     }
@@ -1161,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inisialisasi tampilan anggota terpilih
     updateSelectedMembers();
     
-    console.log('Mobile Buat Grup Baru initialized successfully');
+    console.log('Simple Buat Grup Fix initialized successfully');
 });
 </script>
 @endpush

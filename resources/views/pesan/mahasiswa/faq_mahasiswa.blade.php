@@ -932,7 +932,7 @@
                         <!-- No FAQ Found Message -->
                         <div id="noFaqFound" class="text-center p-4 mt-3" style="display: none; background-color: #F8F9FA; border-radius: 10px;">
                             <i class="fas fa-search fa-3x mb-3 text-muted"></i>
-                            <h5>Tidak ada FAQ yang ditemukan</h5>
+                            <h5>Tidak ada Pesan Sematan yang ditemukan</h5>
                             <p class="text-muted">Silakan coba kata kunci lain atau pilih kategori yang berbeda</p>
                         </div>
                     </div>

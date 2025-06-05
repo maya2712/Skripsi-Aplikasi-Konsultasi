@@ -1591,7 +1591,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Sematkan Pesan ke FAQ</h5>
+                <h5 class="modal-title">Sematkan Pesan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1599,7 +1599,7 @@
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>Informasi:</strong><br>
-                    • Judul FAQ akan otomatis diambil dari pertanyaan mahasiswa<br>
+                    • Judul Sematan akan otomatis diambil dari pertanyaan mahasiswa<br>
                     • Kategori akan otomatis ditentukan berdasarkan subjek pesan<br>
                     • Pastikan memilih pertanyaan mahasiswa dan jawaban dosen
                 </div>
@@ -1634,7 +1634,7 @@
                         <div id="previewSematan">
                             <p><strong>Subjek:</strong> <span id="previewSubjek">{{ $pesan->subjek }}</span></p>
                             <p><strong>Kategori:</strong> <span id="previewKategori">Akan ditentukan otomatis</span></p>
-                            <p><strong>Judul FAQ:</strong> <span id="previewJudul">Akan diambil dari pertanyaan mahasiswa</span></p>
+                            <p><strong>Judul Sematan:</strong> <span id="previewJudul">Akan diambil dari pertanyaan mahasiswa</span></p>
                         </div>
                     </div>
                 </div>
@@ -1646,7 +1646,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="batalSematkan">Batal</button>
-                <button type="button" class="btn btn-primary" id="simpanSematkan">Sematkan ke FAQ</button>
+                <button type="button" class="btn btn-primary" id="simpanSematkan">Sematkan</button>
             </div>
         </div>
     </div>
@@ -2375,94 +2375,110 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         sendButton.addEventListener('click', function() {
-            const message = messageInput.value.trim();
-            const attachment = attachmentInput ? attachmentInput.value.trim() : '';
+        const message = messageInput.value.trim();
+        const attachment = attachmentInput ? attachmentInput.value.trim() : '';
+        
+        // PERBAIKAN: Validasi - boleh kirim pesan saja, lampiran saja, atau keduanya
+        if ((message || attachment) && !isConversationEnded) {
+            const requestData = {};
             
-            if (message && !isConversationEnded) {
-                const requestData = { balasan: message };
-                
-                if (attachment) {
-                    requestData.lampiran = attachment;
-                }
-                
-                fetch('{{ route("dosen.pesan.reply", $pesan->id) }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify(requestData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const formattedTime = formatTimeToJakarta(data.data.created_at);
-                        
-                        let attachmentHtml = '';
-                        if (attachment) {
-                            const attachmentName = getAttachmentName(attachment);
-                            attachmentHtml = `
-                                <div class="attachment-container">
-                                    <a href="${attachment}" target="_blank" class="attachment-link">
-                                        <i class="fas fa-paperclip attachment-icon"></i>
-                                        <div>
-                                            <div>${attachmentName}</div>
-                                            <div class="attachment-info">Klik untuk membuka lampiran</div>
-                                        </div>
-                                    </a>
-                                </div>
-                            `;
-                        }
-                        
-                        const newMessage = document.createElement('div');
-                        newMessage.className = 'chat-message message-reply';
-                        newMessage.setAttribute('data-id', 'reply-' + data.data.id);
-                        
-                        newMessage.innerHTML = `
-                            <div class="message-bubble ${attachment ? 'has-attachment' : ''}">
-                                <div class="bookmark-checkbox">
-                                    <input class="form-check-input" type="checkbox" value="" id="bookmark-${data.data.id}">
-                                </div>
-                                <p>${data.data.isi_balasan}</p>
-                                ${attachmentHtml}
-                                <div class="message-time">
-                                    ${formattedTime}
-                                    <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
-                                    <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
-                                </div>
+            // Tambahkan balasan jika ada pesan text
+            if (message) {
+                requestData.balasan = message;
+            } else {
+                // Jika hanya lampiran, berikan pesan default
+                requestData.balasan = '[Lampiran]';
+            }
+            
+            // Tambahkan lampiran jika ada
+            if (attachment) {
+                requestData.lampiran = attachment;
+            }
+            
+            fetch('{{ route("dosen.pesan.reply", $pesan->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const formattedTime = formatTimeToJakarta(data.data.created_at);
+                    
+                    let attachmentHtml = '';
+                    if (attachment) {
+                        const attachmentName = getAttachmentName(attachment);
+                        attachmentHtml = `
+                            <div class="attachment-container">
+                                <a href="${attachment}" target="_blank" class="attachment-link">
+                                    <i class="fas fa-paperclip attachment-icon"></i>
+                                    <div>
+                                        <div>${attachmentName}</div>
+                                        <div class="attachment-info">Klik untuk membuka lampiran</div>
+                                    </div>
+                                </a>
                             </div>
                         `;
-                        
-                        if (chatContainer) {
-                            chatContainer.appendChild(newMessage);
-                            chatContainer.scrollTop = chatContainer.scrollHeight;
-                        }
-                        
-                        // Setup checkbox listener untuk pesan baru
-                        setupCheckboxListeners();
-                        
-                        messageInput.value = '';
-                        if (attachmentInput) {
-                            attachmentInput.value = '';
-                            attachmentInput.style.display = 'none';
-                        }
-                        if (attachmentButton) {
-                            attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
-                            attachmentButton.title = 'Lampirkan File';
-                            isAttachmentMode = false;
-                        }
-                        
-                        showNotification('Pesan berhasil dikirim', 'success');
-                    } else {
-                        showNotification(data.message, 'warning');
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
-                });
-            }
-        });
+                    
+                    const newMessage = document.createElement('div');
+                    newMessage.className = 'chat-message message-reply';
+                    newMessage.setAttribute('data-id', 'reply-' + data.data.id);
+                    
+                    // PERBAIKAN: Tampilkan pesan yang sesuai
+                    const displayMessage = message || '';
+                    
+                    newMessage.innerHTML = `
+                        <div class="message-bubble ${attachment ? 'has-attachment' : ''}">
+                            <div class="bookmark-checkbox">
+                                <input class="form-check-input" type="checkbox" value="" id="bookmark-${data.data.id}">
+                            </div>
+                            ${displayMessage ? `<p>${displayMessage}</p>` : ''}
+                            ${attachmentHtml}
+                            <div class="message-time">
+                                ${formattedTime}
+                                <span class="bookmark-icon"><i class="fas fa-bookmark"></i></span>
+                                <span class="bookmark-cancel" title="Batalkan sematan"><i class="fas fa-times"></i></span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (chatContainer) {
+                        chatContainer.appendChild(newMessage);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                    
+                    // Setup checkbox listener untuk pesan baru
+                    setupCheckboxListeners();
+                    
+                    messageInput.value = '';
+                    if (attachmentInput) {
+                        attachmentInput.value = '';
+                        attachmentInput.style.display = 'none';
+                    }
+                    if (attachmentButton) {
+                        attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
+                        attachmentButton.title = 'Lampirkan File';
+                        isAttachmentMode = false;
+                    }
+                    
+                    showNotification('Pesan berhasil dikirim', 'success');
+                } else {
+                    showNotification(data.message, 'warning');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan saat mengirim pesan', 'warning');
+            });
+        } else if (!message && !attachment) {
+            // Validasi jika tidak ada pesan maupun lampiran
+            showNotification('Mohon masukkan pesan atau lampiran', 'warning');
+        }
+    });
     }
     
     // Fungsi untuk menampilkan notifikasi

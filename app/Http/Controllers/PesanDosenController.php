@@ -319,17 +319,17 @@ class PesanDosenController extends Controller
      */
     public function reply(Request $request, $id)
     {
+        // PERBAIKAN: Validasi - balasan tidak wajib jika ada lampiran
         $request->validate([
-            'balasan' => 'required',
-            'lampiran' => 'nullable|url' // Tambahkan validasi untuk lampiran
+            'balasan' => 'required_without:lampiran|string', // Wajib jika tidak ada lampiran
+            'lampiran' => 'nullable|url'
         ]);
         
         $pesan = Pesan::findOrFail($id);
         $dosen = Auth::user();
         $activeRole = session('active_role', 'dosen');
         
-        // Pastikan dosen yang membalas adalah penerima ATAU pengirim pesan
-        // Dan jika sebagai penerima, hanya dapat membalas pesan untuk role yang aktif
+        // Validasi akses...
         if (($pesan->nip_penerima == $dosen->nip && $pesan->penerima_role == $activeRole) || $pesan->nip_pengirim == $dosen->nip) {
             // Lanjutkan proses
         } else {
@@ -339,7 +339,6 @@ class PesanDosenController extends Controller
             ], 403);
         }
         
-        // Pastikan pesan masih aktif
         if ($pesan->status == 'Berakhir') {
             return response()->json([
                 'success' => false,
@@ -348,25 +347,17 @@ class PesanDosenController extends Controller
         }
         
         try {
-            // Buat balasan baru dengan lampiran
             $balasan = new BalasanPesan();
             $balasan->id_pesan = $id;
             $balasan->pengirim_id = $dosen->nip;
             $balasan->tipe_pengirim = 'dosen';
-            $balasan->isi_balasan = $request->balasan;
-            $balasan->lampiran = $request->lampiran; // Tambahkan lampiran
+            
+            // PERBAIKAN: Set balasan default jika kosong tapi ada lampiran
+            $balasan->isi_balasan = $request->balasan ?: '[Lampiran]';
+            $balasan->lampiran = $request->lampiran;
             $balasan->dibaca = false;
 
             $balasan->save();
-            
-            // Log informasi
-            Log::info('Balasan dosen berhasil dibuat', [
-                'id' => $balasan->id,
-                'pengirim_id' => $balasan->pengirim_id,
-                'tipe_pengirim' => $balasan->tipe_pengirim,
-                'dibaca' => $balasan->dibaca,
-                'has_attachment' => !empty($balasan->lampiran)
-            ]);
             
             return response()->json([
                 'success' => true,
