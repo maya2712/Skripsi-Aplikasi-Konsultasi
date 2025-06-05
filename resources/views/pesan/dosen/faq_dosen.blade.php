@@ -1347,7 +1347,7 @@
                 </div>
                 <div class="confirm-title">Batalkan Sematan?</div>
                 <div class="confirm-message">
-                    Apakah Anda yakin ingin membatalkan sematan pesan ini? Pesan akan dihapus dari daftar FAQ.
+                    Apakah Anda yakin ingin membatalkan sematan pesan ini? Pesan akan dihapus dari daftar Pesan Sematan.
                 </div>
             </div>
             <div class="modal-footer">

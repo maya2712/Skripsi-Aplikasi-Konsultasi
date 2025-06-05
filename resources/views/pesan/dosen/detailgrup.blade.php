@@ -285,7 +285,7 @@
     .group-header .header-actions {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 8px;
     }
     
     .message-container {
@@ -313,7 +313,7 @@
     .header-icon {
         color: white;
         font-size: 1.2rem;
-        margin-left: 15px;
+        margin-left: 8px;
         cursor: pointer;
         opacity: 0.9;
         transition: all 0.3s ease;
@@ -330,6 +330,79 @@
     .header-icon.danger:hover {
         color: #FF5252;
         background-color: rgba(255, 82, 82, 0.2);
+    }
+
+    /* Tooltip Styles - Improved */
+    .header-actions button[title] {
+        position: relative;
+    }
+
+    .header-actions button[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 1000;
+        pointer-events: none;
+        animation: tooltipFadeIn 0.3s ease;
+    }
+
+    .header-actions button[title]:hover::before {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-bottom-color: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        pointer-events: none;
+        animation: tooltipFadeIn 0.3s ease;
+    }
+
+    @keyframes tooltipFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+    
+    /* Mobile tooltip adjustments */
+    @media (max-width: 768px) {
+        .header-actions button[title]:hover::after {
+            bottom: -30px;
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+        
+        .header-actions button[title]:hover::before {
+            bottom: -8px;
+            border-width: 4px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .header-actions button[title]:hover::after {
+            bottom: -28px;
+            font-size: 10px;
+            padding: 3px 6px;
+        }
+        
+        .header-actions button[title]:hover::before {
+            bottom: -6px;
+            border-width: 3px;
+        }
     }
     
     .custom-container {
@@ -926,6 +999,187 @@
         margin-bottom: 20px;
     }
 
+    /* ========== IMPROVED SEARCH STYLES ========== */
+    .search-container {
+        margin-bottom: 20px;
+    }
+
+    .search-results {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+        margin-top: 10px;
+    }
+
+    .search-results::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .search-results::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .search-results::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    .search-results::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .search-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e9ecef;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .search-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .search-item.selected {
+        background-color: #e3f2fd;
+        border-color: #5DE0E6;
+    }
+
+    .student-info {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .student-details h6 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .student-details small {
+        color: #6c757d;
+        font-size: 12px;
+    }
+
+    .add-btn {
+        background: var(--success-gradient);
+        border: none;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .add-btn:hover {
+        background: var(--success-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+    }
+
+    .selected-members {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        min-height: 120px;
+    }
+
+    .selected-member-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .selected-member-item:hover {
+        background: #e9ecef;
+    }
+
+    .remove-btn {
+        background: var(--danger-gradient);
+        border: none;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+        background: var(--danger-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(255, 82, 82, 0.3);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 30px 20px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .search-info {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+        font-style: italic;
+    }
+
+    .clear-search {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .clear-search:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .search-input-container {
+        position: relative;
+    }
+
     /* Mobile Responsive Styles - ENHANCED */
     @media (max-width: 991.98px) {
         body {
@@ -960,6 +1214,10 @@
         .message-input {
             border-radius: 8px;
             margin-top: 10px;
+        }
+        
+        .search-results {
+            max-height: 250px;
         }
     }
 
@@ -1002,12 +1260,13 @@
         }
 
         .group-header .header-actions {
-            gap: 10px;
+            gap: 6px;
         }
 
         .header-icon {
             font-size: 1rem;
             padding: 6px;
+            margin-left: 4px;
         }
         
         .modal-dialog {
@@ -1069,6 +1328,34 @@
         
         .loading-text {
             font-size: 14px !important;
+        }
+
+        .student-avatar {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .student-details h6 {
+            font-size: 13px;
+        }
+
+        .student-details small {
+            font-size: 11px;
+        }
+
+        .search-results {
+            max-height: 200px;
+        }
+
+        .selected-members {
+            padding: 12px;
+            min-height: 100px;
+        }
+
+        .selected-member-item {
+            padding: 8px;
         }
     }
 
@@ -1197,7 +1484,7 @@
         .header-icon {
             font-size: 0.9rem;
             padding: 4px;
-            margin: 0 2px;
+            margin: 0 1px;
         }
         
         .modal-dialog {
@@ -1280,6 +1567,47 @@
         .btn-group-mobile .btn {
             width: 100%;
         }
+
+        .student-avatar {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .student-details h6 {
+            font-size: 12px;
+        }
+
+        .student-details small {
+            font-size: 10px;
+        }
+
+        .search-results {
+            max-height: 180px;
+        }
+
+        .search-item {
+            padding: 10px 12px;
+        }
+
+        .selected-members {
+            padding: 10px;
+            min-height: 80px;
+        }
+
+        .selected-member-item {
+            padding: 6px 8px;
+        }
+
+        .add-btn, .remove-btn {
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        .search-info {
+            font-size: 10px;
+        }
     }
 
     /* Extra Small Mobile (iPhone SE, etc) */
@@ -1326,7 +1654,13 @@
         .header-icon {
             font-size: 0.8rem;
             padding: 3px;
-            margin: 0 1px;
+            margin: 0;
+        }
+
+        .student-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 11px;
         }
     }
 </style>
@@ -1472,9 +1806,13 @@
                             <small>{{ $grup->mahasiswa->count() }} anggota</small>
                         </div>
                         <div class="header-actions">
-                            <i class="fas fa-users header-icon" data-bs-toggle="modal" data-bs-target="#tambahAnggotaModal"></i>
-                            <i class="fas fa-info-circle header-icon" data-bs-toggle="modal" data-bs-target="#infoGrupModal"></i>
-                            <button type="button" class="bg-transparent border-0 p-0" id="deleteGrupBtn">
+                            <button type="button" class="bg-transparent border-0 p-0" data-bs-toggle="modal" data-bs-target="#tambahAnggotaModal" title="Kelola Anggota Grup">
+                                <i class="fas fa-users header-icon"></i>
+                            </button>
+                            <button type="button" class="bg-transparent border-0 p-0" data-bs-toggle="modal" data-bs-target="#infoGrupModal" title="Informasi Grup">
+                                <i class="fas fa-info-circle header-icon"></i>
+                            </button>
+                            <button type="button" class="bg-transparent border-0 p-0" id="deleteGrupBtn" title="Hapus Grup">
                                 <i class="fas fa-trash header-icon danger"></i>
                             </button>
                         </div>
@@ -1707,44 +2045,42 @@
                     <div class="tab-pane fade" id="tambah-tab-pane" role="tabpanel" aria-labelledby="tambah-tab" tabindex="0">
                         <form action="{{ route('dosen.grup.addMember', $grup->id) }}" method="POST" id="tambahAnggotaForm">
                             @csrf
-                            <div class="mb-3">
+                            
+                            <!-- Search Container -->
+                            <div class="search-container">
                                 <label class="form-label">
                                     <i class="fas fa-search me-2"></i>Cari Mahasiswa
                                 </label>
-                                <input type="text" class="form-control" id="searchMahasiswa" placeholder="Cari berdasarkan nama atau NIM...">
-                            </div>
-                            <div class="mb-3">
-                                <div class="card">
-                                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                                        @php
-                                            $allMahasiswa = App\Models\Mahasiswa::whereNotIn('nim', $grup->mahasiswa->pluck('nim')->toArray())->get();
-                                        @endphp
-                                        
-                                        @if($allMahasiswa->count() > 0)
-                                            <div class="row">
-                                                @foreach($allMahasiswa as $mhs)
-                                                <div class="col-md-6 mb-2 searchable-item">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" name="new_members[]" value="{{ $mhs->nim }}" id="mhs{{ $mhs->nim }}">
-                                                        <label class="form-check-label" for="mhs{{ $mhs->nim }}">
-                                                            <i class="fas fa-user me-2"></i>{{ $mhs->nama }} - {{ $mhs->nim }}
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <div class="custom-alert-info alert">
-                                                <i class="fas fa-info-circle me-2"></i>
-                                                Semua mahasiswa sudah ada di dalam grup ini.
-                                            </div>
-                                        @endif
+                                <div class="search-input-container">
+                                    <input type="text" class="form-control" id="searchMahasiswa" placeholder="Ketik minimal 3 karakter untuk mencari mahasiswa..." autocomplete="off">
+                                    <button type="button" class="clear-search" id="clearSearch" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="search-info" id="searchInfo">Ketik minimal 3 karakter untuk mencari mahasiswa</div>
+                                
+                                <!-- Search Results -->
+                                <div class="search-results" id="searchResults" style="display: none;">
+                                    <div class="no-results">
+                                        Ketik nama atau NIM mahasiswa untuk mencari
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-gradient-success" id="btnTambahAnggota">
-                                    <i class="fas fa-user-plus me-2"></i>Tambahkan Anggota
+                            
+                            <!-- Selected Members -->
+                            <div class="selected-members">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-user-check me-2"></i>Anggota Terpilih: 
+                                    <span class="badge bg-primary" id="selectedCount">0</span>
+                                </h6>
+                                <div id="selectedMembersList">
+                                    <p class="text-muted" id="noSelectedMessage">Belum ada anggota yang dipilih</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid mt-3">
+                                <button type="submit" class="btn btn-gradient-success" id="btnTambahAnggota" disabled>
+                                    <i class="fas fa-user-plus me-2"></i>Tambahkan Anggota (<span id="submitCount">0</span>)
                                 </button>
                             </div>
                         </form>
@@ -2072,23 +2408,228 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification('{{ session('error') }}', 'danger');
     @endif
     
-    // ============= SEARCH FUNCTIONALITY =============
+    // ============= IMPROVED SEARCH FUNCTIONALITY =============
     
-    // Kode pencarian anggota
+    // Data mahasiswa dari database (excluding current group members)
+    const allMahasiswaData = [
+        @php
+            $currentMemberNims = $grup->mahasiswa->pluck('nim')->toArray();
+            $availableMahasiswa = App\Models\Mahasiswa::whereNotIn('nim', $currentMemberNims)->get();
+        @endphp
+        @foreach($availableMahasiswa as $mhs)
+        {
+            nim: '{{ $mhs->nim }}',
+            nama: '{{ $mhs->nama }}'
+        },
+        @endforeach
+    ];
+    
+    // Search elements
     const searchInput = document.getElementById('searchMahasiswa');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const items = document.querySelectorAll('.searchable-item');
+    const searchResults = document.getElementById('searchResults');
+    const searchInfo = document.getElementById('searchInfo');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    
+    // Selected members elements
+    const selectedMembersList = document.getElementById('selectedMembersList');
+    const noSelectedMessage = document.getElementById('noSelectedMessage');
+    const selectedCount = document.getElementById('selectedCount');
+    const submitCount = document.getElementById('submitCount');
+    const btnTambahAnggota = document.getElementById('btnTambahAnggota');
+    const tambahAnggotaForm = document.getElementById('tambahAnggotaForm');
+    
+    // Set untuk menyimpan mahasiswa yang dipilih
+    const selectedMembers = new Set();
+    
+    // Function untuk update tampilan selected members
+    function updateSelectedMembers() {
+        // Update counter
+        selectedCount.textContent = selectedMembers.size;
+        submitCount.textContent = selectedMembers.size;
+        
+        // Enable/disable submit button
+        btnTambahAnggota.disabled = selectedMembers.size === 0;
+        
+        if (selectedMembers.size === 0) {
+            noSelectedMessage.style.display = 'block';
+            // Clear hidden inputs
+            selectedMembersList.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
+        } else {
+            noSelectedMessage.style.display = 'none';
             
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
+            // Clear existing items (except no selected message)
+            selectedMembersList.querySelectorAll('.selected-member-item').forEach(item => item.remove());
+            selectedMembersList.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
+            
+            // Add selected members
+            selectedMembers.forEach(nim => {
+                const mahasiswa = allMahasiswaData.find(m => m.nim === nim);
+                if (mahasiswa) {
+                    // Create member item
+                    const memberItem = document.createElement('div');
+                    memberItem.className = 'selected-member-item';
+                    memberItem.innerHTML = `
+                        <div class="student-info">
+                            <div class="student-avatar">
+                                ${mahasiswa.nama.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="student-details">
+                                <h6>${mahasiswa.nama}</h6>
+                                <small>${mahasiswa.nim}</small>
+                            </div>
+                        </div>
+                        <button type="button" class="remove-btn" data-nim="${nim}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    // Create hidden input for form submission
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'new_members[]';
+                    hiddenInput.value = nim;
+                    
+                    selectedMembersList.appendChild(memberItem);
+                    selectedMembersList.appendChild(hiddenInput);
                 }
             });
+            
+            // Add event listeners to remove buttons
+            selectedMembersList.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const nim = this.getAttribute('data-nim');
+                    selectedMembers.delete(nim);
+                    updateSelectedMembers();
+                    
+                    // Refresh search results if there's an active search
+                    const currentSearchTerm = searchInput.value.trim();
+                    if (currentSearchTerm.length >= 3) {
+                        showSearchResults(currentSearchTerm);
+                    }
+                });
+            });
+        }
+    }
+    
+    // Function untuk menampilkan hasil pencarian
+    function showSearchResults(searchTerm) {
+        if (searchTerm.length < 3) {
+            searchResults.style.display = 'none';
+            searchInfo.textContent = 'Ketik minimal 3 karakter untuk mencari mahasiswa';
+            clearSearchBtn.style.display = 'none';
+            return;
+        }
+        
+        searchTerm = searchTerm.toLowerCase();
+        
+        // Filter mahasiswa berdasarkan search term dan yang belum dipilih
+        const filteredMahasiswa = allMahasiswaData.filter(mhs => 
+            (mhs.nama.toLowerCase().includes(searchTerm) || 
+             mhs.nim.toLowerCase().includes(searchTerm)) &&
+            !selectedMembers.has(mhs.nim)
+        );
+        
+        // Show search results container
+        searchResults.style.display = 'block';
+        clearSearchBtn.style.display = 'block';
+        
+        if (filteredMahasiswa.length === 0) {
+            // Check if no results because all are selected
+            const allFilteredMahasiswa = allMahasiswaData.filter(mhs => 
+                mhs.nama.toLowerCase().includes(searchTerm) || 
+                mhs.nim.toLowerCase().includes(searchTerm)
+            );
+            
+            if (allFilteredMahasiswa.length > 0) {
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        Semua mahasiswa dengan kata kunci "${searchTerm}" sudah dipilih
+                    </div>
+                `;
+                searchInfo.textContent = `Semua hasil pencarian untuk "${searchTerm}" sudah dipilih`;
+            } else {
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        Tidak ada mahasiswa yang sesuai dengan kata kunci "${searchTerm}"
+                    </div>
+                `;
+                searchInfo.textContent = `Tidak ada hasil untuk "${searchTerm}"`;
+            }
+            return;
+        }
+        
+        // Update search info
+        searchInfo.textContent = `Menampilkan ${filteredMahasiswa.length} hasil pencarian untuk "${searchTerm}"`;
+        
+        // Display search results
+        let html = '';
+        filteredMahasiswa.forEach(mhs => {
+            html += `
+                <div class="search-item" data-nim="${mhs.nim}">
+                    <div class="student-info">
+                        <div class="student-avatar">
+                            ${mhs.nama.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="student-details">
+                            <h6>${mhs.nama}</h6>
+                            <small>${mhs.nim}</small>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" data-nim="${mhs.nim}">
+                        <i class="fas fa-plus"></i> Pilih
+                    </button>
+                </div>
+            `;
+        });
+        
+        searchResults.innerHTML = html;
+        
+        // Add event listeners to add buttons
+        searchResults.querySelectorAll('.add-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nim = this.getAttribute('data-nim');
+                selectedMembers.add(nim);
+                
+                // Add animation effect
+                const searchItem = this.closest('.search-item');
+                searchItem.style.transition = 'all 0.3s ease';
+                searchItem.style.opacity = '0';
+                searchItem.style.transform = 'translateX(20px)';
+                
+                setTimeout(() => {
+                    updateSelectedMembers();
+                    // Refresh search results to remove the selected item
+                    showSearchResults(searchInput.value.trim());
+                }, 300);
+            });
+        });
+    }
+    
+    // Event listener untuk search input
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.trim();
+            showSearchResults(searchTerm);
+        });
+        
+        // Clear search on Escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                searchResults.style.display = 'none';
+                searchInfo.textContent = 'Ketik minimal 3 karakter untuk mencari mahasiswa';
+                clearSearchBtn.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event listener untuk clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            searchResults.style.display = 'none';
+            searchInfo.textContent = 'Ketik minimal 3 karakter untuk mencari mahasiswa';
+            this.style.display = 'none';
         });
     }
     
@@ -2265,16 +2806,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============= ADD MEMBER FUNCTIONALITY =============
     
     // Handler untuk tambah anggota dengan loading
-    const tambahAnggotaForm = document.getElementById('tambahAnggotaForm');
-    const btnTambahAnggota = document.getElementById('btnTambahAnggota');
-    
     if (tambahAnggotaForm) {
         tambahAnggotaForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Cek apakah ada anggota yang dipilih
-            const checkedBoxes = this.querySelectorAll('input[type="checkbox"]:checked');
-            if (checkedBoxes.length === 0) {
+            if (selectedMembers.size === 0) {
                 showNotification('Pilih minimal satu mahasiswa untuk ditambahkan ke grup', 'warning');
                 return;
             }
@@ -2296,6 +2833,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1500);
         });
     }
+    
+    // ============= MODAL ENHANCEMENTS =============
+    
+    // Reset form and search when modal is opened
+    document.getElementById('tambahAnggotaModal').addEventListener('shown.bs.modal', function() {
+        // Default buka di tab "Daftar Anggota" (yang sudah active)
+        const daftarTab = document.getElementById('daftar-tab');
+        if (daftarTab) {
+            daftarTab.click();
+        }
+        
+        // Jangan auto focus ke search input, biarkan user yang memilih tab dulu
+    });
+    
+    // Reset form when modal is closed
+    document.getElementById('tambahAnggotaModal').addEventListener('hidden.bs.modal', function() {
+        // Clear search
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        if (searchResults) {
+            searchResults.style.display = 'none';
+        }
+        if (searchInfo) {
+            searchInfo.textContent = 'Ketik minimal 3 karakter untuk mencari mahasiswa';
+        }
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = 'none';
+        }
+        
+        // Clear selected members
+        selectedMembers.clear();
+        updateSelectedMembers();
+        
+        // Reset button
+        if (btnTambahAnggota) {
+            btnTambahAnggota.disabled = true;
+            btnTambahAnggota.innerHTML = '<i class="fas fa-user-plus me-2"></i>Tambahkan Anggota (<span id="submitCount">0</span>)';
+        }
+    });
     
     // ============= MESSAGE INPUT ENHANCEMENTS =============
     
@@ -2324,9 +2901,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ============= OTHER FUNCTIONALITY =============
+    // ============= KEYBOARD SHORTCUTS =============
     
-    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         // Esc untuk tutup modal yang terbuka
         if (e.key === 'Escape') {
@@ -2346,7 +2922,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && messageInput === document.activeElement) {
             sendMessageForm.dispatchEvent(new Event('submit'));
         }
+        
+        // Ctrl/Cmd + F untuk focus ke search input jika modal tambah anggota terbuka
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            const modalElement = document.getElementById('tambahAnggotaModal');
+            if (modalElement && modalElement.classList.contains('show')) {
+                e.preventDefault();
+                const tambahTabPane = document.getElementById('tambah-tab-pane');
+                if (tambahTabPane && tambahTabPane.classList.contains('active') && searchInput) {
+                    searchInput.focus();
+                }
+            }
+        }
     });
+    
+    // ============= RESPONSIVE ENHANCEMENTS =============
     
     // Handle window resize
     window.addEventListener('resize', function() {
@@ -2357,7 +2947,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Swipe gestures
+    // Swipe gestures for mobile
     let touchStartX = 0;
     let touchEndX = 0;
     
@@ -2385,22 +2975,87 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // ============= ENHANCEMENTS =============
+    // ============= ACCESSIBILITY ENHANCEMENTS =============
+    
+    // Add ARIA labels and states
+    function enhanceAccessibility() {
+        if (searchInput) {
+            searchInput.setAttribute('aria-describedby', 'searchInfo');
+            searchInput.setAttribute('role', 'combobox');
+            searchInput.setAttribute('aria-expanded', 'false');
+            searchInput.setAttribute('aria-autocomplete', 'list');
+        }
+        
+        if (searchResults) {
+            searchResults.setAttribute('role', 'listbox');
+            searchResults.setAttribute('aria-label', 'Hasil pencarian mahasiswa');
+        }
+        
+        if (selectedMembersList) {
+            selectedMembersList.setAttribute('role', 'list');
+            selectedMembersList.setAttribute('aria-label', 'Daftar anggota yang dipilih');
+        }
+    }
+    
+    enhanceAccessibility();
+    
+    // Update ARIA states when search results change
+    const originalShowSearchResults = showSearchResults;
+    showSearchResults = function(searchTerm) {
+        originalShowSearchResults(searchTerm);
+        
+        if (searchInput) {
+            searchInput.setAttribute('aria-expanded', searchTerm.length >= 3 ? 'true' : 'false');
+        }
+        
+        // Add ARIA attributes to search items
+        if (searchResults) {
+            searchResults.querySelectorAll('.search-item').forEach((item, index) => {
+                item.setAttribute('role', 'option');
+                item.setAttribute('aria-posinset', index + 1);
+                item.setAttribute('aria-setsize', searchResults.querySelectorAll('.search-item').length);
+            });
+        }
+    };
+    
+    // ============= PERFORMANCE OPTIMIZATIONS =============
+    
+    // Debounce search input untuk mengurangi jumlah pencarian
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    if (searchInput) {
+        const debouncedSearch = debounce(function(searchTerm) {
+            showSearchResults(searchTerm);
+        }, 300);
+        
+        searchInput.removeEventListener('input', showSearchResults);
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.trim();
+            debouncedSearch(searchTerm);
+        });
+    }
+    
+    // ============= INITIALIZATION COMPLETE =============
+    
+    // Initialize selected members display
+    updateSelectedMembers();
     
     // Enhancement: Smooth animations untuk loading modal
     document.getElementById('loadingModal').addEventListener('shown.bs.modal', function() {
         const spinner = this.querySelector('.loading-spinner');
-        spinner.style.animation = 'spin 1s ease-in-out infinite';
-    });
-    
-    // Enhancement: Auto focus pada search input ketika tab tambah anggota dibuka
-    document.getElementById('tambah-tab').addEventListener('click', function() {
-        setTimeout(() => {
-            const searchInput = document.getElementById('searchMahasiswa');
-            if (searchInput) {
-                searchInput.focus();
-            }
-        }, 200);
+        if (spinner) {
+            spinner.style.animation = 'spin 1s ease-in-out infinite';
+        }
     });
     
     // Enhancement: Handle page visibility change untuk auto-refresh
