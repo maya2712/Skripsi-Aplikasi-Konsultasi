@@ -4,6 +4,9 @@
 @push('styles')
     <style>
         :root {
+            --bs-primary: #1a73e8;
+            --bs-danger: #FF5252;
+            --bs-success: #27AE60;
             --primary-color: #0070dc;
             --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
             --primary-hover: linear-gradient(to right, #003d91, #4bcad0);
@@ -16,6 +19,7 @@
             --gray-text: #6c757d;
             --border-radius: 10px;
             --shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            --gradient-primary: linear-gradient(to right, #004AAD, #5DE0E6);
         }
 
         body {
@@ -40,8 +44,12 @@
             padding: 0 20px;
         }
 
-        /* Left Panel Styling */
-        .left-panel {
+        /* ========================================
+           SIDEBAR STYLES - DESKTOP & MOBILE
+           ======================================== */
+        
+        /* Desktop Sidebar */
+        .desktop-sidebar {
             background-color: white;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
@@ -50,7 +58,186 @@
             width: 100%;
             position: sticky;
             top: 20px;
+            display: block;
         }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+        }
+
+        /* Mobile Info Panel Overlay - BARU */
+        .info-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .info-overlay.show {
+            opacity: 1;
+        }
+
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background: white;
+            z-index: 1050;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .mobile-sidebar.show {
+            left: 0;
+        }
+
+        /* Mobile Info Panel - BARU */
+        .mobile-info-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100%;
+            background: white;
+            z-index: 1050;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            box-shadow: -2px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .mobile-info-panel.show {
+            right: 0;
+        }
+
+        .mobile-sidebar-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Mobile Info Panel Header - BARU */
+        .mobile-info-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-sidebar-header h6,
+        .mobile-info-header h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .close-sidebar,
+        .close-info-panel {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+
+        .close-sidebar:hover,
+        .close-info-panel:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .close-sidebar:focus,
+        .close-info-panel:focus {
+            outline: none;
+        }
+
+        .sidebar-buttons {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sidebar-buttons .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        .sidebar-buttons .btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .sidebar-menu {
+            padding: 15px;
+        }
+        
+        .sidebar-menu .nav-link {
+            color: #546E7A;
+            border-radius: 0.5rem;
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu .nav-link.active {
+            background: #E3F2FD;
+            color: var(--bs-primary);
+        }
+        
+        .sidebar-menu .nav-link:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .komunikasi-submenu .nav-link.active {
+            background: #E3F2FD;
+            color: var(--bs-primary);
+        }
+
+        .komunikasi-submenu .nav-link:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .komunikasi-submenu {
+            margin-left: 15px;
+        }
+
+        .komunikasi-submenu .nav-link {
+            padding: 8px 15px;
+            font-size: 13px;
+        }
+
+        /* ========================================
+           LEFT PANEL STYLES (DESKTOP SIDEBAR CONTENT)
+           ======================================== */
 
         .back-button {
             background: var(--primary-gradient);
@@ -272,6 +459,10 @@
             font-size: 16px;
         }
 
+        /* ========================================
+           CHAT CONTAINER STYLES
+           ======================================== */
+
         /* Chat Container Styling */
         .message-header {
             background: var(--primary-gradient);
@@ -353,6 +544,27 @@
         }
 
         .action-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* BARU: Info button untuk mobile */
+        .info-button {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .info-button:hover {
             background: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
         }
@@ -641,6 +853,10 @@
             box-shadow: 0 5px 15px rgba(0, 85, 179, 0.2);
         }
 
+        /* ========================================
+           MODAL STYLES
+           ======================================== */
+
         /* Modal styling */
         .modal-content {
             border-radius: 12px;
@@ -716,9 +932,43 @@
             border: none;
         }
 
-        /* ===============================
-           MOBILE RESPONSIVE STYLES
-           =============================== */
+        /* ========================================
+           RESPONSIVE STYLES
+           ======================================== */
+
+        /* Hide desktop sidebar on mobile, show mobile sidebar */
+        @media (max-width: 991.98px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .sidebar-overlay,
+            .info-overlay {
+                display: block;
+            }
+            
+            .info-button {
+                display: flex;
+            }
+        }
+
+        /* Show desktop sidebar on larger screens, hide mobile elements */
+        @media (min-width: 992px) {
+            .mobile-sidebar,
+            .mobile-info-panel,
+            .sidebar-overlay,
+            .info-overlay {
+                display: none !important;
+            }
+            
+            .desktop-sidebar {
+                display: block;
+            }
+            
+            .info-button {
+                display: none !important;
+            }
+        }
 
         /* Tablet Portrait (768px and down) */
         @media (max-width: 768px) {
@@ -728,14 +978,6 @@
             
             .custom-container {
                 padding: 0 15px;
-            }
-            
-            /* Left Panel Mobile Adjustments */
-            .left-panel {
-                position: static;
-                margin-bottom: 15px;
-                padding: 20px;
-                border-radius: 8px;
             }
             
             /* Profile Image Smaller */
@@ -899,11 +1141,6 @@
                 font-size: 28px;
             }
             
-            /* Compact left panel */
-            .left-panel {
-                padding: 15px;
-            }
-            
             .profile-section h5.info-title {
                 font-size: 13px;
             }
@@ -1025,10 +1262,6 @@
                 font-size: 24px;
             }
             
-            .left-panel {
-                padding: 12px;
-            }
-            
             .profile-section h5.info-title {
                 font-size: 12px;
                 line-height: 1.2;
@@ -1119,7 +1352,7 @@
                 padding: 10px 0;
             }
             
-            .left-panel {
+            .desktop-sidebar {
                 position: static;
                 padding: 10px;
                 margin-bottom: 10px;
@@ -1192,8 +1425,8 @@
         }
 
         /* Fix for sticky positioning on mobile */
-        @media (max-width: 768px) {
-            .left-panel {
+        @media (max-width: 991.98px) {
+            .desktop-sidebar {
                 position: static !important;
                 top: auto !important;
             }
@@ -1228,16 +1461,208 @@
                 hyphens: auto;
             }
         }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .sidebar-overlay,
+            .info-overlay {
+                background-color: rgba(0, 0, 0, 0.7);
+            }
+        }
     </style>
 @endpush
 
 @section('content')
+<!-- Mobile Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Mobile Info Panel Overlay -->
+<div class="info-overlay" id="infoOverlay"></div>
+
+<!-- Mobile Sidebar -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="mobile-sidebar-header">
+        <h6>Menu Navigasi</h6>
+        <button class="close-sidebar" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="sidebar-buttons">
+        <a href="{{ route('mahasiswa.pesan.create') }}" class="btn" style="background: var(--gradient-primary); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+            <i class="fas fa-plus me-2"></i> Pesan Baru
+        </a>
+    </div>
+    <div class="sidebar-menu">
+        <div class="nav flex-column">
+            <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="nav-link">
+                <i class="fas fa-home me-2"></i>Daftar Pesan
+            </a>
+            <a href="#" class="nav-link menu-item" id="mobileGrupDropdownToggle">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
+                    <i class="fas fa-chevron-down" id="mobileGrupDropdownIcon"></i>
+                </div>
+            </a>
+            <div class="collapse komunikasi-submenu" id="mobileKomunikasiSubmenu">
+                @php
+                    $userGrups = Auth::user()->grups ?? collect();
+                @endphp
+                
+                @if($userGrups && $userGrups->count() > 0)
+                    @foreach($userGrups as $grupItem)
+                    <a href="{{ route('mahasiswa.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                        {{ $grupItem->nama_grup }}
+                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
+                        <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                        @endif
+                    </a>
+                    @endforeach
+                @else
+                    <div class="nav-link menu-item text-muted">
+                        <small>Belum ada grup</small>
+                    </div>
+                @endif
+            </div>
+            <a href="{{ route('mahasiswa.pesan.history') }}" class="nav-link menu-item">
+                <i class="fas fa-history me-2"></i>Riwayat Pesan
+            </a>
+            <a href="{{ url('/faqmahasiswa') }}" class="nav-link menu-item">
+                <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Info Panel -->
+<div class="mobile-info-panel" id="mobileInfoPanel">
+    <div class="mobile-info-header">
+        <h6>Informasi</h6>
+        <button class="close-info-panel" id="closeInfoPanel">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <!-- Mobile: Informasi Pengirim -->
+    <div style="padding: 15px; border-bottom: 1px solid #eee;">
+        <div class="profile-section" style="margin-bottom: 15px;">
+            @if($pesan->nim_pengirim == Auth::user()->nim)
+                <!-- Jika mahasiswa adalah pengirim, tampilkan informasi dosen penerima -->
+                @php
+                    $profilePhoto = $pesan->dosenPenerima && $pesan->dosenPenerima->profile_photo 
+                        ? asset('storage/profile_photos/'.$pesan->dosenPenerima->profile_photo) 
+                        : null;
+                @endphp
+                @if($profilePhoto)
+                    <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image" style="width: 60px; height: 60px; font-size: 24px;">
+                @else
+                    <div class="profile-image-placeholder" style="width: 60px; height: 60px; font-size: 24px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                @endif
+                <h5 class="info-title" style="font-size: 12px; margin-bottom: 3px;">{{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}</h5>
+                <p class="text-muted mb-0 text-center" style="font-size: 10px;">
+                    Dosen (Penerima)
+                    @if($pesan->penerima_role == 'kaprodi')
+                        <span class="badge bg-warning text-dark ms-1" style="font-size: 8px; padding: 2px 4px;">KAPRODI</span>
+                    @endif
+                </p>
+            @else
+                <!-- Jika dosen adalah pengirim, tampilkan informasi dosen pengirim -->
+                @php
+                    $profilePhoto = $pesan->dosenPengirim && $pesan->dosenPengirim->profile_photo 
+                        ? asset('storage/profile_photos/'.$pesan->dosenPengirim->profile_photo) 
+                        : null;
+                @endphp
+                @if($profilePhoto)
+                    <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image" style="width: 60px; height: 60px; font-size: 24px;">
+                @else
+                    <div class="profile-image-placeholder" style="width: 60px; height: 60px; font-size: 24px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                @endif
+                <h5 class="info-title" style="font-size: 12px; margin-bottom: 3px;">{{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}</h5>
+                <p class="text-muted mb-0 text-center" style="font-size: 10px;">
+                    Dosen (Pengirim)
+                    @if($pesan->pengirim_role == 'kaprodi')
+                        <span class="badge bg-warning text-dark ms-1" style="font-size: 8px; padding: 2px 4px;">KAPRODI</span>
+                    @endif
+                </p>
+            @endif
+        </div>
+        
+        <!-- Mobile: Tabel Informasi -->
+        <div class="info-title" style="font-size: 12px; margin-bottom: 8px; text-align: center;">Informasi Pesan</div>
+        <table class="info-table" style="font-size: 9px; margin-bottom: 10px;">
+            <tr>
+                <td style="padding: 4px 8px; font-size: 8px;">Subjek</td>
+                <td style="padding: 4px 8px; font-size: 8px;">{{ $pesan->subjek }}</td>
+            </tr>
+            
+            @if($pesan->nim_pengirim == Auth::user()->nim)
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">Penerima</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">
+                        {{ $pesan->dosenPenerima ? $pesan->dosenPenerima->nama : 'Dosen' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">NIP</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">{{ $pesan->nip_penerima }}</td>
+                </tr>
+            @else
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">Pengirim</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">
+                        {{ $pesan->dosenPengirim ? $pesan->dosenPengirim->nama : 'Dosen' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">NIP</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">{{ $pesan->nip_pengirim }}</td>
+                </tr>
+            @endif
+            
+            <tr>
+                <td style="padding: 4px 8px; font-size: 8px;">Prioritas</td>
+                <td style="padding: 4px 8px; font-size: 8px;">
+                    <span class="badge-priority {{ $pesan->prioritas == 'Umum' ? 'Umum' : '' }}" style="font-size: 8px; padding: 2px 5px;">
+                        {{ $pesan->prioritas }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 8px; font-size: 8px;">Status</td>
+                <td style="padding: 4px 8px; font-size: 8px;">
+                    <span id="pesanStatusMobile" 
+                        class="badge-priority {{ $pesan->status == 'Aktif' ? 'Umum' : '' }}" style="font-size: 8px; padding: 2px 5px;">
+                        {{ $pesan->status }}
+                    </span>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Mobile: Tombol Akhiri Pesan -->
+        @if($pesan->status == 'Aktif')
+            @if($pesan->nim_pengirim == Auth::user()->nim)
+                <button id="endChatButtonMobile" class="end-chat-button" style="padding: 8px 12px; font-size: 11px; margin-top: 8px;">
+                    <i class="fas fa-times-circle"></i> Akhiri Pesan
+                </button>
+            @endif
+        @else
+            <button class="end-chat-button" disabled style="background: #6c757d; cursor: not-allowed; padding: 8px 12px; font-size: 11px; margin-top: 8px;">
+                <i class="fas fa-times-circle"></i> Pesan Diakhiri
+            </button>
+        @endif
+    </div>
+</div>
+
 <div class="main-content">
     <div class="custom-container">
         <div class="row">
             <div class="col-md-4 col-lg-3">
-                <!-- Panel Kiri -->
-                <div class="left-panel">
+                <!-- Desktop Sidebar -->
+                <div class="desktop-sidebar">
                     <!-- Tombol Kembali -->
                     <a href="{{ route('mahasiswa.dashboard.pesan') }}" class="back-button">
                         <i class="fas fa-arrow-left"></i> Kembali
@@ -1289,7 +1714,6 @@
                             </p>
                         @endif
                     </div>
-                    
                     
                     <!-- Bagian Informasi Pesan -->
                     <div class="info-title mt-4">Informasi Pesan</div>
@@ -1343,8 +1767,6 @@
                             </td>
                         </tr>
                     </table>
-
-                                            
                     
                     <!-- Tombol Akhiri Pesan - hanya tampilkan untuk pengirim -->
                     @if($pesan->status == 'Aktif')
@@ -1352,10 +1774,6 @@
                             <button id="endChatButton" class="end-chat-button">
                                 <i class="fas fa-times-circle"></i> Akhiri Pesan
                             </button>
-                        @else
-                            {{-- <button class="end-chat-button" disabled style="background: #6c757d; cursor: not-allowed;">
-                                <i class="fas fa-info-circle"></i> Hanya Pengirim yang Dapat Mengakhiri Pesan
-                            </button> --}}
                         @endif
                     @else
                         <button class="end-chat-button" disabled style="background: #6c757d; cursor: not-allowed;">
@@ -1384,11 +1802,15 @@
                             @endif
                         @endif
                     </h4>
-                   
+                    <div class="action-buttons">
+                        <!-- Info button untuk mobile -->
+                        <button class="info-button" id="infoButton" title="Informasi">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                
-                 <!-- Container Pesan -->
+                <!-- Container Pesan -->
                 <div class="chat-container" id="chatContainer">
                     @foreach($balasanByDate as $date => $messages)
                         <div class="chat-date-divider">
@@ -1570,157 +1992,437 @@
 
 @push('scripts')
 <script>
-   document.addEventListener('DOMContentLoaded', function() {
-       // Elemen yang diperlukan
-       const endChatButton = document.getElementById('endChatButton');
-       const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-       const cancelEndChatBtn = document.getElementById('cancelEndChat');
-       const confirmEndChatBtn = document.getElementById('confirmEndChat');
-       const messageInputContainer = document.getElementById('messageInputContainer');
-       const pesanStatus = document.getElementById('pesanStatus');
-       const notificationToast = document.getElementById('notificationToast');
-       const notificationMessage = document.getElementById('notificationMessage');
-       const chatContainer = document.getElementById('chatContainer');
-       const messageInput = document.getElementById('messageInput');
-       const sendButton = document.getElementById('sendButton');
-       
-       // Tambahkan variabel untuk attachment
-       const attachmentButton = document.getElementById('attachmentButton');
-       const attachmentInput = document.getElementById('attachmentInput');
-       let isAttachmentMode = false;
-       
-       // Inisialisasi Toast
-       const toast = new bootstrap.Toast(notificationToast, {
-           delay: 3000
-       });
-       
-       // Status percakapan (aktif atau berakhir)
-       let isConversationEnded = {{ $pesan->status == 'Berakhir' ? 'true' : 'false' }};
-       
-       // Auto-scroll ke bawah chat container
-       if (chatContainer) {
-           chatContainer.scrollTop = chatContainer.scrollHeight;
-       }
-       
-       // Toggle attachment input
-       if (attachmentButton && attachmentInput) {
-           attachmentButton.addEventListener('click', function() {
-               isAttachmentMode = !isAttachmentMode;
-               
-               if (isAttachmentMode) {
-                   attachmentInput.style.display = 'block';
-                   attachmentInput.focus();
-                   attachmentButton.innerHTML = '<i class="fas fa-times"></i>';
-                   attachmentButton.title = 'Batalkan lampiran';
-               } else {
-                   attachmentInput.style.display = 'none';
-                   attachmentInput.value = '';
-                   attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
-                   attachmentButton.title = 'Lampirkan File';
-               }
-           });
-       }
-       
-       // Tampilkan modal konfirmasi
-       if (endChatButton) {
-           endChatButton.addEventListener('click', function() {
-               // Pastikan ini adalah pengirim pesan dan percakapan belum diakhiri
-               if (!isConversationEnded && {{ $pesan->nim_pengirim == Auth::user()->nim ? 'true' : 'false' }}) {
-                   confirmModal.show();
-               }
-           });
-       }
-       
-       // Konfirmasi akhiri pesan
-       if (confirmEndChatBtn) {
-           confirmEndChatBtn.addEventListener('click', function() {
-               // Kirim request ke server untuk mengakhiri pesan
-               fetch('{{ route("mahasiswa.pesan.end", $pesan->id) }}', {
-                   method: 'POST',
-                   headers: {
-                       'Content-Type': 'application/json',
-                       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                   }
-               })
-               .then(response => response.json())
-               .then(data => {
-                   if (data.success) {
-                       // Mengakhiri percakapan
-                       isConversationEnded = true;
-                       
-                       // Sembunyikan modal
-                       confirmModal.hide();
-                       
-                       // Sembunyikan form input pesan
-                       if (messageInputContainer) {
-                           messageInputContainer.style.display = 'none';
-                       }
-                       
-                       // Ubah status pesan
-                       pesanStatus.textContent = 'Berakhir';
-                       pesanStatus.classList.remove('Umum');
-                       
-                       // Nonaktifkan tombol akhiri pesan
-                       endChatButton.disabled = true;
-                       endChatButton.style.backgroundColor = '#6c757d';
-                       endChatButton.style.cursor = 'not-allowed';
-                       endChatButton.style.boxShadow = 'none';
-                       
-                       // Tambahkan pesan sistem di chat container
-                       const systemMessage = document.createElement('div');
-                       systemMessage.className = 'system-message';
-                       systemMessage.innerHTML = '<span><i class="fas fa-info-circle"></i> Pesan telah diakhiri</span>';
-                       chatContainer.appendChild(systemMessage);
-                       
-                       // Scroll ke bawah untuk menampilkan pesan sistem
-                       chatContainer.scrollTop = chatContainer.scrollHeight;
-                       
-                       // Tampilkan notifikasi
-                       showNotification('Pesan berhasil diakhiri', 'success');
-                   } else {
-                       // Tampilkan pesan error
-                       showNotification('Gagal mengakhiri pesan: ' + data.message, 'warning');
-                   }
-               })
-               .catch(error => {
-                   console.error('Error:', error);
-                   showNotification('Terjadi kesalahan saat mengakhiri pesan', 'warning');
-               });
-           });
-       }
-       
-       // Helper function untuk mendapatkan nama attachment
-       function getAttachmentName(url) {
-           if (url.includes('drive.google.com')) {
-               return 'Google Drive File';
-           }
-           
-           try {
-               const path = new URL(url).pathname;
-               const filename = path.split('/').pop();
-               return filename || 'Lampiran';
-           } catch (e) {
-               return 'Lampiran';
-           }
-       }
-       
-       // Menangani pengiriman pesan saat menekan Enter di input
-       if (messageInput && sendButton) {
-           messageInput.addEventListener('keypress', function(e) {
-               if (e.key === 'Enter') {
-                   e.preventDefault();
-                   sendButton.click();
-               }
-           });
-           
-           sendButton.addEventListener('click', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // ========================================
+    // MOBILE SIDEBAR FUNCTIONALITY
+    // ========================================
+    
+    // Mobile sidebar functionality
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const closeSidebar = document.getElementById('closeSidebar');
+    
+    // Mobile info panel functionality
+    const infoButton = document.getElementById('infoButton');
+    const mobileInfoPanel = document.getElementById('mobileInfoPanel');
+    const infoOverlay = document.getElementById('infoOverlay');
+    const closeInfoPanel = document.getElementById('closeInfoPanel');
+    
+    // Fungsi untuk membuka mobile sidebar
+    function openMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.add('show');
+            sidebarOverlay.style.display = 'block';
+            setTimeout(() => {
+                sidebarOverlay.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+    }
+    
+    // Fungsi untuk menutup mobile sidebar
+    function closeMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            setTimeout(() => {
+                sidebarOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+    
+    // Fungsi untuk membuka mobile info panel
+    function openMobileInfoPanel() {
+        if (mobileInfoPanel && infoOverlay) {
+            mobileInfoPanel.classList.add('show');
+            infoOverlay.style.display = 'block';
+            setTimeout(() => {
+                infoOverlay.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    // Fungsi untuk menutup mobile info panel
+    function closeMobileInfoPanel() {
+        if (mobileInfoPanel && infoOverlay) {
+            mobileInfoPanel.classList.remove('show');
+            infoOverlay.classList.remove('show');
+            setTimeout(() => {
+                infoOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Event listener untuk mobile menu toggle
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileSidebar();
+        });
+    }
+    
+    // Event listener untuk info button
+    if (infoButton) {
+        infoButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileInfoPanel();
+        });
+    }
+    
+    // Event listener untuk menutup sidebar
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    // Event listener untuk menutup info panel
+    if (closeInfoPanel) {
+        closeInfoPanel.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileInfoPanel();
+        });
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    if (infoOverlay) {
+        infoOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileInfoPanel();
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile)
+    const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
+    mobileMenuItems.forEach(item => {
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                setTimeout(closeMobileSidebar, 100);
+            });
+        }
+    });
+    
+    // Mobile dropdown functionality
+    const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
+    const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
+    const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
+    
+    if (mobileGrupDropdownToggle) {
+        mobileGrupDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
+            
+            if (isCollapsed) {
+                mobileKomunikasiSubmenu.classList.add('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-down');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-up');
+            } else {
+                mobileKomunikasiSubmenu.classList.remove('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-down');
+            }
+        });
+        
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Enhanced keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            // Close mobile sidebar if open
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+            // Close mobile info panel if open
+            if (mobileInfoPanel && mobileInfoPanel.classList.contains('show')) {
+                closeMobileInfoPanel();
+            }
+        }
+    });
+    
+    // Handle window resize to close mobile panels on desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991) {
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+            if (mobileInfoPanel && mobileInfoPanel.classList.contains('show')) {
+                closeMobileInfoPanel();
+            }
+        }
+    });
+    
+    // Swipe gesture for mobile sidebar and info panel
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+    });
+    
+    function handleSwipeGesture() {
+        const swipeThreshold = 100;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        // Swipe right to open sidebar (only if not already open)
+        if (swipeDistance > swipeThreshold && touchStartX < 50 && mobileSidebar && !mobileSidebar.classList.contains('show')) {
+            if (window.innerWidth <= 768) {
+                if (mobileMenuToggle) {
+                    mobileMenuToggle.click();
+                }
+            }
+        }
+        
+        // Swipe left to close sidebar or info panel
+        if (swipeDistance < -swipeThreshold) {
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+            if (mobileInfoPanel && mobileInfoPanel.classList.contains('show')) {
+                closeMobileInfoPanel();
+            }
+        }
+        
+        // Swipe left to open info panel (from right edge)
+        if (swipeDistance < -swipeThreshold && touchStartX > window.innerWidth - 50 && mobileInfoPanel && !mobileInfoPanel.classList.contains('show')) {
+            if (window.innerWidth <= 768) {
+                openMobileInfoPanel();
+            }
+        }
+    }
+    
+    // Add haptic feedback for mobile interactions (if supported)
+    function addHapticFeedback() {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+        }
+    }
+    
+    // Add haptic feedback to button clicks on mobile
+    const interactiveElements = [mobileMenuToggle, closeSidebar, infoButton, closeInfoPanel, ...mobileMenuItems];
+    interactiveElements.forEach(element => {
+        if (element) {
+            element.addEventListener('touchstart', function() {
+                if (window.innerWidth <= 768) {
+                    addHapticFeedback();
+                }
+            });
+        }
+    });
+
+    // ========================================
+    // CHAT FUNCTIONALITY
+    // ========================================
+    
+    // Elemen yang diperlukan
+    const endChatButton = document.getElementById('endChatButton');
+    const endChatButtonMobile = document.getElementById('endChatButtonMobile');
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    const cancelEndChatBtn = document.getElementById('cancelEndChat');
+    const confirmEndChatBtn = document.getElementById('confirmEndChat');
+    const messageInputContainer = document.getElementById('messageInputContainer');
+    const pesanStatus = document.getElementById('pesanStatus');
+    const pesanStatusMobile = document.getElementById('pesanStatusMobile');
+    const notificationToast = document.getElementById('notificationToast');
+    const notificationMessage = document.getElementById('notificationMessage');
+    const chatContainer = document.getElementById('chatContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    
+    // Tambahkan variabel untuk attachment
+    const attachmentButton = document.getElementById('attachmentButton');
+    const attachmentInput = document.getElementById('attachmentInput');
+    let isAttachmentMode = false;
+    
+    // Inisialisasi Toast
+    const toast = new bootstrap.Toast(notificationToast, {
+        delay: 3000
+    });
+    
+    // Status percakapan (aktif atau berakhir)
+    let isConversationEnded = {{ $pesan->status == 'Berakhir' ? 'true' : 'false' }};
+    
+    // Auto-scroll ke bawah chat container
+    if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Toggle attachment input
+    if (attachmentButton && attachmentInput) {
+        attachmentButton.addEventListener('click', function() {
+            isAttachmentMode = !isAttachmentMode;
+            
+            if (isAttachmentMode) {
+                attachmentInput.style.display = 'block';
+                attachmentInput.focus();
+                attachmentButton.innerHTML = '<i class="fas fa-times"></i>';
+                attachmentButton.title = 'Batalkan lampiran';
+            } else {
+                attachmentInput.style.display = 'none';
+                attachmentInput.value = '';
+                attachmentButton.innerHTML = '<i class="fas fa-paperclip"></i>';
+                attachmentButton.title = 'Lampirkan File';
+            }
+        });
+    }
+    
+    // Tampilkan modal konfirmasi
+    if (endChatButton) {
+        endChatButton.addEventListener('click', function() {
+            if (!isConversationEnded && {{ $pesan->nim_pengirim == Auth::user()->nim ? 'true' : 'false' }}) {
+                confirmModal.show();
+            }
+        });
+    }
+    
+    // Tampilkan modal konfirmasi (mobile version)
+    if (endChatButtonMobile) {
+        endChatButtonMobile.addEventListener('click', function() {
+            if (!isConversationEnded && {{ $pesan->nim_pengirim == Auth::user()->nim ? 'true' : 'false' }}) {
+                confirmModal.show();
+                closeMobileInfoPanel(); // Tutup info panel mobile saat modal muncul
+            }
+        });
+    }
+    
+    // Konfirmasi akhiri pesan
+    if (confirmEndChatBtn) {
+        confirmEndChatBtn.addEventListener('click', function() {
+            // Kirim request ke server untuk mengakhiri pesan
+            fetch('{{ route("mahasiswa.pesan.end", $pesan->id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mengakhiri percakapan
+                    isConversationEnded = true;
+                    
+                    // Sembunyikan modal
+                    confirmModal.hide();
+                    
+                    // Sembunyikan form input pesan
+                    if (messageInputContainer) {
+                        messageInputContainer.style.display = 'none';
+                    }
+                    
+                    // Ubah status pesan
+                    if (pesanStatus) {
+                        pesanStatus.textContent = 'Berakhir';
+                        pesanStatus.classList.remove('Umum');
+                    }
+                    
+                    // Ubah status pesan mobile juga
+                    if (pesanStatusMobile) {
+                        pesanStatusMobile.textContent = 'Berakhir';
+                        pesanStatusMobile.classList.remove('Umum');
+                    }
+                    
+                    // Nonaktifkan tombol akhiri pesan (desktop)
+                    if (endChatButton) {
+                        endChatButton.disabled = true;
+                        endChatButton.style.backgroundColor = '#6c757d';
+                        endChatButton.style.cursor = 'not-allowed';
+                        endChatButton.style.boxShadow = 'none';
+                        endChatButton.innerHTML = '<i class="fas fa-times-circle"></i> Pesan Diakhiri';
+                    }
+                    
+                    // Nonaktifkan tombol akhiri pesan (mobile)
+                    if (endChatButtonMobile) {
+                        endChatButtonMobile.disabled = true;
+                        endChatButtonMobile.style.backgroundColor = '#6c757d';
+                        endChatButtonMobile.style.cursor = 'not-allowed';
+                        endChatButtonMobile.style.boxShadow = 'none';
+                        endChatButtonMobile.innerHTML = '<i class="fas fa-times-circle"></i> Pesan Diakhiri';
+                    }
+                    
+                    // Tambahkan pesan sistem di chat container
+                    const systemMessage = document.createElement('div');
+                    systemMessage.className = 'system-message';
+                    systemMessage.innerHTML = '<span><i class="fas fa-info-circle"></i> Pesan telah diakhiri</span>';
+                    chatContainer.appendChild(systemMessage);
+                    
+                    // Scroll ke bawah untuk menampilkan pesan sistem
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    
+                    // Tampilkan notifikasi
+                    showNotification('Pesan berhasil diakhiri', 'success');
+                } else {
+                    // Tampilkan pesan error
+                    showNotification('Gagal mengakhiri pesan: ' + data.message, 'warning');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan saat mengakhiri pesan', 'warning');
+            });
+        });
+    }
+    
+    // Helper function untuk mendapatkan nama attachment
+    function getAttachmentName(url) {
+        if (url.includes('drive.google.com')) {
+            return 'Google Drive File';
+        }
+        
+        try {
+            const path = new URL(url).pathname;
+            const filename = path.split('/').pop();
+            return filename || 'Lampiran';
+        } catch (e) {
+            return 'Lampiran';
+        }
+    }
+    
+    // Menangani pengiriman pesan saat menekan Enter di input
+    if (messageInput && sendButton) {
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendButton.click();
+            }
+        });
+        
+        sendButton.addEventListener('click', function() {
             const message = messageInput.value.trim();
             const attachment = attachmentInput ? attachmentInput.value.trim() : '';
             
             console.log('Send button clicked. Message:', message);
             console.log('Attachment:', attachment);
             
-            // PERBAIKAN: Validasi - boleh kirim pesan saja, lampiran saja, atau keduanya
+            // Validasi - boleh kirim pesan saja, lampiran saja, atau keduanya
             if ((message || attachment) && !isConversationEnded) {
                 const requestData = {};
                 
@@ -1772,7 +2474,7 @@
                         const newMessage = document.createElement('div');
                         newMessage.className = 'chat-message message-reply';
                         
-                        // PERBAIKAN: Tampilkan pesan yang sesuai
+                        // Tampilkan pesan yang sesuai
                         const displayMessage = message || '';
                         
                         newMessage.innerHTML = `
@@ -1810,22 +2512,24 @@
                 showNotification('Mohon masukkan pesan atau lampiran', 'warning');
             }
         });
-       }
-       
-       // Fungsi untuk menampilkan notifikasi
-       function showNotification(message, type = 'success') {
-           notificationToast.classList.remove('bg-success', 'bg-warning', 'bg-danger');
-           notificationToast.classList.remove('text-white', 'text-dark');
-           
-           if (type === 'success') {
-               notificationToast.classList.add('bg-success', 'text-white');
-           } else if (type === 'warning') {
-               notificationToast.classList.add('bg-warning', 'text-dark');
-           }
-           
-           notificationMessage.textContent = message;
-           toast.show();
-       }
-   });
+    }
+    
+    // Fungsi untuk menampilkan notifikasi
+    function showNotification(message, type = 'success') {
+        notificationToast.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+        notificationToast.classList.remove('text-white', 'text-dark');
+        
+        if (type === 'success') {
+            notificationToast.classList.add('bg-success', 'text-white');
+        } else if (type === 'warning') {
+            notificationToast.classList.add('bg-warning', 'text-dark');
+        }
+        
+        notificationMessage.textContent = message;
+        toast.show();
+    }
+    
+    console.log('Mobile Isi Pesan Mahasiswa dengan Info Panel terpisah initialized successfully');
+});
 </script>
 @endpush

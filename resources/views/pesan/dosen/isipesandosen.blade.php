@@ -3,6 +3,9 @@
 @push('styles')
     <style>
         :root {
+            --bs-primary: #1a73e8;
+            --bs-danger: #FF5252;
+            --bs-success: #27AE60;
             --primary-color: #0070dc;
             --primary-gradient: linear-gradient(to right, #004AAD, #5DE0E6);
             --primary-hover: linear-gradient(to right, #003d91, #4bcad0);
@@ -15,6 +18,7 @@
             --gray-text: #6c757d;
             --border-radius: 10px;
             --shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            --gradient-primary: linear-gradient(to right, #004AAD, #5DE0E6);
         }
         
         body {
@@ -38,8 +42,199 @@
             margin: 0 auto;
             padding: 0 20px;
         }
+
+        /* ========================================
+           SIDEBAR STYLES - DESKTOP & MOBILE
+           ======================================== */
         
-        /* Left Panel Styling */
+        /* Desktop Sidebar */
+        .desktop-sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+            width: 100%;
+            position: sticky;
+            top: 20px;
+            display: block;
+        }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+        }
+
+        /* Mobile Info Panel Overlay */
+        .info-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .info-overlay.show {
+            opacity: 1;
+        }
+
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background: white;
+            z-index: 1050;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .mobile-sidebar.show {
+            left: 0;
+        }
+
+        /* Mobile Info Panel */
+        .mobile-info-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100%;
+            background: white;
+            z-index: 1050;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            box-shadow: -2px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .mobile-info-panel.show {
+            right: 0;
+        }
+
+        .mobile-sidebar-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Mobile Info Panel Header */
+        .mobile-info-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-sidebar-header h6,
+        .mobile-info-header h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .close-sidebar,
+        .close-info-panel {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+
+        .close-sidebar:hover,
+        .close-info-panel:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .close-sidebar:focus,
+        .close-info-panel:focus {
+            outline: none;
+        }
+
+        .sidebar-buttons {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sidebar-buttons .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        .sidebar-buttons .btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .sidebar-menu {
+            padding: 15px;
+        }
+        
+        .sidebar-menu .nav-link {
+            color: #546E7A;
+            border-radius: 0.5rem;
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu .nav-link.active {
+            background: #E3F2FD;
+            color: var(--bs-primary);
+        }
+        
+        .sidebar-menu .nav-link:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .komunikasi-submenu .nav-link.active {
+            background: #E3F2FD;
+            color: var(--bs-primary);
+        }
+
+        .komunikasi-submenu .nav-link:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .komunikasi-submenu {
+            margin-left: 15px;
+        }
+
+        .komunikasi-submenu .nav-link {
+            padding: 8px 15px;
+            font-size: 13px;
+        }
+        
+        /* Left Panel Styling (Desktop Sidebar Content) */
         .left-panel {
             background-color: white;
             border-radius: var(--border-radius);
@@ -73,6 +268,7 @@
             background: var(--primary-hover);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 85, 179, 0.3);
+            color: var(--light-text);
         }
         
         .back-button i {
@@ -86,6 +282,21 @@
             align-items: center;
             margin-bottom: 5px;
             position: relative;
+        }
+
+        .profile-section h5.info-title {
+            font-size: 16px;
+            margin-bottom: 5px;
+            line-height: 1.3;
+            word-break: break-word;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .profile-section p.text-muted {
+            font-size: 12px;
+            line-height: 1.3;
+            text-align: center;
         }
         
         .profile-image {
@@ -115,7 +326,7 @@
         }
         
         .info-title {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--dark-text);
             margin-bottom: 8px;
             margin-top: 0;
@@ -134,8 +345,8 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             border: 1px solid #eaedf1;
             table-layout: fixed !important;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 12px;
+            margin-bottom: 15px;
         }
         
         .info-table tr {
@@ -147,7 +358,7 @@
         }
         
         .info-table td {
-            padding: 14px 15px;
+            padding: 12px 15px;
             vertical-align: middle;
             white-space: normal;
             word-break: break-word;
@@ -179,15 +390,15 @@
         
         .badge-priority {
             display: inline-block;
-            padding: 5px 10px;
-            font-size: 12px;
+            padding: 4px 8px;
+            font-size: 11px;
             font-weight: bold;
             color: white;
             background-color: var(--danger-color);
             border-radius: 20px;
         }
         
-        .badge-priority.Umum {
+        .badge-priority.Umum, .badge-priority.bg-success {
             background-color: var(--success-color);
         }
 
@@ -206,7 +417,7 @@
             transition: all 0.3s ease;
             width: 100%;
             font-size: 14px;
-            margin-top: 15px;
+            margin-top: 10px;
         }
         
         .end-chat-button:hover {
@@ -262,6 +473,35 @@
             border-radius: 50%;
             display: inline-block;
             margin-right: 8px;
+            position: relative;
+        }
+
+        .message-header h4 .status-dot:before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(39, 174, 96, 0.4);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.7;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
         }
         
         .action-buttons {
@@ -290,6 +530,27 @@
         }
         
         .action-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Info button untuk mobile */
+        .info-button {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .info-button:hover {
             background: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
         }
@@ -719,9 +980,43 @@
             display: none !important;
         }
 
-        /* ===============================
-           MOBILE RESPONSIVE STYLES
-           =============================== */
+        /* ========================================
+           RESPONSIVE STYLES
+           ======================================== */
+
+        /* Hide desktop sidebar on mobile, show mobile sidebar */
+        @media (max-width: 991.98px) {
+            .desktop-sidebar {
+                display: none;
+            }
+            
+            .sidebar-overlay,
+            .info-overlay {
+                display: block;
+            }
+            
+            .info-button {
+                display: flex;
+            }
+        }
+
+        /* Show desktop sidebar on larger screens, hide mobile elements */
+        @media (min-width: 992px) {
+            .mobile-sidebar,
+            .mobile-info-panel,
+            .sidebar-overlay,
+            .info-overlay {
+                display: none !important;
+            }
+            
+            .desktop-sidebar {
+                display: block;
+            }
+            
+            .info-button {
+                display: none !important;
+            }
+        }
 
         /* Tablet Portrait (768px and down) */
         @media (max-width: 768px) {
@@ -744,26 +1039,47 @@
             /* Profile Image Smaller */
             .profile-image,
             .profile-image-placeholder {
-                width: 100px;
-                height: 100px;
-                font-size: 40px;
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
                 margin-bottom: 8px;
             }
             
             /* Profile Text Smaller */
+            .profile-section h5.info-title {
+                font-size: 14px;
+                margin-bottom: 3px;
+            }
+            
+            .profile-section p.text-muted {
+                font-size: 11px;
+            }
+            
+            /* Info Title */
             .info-title {
-                font-size: 16px;
+                font-size: 14px;
                 margin-bottom: 6px;
             }
             
-            /* Info Table Mobile - MINIMAL CHANGES */
+            /* Info Table Mobile */
             .info-table {
-                font-size: 13px;
-                margin-bottom: 15px;
+                font-size: 11px;
+                margin-bottom: 12px;
             }
             
             .info-table td {
-                padding: 12px 15px;
+                padding: 8px 12px;
+            }
+            
+            .info-table td:first-child {
+                width: 35% !important;
+                font-size: 10px;
+            }
+            
+            .info-table td:last-child {
+                width: 65% !important;
+                font-size: 10px;
+                padding-right: 12px;
             }
             
             /* Smaller buttons */
@@ -885,9 +1201,9 @@
             /* Even smaller profile image */
             .profile-image,
             .profile-image-placeholder {
-                width: 80px;
-                height: 80px;
-                font-size: 32px;
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
             }
             
             /* Compact left panel */
@@ -895,17 +1211,35 @@
                 padding: 15px;
             }
             
-            .info-title {
-                font-size: 15px;
+            .profile-section h5.info-title {
+                font-size: 13px;
             }
             
-            /* More compact info table - MINIMAL CHANGES */
+            .profile-section p.text-muted {
+                font-size: 10px;
+            }
+            
+            .info-title {
+                font-size: 13px;
+            }
+            
+            /* More compact info table */
             .info-table {
-                font-size: 12px;
+                font-size: 10px;
             }
             
             .info-table td {
-                padding: 10px 12px;
+                padding: 6px 10px;
+            }
+            
+            .info-table td:first-child {
+                width: 38% !important;
+                font-size: 9px;
+            }
+            
+            .info-table td:last-child {
+                width: 62% !important;
+                font-size: 9px;
             }
             
             /* Header adjustments */
@@ -1006,27 +1340,46 @@
             /* Ultra compact profile */
             .profile-image,
             .profile-image-placeholder {
-                width: 70px;
-                height: 70px;
-                font-size: 28px;
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
             }
             
             .left-panel {
                 padding: 12px;
             }
             
-            .info-title {
-                font-size: 14px;
+            .profile-section h5.info-title {
+                font-size: 12px;
                 line-height: 1.2;
             }
             
-            /* Ultra compact table - MINIMAL CHANGES */
+            .profile-section p.text-muted {
+                font-size: 9px;
+            }
+            
+            .info-title {
+                font-size: 12px;
+                line-height: 1.2;
+            }
+            
+            /* Ultra compact table */
             .info-table {
-                font-size: 11px;
+                font-size: 9px;
             }
             
             .info-table td {
-                padding: 8px 10px;
+                padding: 4px 8px;
+            }
+            
+            .info-table td:first-child {
+                width: 40% !important;
+                font-size: 8px;
+            }
+            
+            .info-table td:last-child {
+                width: 60% !important;
+                font-size: 8px;
             }
             
             /* Ultra compact header */
@@ -1115,24 +1468,33 @@
             
             .profile-image,
             .profile-image-placeholder {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
                 margin-bottom: 5px;
             }
             
+            .profile-section h5.info-title {
+                font-size: 11px;
+                margin-bottom: 2px;
+            }
+            
+            .profile-section p.text-muted {
+                font-size: 8px;
+            }
+            
             .info-title {
-                font-size: 13px;
+                font-size: 11px;
                 margin-bottom: 4px;
             }
             
             .info-table {
-                font-size: 10px;
+                font-size: 8px;
                 margin-bottom: 8px;
             }
             
             .info-table td {
-                padding: 6px 8px;
+                padding: 3px 6px;
             }
             
             .chat-container {
@@ -1209,24 +1571,216 @@
             }
         }
         
-                    /* Handle very long text in message bubbles */
+        /* Handle very long text in message bubbles */
         @media (max-width: 576px) {
             .message-bubble p {
                 word-break: break-word;
                 overflow-wrap: break-word;
                 hyphens: auto;
             }
+            
+            .info-table td:last-child {
+                word-break: break-all;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .sidebar-overlay,
+            .info-overlay {
+                background-color: rgba(0, 0, 0, 0.7);
+            }
         }
     </style>
 @endpush
 
 @section('content')
+<!-- Mobile Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Mobile Info Panel Overlay -->
+<div class="info-overlay" id="infoOverlay"></div>
+
+<!-- Mobile Sidebar -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="mobile-sidebar-header">
+        <h6>Menu Navigasi</h6>
+        <button class="close-sidebar" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="sidebar-buttons">
+        <a href="{{ route('dosen.pesan.create') }}" class="btn" style="background: var(--gradient-primary); color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+            <i class="fas fa-plus me-2"></i> Pesan Baru
+        </a>
+    </div>
+    <div class="sidebar-menu">
+        <div class="nav flex-column">
+            <a href="{{ route('dosen.dashboard.pesan') }}" class="nav-link">
+                <i class="fas fa-home me-2"></i>Daftar Pesan
+            </a>
+            <a href="#" class="nav-link menu-item" id="mobileGrupDropdownToggle">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-users me-2"></i>Daftar Grup</span>
+                    <i class="fas fa-chevron-down" id="mobileGrupDropdownIcon"></i>
+                </div>
+            </a>
+            <div class="collapse komunikasi-submenu" id="mobileKomunikasiSubmenu">
+                @php
+                    $userGrups = Auth::user()->grups ?? collect();
+                @endphp
+                
+                @if($userGrups && $userGrups->count() > 0)
+                    @foreach($userGrups as $grupItem)
+                    <a href="{{ route('dosen.grup.show', $grupItem->id) }}" class="nav-link menu-item d-flex justify-content-between align-items-center">
+                        {{ $grupItem->nama_grup }}
+                        @if($unreadCount = $grupItem->unreadMessages ?? 0)
+                        <span class="badge bg-danger rounded-pill">{{ $unreadCount }}</span>
+                        @endif
+                    </a>
+                    @endforeach
+                @else
+                    <div class="nav-link menu-item text-muted">
+                        <small>Belum ada grup</small>
+                    </div>
+                @endif
+            </div>
+            <a href="{{ route('dosen.pesan.history') }}" class="nav-link menu-item">
+                <i class="fas fa-history me-2"></i>Riwayat Pesan
+            </a>
+            <a href="{{ url('/faqdosen') }}" class="nav-link menu-item">
+                <i class="fas fa-thumbtack me-2"></i>Pesan Tersematkan
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Info Panel -->
+<div class="mobile-info-panel" id="mobileInfoPanel">
+    <div class="mobile-info-header">
+        <h6>Informasi</h6>
+        <button class="close-info-panel" id="closeInfoPanel">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <!-- Mobile: Informasi Pengirim -->
+    <div style="padding: 15px; border-bottom: 1px solid #eee;">
+        <div class="profile-section" style="margin-bottom: 15px;">
+            @if($pesan->nip_pengirim == Auth::user()->nip)
+                <!-- Jika dosen adalah pengirim, tampilkan informasi mahasiswa penerima -->
+                @php
+                    $profilePhoto = $pesan->mahasiswaPenerima && $pesan->mahasiswaPenerima->profile_photo 
+                        ? asset('storage/profile_photos/'.$pesan->mahasiswaPenerima->profile_photo) 
+                        : null;
+                @endphp
+                @if($profilePhoto)
+                    <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image" style="width: 60px; height: 60px; font-size: 24px;">
+                @else
+                    <div class="profile-image-placeholder" style="width: 60px; height: 60px; font-size: 24px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                @endif
+                <h5 class="info-title" style="font-size: 12px; margin-bottom: 3px;">{{ $pesan->mahasiswaPenerima ? $pesan->mahasiswaPenerima->nama : 'Mahasiswa' }}</h5>
+                <p class="text-muted mb-0 text-center" style="font-size: 10px;">
+                    Mahasiswa (Penerima)
+                </p>
+            @else
+                <!-- Jika mahasiswa adalah pengirim, tampilkan informasi mahasiswa pengirim -->
+                @php
+                    $profilePhoto = $pesan->mahasiswaPengirim && $pesan->mahasiswaPengirim->profile_photo 
+                        ? asset('storage/profile_photos/'.$pesan->mahasiswaPengirim->profile_photo) 
+                        : null;
+                @endphp
+                @if($profilePhoto)
+                    <img src="{{ $profilePhoto }}" alt="Foto Profil" class="profile-image" style="width: 60px; height: 60px; font-size: 24px;">
+                @else
+                    <div class="profile-image-placeholder" style="width: 60px; height: 60px; font-size: 24px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                @endif
+                <h5 class="info-title" style="font-size: 12px; margin-bottom: 3px;">{{ $pesan->mahasiswaPengirim ? $pesan->mahasiswaPengirim->nama : 'Mahasiswa' }}</h5>
+                <p class="text-muted mb-0 text-center" style="font-size: 10px;">
+                    Mahasiswa (Pengirim)
+                </p>
+            @endif
+        </div>
+        
+        <!-- Mobile: Tabel Informasi -->
+        <div class="info-title" style="font-size: 12px; margin-bottom: 8px; text-align: center;">Informasi Pesan</div>
+        <table class="info-table" style="font-size: 9px; margin-bottom: 10px;">
+            <tr>
+                <td style="padding: 4px 8px; font-size: 8px;">Subjek</td>
+                <td style="padding: 4px 8px; font-size: 8px;">{{ $pesan->subjek }}</td>
+            </tr>
+            
+            @if($pesan->nip_pengirim == Auth::user()->nip)
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">Dikirim ke</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">
+                        {{ $pesan->mahasiswaPenerima ? $pesan->mahasiswaPenerima->nama : 'Mahasiswa' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">NIM</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">{{ $pesan->nim_penerima }}</td>
+                </tr>
+            @else
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">Pengirim</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">
+                        {{ $pesan->mahasiswaPengirim ? $pesan->mahasiswaPengirim->nama : 'Mahasiswa' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 8px; font-size: 8px;">NIM</td>
+                    <td style="padding: 4px 8px; font-size: 8px;">{{ $pesan->nim_pengirim }}</td>
+                </tr>
+            @endif
+            
+            <tr>
+                <td style="padding: 4px 8px; font-size: 8px;">Prioritas</td>
+                <td style="padding: 4px 8px; font-size: 8px;">
+                    <span class="badge-priority {{ $pesan->prioritas == 'Umum' ? 'Umum' : '' }}" style="font-size: 8px; padding: 2px 5px;">
+                        {{ $pesan->prioritas }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 8px; font-size: 8px;">Status</td>
+                <td style="padding: 4px 8px; font-size: 8px;">
+                    <span id="pesanStatusMobile" 
+                        class="badge-priority {{ $pesan->status == 'Aktif' ? 'Umum' : '' }}" style="font-size: 8px; padding: 2px 5px;">
+                        {{ $pesan->status }}
+                    </span>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Mobile: Tombol Akhiri Pesan -->
+        @if($pesan->status == 'Aktif')
+            @if($pesan->nip_pengirim == Auth::user()->nip)
+                <button id="endChatButtonMobile" class="end-chat-button" style="padding: 8px 12px; font-size: 11px; margin-top: 8px;">
+                    <i class="fas fa-times-circle"></i> Akhiri Pesan
+                </button>
+            @endif
+        @else
+            <button class="end-chat-button" disabled style="background: #6c757d; cursor: not-allowed; padding: 8px 12px; font-size: 11px; margin-top: 8px;">
+                <i class="fas fa-times-circle"></i> Pesan Diakhiri
+            </button>
+        @endif
+    </div>
+</div>
+
 <div class="main-content">
     <div class="custom-container">
         <div class="row">
             <div class="col-md-4 col-lg-3">
-                <!-- Panel Kiri -->
-                <div class="left-panel">
+                <!-- Desktop Sidebar -->
+                <div class="desktop-sidebar">
                     <!-- Tombol Kembali -->
                     <a href="{{ route('dosen.dashboard.pesan') }}" class="back-button">
                         <i class="fas fa-arrow-left"></i> Kembali
@@ -1248,6 +1802,8 @@
                                     <i class="fas fa-user"></i>
                                 </div>
                             @endif
+                            <h5 class="info-title">{{ $pesan->mahasiswaPenerima ? $pesan->mahasiswaPenerima->nama : 'Mahasiswa' }}</h5>
+                            <p class="text-muted mb-0 text-center">Mahasiswa (Penerima)</p>
                         @else
                             <!-- Menampilkan foto mahasiswa pengirim -->
                             @php
@@ -1262,11 +1818,13 @@
                                     <i class="fas fa-user"></i>
                                 </div>
                             @endif
+                            <h5 class="info-title">{{ $pesan->mahasiswaPengirim ? $pesan->mahasiswaPengirim->nama : 'Mahasiswa' }}</h5>
+                            <p class="text-muted mb-0 text-center">Mahasiswa (Pengirim)</p>
                         @endif
                     </div>
                     
                    <!-- Bagian Informasi Pesan -->
-                    <div class="info-title">Informasi Pesan</div>
+                    <div class="info-title mt-4">Informasi Pesan</div>
                     <table class="info-table">
                         <tr>
                             <td>Subjek</td>
@@ -1346,6 +1904,10 @@
                             <i class="fas fa-check"></i> Simpan
                         </button>
                         
+                        <!-- Info button untuk mobile -->
+                        <button class="info-button" id="infoButton" title="Informasi">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
                     </div>
                 </div>
                 
@@ -1694,6 +2256,256 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // ========================================
+    // MOBILE SIDEBAR FUNCTIONALITY
+    // ========================================
+    
+    // Mobile sidebar functionality
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const closeSidebar = document.getElementById('closeSidebar');
+    
+    // Mobile info panel functionality
+    const infoButton = document.getElementById('infoButton');
+    const mobileInfoPanel = document.getElementById('mobileInfoPanel');
+    const infoOverlay = document.getElementById('infoOverlay');
+    const closeInfoPanel = document.getElementById('closeInfoPanel');
+    
+    // Fungsi untuk membuka mobile sidebar
+    function openMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.add('show');
+            sidebarOverlay.style.display = 'block';
+            setTimeout(() => {
+                sidebarOverlay.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+    }
+    
+    // Fungsi untuk menutup mobile sidebar
+    function closeMobileSidebar() {
+        if (mobileSidebar && sidebarOverlay) {
+            mobileSidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            setTimeout(() => {
+                sidebarOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    }
+    
+    // Fungsi untuk membuka mobile info panel
+    function openMobileInfoPanel() {
+        if (mobileInfoPanel && infoOverlay) {
+            mobileInfoPanel.classList.add('show');
+            infoOverlay.style.display = 'block';
+            setTimeout(() => {
+                infoOverlay.classList.add('show');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    // Fungsi untuk menutup mobile info panel
+    function closeMobileInfoPanel() {
+        if (mobileInfoPanel && infoOverlay) {
+            mobileInfoPanel.classList.remove('show');
+            infoOverlay.classList.remove('show');
+            setTimeout(() => {
+                infoOverlay.style.display = 'none';
+            }, 300);
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Event listener untuk mobile menu toggle
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileSidebar();
+        });
+    }
+    
+    // Event listener untuk info button
+    if (infoButton) {
+        infoButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileInfoPanel();
+        });
+    }
+    
+    // Event listener untuk menutup sidebar
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    // Event listener untuk menutup info panel
+    if (closeInfoPanel) {
+        closeInfoPanel.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileInfoPanel();
+        });
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileSidebar();
+        });
+    }
+    
+    if (infoOverlay) {
+        infoOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileInfoPanel();
+        });
+    }
+    
+    // Close sidebar when clicking on a menu item (mobile)
+    const mobileMenuItems = document.querySelectorAll('#mobileSidebar .nav-link[href]');
+    mobileMenuItems.forEach(item => {
+        if (!item.id.includes('Dropdown') && item.getAttribute('href') !== '#') {
+            item.addEventListener('click', function() {
+                setTimeout(closeMobileSidebar, 100);
+            });
+        }
+    });
+    
+    // Mobile dropdown functionality
+    const mobileGrupDropdownToggle = document.getElementById('mobileGrupDropdownToggle');
+    const mobileKomunikasiSubmenu = document.getElementById('mobileKomunikasiSubmenu');
+    const mobileGrupDropdownIcon = document.getElementById('mobileGrupDropdownIcon');
+    
+    if (mobileGrupDropdownToggle) {
+        mobileGrupDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isCollapsed = !mobileKomunikasiSubmenu.classList.contains('show');
+            
+            if (isCollapsed) {
+                mobileKomunikasiSubmenu.classList.add('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-down');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-up');
+            } else {
+                mobileKomunikasiSubmenu.classList.remove('show');
+                mobileGrupDropdownIcon.classList.remove('fa-chevron-up');
+                mobileGrupDropdownIcon.classList.add('fa-chevron-down');
+            }
+        });
+        
+        mobileGrupDropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Enhanced keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            // Close mobile sidebar if open
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+            // Close mobile info panel if open
+            if (mobileInfoPanel && mobileInfoPanel.classList.contains('show')) {
+                closeMobileInfoPanel();
+            }
+        }
+    });
+    
+    // Handle window resize to close mobile panels on desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991) {
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+            if (mobileInfoPanel && mobileInfoPanel.classList.contains('show')) {
+                closeMobileInfoPanel();
+            }
+        }
+    });
+    
+    // Swipe gesture for mobile sidebar and info panel
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+    });
+    
+    function handleSwipeGesture() {
+        const swipeThreshold = 100;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        // Swipe right to open sidebar (only if not already open)
+        if (swipeDistance > swipeThreshold && touchStartX < 50 && mobileSidebar && !mobileSidebar.classList.contains('show')) {
+            if (window.innerWidth <= 768) {
+                if (mobileMenuToggle) {
+                    mobileMenuToggle.click();
+                }
+            }
+        }
+        
+        // Swipe left to close sidebar or info panel
+        if (swipeDistance < -swipeThreshold) {
+            if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            }
+            if (mobileInfoPanel && mobileInfoPanel.classList.contains('show')) {
+                closeMobileInfoPanel();
+            }
+        }
+        
+        // Swipe left to open info panel (from right edge)
+        if (swipeDistance < -swipeThreshold && touchStartX > window.innerWidth - 50 && mobileInfoPanel && !mobileInfoPanel.classList.contains('show')) {
+            if (window.innerWidth <= 768) {
+                openMobileInfoPanel();
+            }
+        }
+    }
+    
+    // Add haptic feedback for mobile interactions (if supported)
+    function addHapticFeedback() {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+        }
+    }
+    
+    // Add haptic feedback to button clicks on mobile
+    const interactiveElements = [mobileMenuToggle, closeSidebar, infoButton, closeInfoPanel, ...mobileMenuItems];
+    interactiveElements.forEach(element => {
+        if (element) {
+            element.addEventListener('touchstart', function() {
+                if (window.innerWidth <= 768) {
+                    addHapticFeedback();
+                }
+            });
+        }
+    });
+
+    
+    // ========================================
+    // CHAT FUNCTIONALITY (EXISTING)
+    // ========================================
+    
     // Elemen yang diperlukan
     const bookmarkButton = document.querySelector('#bookmarkButton');
     const simpanButton = document.querySelector('#simpanButton');
@@ -1705,11 +2517,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageInput = document.querySelector('.message-input');
     const sendButton = document.querySelector('.send-button');
     const endChatButton = document.getElementById('endChatButton');
+    const endChatButtonMobile = document.getElementById('endChatButtonMobile');
     const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     const cancelEndChatBtn = document.getElementById('cancelEndChat');
     const confirmEndChatBtn = document.getElementById('confirmEndChat');
     const messageInputContainer = document.getElementById('messageInputContainer');
     const pesanStatus = document.getElementById('pesanStatus');
+    const pesanStatusMobile = document.getElementById('pesanStatusMobile');
     const notificationToast = document.getElementById('notificationToast');
     const notificationMessage = document.getElementById('notificationMessage');
     
@@ -2268,11 +3082,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Tampilkan modal konfirmasi untuk akhiri pesan
+    // Tampilkan modal konfirmasi untuk akhiri pesan (desktop)
     if (endChatButton) {
         endChatButton.addEventListener('click', function() {
             if (!isConversationEnded && {{ $pesan->nip_pengirim == Auth::user()->nip ? 'true' : 'false' }}) {
                 confirmModal.show();
+            }
+        });
+    }
+    
+    // Tampilkan modal konfirmasi untuk akhiri pesan (mobile)
+    if (endChatButtonMobile) {
+        endChatButtonMobile.addEventListener('click', function() {
+            if (!isConversationEnded && {{ $pesan->nip_pengirim == Auth::user()->nip ? 'true' : 'false' }}) {
+                confirmModal.show();
+                closeMobileInfoPanel(); // Tutup info panel mobile saat modal muncul
             }
         });
     }
@@ -2297,16 +3121,32 @@ document.addEventListener('DOMContentLoaded', function() {
                         messageInputContainer.style.display = 'none';
                     }
                     
+                    // Update status untuk desktop
                     if (pesanStatus) {
                         pesanStatus.textContent = 'Berakhir';
                         pesanStatus.classList.remove('Umum');
                     }
                     
+                    // Update status untuk mobile
+                    if (pesanStatusMobile) {
+                        pesanStatusMobile.textContent = 'Berakhir';
+                        pesanStatusMobile.classList.remove('Umum');
+                    }
+                    
+                    // Disable tombol desktop
                     if (endChatButton) {
                         endChatButton.disabled = true;
                         endChatButton.style.backgroundColor = '#6c757d';
                         endChatButton.style.cursor = 'not-allowed';
                         endChatButton.style.boxShadow = 'none';
+                    }
+                    
+                    // Disable tombol mobile
+                    if (endChatButtonMobile) {
+                        endChatButtonMobile.disabled = true;
+                        endChatButtonMobile.style.backgroundColor = '#6c757d';
+                        endChatButtonMobile.style.cursor = 'not-allowed';
+                        endChatButtonMobile.style.boxShadow = 'none';
                     }
                     
                     if (chatContainer) {
@@ -2623,7 +3463,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Log untuk debugging
-    console.log('Enhanced isipesandosen JavaScript initialized successfully');
+    console.log('Enhanced dosen isi pesan dengan mobile sidebar dan info panel initialized successfully');
     console.log('Available pinned messages on load:', document.querySelectorAll('.chat-message.pinned').length);
     console.log('Available unpinned messages on load:', document.querySelectorAll('.chat-message:not(.pinned)').length);
     
