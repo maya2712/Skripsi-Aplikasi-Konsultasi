@@ -2443,73 +2443,67 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function untuk update tampilan selected members
     function updateSelectedMembers() {
-        // Update counter
-        selectedCount.textContent = selectedMembers.size;
-        submitCount.textContent = selectedMembers.size;
+    selectedCount.textContent = selectedMembers.size;
+    submitCount.textContent = selectedMembers.size;
+    btnTambahAnggota.disabled = selectedMembers.size === 0;
+    
+    if (selectedMembers.size === 0) {
+        noSelectedMessage.style.display = 'block';
+        // Hapus semua hidden input
+        tambahAnggotaForm.querySelectorAll('input[name="new_members[]"]').forEach(input => input.remove());
+    } else {
+        noSelectedMessage.style.display = 'none';
         
-        // Enable/disable submit button
-        btnTambahAnggota.disabled = selectedMembers.size === 0;
+        // Hapus item lama
+        selectedMembersList.querySelectorAll('.selected-member-item').forEach(item => item.remove());
+        // Hapus hidden input lama
+        tambahAnggotaForm.querySelectorAll('input[name="new_members[]"]').forEach(input => input.remove());
         
-        if (selectedMembers.size === 0) {
-            noSelectedMessage.style.display = 'block';
-            // Clear hidden inputs
-            selectedMembersList.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
-        } else {
-            noSelectedMessage.style.display = 'none';
-            
-            // Clear existing items (except no selected message)
-            selectedMembersList.querySelectorAll('.selected-member-item').forEach(item => item.remove());
-            selectedMembersList.querySelectorAll('input[type="hidden"]').forEach(input => input.remove());
-            
-            // Add selected members
-            selectedMembers.forEach(nim => {
-                const mahasiswa = allMahasiswaData.find(m => m.nim === nim);
-                if (mahasiswa) {
-                    // Create member item
-                    const memberItem = document.createElement('div');
-                    memberItem.className = 'selected-member-item';
-                    memberItem.innerHTML = `
-                        <div class="student-info">
-                            <div class="student-avatar">
-                                ${mahasiswa.nama.charAt(0).toUpperCase()}
-                            </div>
-                            <div class="student-details">
-                                <h6>${mahasiswa.nama}</h6>
-                                <small>${mahasiswa.nim}</small>
-                            </div>
+        // Tambah item baru
+        selectedMembers.forEach(nim => {
+            const mahasiswa = allMahasiswaData.find(m => m.nim === nim);
+            if (mahasiswa) {
+                // Buat tampilan anggota
+                const memberItem = document.createElement('div');
+                memberItem.className = 'selected-member-item';
+                memberItem.innerHTML = `
+                    <div class="student-info">
+                        <div class="student-avatar">${mahasiswa.nama.charAt(0).toUpperCase()}</div>
+                        <div class="student-details">
+                            <h6>${mahasiswa.nama}</h6>
+                            <small>${mahasiswa.nim}</small>
                         </div>
-                        <button type="button" class="remove-btn" data-nim="${nim}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-                    
-                    // Create hidden input for form submission
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'new_members[]';
-                    hiddenInput.value = nim;
-                    
-                    selectedMembersList.appendChild(memberItem);
-                    selectedMembersList.appendChild(hiddenInput);
+                    </div>
+                    <button type="button" class="remove-btn" data-nim="${nim}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                selectedMembersList.appendChild(memberItem);
+                
+                // PENTING: Buat hidden input dan masukkan ke FORM
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'new_members[]';
+                hiddenInput.value = nim;
+                tambahAnggotaForm.appendChild(hiddenInput);
+            }
+        });
+        
+        // Event untuk tombol hapus
+        selectedMembersList.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nim = this.getAttribute('data-nim');
+                selectedMembers.delete(nim);
+                updateSelectedMembers();
+                
+                const currentSearchTerm = searchInput.value.trim();
+                if (currentSearchTerm.length >= 3) {
+                    showSearchResults(currentSearchTerm);
                 }
             });
-            
-            // Add event listeners to remove buttons
-            selectedMembersList.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const nim = this.getAttribute('data-nim');
-                    selectedMembers.delete(nim);
-                    updateSelectedMembers();
-                    
-                    // Refresh search results if there's an active search
-                    const currentSearchTerm = searchInput.value.trim();
-                    if (currentSearchTerm.length >= 3) {
-                        showSearchResults(currentSearchTerm);
-                    }
-                });
-            });
-        }
+        });
     }
+}
     
     // Function untuk menampilkan hasil pencarian
     function showSearchResults(searchTerm) {
@@ -2807,31 +2801,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handler untuk tambah anggota dengan loading
     if (tambahAnggotaForm) {
-        tambahAnggotaForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Cek apakah ada anggota yang dipilih
-            if (selectedMembers.size === 0) {
-                showNotification('Pilih minimal satu mahasiswa untuk ditambahkan ke grup', 'warning');
-                return;
-            }
-            
-            // Disable tombol untuk mencegah double submit
-            btnTambahAnggota.disabled = true;
-            btnTambahAnggota.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menambahkan...';
-            
-            // Tutup modal tambah anggota
-            tambahAnggotaModal.hide();
-            
-            // Tampilkan loading modal
-            loadingText.textContent = 'Menambahkan anggota...';
-            loadingModal.show();
-            
-            // Submit form setelah delay untuk efek loading
-            setTimeout(() => {
-                this.submit();
-            }, 1500);
-        });
+      tambahAnggotaForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // DEBUG - Cek data
+        console.log('Selected members:', Array.from(selectedMembers));
+        
+        const hiddenInputs = document.querySelectorAll('input[name="new_members[]"]');
+        console.log('Hidden inputs found:', hiddenInputs.length);
+        
+        if (selectedMembers.size === 0) {
+            showNotification('Pilih minimal satu mahasiswa untuk ditambahkan ke grup', 'warning');
+            return;
+        }
+        
+        if (hiddenInputs.length === 0) {
+            console.error('ERROR: Tidak ada hidden input ditemukan!');
+            alert('Error: Data anggota tidak valid. Coba pilih anggota lagi.');
+            return;
+        }
+        
+        // Submit form
+        this.submit();
+    });
     }
     
     // ============= MODAL ENHANCEMENTS =============

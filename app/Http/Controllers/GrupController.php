@@ -9,6 +9,7 @@ use App\Models\GrupPesanRead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GrupController extends Controller
 {
@@ -150,6 +151,14 @@ class GrupController extends Controller
     // Tambah anggota grup
     public function addMember(Request $request, $id)
     {
+         // TAMBAHKAN INI DI AWAL
+    Log::info('=== DEBUG TAMBAH ANGGOTA ===', [
+        'grup_id' => $id,
+        'data_yang_diterima' => $request->all(),
+        'new_members' => $request->input('new_members', []),
+        'user_yang_login' => Auth::user()->nip
+    ]);
+        
         $request->validate([
             'new_members' => 'required|array',
             'new_members.*' => 'exists:mahasiswas,nim'
