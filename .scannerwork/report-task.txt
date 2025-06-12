@@ -1,0 +1,6 @@
+projectKey=desi
+serverUrl=http://localhost:9000
+serverVersion=25.6.0.109173
+dashboardUrl=http://localhost:9000/dashboard?id=desi
+ceTaskId=73e98449-65fc-4ae7-a55d-402532d3ac8d
+ceTaskUrl=http://localhost:9000/api/ce/task?id=73e98449-65fc-4ae7-a55d-402532d3ac8d

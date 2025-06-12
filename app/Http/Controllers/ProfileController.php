@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -82,21 +83,29 @@ class ProfileController extends Controller
             }
         }
         
-        // Cek dan siapkan URL foto profil
+        // Cek dan siapkan URL foto profil atau SVG default
         $profilePhotoUrl = null;
+        $hasCustomPhoto = false;
+        
         if ($user && !empty($user->profile_photo)) {
-            $profilePhotoUrl = asset('storage/profile_photos/' . $user->profile_photo);
+            // Cek apakah file foto benar-benar ada
+            if (Storage::disk('public')->exists('profile_photos/' . $user->profile_photo)) {
+                $profilePhotoUrl = asset('storage/profile_photos/' . $user->profile_photo);
+                $hasCustomPhoto = true;
+            }
         }
+        
+        // Jika tidak ada foto custom, akan menggunakan SVG default di view
         
         // Log untuk debugging
         Log::info('Profil diakses oleh ' . $guard . ': ' . $user->email);
         
         // Return view dengan data yang dibutuhkan
-        return view('components.profil', compact('guard', 'user', 'prodiMap', 'konsentrasiMap', 'profilePhotoUrl'));
+        return view('components.profil', compact('guard', 'user', 'prodiMap', 'konsentrasiMap', 'profilePhotoUrl', 'hasCustomPhoto'));
     }
 
     /**
-     * Upload foto profil
+     * Upload foto profil dengan penyimpanan ke database
      */
     public function uploadPhoto(Request $request)
     {
@@ -130,26 +139,120 @@ class ProfileController extends Controller
 
         try {
             // Hapus foto lama jika ada
-            if ($user->profile_photo && file_exists(public_path('storage/profile_photos/' . $user->profile_photo))) {
-                @unlink(public_path('storage/profile_photos/' . $user->profile_photo));
+            if ($user->profile_photo && Storage::disk('public')->exists('profile_photos/' . $user->profile_photo)) {
+                Storage::disk('public')->delete('profile_photos/' . $user->profile_photo);
+                Log::info('Foto lama dihapus: ' . $user->profile_photo);
             }
 
-            // Simpan file baru
+            // Generate nama file unik
             $fileName = $guard . '_' . $id_value . '_' . time() . '.' . $request->photo->extension();
-            $request->photo->move(public_path('storage/profile_photos'), $fileName);
+            
+            // Simpan file ke storage/app/public/profile_photos
+            $path = $request->photo->storeAs('profile_photos', $fileName, 'public');
+            
+            if (!$path) {
+                throw new \Exception('Gagal menyimpan file ke storage');
+            }
 
-            // Update database
+            // Update database dengan nama file
             $modelClass = $model;
-            $modelClass::where($id_field, $id_value)->update(['profile_photo' => $fileName]);
+            $updated = $modelClass::where($id_field, $id_value)->update([
+                'profile_photo' => $fileName,
+                'updated_at' => now()
+            ]);
+
+            if (!$updated) {
+                // Jika gagal update database, hapus file yang sudah diupload
+                Storage::disk('public')->delete('profile_photos/' . $fileName);
+                throw new \Exception('Gagal menyimpan data ke database');
+            }
+
+            Log::info('Foto profil berhasil diupload dan disimpan ke database', [
+                'user_type' => $guard,
+                'user_id' => $id_value,
+                'filename' => $fileName,
+                'file_path' => $path
+            ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Foto profil berhasil diupload',
-                'photo_url' => asset('storage/profile_photos/' . $fileName)
+                'message' => 'Foto profil berhasil diupload dan disimpan',
+                'photo_url' => asset('storage/profile_photos/' . $fileName),
+                'filename' => $fileName
             ]);
-       } catch (\Exception $e) {
-            Log::error('Error uploading profile photo: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal mengupload foto: ' . $e->getMessage()], 500);
+
+        } catch (\Exception $e) {
+            Log::error('Error uploading profile photo: ' . $e->getMessage(), [
+                'user_type' => $guard,
+                'user_id' => $id_value,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Gagal mengupload foto: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Hapus foto profil
+     */
+    public function deletePhoto()
+    {
+        // Tentukan guard yang aktif
+        $guard = session('role');
+        $user = null;
+
+        if ($guard === 'mahasiswa' && Auth::guard('mahasiswa')->check()) {
+            $user = Auth::guard('mahasiswa')->user();
+            $id_field = 'nim';
+            $id_value = $user->nim;
+            $model = 'App\\Models\\Mahasiswa';
+        } elseif ($guard === 'dosen' && Auth::guard('dosen')->check()) {
+            $user = Auth::guard('dosen')->user();
+            $id_field = 'nip';
+            $id_value = $user->nip;
+            $model = 'App\\Models\\Dosen';
+        } elseif ($guard === 'admin' && Auth::guard('admin')->check()) {
+            $user = Auth::guard('admin')->user();
+            $id_field = 'id';
+            $id_value = $user->id;
+            $model = 'App\\Models\\Admin';
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        try {
+            // Hapus file dari storage jika ada
+            if ($user->profile_photo && Storage::disk('public')->exists('profile_photos/' . $user->profile_photo)) {
+                Storage::disk('public')->delete('profile_photos/' . $user->profile_photo);
+                Log::info('File foto dihapus: ' . $user->profile_photo);
+            }
+
+            // Update database - set profile_photo ke null
+            $modelClass = $model;
+            $modelClass::where($id_field, $id_value)->update([
+                'profile_photo' => null,
+                'updated_at' => now()
+            ]);
+
+            Log::info('Foto profil berhasil dihapus', [
+                'user_type' => $guard,
+                'user_id' => $id_value
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto profil berhasil dihapus'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting profile photo: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Gagal menghapus foto: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -164,6 +267,7 @@ class ProfileController extends Controller
             'new_password' => 'required|min:6|confirmed',
             'new_password_confirmation' => 'required'
         ]);
+        
         // Tentukan guard yang aktif
         $guard = session('role');
         $user = null;
@@ -186,6 +290,7 @@ class ProfileController extends Controller
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+        
         // Verifikasi password lama
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
@@ -193,14 +298,17 @@ class ProfileController extends Controller
                 'message' => 'Password saat ini salah'
             ]);
         }
+        
         try {
             // Update password
             $modelClass = $model;
             $modelClass::where($id_field, $id_value)->update([
                 'password' => Hash::make($request->new_password)
             ]);
+            
             // Log perubahan password
             Log::info('Password changed for user: ' . $user->email);
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Password berhasil diubah'

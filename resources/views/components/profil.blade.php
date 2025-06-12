@@ -13,6 +13,7 @@
             ID: {{ $user->id }}
         @endif
         | Email: {{ $user->email }}
+        | Has Photo: {{ $hasCustomPhoto ? 'Yes' : 'No' }}
     </small>
 </div>
 @endif
@@ -93,20 +94,19 @@
         background-color: #f1f1f1;
     }
     
-    .default-profile-img {
+    .default-profile-svg {
         width: 130px;
         height: 130px;
         border-radius: 50%;
         border: 4px solid rgba(255, 255, 255, 0.3);
-        background-color: #E3F2FD;
-        color: #004AAD;
+        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 60px;
         position: absolute;
         top: 0;
         left: 0;
+        overflow: hidden;
     }
     
     .edit-photo-icon {
@@ -128,6 +128,28 @@
     
     .edit-photo-icon:hover {
         background: #f8f9fa;
+    }
+    
+    .delete-photo-icon {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #ff4757;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 12px;
+    }
+    
+    .delete-photo-icon:hover {
+        background: #ff3742;
     }
     
     .profile-content {
@@ -227,7 +249,7 @@
             padding: 20px;
         }
         
-        .profile-img, .default-profile-img {
+        .profile-img, .default-profile-svg {
             width: 100px;
             height: 100px;
         }
@@ -236,13 +258,9 @@
             width: 100px;
             height: 100px;
         }
-        
-        .default-profile-img {
-            font-size: 45px;
-        }
     }
     
-    /* Loading spinner styles */
+    /* Loading spinner styles - Enhanced */
     @keyframes spin {
         to { transform: rotate(360deg); }
     }
@@ -274,6 +292,24 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
+    
+    /* Small spinner for buttons */
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.15em;
+    }
+    
+    /* Success animation */
+    @keyframes successPulse {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .success-icon {
+        animation: successPulse 0.6s ease-out;
+    }
 </style>
 @endpush
 
@@ -298,19 +334,23 @@
                 </a>
                 @endif
                 
-                <!-- Profile Header dengan debugging ID -->
+                <!-- Profile Header dengan gambar atau SVG default -->
                 <div class="profile-header">
                     <div class="profile-img-container">
-                        @if(isset($profilePhotoUrl))
+                        @if($hasCustomPhoto && isset($profilePhotoUrl))
                             <!-- Foto profil yang telah diupload -->
                             <img src="{{ $profilePhotoUrl }}" alt="Foto Profil" class="profile-img" id="profileImage">
-                            <div class="default-profile-img" id="defaultProfileImg" style="display: none;">
-                                <i class="fas fa-user"></i>
+                            <!-- Tombol hapus foto -->
+                            <div class="delete-photo-icon" id="deletePhotoBtn" title="Hapus Foto">
+                                <i class="fas fa-times"></i>
                             </div>
                         @else
-                            <!-- Ikon default untuk foto profil yang belum diset -->
-                            <div class="default-profile-img" id="defaultProfileImg">
-                                <i class="fas fa-user"></i>
+                            <!-- SVG default untuk foto profil yang belum diset -->
+                            <div class="default-profile-svg" id="defaultProfileSvg">
+                                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="40" cy="25" r="12" fill="#004AAD" opacity="0.7"/>
+                                    <path d="M15 65C15 55 25 47 40 47C55 47 65 55 65 65" stroke="#004AAD" stroke-width="3" opacity="0.7" fill="none" stroke-linecap="round"/>
+                                </svg>
                             </div>
                             <img src="" alt="Foto Profil" class="profile-img" id="profileImage" style="display: none;">
                         @endif
@@ -402,7 +442,7 @@
                             <i class="fas fa-cloud-upload-alt"></i>
                         </div>
                         <p>Klik atau seret foto ke sini</p>
-                        <small class="text-muted">Format yang didukung: JPG, PNG</small>
+                        <small class="text-muted">Format yang didukung: JPG, PNG (Max: 2MB)</small>
                         <input type="file" id="photoInput" name="photo" class="d-none" accept="image/jpeg, image/png">
                     </div>
                     
@@ -414,6 +454,29 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-primary" id="savePhotoBtn">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus Foto -->
+<div class="modal fade" id="deletePhotoModal" tabindex="-1" aria-labelledby="deletePhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePhotoModalLabel">Hapus Foto Profil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h5>Apakah Anda yakin ingin menghapus foto profil?</h5>
+                    <p class="text-muted">Foto profil akan kembali ke gambar default.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeletePhotoBtn">Hapus</button>
             </div>
         </div>
     </div>
@@ -482,10 +545,9 @@
 </div>
 @endsection
 
-
 @push('scripts')
 <script>
-   document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Upload foto profile - Elemen-elemen DOM
     const uploadArea = document.getElementById('uploadArea');
     const photoInput = document.getElementById('photoInput');
@@ -493,14 +555,160 @@
     const photoPreview = document.getElementById('photoPreview');
     const savePhotoBtn = document.getElementById('savePhotoBtn');
     const profileImage = document.getElementById('profileImage');
-    const defaultProfileImg = document.getElementById('defaultProfileImg');
+    const defaultProfileSvg = document.getElementById('defaultProfileSvg');
     const editPhotoModal = document.getElementById('editPhotoModal');
+    const deletePhotoBtn = document.getElementById('deletePhotoBtn');
+    const deletePhotoModal = document.getElementById('deletePhotoModal');
+    const confirmDeletePhotoBtn = document.getElementById('confirmDeletePhotoBtn');
     let fileToUpload = null;
     
     // Klik area upload untuk memicu input file
     if (uploadArea) {
         uploadArea.addEventListener('click', function() {
             photoInput.click();
+        });
+    }
+    
+    // Event listener untuk tombol hapus foto
+    if (deletePhotoBtn) {
+        deletePhotoBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const modal = new bootstrap.Modal(deletePhotoModal);
+            modal.show();
+        });
+    }
+    
+    // Event listener untuk konfirmasi hapus foto
+    if (confirmDeletePhotoBtn) {
+        confirmDeletePhotoBtn.addEventListener('click', function() {
+            deletePhoto();
+        });
+    }
+    
+    // Fungsi untuk menghapus foto
+    function deletePhoto() {
+        const modalBody = document.querySelector('#deletePhotoModal .modal-body');
+        const modalFooter = document.querySelector('#deletePhotoModal .modal-footer');
+        const originalModalBody = modalBody.innerHTML;
+        const originalModalFooter = modalFooter.innerHTML;
+        
+        // Tampilkan loading
+        modalBody.innerHTML = `
+            <div class="loading-container text-center py-4">
+                <div class="loading-spinner"></div>
+                <div class="loading-text mt-3">Sedang menghapus foto...</div>
+            </div>
+        `;
+        modalFooter.style.display = 'none';
+        
+        // Kirim request DELETE
+        fetch('{{ route("profil.delete-photo") }}', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            setTimeout(() => {
+                if (data.success) {
+                    // Tampilkan pesan sukses
+                    modalBody.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="fas fa-check-circle fa-4x" style="color: #27AE60;"></i>
+                            </div>
+                            <h5 class="mb-3" style="font-weight: 600;">Foto Berhasil Dihapus!</h5>
+                            <p class="text-muted">Foto profil telah kembali ke gambar default.</p>
+                            <p class="text-muted"><small>Halaman akan dimuat ulang dalam beberapa detik...</small></p>
+                        </div>
+                    `;
+                    
+                    // Ganti tombol footer dengan loading
+                    modalFooter.style.display = '';
+                    modalFooter.innerHTML = `
+                        <button type="button" class="btn btn-primary" disabled>
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Memuat ulang halaman...
+                        </button>
+                    `;
+                    
+                    // Tutup modal dan reload halaman setelah 2 detik
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(deletePhotoModal);
+                        if (modal) modal.hide();
+                        
+                        // Reload halaman setelah modal tertutup
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 300); // Delay sedikit untuk animasi modal close
+                    }, 2000);
+                } else {
+                    // Tampilkan pesan error
+                    modalBody.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="fas fa-times-circle fa-4x" style="color: #FF5252;"></i>
+                            </div>
+                            <h5 class="mb-3" style="font-weight: 600;">Gagal Menghapus Foto</h5>
+                            <p class="text-muted">${data.error || 'Terjadi kesalahan saat menghapus foto.'}</p>
+                        </div>
+                    `;
+                    
+                    modalFooter.style.display = '';
+                    modalFooter.innerHTML = `
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-danger" id="tryDeleteAgainBtn">Coba Lagi</button>
+                    `;
+                    
+                    document.getElementById('tryDeleteAgainBtn').addEventListener('click', function() {
+                        modalBody.innerHTML = originalModalBody;
+                        modalFooter.innerHTML = originalModalFooter;
+                        
+                        // Re-attach event listener
+                        const newConfirmBtn = document.getElementById('confirmDeletePhotoBtn');
+                        if (newConfirmBtn) {
+                            newConfirmBtn.addEventListener('click', function() {
+                                deletePhoto();
+                            });
+                        }
+                    });
+                }
+            }, 1500);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            setTimeout(() => {
+                modalBody.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-exclamation-triangle fa-4x" style="color: #FFC107;"></i>
+                        </div>
+                        <h5 class="mb-3" style="font-weight: 600;">Terjadi Kesalahan</h5>
+                        <p class="text-muted">Terjadi kesalahan saat menghapus foto. Silakan coba lagi.</p>
+                    </div>
+                `;
+                
+                modalFooter.style.display = '';
+                modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-danger" id="tryDeleteAgainBtn">Coba Lagi</button>
+                `;
+                
+                document.getElementById('tryDeleteAgainBtn').addEventListener('click', function() {
+                    modalBody.innerHTML = originalModalBody;
+                    modalFooter.innerHTML = originalModalFooter;
+                    
+                    const newConfirmBtn = document.getElementById('confirmDeletePhotoBtn');
+                    if (newConfirmBtn) {
+                        newConfirmBtn.addEventListener('click', function() {
+                            deletePhoto();
+                        });
+                    }
+                });
+            }, 1500);
         });
     }
     
@@ -586,7 +794,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Tunggu sebentar untuk efek loading
+                                        // Tunggu sebentar untuk efek loading
                 setTimeout(() => {
                     if (data.success) {
                         // Tampilkan pesan sukses
@@ -596,41 +804,29 @@
                                     <i class="fas fa-check-circle fa-4x" style="color: #27AE60;"></i>
                                 </div>
                                 <h5 class="mb-3" style="font-weight: 600;">Foto Berhasil Diupload!</h5>
-                                <p class="text-muted">Foto profil Anda telah berhasil diperbarui.</p>
+                                <p class="text-muted">Foto profil Anda telah berhasil diperbarui dan disimpan ke database.</p>
+                                <p class="text-muted"><small>Halaman akan dimuat ulang dalam beberapa detik...</small></p>
                             </div>
                         `;
                         
-                        // Update foto profil dengan versi baru (tambahkan timestamp untuk mencegah cache)
-                        const timestamp = new Date().getTime();
-                        const photoUrl = data.photoUrl + '?t=' + timestamp;
-                        
-                        // Update elemen foto profil
-                        if (profileImage && defaultProfileImg) {
-                            profileImage.src = photoUrl;
-                            profileImage.style.display = 'block';
-                            defaultProfileImg.style.display = 'none';
-                        }
-                        
-                        // Ganti tombol footer dengan "Tutup" saja
+                        // Ganti tombol footer dengan loading
                         modalFooter.style.display = '';
                         modalFooter.innerHTML = `
-                            <button type="button" class="btn btn-primary" id="closeModalBtn">Tutup</button>
+                            <button type="button" class="btn btn-primary" disabled>
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Memuat ulang halaman...
+                            </button>
                         `;
                         
-                        // Tambahkan event listener untuk tombol "Tutup" yang akan menyebabkan refresh halaman
-                        document.getElementById('closeModalBtn').addEventListener('click', function() {
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
-                            if (modal) modal.hide();
-                            // Refresh halaman setelah modal tertutup
-                            window.location.reload();
-                        });
-                        
-                        // Tutup modal setelah beberapa detik dan refresh halaman
+                        // Tutup modal dan reload halaman setelah 2 detik
                         setTimeout(() => {
                             const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
                             if (modal) modal.hide();
-                            // Refresh halaman setelah modal tertutup
-                            window.location.reload();
+                            
+                            // Reload halaman setelah modal tertutup
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 300); // Delay sedikit untuk animasi modal close
                         }, 2000);
                     } else {
                         // Tampilkan pesan error
@@ -640,7 +836,7 @@
                                     <i class="fas fa-times-circle fa-4x" style="color: #FF5252;"></i>
                                 </div>
                                 <h5 class="mb-3" style="font-weight: 600;">Gagal Mengupload Foto</h5>
-                                <p class="text-muted">${data.message || 'Terjadi kesalahan saat mengupload foto.'}</p>
+                                <p class="text-muted">${data.error || 'Terjadi kesalahan saat mengupload foto.'}</p>
                             </div>
                         `;
                         
@@ -751,19 +947,19 @@
     // Password change form validation and submission
     const changePasswordModal = document.getElementById('changePasswordModal');
     const changePasswordForm = document.getElementById('changePasswordForm');
-    const modalBody = document.querySelector('#changePasswordModal .modal-body');
-    const modalFooter = document.querySelector('#changePasswordModal .modal-footer');
+    const modalBodyPassword = document.querySelector('#changePasswordModal .modal-body');
+    const modalFooterPassword = document.querySelector('#changePasswordModal .modal-footer');
     
     // Simpan referensi ke elemen-elemen form
-    const originalFormHTML = modalBody.innerHTML;
-    const originalFooterHTML = modalFooter.innerHTML;
+    const originalFormHTML = modalBodyPassword.innerHTML;
+    const originalFooterHTML = modalFooterPassword.innerHTML;
     
     // PENTING: Hapus event listener lama ketika modal dibuka
     if (changePasswordModal) {
         changePasswordModal.addEventListener('show.bs.modal', function() {
             // Reset form ke kondisi awal
-            modalBody.innerHTML = originalFormHTML;
-            modalFooter.innerHTML = originalFooterHTML;
+            modalBodyPassword.innerHTML = originalFormHTML;
+            modalFooterPassword.innerHTML = originalFooterHTML;
             
             // Reinitialize toggle password
             initTogglePassword();
@@ -781,7 +977,7 @@
         });
     }
     
-    // Fungsi untuk menangani klik tombol simpan
+    // Fungsi untuk menangani klik tombol simpan password
     function savePasswordBtnHandler() {
         // Reset semua error sebelumnya
         document.querySelectorAll('.invalid-feedback').forEach(el => {
@@ -841,7 +1037,7 @@
         const confirmPassVal = confirmPassword;
         
         // Tampilkan loading di tengah modal
-        modalBody.innerHTML = `
+        modalBodyPassword.innerHTML = `
             <div class="loading-container text-center py-4">
                 <div class="loading-spinner"></div>
                 <div class="loading-text mt-3">Sedang mengubah password...</div>
@@ -849,7 +1045,7 @@
         `;
         
         // Sembunyikan tombol-tombol di footer
-        modalFooter.style.display = 'none';
+        modalFooterPassword.style.display = 'none';
         
         // Buat FormData baru dengan data form yang aktual
         const formData = new FormData();
@@ -872,11 +1068,11 @@
             // Tunggu sebentar untuk efek loading (1,5 detik)
             setTimeout(() => {
                 // Kembalikan tombol footer
-                modalFooter.style.display = '';
+                modalFooterPassword.style.display = '';
                 
                 if (data.success) {
                     // Tampilkan pesan sukses di modal
-                    modalBody.innerHTML = `
+                    modalBodyPassword.innerHTML = `
                         <div class="text-center py-4">
                             <div class="mb-3">
                                 <i class="fas fa-check-circle fa-4x" style="color: #27AE60;"></i>
@@ -887,7 +1083,7 @@
                     `;
                     
                     // Ganti tombol footer dengan "Tutup" saja
-                    modalFooter.innerHTML = `
+                    modalFooterPassword.innerHTML = `
                         <button type="button" class="btn btn-primary" id="closePasswordModalBtn">Tutup</button>
                     `;
                     
@@ -905,8 +1101,8 @@
                 } else {
                     if (data.message === 'Password saat ini salah') {
                         // Reset form dengan konten asli
-                        modalBody.innerHTML = originalFormHTML;
-                        modalFooter.innerHTML = originalFooterHTML;
+                        modalBodyPassword.innerHTML = originalFormHTML;
+                        modalFooterPassword.innerHTML = originalFooterHTML;
                         
                         // Set ulang event listener untuk toggle password dan tombol simpan
                         initTogglePassword();
@@ -948,7 +1144,7 @@
                         }, 5000);
                     } else {
                         // Tampilkan pesan error
-                        modalBody.innerHTML = `
+                        modalBodyPassword.innerHTML = `
                             <div class="text-center py-4">
                                 <div class="mb-3">
                                     <i class="fas fa-times-circle fa-4x" style="color: #FF5252;"></i>
@@ -959,7 +1155,7 @@
                         `;
                         
                         // Ganti tombol footer dengan "Coba Lagi" dan "Tutup"
-                        modalFooter.innerHTML = `
+                        modalFooterPassword.innerHTML = `
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                             <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
                         `;
@@ -975,7 +1171,7 @@
             
             // Tunggu sebentar, lalu tampilkan pesan error
             setTimeout(() => {
-                modalBody.innerHTML = `
+                modalBodyPassword.innerHTML = `
                     <div class="text-center py-4">
                         <div class="mb-3">
                             <i class="fas fa-exclamation-triangle fa-4x" style="color: #FFC107;"></i>
@@ -986,8 +1182,8 @@
                 `;
                 
                 // Kembalikan tombol footer
-                modalFooter.style.display = '';
-                modalFooter.innerHTML = `
+                modalFooterPassword.style.display = '';
+                modalFooterPassword.innerHTML = `
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                     <button type="button" class="btn btn-primary" id="tryAgainBtn">Coba Lagi</button>
                 `;
@@ -1001,8 +1197,8 @@
     // Fungsi untuk mencoba lagi
     function retryPasswordChange() {
         // Kembalikan form asli
-        modalBody.innerHTML = originalFormHTML;
-        modalFooter.innerHTML = originalFooterHTML;
+        modalBodyPassword.innerHTML = originalFormHTML;
+        modalFooterPassword.innerHTML = originalFooterHTML;
         
         // Sembunyikan alert
         const errorAlert = document.getElementById('passwordErrorAlert');
@@ -1026,3 +1222,4 @@
     }
 });
 </script>
+@endpush
